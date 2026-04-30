@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>CoverageFit | Structured Coverage Reviews by Dylan Haysbert</title>
+  <meta name="description" content="CoverageFit is a structured coverage review experience by Dylan Haysbert, Insurance Producer, through Virginia Tam Insurance Agency. Review how your home, rental, auto, life, or business coverage is structured before a claim exposes a gap." />
+
+  <style>
+    :root {
+      --blue:#003a8f;
+      --blue-dark:#071936;
+      --blue-soft:#eef4ff;
+      --red:#e31837;
+      --text:#111827;
+      --muted:#5f6b7a;
+      --bg:#f5f7fb;
+      --surface:#ffffff;
+      --border:#d8e0ec;
+      --shadow:0 18px 45px rgba(7,25,54,.12);
+      --radius:22px;
+    }
+
+    * { box-sizing:border-box; }
+
+    body {
+      margin:0;
+      font-family:Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:linear-gradient(180deg,#fff 0%,var(--bg) 100%);
+      color:var(--text);
+    }
+
+    a { color:inherit; text-decoration:none; }
+
+    .wrap {
+      max-width:1120px;
+      margin:0 auto;
+      padding:0 22px;
+    }
+
+    header { padding:22px 0; }
+
+    .nav {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:20px;
+    }
+
+    .logo {
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight:900;
+      letter-spacing:-.03em;
+      color:var(--blue-dark);
+      font-size:22px;
+    }
+
+    .logo-mark {
+      width:34px;
+      height:34px;
+      border-radius:10px;
+      background:linear-gradient(135deg,var(--blue),#124ec4);
+      display:grid;
+      place-items:center;
+      color:#fff;
+      font-weight:900;
+      font-size:17px;
+      box-shadow:0 10px 24px rgba(0,58,143,.28);
+    }
+
+    .nav-cta {
+      background:var(--blue);
+      color:#fff;
+      padding:12px 18px;
+      border-radius:999px;
+      font-weight:800;
+      font-size:14px;
+      box-shadow:0 12px 26px rgba(0,58,143,.25);
+    }
+
+    .hero { padding:54px 0 36px; }
+
+    .hero-grid {
+      display:grid;
+      grid-template-columns:1.05fr .95fr;
+      gap:42px;
+      align-items:center;
+    }
+
+    .eyebrow {
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      background:var(--blue-soft);
+      color:var(--blue);
+      border:1px solid rgba(0,58,143,.12);
+      border-radius:999px;
+      font-size:13px;
+      font-weight:850;
+      margin-bottom:18px;
+    }
+
+    .dot {
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:var(--red);
+    }
+
+    h1 {
+      margin:0;
+      font-size:68px;
+      line-height:.96;
+      letter-spacing:-.07em;
+      color:var(--blue-dark);
+    }
+
+    .hero p {
+      margin:22px 0 0;
+      font-size:21px;
+      line-height:1.5;
+      color:var(--muted);
+      max-width:610px;
+    }
+
+    .hero-actions {
+      margin-top:30px;
+      display:flex;
+      gap:14px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .btn {
+      border:none;
+      cursor:pointer;
+      border-radius:999px;
+      padding:16px 22px;
+      font-weight:900;
+      font-size:15px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+    }
+
+    .btn-primary {
+      background:var(--blue);
+      color:#fff;
+      box-shadow:0 16px 32px rgba(0,58,143,.26);
+    }
+
+    .btn-secondary {
+      background:#fff;
+      color:var(--blue-dark);
+      border:1px solid var(--border);
+    }
+
+    .micro {
+      font-size:13px;
+      color:var(--muted);
+      font-weight:700;
+    }
+
+    .card {
+      background:rgba(255,255,255,.9);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+
+    .route-card {
+      padding:26px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .route-card:before {
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(rgba(0,58,143,.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,58,143,.055) 1px, transparent 1px);
+      background-size:28px 28px;
+      mask-image:linear-gradient(180deg,#000 0%,transparent 85%);
+      pointer-events:none;
+    }
+
+    .route-inner {
+      position:relative;
+      z-index:1;
+    }
+
+    .route-card h2 {
+      margin:0 0 8px;
+      font-size:25px;
+      letter-spacing:-.04em;
+      color:var(--blue-dark);
+    }
+
+    .route-card p {
+      margin:0 0 22px;
+      color:var(--muted);
+      line-height:1.5;
+    }
+
+    .choice-grid { display:grid; gap:12px; }
+
+    .choice {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:17px;
+      cursor:pointer;
+      transition:.18s ease;
+    }
+
+    .choice:hover {
+      transform:translateY(-2px);
+      border-color:rgba(0,58,143,.35);
+      box-shadow:0 12px 26px rgba(7,25,54,.08);
+    }
+
+    .choice strong {
+      display:block;
+      font-size:16px;
+      color:var(--blue-dark);
+    }
+
+    .choice span {
+      display:block;
+      margin-top:3px;
+      font-size:13px;
+      color:var(--muted);
+    }
+
+    .arrow {
+      color:var(--blue);
+      font-weight:900;
+      font-size:20px;
+    }
+
+    .route-note {
+      margin-top:16px !important;
+      padding:13px 14px;
+      background:rgba(0,58,143,.06);
+      border:1px solid rgba(0,58,143,.12);
+      border-radius:16px;
+      font-size:13px;
+      font-weight:700;
+      color:var(--muted);
+    }
+
+    .section { padding:42px 0; }
+
+    .split {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:22px;
+    }
+
+    .info-card { padding:28px; }
+
+    .info-card h3 {
+      margin:0 0 10px;
+      font-size:26px;
+      color:var(--blue-dark);
+      letter-spacing:-.04em;
+    }
+
+    .info-card p {
+      margin:0;
+      color:var(--muted);
+      line-height:1.6;
+      font-size:16px;
+    }
+
+    .trust-card {
+      padding:28px;
+      display:grid;
+      grid-template-columns:auto 1fr;
+      gap:18px;
+      align-items:start;
+    }
+
+    .trust-icon {
+      width:46px;
+      height:46px;
+      border-radius:15px;
+      background:var(--blue-soft);
+      display:grid;
+      place-items:center;
+      color:var(--blue);
+      font-weight:950;
+      font-size:20px;
+    }
+
+    .trust-card h3 {
+      margin:0 0 8px;
+      color:var(--blue-dark);
+      font-size:25px;
+      letter-spacing:-.04em;
+    }
+
+    .trust-card p {
+      margin:0;
+      color:var(--muted);
+      line-height:1.6;
+    }
+
+    .steps {
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:16px;
+      margin-top:20px;
+    }
+
+    .step {
+      padding:22px;
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:20px;
+    }
+
+    .num {
+      width:32px;
+      height:32px;
+      display:grid;
+      place-items:center;
+      border-radius:50%;
+      background:var(--blue-soft);
+      color:var(--blue);
+      font-weight:900;
+      margin-bottom:12px;
+    }
+
+    .step strong { color:var(--blue-dark); font-size:17px; }
+
+    .step p {
+      margin:8px 0 0;
+      color:var(--muted);
+      line-height:1.5;
+      font-size:14px;
+    }
+
+    .form-section { padding:28px 0 70px; }
+
+    .form-card {
+      display:grid;
+      grid-template-columns:.9fr 1.1fr;
+      overflow:hidden;
+    }
+
+    .form-copy {
+      padding:34px;
+      background:var(--blue-dark);
+      color:#fff;
+    }
+
+    .form-copy h2 {
+      margin:0 0 12px;
+      font-size:34px;
+      letter-spacing:-.05em;
+      line-height:1.05;
+    }
+
+    .form-copy p {
+      margin:0;
+      color:rgba(255,255,255,.84);
+      line-height:1.6;
+    }
+
+    .checks {
+      margin-top:24px;
+      display:grid;
+      gap:12px;
+      color:#fff;
+      font-weight:800;
+      font-size:14px;
+    }
+
+    .form-wrap { padding:30px; background:#fff; }
+
+    form { display:grid; gap:14px; }
+
+    label {
+      font-size:13px;
+      font-weight:850;
+      color:var(--blue-dark);
+    }
+
+    input, select, textarea {
+      width:100%;
+      margin-top:6px;
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:14px 14px;
+      font:inherit;
+      outline:none;
+      background:#fff;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color:var(--blue);
+      box-shadow:0 0 0 4px rgba(0,58,143,.08);
+    }
+
+    textarea { min-height:88px; resize:vertical; }
+
+    .submit {
+      margin-top:4px;
+      width:100%;
+      background:var(--blue);
+      color:#fff;
+      border:none;
+      border-radius:16px;
+      padding:16px 18px;
+      font-weight:950;
+      font-size:16px;
+      cursor:pointer;
+      box-shadow:0 14px 28px rgba(0,58,143,.25);
+    }
+
+    .fine-print {
+      margin-top:12px;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.5;
+    }
+
+    .clarity-band {
+      margin-top:18px;
+      padding:16px;
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:18px;
+      display:grid;
+      gap:10px;
+    }
+
+    .clarity-band strong { color:var(--blue-dark); font-size:15px; }
+
+    .clarity-band span {
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.45;
+    }
+
+    footer {
+      border-top:1px solid var(--border);
+      padding:24px 0 90px;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .footer-grid {
+      display:flex;
+      justify-content:space-between;
+      gap:18px;
+      flex-wrap:wrap;
+    }
+
+    .mobile-sticky {
+      display:none;
+      position:fixed;
+      bottom:14px;
+      left:14px;
+      right:14px;
+      z-index:20;
+      background:var(--blue);
+      color:#fff;
+      text-align:center;
+      padding:15px 18px;
+      border-radius:18px;
+      font-weight:950;
+      box-shadow:0 16px 38px rgba(0,58,143,.36);
+    }
+
+    @media (max-width:860px) {
+      .hero-grid,
+      .split,
+      .form-card { grid-template-columns:1fr; }
+      h1 { font-size:52px; }
+      .hero { padding-top:28px; }
+      .steps { grid-template-columns:1fr; }
+      .nav-cta { display:none; }
+      .mobile-sticky { display:block; }
+    }
+
+    @media (max-width:480px) {
+      .wrap { padding:0 16px; }
+      h1 { font-size:44px; }
+      .hero p { font-size:18px; }
+      .form-copy,
+      .form-wrap,
+      .route-card,
+      .info-card,
+      .trust-card { padding:22px; }
+      .trust-card { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a href="#" class="logo" aria-label="CoverageFit homepage">
+      <div class="logo-mark">CF</div>
+      CoverageFit
+    </a>
+
+    <a class="nav-cta" href="tel:14088262465">(408) 826-2465</a>
+  </div>
+</header>
+
+<main>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+
+    <div>
+      <div class="eyebrow">
+        <span class="dot"></span> A structured coverage review experience
+      </div>
+
+      <h1>Coverage, Built Right.</h1>
+
+      <p>
+        CoverageFit is the review process I use to help check whether your insurance is structured around your actual life, property, income, and risk — before a claim exposes the gap.
+      </p>
+
+      <div class="hero-actions">
+        <a href="#review" class="btn btn-primary">Request My Coverage Review →</a>
+        <a href="#how" class="btn btn-secondary">How It Works</a>
+        <span class="micro">By Dylan Haysbert · Virginia Tam Insurance Agency</span>
+      </div>
+    </div>
+
+    <div class="card route-card">
+      <div class="route-inner">
+        <h2>What do you want reviewed?</h2>
+        <p>Choose the area you want a clearer second look at.</p>
+
+        <div class="choice-grid">
+          <a class="choice" href="#review" onclick="setCoverageType('Homeowners')">
+            <div>
+              <strong>Homeowners</strong>
+              <span>Review rebuild, personal property, liability, and loss-of-use structure.</span>
+            </div>
+            <div class="arrow">→</div>
+          </a>
+
+          <a class="choice" href="#review" onclick="setCoverageType('Rental Property')">
+            <div>
+              <strong>Rental Property</strong>
+              <span>Review landlord, income, liability, tenant, and occupancy concerns.</span>
+            </div>
+            <div class="arrow">→</div>
+          </a>
+
+          <a class="choice" href="#review" onclick="setCoverageType('Auto')">
+            <div>
+              <strong>Auto</strong>
+              <span>Review liability limits, uninsured motorist, medical payments, and bundle fit.</span>
+            </div>
+            <div class="arrow">→</div>
+          </a>
+        </div>
+
+        <p class="route-note">
+          Own a rental? You can also start with the <a href="https://bayarealandlordinsurance.com/score/" style="color:var(--blue);font-weight:900;">Rental Coverage Score →</a>
+        </p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap split">
+    <div class="card info-card">
+      <h3>CoverageFit is not a separate insurance company.</h3>
+      <p>
+        It is a structured review experience created by Dylan Haysbert, Insurance Producer, with coverage support through Virginia Tam Insurance Agency.
+      </p>
+    </div>
+
+    <div class="card info-card">
+      <h3>It is a way to stress-test coverage before a claim does.</h3>
+      <p>
+        The goal is simple: understand how your policy is structured, where gaps may exist, and what the clearest next step should be.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="card trust-card">
+      <div class="trust-icon">✓</div>
+      <div>
+        <h3>A review process by Dylan Haysbert.</h3>
+        <p>
+          CoverageFit is a branded coverage review experience from Dylan Haysbert, Insurance Producer, through Virginia Tam Insurance Agency. Insurance products may be offered through Virginia Tam Insurance Agency, subject to eligibility, underwriting guidelines, and carrier availability.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="wrap">
+    <div class="steps">
+      <div class="step">
+        <div class="num">1</div>
+        <strong>Choose what you want reviewed</strong>
+        <p>Home, rental, auto, life, business, or a multi-policy setup.</p>
+      </div>
+
+      <div class="step">
+        <div class="num">2</div>
+        <strong>Send the basics</strong>
+        <p>Share enough context so the review starts with your real situation, not a generic template.</p>
+      </div>
+
+      <div class="step">
+        <div class="num">3</div>
+        <strong>Get a clear next step</strong>
+        <p>You’ll know what looks solid, what may be missing, and what may be worth adjusting.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="form-section" id="review">
+  <div class="wrap">
+    <div class="card form-card">
+
+      <div class="form-copy">
+        <h2>Request Your Coverage Review</h2>
+        <p>
+          CoverageFit is the review experience. I use CoverageFit to quickly identify where your coverage may not match your real-world risk — and what to do about it.
+        </p>
+
+        <div class="checks">
+          <div>✓ No obligation</div>
+          <div>✓ Clear review process</div>
+          <div>✓ Clear coverage guidance</div>
+        </div>
+
+        <div class="clarity-band">
+          <strong>What happens after you submit?</strong>
+          <span>I’ll review the basics and follow up with the clearest next step — whether that means tightening coverage, comparing options, or confirming your setup already looks solid.</span>
+        </div>
+
+        <p style="margin-top:20px; font-size:14px; opacity:.92;">
+          Prefer to call? <strong>(408) 826-2465</strong>
+        </p>
+      </div>
+
+      <div class="form-wrap">
+        <form action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+          <input type="hidden" name="source" id="sourceField" value="CoverageFit" />
+          <input type="hidden" name="rental_score" id="scoreField" value="" />
+          <input type="hidden" name="risk_summary" id="riskSummaryField" value="" />
+
+          <label>
+            Name
+            <input type="text" name="name" placeholder="Your name" required />
+          </label>
+
+          <label>
+            Phone
+            <input type="tel" name="phone" placeholder="Your phone number" required />
+          </label>
+
+          <label>
+            Email
+            <input type="email" name="email" placeholder="Your email address" required />
+          </label>
+
+          <label>
+            Coverage Type
+            <select name="coverage_type" id="coverageType" required>
+              <option value="">Select one</option>
+              <option>Homeowners</option>
+              <option>Rental Property</option>
+              <option>Auto</option>
+              <option>Life Insurance</option>
+              <option>Business Insurance</option>
+              <option>Multiple Policies / Bundle</option>
+            </select>
+          </label>
+
+          <label>
+            Property Address or ZIP
+            <input type="text" name="address_or_zip" placeholder="Address or ZIP code" />
+          </label>
+
+          <label>
+            Anything specific you want checked?
+            <textarea name="notes" id="notes" placeholder="Example: I want to make sure my rental income, liability, rebuild coverage, or auto liability limits are right."></textarea>
+          </label>
+
+          <button class="submit" type="submit">Request My Coverage Review →</button>
+
+          <div class="fine-print">
+            By submitting, you agree to be contacted by Dylan Haysbert and/or Virginia Tam Insurance Agency regarding your coverage request. Message and data rates may apply. Coverage availability, eligibility, pricing, discounts, and policy terms vary by underwriting guidelines. CoverageFit is not an insurance carrier or separate insurance agency and is not an official website of Farmers Insurance.
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap footer-grid">
+    <div>
+      <strong>CoverageFit</strong><br />
+      Structured coverage reviews by Dylan Haysbert.
+    </div>
+
+    <div>
+      Dylan Haysbert, Insurance Producer<br />
+      Virginia Tam Insurance Agency<br />
+      Farmers Insurance
+    </div>
+
+    <div>
+      <a href="https://dylanhaysbert.com">About Dylan</a> ·
+      <a href="https://bayarealandlordinsurance.com">Landlord Resources</a>
+    </div>
+  </div>
+</footer>
+
+<a href="#review" class="mobile-sticky">Request My Coverage Review →</a>
+
+<script>
+  function setCoverageType(type) {
+    const select = document.getElementById("coverageType");
+    if (select) select.value = type;
+  }
+
+  function applyScoreHandoff() {
+    const params = new URLSearchParams(window.location.search);
+    const source = params.get("source");
+    const score = params.get("score");
+    const risks = params.get("risks");
+    const priority = params.get("priority");
+    const coverage = params.get("coverage");
+
+    const coverageType = document.getElementById("coverageType");
+    const notes = document.getElementById("notes");
+    const sourceField = document.getElementById("sourceField");
+    const scoreField = document.getElementById("scoreField");
+    const riskSummaryField = document.getElementById("riskSummaryField");
+
+    if (sourceField && source) sourceField.value = source;
+    if (scoreField && score) scoreField.value = score;
+    if (riskSummaryField && risks) riskSummaryField.value = risks;
+
+    if (coverageType && coverage) {
+      const normalized = coverage.toLowerCase();
+      [...coverageType.options].forEach(option => {
+        if (option.textContent.toLowerCase().includes(normalized)) {
+          coverageType.value = option.textContent;
+        }
+      });
+    }
+
+    if (notes && score) {
+      const readableRisks = risks ? risks.split(",").join(", ") : "No specific risk areas passed.";
+      const readablePriority = priority || "Rental coverage review";
+
+      notes.value =
+`I completed the Rental Coverage Score tool and would like a Coverage Fit Review.
+
+Score: ${score}/100
+Priority: ${readablePriority}
+Risk areas flagged: ${readableRisks}
+
+Please help me review whether my rental policy is structured correctly around income protection, liability, policy type, water damage, occupancy, and tenant requirements.`;
+
+      const reviewSection = document.getElementById("review");
+      if (reviewSection && window.location.hash === "#review") {
+        setTimeout(() => {
+          reviewSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 150);
+      }
+    }
+  }
+
+  applyScoreHandoff();
+</script>
+
+</body>
+</html>
