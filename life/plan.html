@@ -1633,6 +1633,68 @@ document.querySelectorAll('a[href="#plan"]').forEach(link => {
 
 applyPrefill();
 updateStep();
+
+  const urlParams = new URLSearchParams(window.location.search);
+
+if (urlParams.get("booked") === "true") {
+
+  const formCard = document.getElementById("formCard");
+
+  if (formCard) {
+
+    // Inject confirmation banner
+
+    const banner = document.createElement("div");
+
+    banner.style.marginBottom = "18px";
+
+    banner.style.padding = "18px";
+
+    banner.style.borderRadius = "18px";
+
+    banner.style.background = "linear-gradient(135deg,#ecfdf3,#d1fae5)";
+
+    banner.style.border = "1px solid rgba(21,128,61,.2)";
+
+    banner.style.color = "#065f46";
+
+    banner.style.fontWeight = "800";
+
+    banner.style.lineHeight = "1.5";
+
+    banner.innerHTML = `
+
+      <div style="font-size:18px; margin-bottom:6px;">
+
+        You’re booked 👍
+
+      </div>
+
+      <div style="font-size:14px; font-weight:600;">
+
+        I’ll walk through your situation and show you exactly what your family would need — no pressure, just clarity.
+
+        <br><br>
+
+        If you already have a policy, have it nearby so we can review it together.
+
+      </div>
+
+    `;
+
+    formCard.prepend(banner);
+
+  }
+
+  // Hide the form after booking
+
+  const form = document.querySelector("#lifePlanForm");
+
+  if (form) form.style.display = "none";
+
+}
+
+
 </script>
 
 </body>
