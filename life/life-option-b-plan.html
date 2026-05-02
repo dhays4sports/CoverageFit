@@ -1,0 +1,1622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<title>Life Protection Plan | CoverageFit</title>
+<meta name="description" content="Build a simple life insurance protection plan around income, housing, debt, final expenses, and family stability." />
+
+<style>
+:root {
+  --blue:#003a8f;
+  --blue-2:#124ec4;
+  --blue-dark:#071936;
+  --red:#e31837;
+  --green:#15803d;
+  --yellow:#b45309;
+  --text:#111827;
+  --muted:#5f6b7a;
+  --bg:#f5f7fb;
+  --surface:#ffffff;
+  --border:#d8e0ec;
+  --blue-soft:#eef4ff;
+  --red-soft:#fff1f3;
+  --green-soft:#ecfdf3;
+  --yellow-soft:#fff7ed;
+  --shadow:0 18px 45px rgba(7,25,54,.12);
+  --radius:24px;
+}
+
+* { box-sizing:border-box; }
+
+html { scroll-behavior:smooth; }
+
+body {
+  margin:0;
+  font-family:Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(18,78,196,.13), transparent 30%),
+    linear-gradient(180deg,#fff 0%,var(--bg) 68%,#fff 100%);
+  color:var(--text);
+}
+
+a { color:inherit; text-decoration:none; }
+
+.wrap {
+  max-width:1120px;
+  margin:0 auto;
+  padding:0 22px;
+}
+
+header {
+  padding:18px 0;
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(216,224,236,.78);
+  position:sticky;
+  top:0;
+  z-index:50;
+}
+
+.nav {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:20px;
+}
+
+.logo {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-weight:950;
+  letter-spacing:-.045em;
+  color:var(--blue-dark);
+  font-size:20px;
+  line-height:1;
+}
+
+.logo-mark {
+  width:36px;
+  height:36px;
+  border-radius:11px;
+  background:linear-gradient(135deg,var(--blue),var(--blue-2));
+  display:grid;
+  place-items:center;
+  color:#fff;
+  font-weight:950;
+  font-size:15px;
+  box-shadow:0 10px 24px rgba(0,58,143,.28);
+}
+
+.logo small {
+  display:block;
+  margin-top:4px;
+  font-size:11px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--muted);
+  font-weight:800;
+}
+
+.nav-links {
+  display:flex;
+  align-items:center;
+  gap:14px;
+  color:var(--muted);
+  font-size:13px;
+  font-weight:850;
+}
+
+.nav-cta {
+  background:var(--blue);
+  color:#fff;
+  padding:11px 16px;
+  border-radius:999px;
+  font-weight:900;
+  font-size:13px;
+  box-shadow:0 12px 26px rgba(0,58,143,.25);
+  white-space:nowrap;
+}
+
+.hero {
+  padding:54px 0 34px;
+}
+
+.hero-grid {
+  display:grid;
+  grid-template-columns:1.04fr .96fr;
+  gap:34px;
+  align-items:center;
+}
+
+.eyebrow {
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 12px;
+  background:var(--blue-soft);
+  color:var(--blue);
+  border:1px solid rgba(0,58,143,.12);
+  border-radius:999px;
+  font-size:13px;
+  font-weight:950;
+  margin-bottom:18px;
+}
+
+.dot {
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--red);
+}
+
+h1 {
+  margin:0;
+  font-size:64px;
+  line-height:.94;
+  letter-spacing:-.078em;
+  color:var(--blue-dark);
+}
+
+.lead {
+  margin:22px 0 0;
+  font-size:21px;
+  line-height:1.5;
+  color:var(--muted);
+  max-width:660px;
+}
+
+.hero-actions {
+  margin-top:28px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.btn {
+  border:none;
+  cursor:pointer;
+  border-radius:999px;
+  padding:15px 22px;
+  font-weight:950;
+  font-size:15px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  text-align:center;
+}
+
+.btn-primary {
+  background:var(--blue);
+  color:#fff;
+  box-shadow:0 16px 32px rgba(0,58,143,.26);
+}
+
+.btn-secondary {
+  background:#fff;
+  color:var(--blue-dark);
+  border:1px solid var(--border);
+}
+
+.micro {
+  font-size:13px;
+  color:var(--muted);
+  font-weight:750;
+}
+
+.trust-row {
+  margin-top:22px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
+
+.trust-pill {
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:999px;
+  padding:9px 12px;
+  color:#263247;
+  font-size:13px;
+  font-weight:850;
+}
+
+.plan-card {
+  background:rgba(255,255,255,.95);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:28px;
+  position:relative;
+  overflow:hidden;
+}
+
+.plan-card:before {
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(rgba(0,58,143,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,58,143,.05) 1px, transparent 1px);
+  background-size:28px 28px;
+  mask-image:linear-gradient(180deg,#000 0%,transparent 88%);
+  pointer-events:none;
+}
+
+.plan-inner {
+  position:relative;
+  z-index:1;
+}
+
+.plan-card h2 {
+  margin:0;
+  color:var(--blue-dark);
+  font-size:30px;
+  line-height:1.05;
+  letter-spacing:-.055em;
+}
+
+.plan-card p {
+  margin:10px 0 0;
+  color:var(--muted);
+  line-height:1.55;
+}
+
+.plan-stack {
+  margin-top:22px;
+  display:grid;
+  gap:12px;
+}
+
+.plan-item {
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:12px;
+  align-items:start;
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:15px;
+}
+
+.plan-num {
+  width:28px;
+  height:28px;
+  border-radius:10px;
+  background:linear-gradient(135deg,var(--blue),var(--blue-2));
+  color:#fff;
+  display:grid;
+  place-items:center;
+  font-size:13px;
+  font-weight:950;
+}
+
+.plan-item strong {
+  display:block;
+  color:var(--blue-dark);
+  font-size:15px;
+}
+
+.plan-item span {
+  display:block;
+  margin-top:4px;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.4;
+}
+
+.section {
+  padding:34px 0;
+}
+
+.section-head {
+  max-width:760px;
+  margin-bottom:22px;
+}
+
+.section-head h2 {
+  margin:0;
+  color:var(--blue-dark);
+  font-size:42px;
+  line-height:1.02;
+  letter-spacing:-.065em;
+}
+
+.section-head p {
+  margin:13px 0 0;
+  color:var(--muted);
+  font-size:17px;
+  line-height:1.6;
+}
+
+.problem-grid,
+.benefit-grid {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+}
+
+.problem-card,
+.benefit-card,
+.proof-card,
+.form-card {
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:22px;
+  padding:22px;
+  box-shadow:0 10px 28px rgba(7,25,54,.06);
+}
+
+.problem-card strong,
+.benefit-card strong {
+  display:block;
+  color:var(--blue-dark);
+  font-size:18px;
+  letter-spacing:-.035em;
+}
+
+.problem-card p,
+.benefit-card p {
+  margin:9px 0 0;
+  color:var(--muted);
+  line-height:1.5;
+  font-size:14px;
+}
+
+.callout {
+  margin-top:20px;
+  padding:22px;
+  border-radius:22px;
+  background:linear-gradient(135deg,var(--blue-dark),#0e2d62);
+  color:#fff;
+  box-shadow:var(--shadow);
+}
+
+.callout strong {
+  display:block;
+  font-size:22px;
+  letter-spacing:-.04em;
+}
+
+.callout p {
+  margin:8px 0 0;
+  color:rgba(255,255,255,.82);
+  line-height:1.55;
+}
+
+.process {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
+}
+
+.process-step {
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:22px;
+  padding:20px;
+  box-shadow:0 10px 28px rgba(7,25,54,.06);
+}
+
+.process-step small {
+  display:inline-flex;
+  width:30px;
+  height:30px;
+  border-radius:10px;
+  background:var(--blue-soft);
+  color:var(--blue);
+  align-items:center;
+  justify-content:center;
+  font-weight:950;
+  margin-bottom:14px;
+}
+
+.process-step strong {
+  display:block;
+  color:var(--blue-dark);
+  font-size:16px;
+}
+
+.process-step span {
+  display:block;
+  margin-top:7px;
+  color:var(--muted);
+  line-height:1.45;
+  font-size:13px;
+}
+
+.conversion {
+  padding:38px 0 58px;
+}
+
+.conversion-grid {
+  display:grid;
+  grid-template-columns:.9fr 1.1fr;
+  gap:22px;
+  align-items:start;
+}
+
+.proof-card {
+  position:sticky;
+  top:92px;
+}
+
+.proof-card h2 {
+  margin:0;
+  color:var(--blue-dark);
+  font-size:34px;
+  line-height:1.05;
+  letter-spacing:-.06em;
+}
+
+.proof-card p {
+  color:var(--muted);
+  line-height:1.6;
+}
+
+.advisor {
+  margin-top:22px;
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:14px;
+  align-items:center;
+  padding:16px;
+  border-radius:18px;
+  background:var(--blue-soft);
+  border:1px solid rgba(0,58,143,.12);
+}
+
+.avatar {
+  width:58px;
+  height:58px;
+  border-radius:18px;
+  background:linear-gradient(135deg,var(--blue),var(--blue-2));
+  color:#fff;
+  display:grid;
+  place-items:center;
+  font-size:20px;
+  font-weight:950;
+}
+
+.advisor strong {
+  display:block;
+  color:var(--blue-dark);
+}
+
+.advisor span {
+  display:block;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.35;
+  margin-top:3px;
+}
+
+.contact-lines {
+  margin-top:18px;
+  display:grid;
+  gap:10px;
+}
+
+.contact-line {
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  color:var(--muted);
+  font-size:14px;
+  border-top:1px solid var(--border);
+  padding-top:10px;
+}
+
+.contact-line strong {
+  color:var(--blue-dark);
+}
+
+.form-card h2 {
+  margin:0;
+  color:var(--blue-dark);
+  font-size:34px;
+  line-height:1.05;
+  letter-spacing:-.06em;
+}
+
+.form-card p {
+  margin:10px 0 18px;
+  color:var(--muted);
+  line-height:1.55;
+}
+
+.form {
+  display:grid;
+  gap:13px;
+}
+
+.field-row {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:13px;
+}
+
+label {
+  display:block;
+  font-size:13px;
+  font-weight:850;
+  color:var(--blue-dark);
+}
+
+input,
+select,
+textarea {
+  width:100%;
+  margin-top:6px;
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:14px;
+  font:inherit;
+  color:var(--text);
+  background:#fff;
+}
+
+textarea {
+  min-height:96px;
+  resize:vertical;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color:var(--blue);
+  box-shadow:0 0 0 4px rgba(0,58,143,.08);
+  outline:none;
+}
+
+.form-note {
+  font-size:12px !important;
+  color:var(--muted);
+  line-height:1.45 !important;
+  margin:0 !important;
+}
+
+.success {
+  display:none;
+  padding:16px;
+  border-radius:18px;
+  background:var(--green-soft);
+  border:1px solid rgba(21,128,61,.18);
+  color:var(--green);
+  font-weight:850;
+  line-height:1.45;
+}
+
+.form-card.sent .success {
+  display:block;
+}
+
+.form-card.sent form {
+  display:none;
+}
+
+.faq {
+  padding:24px 0 58px;
+}
+
+.faq-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+
+.faq-item {
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:18px;
+}
+
+.faq-item strong {
+  display:block;
+  color:var(--blue-dark);
+  font-size:16px;
+}
+
+.faq-item p {
+  margin:8px 0 0;
+  color:var(--muted);
+  line-height:1.5;
+  font-size:14px;
+}
+
+footer {
+  border-top:1px solid var(--border);
+  padding:26px 0 92px;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.5;
+}
+
+.footer-grid {
+  display:flex;
+  justify-content:space-between;
+  gap:18px;
+  flex-wrap:wrap;
+}
+
+.mobile-sticky {
+  display:none;
+  position:fixed;
+  bottom:14px;
+  left:14px;
+  right:14px;
+  z-index:80;
+  background:var(--blue);
+  color:#fff;
+  text-align:center;
+  padding:15px 18px;
+  border-radius:18px;
+  font-weight:950;
+  box-shadow:0 16px 38px rgba(0,58,143,.36);
+}
+
+@media (max-width:900px) {
+  h1 { font-size:48px; }
+
+  .hero-grid,
+  .conversion-grid,
+  .problem-grid,
+  .benefit-grid,
+  .process,
+  .faq-grid {
+    grid-template-columns:1fr;
+  }
+
+  .proof-card {
+    position:relative;
+    top:auto;
+  }
+
+  .nav-links {
+    display:none;
+  }
+}
+
+@media (max-width:560px) {
+  .wrap { padding:0 16px; }
+
+  header { padding:16px 0; }
+
+  .logo { font-size:18px; }
+
+  .nav-cta { display:none; }
+
+  .hero { padding:34px 0 18px; }
+
+  h1 { font-size:40px; }
+
+  .lead { font-size:18px; }
+
+  .plan-card,
+  .problem-card,
+  .benefit-card,
+  .proof-card,
+  .form-card {
+    padding:20px;
+  }
+
+  .field-row {
+    grid-template-columns:1fr;
+  }
+
+  .mobile-sticky {
+    display:block;
+  }
+}
+
+/* 10/10 conversion upgrades */
+.gut-check {
+  margin:0 0 18px;
+  padding:22px;
+  border-radius:22px;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(18,78,196,.16), transparent 34%),
+    linear-gradient(135deg,var(--blue-dark),#0e2d62);
+  color:#fff;
+  box-shadow:var(--shadow);
+}
+
+.gut-check strong {
+  display:block;
+  font-size:24px;
+  letter-spacing:-.045em;
+  line-height:1.08;
+}
+
+.gut-check p {
+  margin:8px 0 0;
+  color:rgba(255,255,255,.84);
+  line-height:1.55;
+  font-size:15px;
+}
+
+.proof-mini {
+  margin-top:16px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:9px;
+}
+
+.proof-mini span {
+  display:inline-flex;
+  padding:8px 10px;
+  border-radius:999px;
+  background:#fff;
+  border:1px solid var(--border);
+  color:#394456;
+  font-size:12px;
+  font-weight:850;
+}
+
+.multi-progress {
+  margin:18px 0 18px;
+}
+
+.progress-label {
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:850;
+  margin-bottom:8px;
+}
+
+.progress-track {
+  height:9px;
+  background:var(--blue-soft);
+  border-radius:999px;
+  overflow:hidden;
+}
+
+.progress-fill {
+  height:100%;
+  width:25%;
+  border-radius:999px;
+  background:linear-gradient(135deg,var(--blue),var(--blue-2));
+  transition:.25s ease;
+}
+
+.form-step {
+  display:none;
+}
+
+.form-step.active {
+  display:block;
+}
+
+.step-title {
+  margin:0 0 6px;
+  color:var(--blue-dark);
+  font-size:22px;
+  line-height:1.08;
+  letter-spacing:-.045em;
+}
+
+.step-help {
+  margin:0 0 16px !important;
+  font-size:14px !important;
+  line-height:1.5 !important;
+  color:var(--muted) !important;
+}
+
+.choice-grid {
+  display:grid;
+  gap:10px;
+}
+
+.choice-card {
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:12px;
+  align-items:center;
+  padding:14px;
+  border:1px solid var(--border);
+  border-radius:16px;
+  background:#fff;
+  cursor:pointer;
+  transition:.18s ease;
+}
+
+.choice-card:hover {
+  transform:translateY(-1px);
+  border-color:rgba(0,58,143,.32);
+  box-shadow:0 10px 22px rgba(7,25,54,.07);
+}
+
+.choice-card.selected {
+  border-color:var(--blue);
+  box-shadow:0 0 0 4px rgba(0,58,143,.08);
+  background:#fbfdff;
+}
+
+.choice-card strong {
+  display:block;
+  color:var(--blue-dark);
+  font-size:14px;
+}
+
+.choice-card span {
+  display:block;
+  margin-top:3px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.35;
+}
+
+.choice-dot {
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  border:2px solid var(--border);
+}
+
+.choice-card.selected .choice-dot {
+  border-color:var(--blue);
+  background:radial-gradient(circle,var(--blue) 0 42%,transparent 45%);
+}
+
+.form-nav {
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  margin-top:18px;
+}
+
+.form-nav .btn {
+  padding:13px 18px;
+}
+
+.btn-full {
+  width:100%;
+}
+
+.micro-under {
+  text-align:center;
+  font-size:12px !important;
+  color:var(--muted) !important;
+  margin:10px 0 0 !important;
+}
+
+.prefill-note {
+  display:none;
+  margin:0 0 14px;
+  padding:12px 14px;
+  border-radius:15px;
+  background:var(--blue-soft);
+  border:1px solid rgba(0,58,143,.12);
+  color:var(--blue-dark);
+  font-size:13px;
+  font-weight:850;
+  line-height:1.45;
+}
+
+.prefill-note.show {
+  display:block;
+}
+
+.summary-box {
+  margin-top:14px;
+  padding:14px;
+  border-radius:16px;
+  background:#f8fbff;
+  border:1px solid var(--border);
+}
+
+.summary-box strong {
+  display:block;
+  color:var(--blue-dark);
+  font-size:14px;
+}
+
+.summary-list {
+  margin:8px 0 0;
+  padding:0;
+  list-style:none;
+  display:grid;
+  gap:6px;
+}
+
+.summary-list li {
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.35;
+}
+
+@media (max-width:560px) {
+  .form-nav {
+    flex-direction:column;
+  }
+
+  .form-nav .btn {
+    width:100%;
+  }
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a href="/life" class="logo" aria-label="CoverageFit Life">
+      <div class="logo-mark">CF</div>
+      <div>
+        CoverageFit
+        <small>Life Protection Plan</small>
+      </div>
+    </a>
+
+    <div class="nav-links">
+      <a href="#how-it-works">How it works</a>
+      <span>·</span>
+      <a href="#plan">Build plan</a>
+    </div>
+
+    <a class="nav-cta" href="#plan">Build My Plan</a>
+  </div>
+</header>
+
+<main>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow"><span class="dot"></span> 10-Minute Life Protection Plan</div>
+
+      <h1>Turn “I should get life insurance” into a clear plan.</h1>
+
+      <p class="lead">
+        Most people know they need life insurance. They just do not know how much, what kind, or how long it should last.
+        This page turns your situation into a simple protection plan.
+      </p>
+
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#plan">See What My Family Actually Needs →</a>
+        <a class="btn btn-secondary" href="tel:14088262465">Talk it through with me → (408) 826-2465</a>
+        <span class="micro">No pressure · Takes about 10 minutes</span>
+      </div>
+
+      <div class="trust-row">
+        <div class="trust-pill">✓ Income replacement</div>
+        <div class="trust-pill">✓ Mortgage / rent protection</div>
+        <div class="trust-pill">✓ Term vs permanent fit</div>
+      </div>
+    </div>
+
+    <div class="plan-card">
+      <div class="plan-inner">
+        <h2>The goal is not just “buying a policy.”</h2>
+        <p>
+          The goal is making sure your family has time, money, and stability if life suddenly changes.
+        </p>
+
+        <div class="plan-stack">
+          <div class="plan-item">
+            <div class="plan-num">1</div>
+            <div>
+              <strong>How much?</strong>
+              <span>Estimate the amount that protects income, housing, debt, and final expenses.</span>
+            </div>
+          </div>
+
+          <div class="plan-item">
+            <div class="plan-num">2</div>
+            <div>
+              <strong>How long?</strong>
+              <span>Match the coverage window to kids, mortgage, income years, or temporary obligations.</span>
+            </div>
+          </div>
+
+          <div class="plan-item">
+            <div class="plan-num">3</div>
+            <div>
+              <strong>What type?</strong>
+              <span>Clarify whether term, permanent, or a blended approach makes the most sense.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>The mistake is guessing.</h2>
+      <p>
+        People usually either buy whatever is cheap, keep an old policy they do not understand,
+        or delay because the decision feels overwhelming.
+      </p>
+    </div>
+
+    <div class="problem-grid">
+      <div class="problem-card">
+        <strong>Too little coverage</strong>
+        <p>A policy can exist and still be too small to replace income, protect housing, or buy time.</p>
+      </div>
+
+      <div class="problem-card">
+        <strong>Wrong time horizon</strong>
+        <p>A 10-year, 20-year, or 30-year need should be matched to the real family obligation.</p>
+      </div>
+
+      <div class="problem-card">
+        <strong>Policy confusion</strong>
+        <p>Term, whole life, and permanent coverage can all make sense — but only when the purpose is clear.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>Most people are not underinsured because they do not care.</strong>
+      <p>They are underinsured because nobody slowed the decision down and translated it into plain English.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="how-it-works">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>What happens in the 10-minute plan call?</h2>
+      <p>
+        This is designed to be simple, direct, and useful — not a high-pressure pitch.
+      </p>
+    </div>
+
+    <div class="process">
+      <div class="process-step">
+        <small>1</small>
+        <strong>Clarify who depends on you</strong>
+        <span>Spouse, kids, parents, business obligations, or anyone else relying on your income.</span>
+      </div>
+
+      <div class="process-step">
+        <small>2</small>
+        <strong>Map the big obligations</strong>
+        <span>Housing, monthly bills, debt, childcare, education, and final expenses.</span>
+      </div>
+
+      <div class="process-step">
+        <small>3</small>
+        <strong>Estimate the protection window</strong>
+        <span>How long your family may need support: 5, 10, 20, or 30 years.</span>
+      </div>
+
+      <div class="process-step">
+        <small>4</small>
+        <strong>Choose the right policy job</strong>
+        <span>Decide whether the need is temporary, permanent, or a combination.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>What you walk away with</h2>
+      <p>
+        Even if you do not buy anything immediately, the call should make the decision clearer.
+      </p>
+    </div>
+
+    <div class="benefit-grid">
+      <div class="benefit-card">
+        <strong>A target coverage range</strong>
+        <p>A practical range based on income, obligations, and family goals — not a random number.</p>
+      </div>
+
+      <div class="benefit-card">
+        <strong>A policy type recommendation</strong>
+        <p>Plain-English guidance on whether term, permanent, or blended coverage fits the need.</p>
+      </div>
+
+      <div class="benefit-card">
+        <strong>A next-step plan</strong>
+        <p>What to do now, what can wait, and what should be reviewed before relying on existing coverage.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="conversion" id="plan">
+  <div class="wrap conversion-grid">
+    <div class="proof-card">
+      <div class="eyebrow"><span class="dot"></span> Reviewed personally</div>
+
+      <h2>I’ll walk through this with you — Dylan.</h2>
+
+      <p>
+        This is not meant to make life insurance complicated. It is meant to turn a vague question into a clear protection plan.
+      </p>
+
+      <div class="advisor">
+        <div class="avatar">DH</div>
+        <div>
+          <strong>Dylan Haysbert</strong>
+          <span>Insurance Producer<br>Virginia Tam Insurance Agency · Farmers Insurance</span>
+        </div>
+      </div>
+
+      <div class="contact-lines">
+        <div class="contact-line">
+          <span>Call/Text</span>
+          <strong>(408) 826-2465</strong>
+        </div>
+
+        <div class="contact-line">
+          <span>Best next step</span>
+          <strong>10-minute plan call</strong>
+        </div>
+
+        <div class="contact-line">
+          <span>Pressure level</span>
+          <strong>Low</strong>
+        </div>
+      </div>
+
+      <div class="proof-mini">
+        <span>Helping CA clients simplify coverage decisions</span>
+        <span>Focused on clarity, not pressure</span>
+      </div>
+    </div>
+
+    <div class="form-card" id="formCard">
+      <div class="gut-check">
+        <strong>If something happened tomorrow…</strong>
+        <p>
+          Would your family have time to grieve — or would they immediately feel financial pressure?
+        </p>
+      </div>
+
+      <h2>Let’s unlock what your family would actually need.</h2>
+
+      <p>
+        Your score brought you here. Finish these quick prompts and I’ll help turn your answers into a simple protection plan.
+      </p>
+
+      <div class="prefill-note" id="prefillNote">
+        I pulled in details from your Life Coverage Score so you do not have to repeat everything.
+      </div>
+
+      <div class="success" id="successMessage">
+        Got it. Your request was submitted. Your full plan is ready below.<br><br><a class="btn btn-primary" id="successReportLink" href="/life/report" target="_blank">Open My Full Score Report →</a>
+      </div>
+
+      <form class="form" id="lifePlanForm" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+        <input type="hidden" name="_subject" value="New Life Protection Plan Request" />
+        <input type="hidden" name="source" value="CoverageFit Life Plan Page" />
+        <input type="hidden" name="coverage_type" value="Life Insurance" />
+        <input type="hidden" name="quiz_score" id="quizScore" />
+        <input type="hidden" name="quiz_risks" id="quizRisks" />
+        <input type="hidden" name="quiz_priority" id="quizPriority" />
+        <input type="hidden" name="quiz_timeline" id="quizTimeline" />
+        <input type="hidden" name="quiz_dependents" id="quizDependents" />
+        <input type="hidden" name="quiz_housing" id="quizHousing" />
+        <input type="hidden" name="quiz_coverage_confidence" id="quizCoverageConfidence" />
+        <input type="hidden" name="quiz_policy_fit" id="quizPolicyFit" />
+        <input type="hidden" name="report_url" id="reportUrl" />
+
+        <div class="multi-progress">
+          <div class="progress-label">
+            <span id="stepText">Step 1 of 4</span>
+            <span>Takes about 60 seconds</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="formProgress"></div>
+          </div>
+        </div>
+
+        <div class="form-step active" data-step="1">
+          <h3 class="step-title">First, what situation are we planning around?</h3>
+          <p class="step-help">This helps frame the protection plan around real life, not random coverage numbers.</p>
+
+          <div class="field-row">
+            <label>
+              First Name
+              <input type="text" name="first_name" id="firstName" required placeholder="First name" />
+            </label>
+
+            <label>
+              Email
+              <input type="email" name="email" id="email" required placeholder="Email address" />
+            </label>
+          </div>
+
+          <div class="field-row">
+            <label>
+              Phone
+              <input type="tel" name="phone" id="phone" placeholder="Phone number" />
+            </label>
+
+            <label>
+              Household Situation
+              <input type="text" name="household" id="household" placeholder="Example: married, 2 kids, mortgage" />
+            </label>
+          </div>
+
+          <div class="form-nav">
+            <span></span>
+            <button class="btn btn-primary" type="button" data-next>Next →</button>
+          </div>
+        </div>
+
+        <div class="form-step" data-step="2">
+          <h3 class="step-title">What are you most trying to protect?</h3>
+          <p class="step-help">Choose the answer that feels closest. We can refine it together later.</p>
+
+          <input type="hidden" name="main_goal" id="mainGoal" />
+
+          <div class="choice-grid" data-choice-group="mainGoal">
+            <button type="button" class="choice-card" data-value="Protect spouse / partner and kids">
+              <div><strong>Spouse / partner and kids</strong><span>Family stability is the core concern.</span></div><div class="choice-dot"></div>
+            </button>
+            <button type="button" class="choice-card" data-value="Keep the home / cover mortgage or rent">
+              <div><strong>Keep the home</strong><span>Mortgage or rent continuity matters most.</span></div><div class="choice-dot"></div>
+            </button>
+            <button type="button" class="choice-card" data-value="Replace income for several years">
+              <div><strong>Replace income</strong><span>You want enough runway if income stops.</span></div><div class="choice-dot"></div>
+            </button>
+            <button type="button" class="choice-card" data-value="Cover debts and final expenses">
+              <div><strong>Debts and final expenses</strong><span>Immediate financial pressure is the concern.</span></div><div class="choice-dot"></div>
+            </button>
+            <button type="button" class="choice-card" data-value="Understand an existing policy">
+              <div><strong>Understand an existing policy</strong><span>You have coverage but want clarity.</span></div><div class="choice-dot"></div>
+            </button>
+          </div>
+
+          <div class="form-nav">
+            <button class="btn btn-secondary" type="button" data-prev>← Back</button>
+            <button class="btn btn-primary" type="button" data-next>Next →</button>
+          </div>
+        </div>
+
+        <div class="form-step" data-step="3">
+          <h3 class="step-title">What do you already have in place?</h3>
+          <p class="step-help">This gives us a starting point for amount, policy type, and urgency.</p>
+
+          <div class="field-row">
+            <label>
+              Current Coverage
+              <select name="current_coverage" id="currentCoverage">
+                <option value="">Choose one</option>
+                <option>None</option>
+                <option>Under $100k</option>
+                <option>$100k–$499k</option>
+                <option>$500k+</option>
+                <option>Not sure</option>
+              </select>
+            </label>
+
+            <label>
+              Best Fit
+              <select name="best_fit" id="bestFit">
+                <option value="">Choose one</option>
+                <option>I have no life insurance</option>
+                <option>I have life insurance but I am not sure it is enough</option>
+                <option>I have an old policy I do not understand</option>
+                <option>I want to protect my spouse / kids</option>
+                <option>I want mortgage / debt protection</option>
+              </select>
+            </label>
+          </div>
+
+          <label>
+            Anything specific you are worried about?
+            <textarea name="main_concern" id="mainConcern" placeholder="Example: making sure my wife and kids could keep the house if something happened to me."></textarea>
+          </label>
+
+          <div class="form-nav">
+            <button class="btn btn-secondary" type="button" data-prev>← Back</button>
+            <button class="btn btn-primary" type="button" data-next>Next →</button>
+          </div>
+        </div>
+
+        <div class="form-step" data-step="4">
+          <h3 class="step-title">You’re ready to send this over.</h3>
+          <p class="step-help">I’ll use this to help map the amount, timeline, and policy type that may fit your situation.</p>
+
+          <div class="summary-box">
+            <strong>Your starting point</strong>
+            <ul class="summary-list" id="summaryList">
+              <li>Household: Not provided yet</li>
+              <li>Main goal: Not selected yet</li>
+              <li>Current coverage: Not selected yet</li>
+            </ul>
+          </div>
+
+          <button class="btn btn-primary btn-full" type="submit">See What My Family Actually Needs →</button>
+          <p class="micro-under">Takes about 10 minutes · No pressure · No obligation</p>
+
+          <div class="form-nav">
+            <button class="btn btn-secondary" type="button" data-prev>← Back</button>
+            <span></span>
+          </div>
+
+          <p class="form-note">
+            By submitting, you agree to be contacted by Dylan Haysbert / Virginia Tam Insurance Agency about your life insurance request.
+            This is educational and no obligation. Coverage availability and eligibility vary by underwriting guidelines.
+          </p>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section class="faq">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Quick questions</h2>
+    </div>
+
+    <div class="faq-grid">
+      <div class="faq-item">
+        <strong>Is this a quote?</strong>
+        <p>No. This is the planning step before a quote. The goal is to understand the right amount, type, and time horizon first.</p>
+      </div>
+
+      <div class="faq-item">
+        <strong>Do I need to know what kind of policy I want?</strong>
+        <p>No. That is exactly what the plan helps clarify.</p>
+      </div>
+
+      <div class="faq-item">
+        <strong>Is term life or whole life better?</strong>
+        <p>Neither is automatically better. The right answer depends on the job the policy needs to do.</p>
+      </div>
+
+      <div class="faq-item">
+        <strong>What if I already have a policy?</strong>
+        <p>Perfect. We can use it as a starting point and see whether it still matches your real life today.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap footer-grid">
+    <div>
+      <strong>CoverageFit</strong><br>
+      Life Protection Plan
+    </div>
+
+    <div>
+      Dylan Haysbert, Insurance Producer<br>
+      Virginia Tam Insurance Agency<br>
+      Farmers Insurance
+    </div>
+
+    <div>
+      Educational information only.<br>
+      Coverage availability and eligibility vary by underwriting guidelines.
+    </div>
+  </div>
+</footer>
+
+<a href="#plan" class="mobile-sticky">Build My Protection Plan →</a>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+
+const prefillMap = {
+  score: params.get("score") || "",
+  risks: params.get("risks") || "",
+  priority: params.get("priority") || "",
+  timeline: params.get("timeline") || "",
+  dependents: params.get("dependents") || "",
+  housing: params.get("housing") || "",
+  coverageConfidence: params.get("coverageConfidence") || "",
+  policyFit: params.get("policyFit") || "",
+  name: params.get("name") || params.get("first_name") || "",
+  family: params.get("family") || params.get("family_note") || ""
+};
+
+const form = document.getElementById("lifePlanForm");
+const formCard = document.getElementById("formCard");
+const steps = Array.from(document.querySelectorAll(".form-step"));
+const progress = document.getElementById("formProgress");
+const stepText = document.getElementById("stepText");
+const summaryList = document.getElementById("summaryList");
+let currentStep = 1;
+
+function buildReportUrl() {
+  const params = new URLSearchParams({
+    name: document.getElementById("firstName")?.value || prefillMap.name || "",
+    family: document.getElementById("household")?.value || prefillMap.family || "",
+    score: prefillMap.score || "",
+    risks: prefillMap.risks || "",
+    priority: prefillMap.priority || "",
+    source: "CoverageFit Life Plan Page",
+    timeline: prefillMap.timeline || "",
+    dependents: prefillMap.dependents || "",
+    housing: prefillMap.housing || "",
+    coverageConfidence: prefillMap.coverageConfidence || "",
+    policyFit: prefillMap.policyFit || ""
+  });
+  return `/life/report?${params.toString()}`;
+}
+
+function setValue(id, value) {
+  const el = document.getElementById(id);
+  if (el && value) el.value = value;
+}
+
+function applyPrefill() {
+  setValue("quizScore", prefillMap.score);
+  setValue("quizRisks", prefillMap.risks);
+  setValue("quizPriority", prefillMap.priority);
+  setValue("quizTimeline", prefillMap.timeline);
+  setValue("quizDependents", prefillMap.dependents);
+  setValue("quizHousing", prefillMap.housing);
+  setValue("quizCoverageConfidence", prefillMap.coverageConfidence);
+  setValue("quizPolicyFit", prefillMap.policyFit);
+  setValue("reportUrl", window.location.origin + buildReportUrl());
+
+  setValue("firstName", prefillMap.name);
+  setValue("household", prefillMap.family);
+
+  if (prefillMap.coverageConfidence) {
+    const currentCoverage = document.getElementById("currentCoverage");
+    const confidence = prefillMap.coverageConfidence.toLowerCase();
+
+    if (confidence.includes("do not have")) currentCoverage.value = "None";
+    else if (confidence.includes("not confident")) currentCoverage.value = "Not sure";
+    else if (confidence.includes("somewhat")) currentCoverage.value = "Not sure";
+  }
+
+  if (prefillMap.policyFit) {
+    const bestFit = document.getElementById("bestFit");
+    const fit = prefillMap.policyFit.toLowerCase();
+
+    if (fit.includes("do not have")) bestFit.value = "I have no life insurance";
+    else if (fit.includes("do not really understand")) bestFit.value = "I have an old policy I do not understand";
+    else if (fit.includes("not fully sure")) bestFit.value = "I have life insurance but I am not sure it is enough";
+  }
+
+  const hasPrefill = Object.values(prefillMap).some(Boolean);
+  if (hasPrefill) {
+    document.getElementById("prefillNote")?.classList.add("show");
+  }
+}
+
+function updateStep() {
+  steps.forEach(step => {
+    step.classList.toggle("active", Number(step.dataset.step) === currentStep);
+  });
+
+  const percent = (currentStep / steps.length) * 100;
+  if (progress) progress.style.width = percent + "%";
+  if (stepText) stepText.textContent = `Step ${currentStep} of ${steps.length}`;
+
+  updateSummary();
+}
+
+function updateSummary() {
+  if (!summaryList) return;
+
+  const household = document.getElementById("household")?.value || prefillMap.family || "Not provided yet";
+  const mainGoal = document.getElementById("mainGoal")?.value || "Not selected yet";
+  const currentCoverage = document.getElementById("currentCoverage")?.value || "Not selected yet";
+  const quizScore = prefillMap.score ? `${prefillMap.score}/100` : "Not from score tool";
+
+  summaryList.innerHTML = `
+    <li>Household: ${household}</li>
+    <li>Main goal: ${mainGoal}</li>
+    <li>Current coverage: ${currentCoverage}</li>
+    <li>Life Coverage Score: ${quizScore}</li>
+  `;
+}
+
+document.querySelectorAll("[data-next]").forEach(button => {
+  button.addEventListener("click", () => {
+    if (currentStep < steps.length) {
+      currentStep++;
+      updateStep();
+      formCard?.scrollIntoView({ behavior:"smooth", block:"start" });
+    }
+  });
+});
+
+document.querySelectorAll("[data-prev]").forEach(button => {
+  button.addEventListener("click", () => {
+    if (currentStep > 1) {
+      currentStep--;
+      updateStep();
+      formCard?.scrollIntoView({ behavior:"smooth", block:"start" });
+    }
+  });
+});
+
+document.querySelectorAll(".choice-card").forEach(card => {
+  card.addEventListener("click", () => {
+    const group = card.closest("[data-choice-group]");
+    const targetId = group?.dataset.choiceGroup;
+    const value = card.dataset.value || "";
+
+    group?.querySelectorAll(".choice-card").forEach(item => item.classList.remove("selected"));
+    card.classList.add("selected");
+
+    if (targetId) {
+      const target = document.getElementById(targetId);
+      if (target) target.value = value;
+    }
+
+    updateSummary();
+  });
+});
+
+["household","currentCoverage","bestFit","mainConcern"].forEach(id => {
+  document.getElementById(id)?.addEventListener("input", updateSummary);
+  document.getElementById(id)?.addEventListener("change", updateSummary);
+});
+
+form?.addEventListener("submit", async function (e) {
+  e.preventDefault();
+
+  const reportLink = document.getElementById("successReportLink");
+  const reportUrl = buildReportUrl();
+  if (reportLink) reportLink.href = reportUrl;
+  setValue("reportUrl", window.location.origin + reportUrl);
+
+  if (typeof gtag === "function") {
+    gtag("event", "life_plan_submit", {
+      source: "CoverageFit Life Plan Page",
+      quiz_score: prefillMap.score || ""
+    });
+  }
+
+  if (typeof fbq === "function") {
+    fbq("trackCustom", "LifePlanSubmit", {
+      source: "CoverageFit Life Plan Page",
+      quiz_score: prefillMap.score || ""
+    });
+  }
+
+  try {
+    await fetch(this.action, { method:"POST", body:new FormData(this), headers:{ "Accept":"application/json" } });
+  } catch (err) {}
+
+  formCard?.classList.add("sent");
+});
+  }
+
+  if (typeof fbq === "function") {
+    fbq("trackCustom", "LifePlanSubmit", {
+      source: "CoverageFit Life Plan Page",
+      quiz_score: prefillMap.score || ""
+    });
+  }
+});
+
+document.querySelectorAll('a[href="#plan"]').forEach(link => {
+  link.addEventListener("click", function () {
+    if (typeof gtag === "function") {
+      gtag("event", "life_plan_cta_click");
+    }
+
+    if (typeof fbq === "function") {
+      fbq("trackCustom", "LifePlanCtaClick");
+    }
+  });
+});
+
+applyPrefill();
+updateStep();
+</script>
+
+</body>
+</html>
