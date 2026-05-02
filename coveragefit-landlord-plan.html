@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<title>Rental Coverage Plan | CoverageFit</title>
+<meta name="description" content="Turn your Rental Coverage Score into a clear landlord insurance coverage plan around policy structure, loss of rent, liability, water damage, vacancy, and tenant insurance." />
+
+<style>
+:root{
+  --blue:#003a8f;--blue-2:#124ec4;--blue-dark:#071936;--red:#e31837;--green:#15803d;--yellow:#b45309;
+  --text:#111827;--muted:#5f6b7a;--bg:#f5f7fb;--surface:#fff;--border:#d8e0ec;
+  --blue-soft:#eef4ff;--red-soft:#fff1f3;--green-soft:#ecfdf3;--yellow-soft:#fff7ed;
+  --shadow:0 18px 45px rgba(7,25,54,.12);--radius:24px;
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 12% 0%,rgba(18,78,196,.13),transparent 30%),linear-gradient(180deg,#fff 0%,var(--bg) 68%,#fff 100%);color:var(--text)}a{color:inherit;text-decoration:none}.wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+header{padding:18px 0;background:rgba(255,255,255,.92);backdrop-filter:blur(16px);border-bottom:1px solid rgba(216,224,236,.78);position:sticky;top:0;z-index:50}.nav{display:flex;justify-content:space-between;align-items:center;gap:20px}.logo{display:flex;align-items:center;gap:10px;font-weight:950;letter-spacing:-.045em;color:var(--blue-dark);font-size:20px;line-height:1}.logo-mark{width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,var(--blue),var(--blue-2));display:grid;place-items:center;color:#fff;font-weight:950;font-size:15px;box-shadow:0 10px 24px rgba(0,58,143,.28)}.logo small{display:block;margin-top:4px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:800}.nav-links{display:flex;align-items:center;gap:14px;color:var(--muted);font-size:13px;font-weight:850}.nav-cta{background:var(--blue);color:#fff;padding:11px 16px;border-radius:999px;font-weight:900;font-size:13px;box-shadow:0 12px 26px rgba(0,58,143,.25);white-space:nowrap}
+.hero{padding:54px 0 34px}.hero-grid{display:grid;grid-template-columns:1.04fr .96fr;gap:34px;align-items:center}.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;background:var(--blue-soft);color:var(--blue);border:1px solid rgba(0,58,143,.12);border-radius:999px;font-size:13px;font-weight:950;margin-bottom:18px}.dot{width:8px;height:8px;border-radius:50%;background:var(--red)}h1{margin:0;font-size:64px;line-height:.94;letter-spacing:-.078em;color:var(--blue-dark)}.lead{margin:22px 0 0;font-size:21px;line-height:1.5;color:var(--muted);max-width:660px}.hero-actions{margin-top:28px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}.btn{border:none;cursor:pointer;border-radius:999px;padding:15px 22px;font-weight:950;font-size:15px;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-align:center}.btn-primary{background:var(--blue);color:#fff;box-shadow:0 16px 32px rgba(0,58,143,.26)}.btn-secondary{background:#fff;color:var(--blue-dark);border:1px solid var(--border)}.micro{font-size:13px;color:var(--muted);font-weight:750}.trust-row{margin-top:22px;display:flex;flex-wrap:wrap;gap:10px}.trust-pill{background:#fff;border:1px solid var(--border);border-radius:999px;padding:9px 12px;color:#263247;font-size:13px;font-weight:850}
+.plan-card,.problem-card,.benefit-card,.proof-card,.form-card{background:#fff;border:1px solid var(--border);border-radius:22px;padding:22px;box-shadow:0 10px 28px rgba(7,25,54,.06)}.plan-card{background:rgba(255,255,255,.95);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px;position:relative;overflow:hidden}.plan-card:before{content:"";position:absolute;inset:0;background:linear-gradient(rgba(0,58,143,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,58,143,.05) 1px,transparent 1px);background-size:28px 28px;mask-image:linear-gradient(180deg,#000 0%,transparent 88%);pointer-events:none}.plan-inner{position:relative;z-index:1}.plan-card h2{margin:0;color:var(--blue-dark);font-size:30px;line-height:1.05;letter-spacing:-.055em}.plan-card p{margin:10px 0 0;color:var(--muted);line-height:1.55}.plan-stack{margin-top:22px;display:grid;gap:12px}.plan-item{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;background:#fff;border:1px solid var(--border);border-radius:18px;padding:15px}.plan-num{width:28px;height:28px;border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--blue-2));color:#fff;display:grid;place-items:center;font-size:13px;font-weight:950}.plan-item strong{display:block;color:var(--blue-dark);font-size:15px}.plan-item span{display:block;margin-top:4px;color:var(--muted);font-size:13px;line-height:1.4}
+.section{padding:34px 0}.section-head{max-width:760px;margin-bottom:22px}.section-head h2{margin:0;color:var(--blue-dark);font-size:42px;line-height:1.02;letter-spacing:-.065em}.section-head p{margin:13px 0 0;color:var(--muted);font-size:17px;line-height:1.6}.problem-grid,.benefit-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.problem-card strong,.benefit-card strong{display:block;color:var(--blue-dark);font-size:18px;letter-spacing:-.035em}.problem-card p,.benefit-card p{margin:9px 0 0;color:var(--muted);line-height:1.5;font-size:14px}.callout{margin-top:20px;padding:22px;border-radius:22px;background:linear-gradient(135deg,var(--blue-dark),#0e2d62);color:#fff;box-shadow:var(--shadow)}.callout strong{display:block;font-size:22px;letter-spacing:-.04em}.callout p{margin:8px 0 0;color:rgba(255,255,255,.82);line-height:1.55}.process{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.process-step{background:#fff;border:1px solid var(--border);border-radius:22px;padding:20px;box-shadow:0 10px 28px rgba(7,25,54,.06)}.process-step small{display:inline-flex;width:30px;height:30px;border-radius:10px;background:var(--blue-soft);color:var(--blue);align-items:center;justify-content:center;font-weight:950;margin-bottom:14px}.process-step strong{display:block;color:var(--blue-dark);font-size:16px}.process-step span{display:block;margin-top:7px;color:var(--muted);line-height:1.45;font-size:13px}
+.conversion{padding:38px 0 58px}.conversion-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:22px;align-items:start}.proof-card{position:sticky;top:92px}.proof-card h2,.form-card h2{margin:0;color:var(--blue-dark);font-size:34px;line-height:1.05;letter-spacing:-.06em}.proof-card p,.form-card p{color:var(--muted);line-height:1.6}.advisor{margin-top:22px;display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;padding:16px;border-radius:18px;background:var(--blue-soft);border:1px solid rgba(0,58,143,.12)}.avatar{width:58px;height:58px;border-radius:18px;background:linear-gradient(135deg,var(--blue),var(--blue-2));color:#fff;display:grid;place-items:center;font-size:20px;font-weight:950}.advisor strong{display:block;color:var(--blue-dark)}.advisor span{display:block;color:var(--muted);font-size:13px;line-height:1.35;margin-top:3px}.contact-lines{margin-top:18px;display:grid;gap:10px}.contact-line{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:14px;border-top:1px solid var(--border);padding-top:10px}.contact-line strong{color:var(--blue-dark)}
+.gut-check{margin:0 0 18px;padding:22px;border-radius:22px;background:radial-gradient(circle at 12% 18%,rgba(18,78,196,.16),transparent 34%),linear-gradient(135deg,var(--blue-dark),#0e2d62);color:#fff;box-shadow:var(--shadow)}.gut-check strong{display:block;font-size:24px;letter-spacing:-.045em;line-height:1.08}.gut-check p{margin:8px 0 0;color:rgba(255,255,255,.84);line-height:1.55;font-size:15px}.prefill-note{display:none;margin:0 0 14px;padding:12px 14px;border-radius:15px;background:var(--blue-soft);border:1px solid rgba(0,58,143,.12);color:var(--blue-dark);font-size:13px;font-weight:850;line-height:1.45}.prefill-note.show{display:block}.success{display:none;padding:16px;border-radius:18px;background:var(--green-soft);border:1px solid rgba(21,128,61,.18);color:var(--green);font-weight:850;line-height:1.45}.form-card.sent .success{display:block}.form-card.sent form{display:none}.form{display:grid;gap:13px}.field-row{display:grid;grid-template-columns:1fr 1fr;gap:13px}label{display:block;font-size:13px;font-weight:850;color:var(--blue-dark)}input,select,textarea{width:100%;margin-top:6px;border:1px solid var(--border);border-radius:14px;padding:14px;font:inherit;color:var(--text);background:#fff}textarea{min-height:96px;resize:vertical}input:focus,select:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(0,58,143,.08);outline:none}.form-note{font-size:12px!important;color:var(--muted);line-height:1.45!important;margin:0!important}.multi-progress{margin:18px 0}.progress-label{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:12px;font-weight:850;margin-bottom:8px}.progress-track{height:9px;background:var(--blue-soft);border-radius:999px;overflow:hidden}.progress-fill{height:100%;width:25%;border-radius:999px;background:linear-gradient(135deg,var(--blue),var(--blue-2));transition:.25s ease}.form-step{display:none}.form-step.active{display:block}.step-title{margin:0 0 6px;color:var(--blue-dark);font-size:22px;line-height:1.08;letter-spacing:-.045em}.step-help{margin:0 0 16px!important;font-size:14px!important;line-height:1.5!important;color:var(--muted)!important}.choice-grid{display:grid;gap:10px}.choice-card{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:14px;border:1px solid var(--border);border-radius:16px;background:#fff;cursor:pointer;transition:.18s ease;text-align:left}.choice-card:hover{transform:translateY(-1px);border-color:rgba(0,58,143,.32);box-shadow:0 10px 22px rgba(7,25,54,.07)}.choice-card.selected{border-color:var(--blue);box-shadow:0 0 0 4px rgba(0,58,143,.08);background:#fbfdff}.choice-card strong{display:block;color:var(--blue-dark);font-size:14px}.choice-card span{display:block;margin-top:3px;color:var(--muted);font-size:12px;line-height:1.35}.choice-dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--border)}.choice-card.selected .choice-dot{border-color:var(--blue);background:radial-gradient(circle,var(--blue) 0 42%,transparent 45%)}.form-nav{display:flex;justify-content:space-between;gap:12px;margin-top:18px}.form-nav .btn{padding:13px 18px}.btn-full{width:100%}.micro-under{text-align:center;font-size:12px!important;color:var(--muted)!important;margin:10px 0 0!important}.summary-box{margin-top:14px;padding:14px;border-radius:16px;background:#f8fbff;border:1px solid var(--border)}.summary-box strong{display:block;color:var(--blue-dark);font-size:14px}.summary-list{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:6px}.summary-list li{color:var(--muted);font-size:13px;line-height:1.35}.proof-mini{margin-top:16px;display:flex;flex-wrap:wrap;gap:9px}.proof-mini span{display:inline-flex;padding:8px 10px;border-radius:999px;background:#fff;border:1px solid var(--border);color:#394456;font-size:12px;font-weight:850}
+.faq{padding:24px 0 58px}.faq-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.faq-item{background:#fff;border:1px solid var(--border);border-radius:18px;padding:18px}.faq-item strong{display:block;color:var(--blue-dark);font-size:16px}.faq-item p{margin:8px 0 0;color:var(--muted);line-height:1.5;font-size:14px}footer{border-top:1px solid var(--border);padding:26px 0 92px;color:var(--muted);font-size:13px;line-height:1.5}.footer-grid{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap}.mobile-sticky{display:none;position:fixed;bottom:14px;left:14px;right:14px;z-index:80;background:var(--blue);color:#fff;text-align:center;padding:15px 18px;border-radius:18px;font-weight:950;box-shadow:0 16px 38px rgba(0,58,143,.36)}
+@media(max-width:900px){h1{font-size:48px}.hero-grid,.conversion-grid,.problem-grid,.benefit-grid,.process,.faq-grid{grid-template-columns:1fr}.proof-card{position:relative;top:auto}.nav-links{display:none}}@media(max-width:560px){.wrap{padding:0 16px}header{padding:16px 0}.logo{font-size:18px}.nav-cta{display:none}.hero{padding:34px 0 18px}h1{font-size:40px}.lead{font-size:18px}.plan-card,.problem-card,.benefit-card,.proof-card,.form-card{padding:20px}.field-row{grid-template-columns:1fr}.form-nav{flex-direction:column}.form-nav .btn{width:100%}.mobile-sticky{display:block}}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="wrap nav">
+    <a href="/landlord" class="logo" aria-label="CoverageFit Landlord">
+      <div class="logo-mark">CF</div><div>CoverageFit<small>Landlord Coverage Plan</small></div>
+    </a>
+    <div class="nav-links"><a href="#how-it-works">How it works</a><span>·</span><a href="#plan">Build plan</a></div>
+    <a class="nav-cta" href="#plan">Build My Plan</a>
+  </div>
+</header>
+
+<main>
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow"><span class="dot"></span> 10-Minute Rental Coverage Plan</div>
+      <h1>Turn your score into a clear rental coverage plan.</h1>
+      <p class="lead">Your report showed where coverage may deserve attention. This page turns that into a simple plan around policy structure, loss of rent, liability, water damage, vacancy, and tenant requirements.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#plan">See What My Rental Policy Needs →</a>
+        <a class="btn btn-secondary" href="tel:14088262465">Talk it through → (408) 826-2465</a>
+        <span class="micro">No pressure · Takes about 10 minutes</span>
+      </div>
+      <div class="trust-row"><div class="trust-pill">✓ Policy structure</div><div class="trust-pill">✓ Loss of rent</div><div class="trust-pill">✓ Liability + tenant risk</div></div>
+    </div>
+    <div class="plan-card"><div class="plan-inner">
+      <h2>The goal is not just “having a landlord policy.”</h2>
+      <p>The goal is making sure the policy actually matches the rental property, income stream, and liability exposure.</p>
+      <div class="plan-stack">
+        <div class="plan-item"><div class="plan-num">1</div><div><strong>Is it structured right?</strong><span>Confirm the property is insured for rental use, not owner-occupied use.</span></div></div>
+        <div class="plan-item"><div class="plan-num">2</div><div><strong>Is the income protected?</strong><span>Review whether loss of rent may apply if a covered claim makes the property unlivable.</span></div></div>
+        <div class="plan-item"><div class="plan-num">3</div><div><strong>Are the exposures aligned?</strong><span>Check liability, water damage, vacancy, tenant insurance, and umbrella compatibility.</span></div></div>
+      </div>
+    </div></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head"><h2>The mistake is assuming the policy matches the property.</h2><p>Rental coverage can look fine on the surface while still having weak spots around use, income, tenant exposure, or claim limitations.</p></div>
+    <div class="problem-grid">
+      <div class="problem-card"><strong>Wrong policy structure</strong><p>A rental should not be treated like a primary home. The occupancy/use mismatch is one of the first things to check.</p></div>
+      <div class="problem-card"><strong>Income not protected</strong><p>If rent stops after a covered loss, the policy needs to be reviewed for loss-of-rent or rental income protection.</p></div>
+      <div class="problem-card"><strong>Liability too low</strong><p>Tenants, guests, vendors, and visitors create a different liability picture than a normal residence.</p></div>
+    </div>
+    <div class="callout"><strong>Most rental owners are not careless. They are under-reviewed.</strong><p>The issue is usually that nobody slowed down and checked whether the coverage matches the way the property is actually used.</p></div>
+  </div>
+</section>
+
+<section class="section" id="how-it-works">
+  <div class="wrap">
+    <div class="section-head"><h2>What happens in the 10-minute plan call?</h2><p>This is designed to be simple, practical, and useful — not a high-pressure pitch.</p></div>
+    <div class="process">
+      <div class="process-step"><small>1</small><strong>Confirm rental use</strong><span>Property type, occupancy, tenant status, and whether the current policy matches rental use.</span></div>
+      <div class="process-step"><small>2</small><strong>Check income protection</strong><span>Loss of rent, rental income interruption, and how the policy responds if the unit is unlivable.</span></div>
+      <div class="process-step"><small>3</small><strong>Review risk details</strong><span>Water damage, vacancy, tenant requirements, property condition, and liability limits.</span></div>
+      <div class="process-step"><small>4</small><strong>Build the next step</strong><span>Decide what looks solid, what may be limited, and what should be quoted or corrected.</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head"><h2>What you walk away with</h2><p>Even if you do not change anything immediately, the review should make the coverage picture clearer.</p></div>
+    <div class="benefit-grid">
+      <div class="benefit-card"><strong>A policy structure check</strong><p>Understand whether the property appears aligned with rental use and occupancy.</p></div>
+      <div class="benefit-card"><strong>A gap priority list</strong><p>See which concerns matter most: loss of rent, liability, water, vacancy, or tenant insurance.</p></div>
+      <div class="benefit-card"><strong>A quote/review path</strong><p>Know whether to keep, adjust, quote, or simply verify your current setup.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="conversion" id="plan">
+  <div class="wrap conversion-grid">
+    <div class="proof-card">
+      <div class="eyebrow"><span class="dot"></span> Reviewed personally</div>
+      <h2>I’ll walk through this with you — Dylan.</h2>
+      <p>This is not meant to make landlord insurance complicated. It is meant to turn your score into a practical coverage plan.</p>
+      <div class="advisor"><div class="avatar">DH</div><div><strong>Dylan Haysbert</strong><span>Insurance Producer<br>Virginia Tam Insurance Agency · Farmers Insurance</span></div></div>
+      <div class="contact-lines">
+        <div class="contact-line"><span>Call/Text</span><strong>(408) 826-2465</strong></div>
+        <div class="contact-line"><span>Best next step</span><strong>10-minute coverage review</strong></div>
+        <div class="contact-line"><span>Pressure level</span><strong>Low</strong></div>
+      </div>
+      <div class="proof-mini"><span>Focused on California rental owners</span><span>Plain-English policy review</span></div>
+    </div>
+
+    <div class="form-card" id="formCard">
+      <div class="gut-check"><strong>If a tenant issue, water claim, or fire happened tomorrow…</strong><p>Would your policy respond the way you think — or would the gap show up after the loss?</p></div>
+      <h2>Let’s build your rental coverage plan.</h2>
+      <p>Your score/report brought you here. Finish these quick prompts and I’ll help turn your answers into a simple coverage review path.</p>
+      <div class="prefill-note" id="prefillNote">I pulled in details from your Rental Coverage Score so you do not have to repeat everything.</div>
+      <div class="success" id="successMessage">Got it. Your request was submitted. I’ll use this to walk through your rental coverage plan.<br><br><a class="btn btn-primary" id="successReportLink" href="/landlord/report" target="_blank">Open My Score Report →</a></div>
+
+      <form class="form" id="landlordPlanForm" action="https://formspree.io/f/mvzlgagr" method="POST">
+        <input type="hidden" name="_subject" value="New Landlord Coverage Plan Request" />
+        <input type="hidden" name="source" value="CoverageFit Landlord Plan Page" />
+        <input type="hidden" name="coverage_type" value="Rental Property" />
+        <input type="hidden" name="quiz_score" id="quizScore" />
+        <input type="hidden" name="quiz_risks" id="quizRisks" />
+        <input type="hidden" name="quiz_priority" id="quizPriority" />
+        <input type="hidden" name="report_url" id="reportUrl" />
+        <input type="hidden" name="main_goal" id="mainGoal" />
+
+        <div class="multi-progress"><div class="progress-label"><span id="stepText">Step 1 of 4</span><span>Takes about 60 seconds</span></div><div class="progress-track"><div class="progress-fill" id="formProgress"></div></div></div>
+
+        <div class="form-step active" data-step="1">
+          <h3 class="step-title">First, what rental property are we reviewing?</h3>
+          <p class="step-help">This helps frame the plan around the real property, not generic landlord coverage.</p>
+          <div class="field-row">
+            <label>First Name<input type="text" name="first_name" id="firstName" required placeholder="First name" /></label>
+            <label>Email<input type="email" name="email" id="email" required placeholder="Email address" /></label>
+          </div>
+          <div class="field-row">
+            <label>Phone<input type="tel" name="phone" id="phone" placeholder="Phone number" /></label>
+            <label>Property Address or ZIP<input type="text" name="property" id="property" placeholder="Property address or ZIP" /></label>
+          </div>
+          <div class="form-nav"><span></span><button class="btn btn-primary" type="button" data-next>Next →</button></div>
+        </div>
+
+        <div class="form-step" data-step="2">
+          <h3 class="step-title">What are you most trying to confirm?</h3>
+          <p class="step-help">Choose the answer that feels closest. We can refine it together later.</p>
+          <div class="choice-grid" data-choice-group="mainGoal">
+            <button type="button" class="choice-card" data-value="Confirm the policy is structured for rental use"><div><strong>Policy structure</strong><span>I want to confirm it is actually set up as a rental.</span></div><div class="choice-dot"></div></button>
+            <button type="button" class="choice-card" data-value="Confirm loss of rent / rental income protection"><div><strong>Loss of rent</strong><span>I want to know if income is protected after a covered loss.</span></div><div class="choice-dot"></div></button>
+            <button type="button" class="choice-card" data-value="Review liability and umbrella exposure"><div><strong>Liability exposure</strong><span>I want to check tenant, guest, vendor, and visitor risk.</span></div><div class="choice-dot"></div></button>
+            <button type="button" class="choice-card" data-value="Review water damage / vacancy / tenant requirements"><div><strong>Specific gap concerns</strong><span>Water, vacancy, tenant insurance, or underwriting concerns.</span></div><div class="choice-dot"></div></button>
+            <button type="button" class="choice-card" data-value="Compare current policy against a stronger option"><div><strong>Compare options</strong><span>I have a policy but want to see if it is built well.</span></div><div class="choice-dot"></div></button>
+          </div>
+          <div class="form-nav"><button class="btn btn-secondary" type="button" data-prev>← Back</button><button class="btn btn-primary" type="button" data-next>Next →</button></div>
+        </div>
+
+        <div class="form-step" data-step="3">
+          <h3 class="step-title">What do you already have in place?</h3>
+          <p class="step-help">This gives us a starting point for policy type, limits, and urgency.</p>
+          <div class="field-row">
+            <label>Current Policy Status<select name="current_policy" id="currentPolicy"><option value="">Choose one</option><option>I have a landlord/rental policy</option><option>I have a homeowners policy</option><option>I am not sure what type it is</option><option>I do not have coverage yet</option></select></label>
+            <label>Tenant Situation<select name="tenant_status" id="tenantStatus"><option value="">Choose one</option><option>Long-term tenant</option><option>Vacant / between tenants</option><option>Short-term rental / Airbnb</option><option>Changing soon</option><option>Not sure</option></select></label>
+          </div>
+          <label>Anything specific you are worried about?<textarea name="main_concern" id="mainConcern" placeholder="Example: I want to know if loss of rent is included if a claim makes the rental unlivable."></textarea></label>
+          <div class="form-nav"><button class="btn btn-secondary" type="button" data-prev>← Back</button><button class="btn btn-primary" type="button" data-next>Next →</button></div>
+        </div>
+
+        <div class="form-step" data-step="4">
+          <h3 class="step-title">You’re ready to send this over.</h3>
+          <p class="step-help">I’ll use this to help map what looks solid, what may be limited, and what deserves attention first.</p>
+          <div class="summary-box"><strong>Your starting point</strong><ul class="summary-list" id="summaryList"><li>Property: Not provided yet</li><li>Main goal: Not selected yet</li><li>Current policy: Not selected yet</li></ul></div>
+          <button class="btn btn-primary btn-full" type="submit">See What My Rental Policy Needs →</button>
+          <p class="micro-under">Takes about 10 minutes · No pressure · No obligation</p>
+          <div class="form-nav"><button class="btn btn-secondary" type="button" data-prev>← Back</button><span></span></div>
+          <p class="form-note">By submitting, you agree to be contacted by Dylan Haysbert / Virginia Tam Insurance Agency about your rental coverage request. Educational only and no obligation. Coverage availability and eligibility vary by underwriting guidelines.</p>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section class="faq"><div class="wrap"><div class="section-head"><h2>Quick questions</h2></div><div class="faq-grid">
+  <div class="faq-item"><strong>Is this a quote?</strong><p>No. This is the planning step before a quote. The goal is to understand structure, income protection, and liability first.</p></div>
+  <div class="faq-item"><strong>Do I need my policy documents?</strong><p>Helpful, but not required. If you have your declarations page, we can use it as a starting point.</p></div>
+  <div class="faq-item"><strong>What if I already have landlord insurance?</strong><p>Perfect. The plan can compare whether your current setup matches the actual rental risk.</p></div>
+  <div class="faq-item"><strong>Is this only for Bay Area landlords?</strong><p>The system is built for California rental owners, with Bay Area rental risks especially in mind.</p></div>
+</div></div></section>
+</main>
+
+<footer><div class="wrap footer-grid"><div><strong>CoverageFit</strong><br>Landlord Coverage Plan</div><div>Dylan Haysbert, Insurance Producer<br>Virginia Tam Insurance Agency<br>Farmers Insurance</div><div>Educational information only.<br>Coverage availability and eligibility vary by underwriting guidelines.</div></div></footer>
+<a href="#plan" class="mobile-sticky">Build My Coverage Plan →</a>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const storedLandlordData = JSON.parse(localStorage.getItem("coveragefit_landlord") || "{}");
+
+if (!localStorage.getItem("cf_session")) {
+  localStorage.setItem("cf_session", String(Date.now()));
+}
+
+const prefillMap = {
+  score: params.get("score") || storedLandlordData.score || "",
+  risks: params.get("risks") || storedLandlordData.risks || "",
+  priority: params.get("priority") || storedLandlordData.priority || "",
+  name: params.get("name") || params.get("first_name") || storedLandlordData.name || "",
+  email: params.get("email") || storedLandlordData.email || "",
+  phone: params.get("phone") || storedLandlordData.phone || "",
+  property: params.get("property") || params.get("address") || params.get("zip") || storedLandlordData.property || "",
+  source: params.get("source") || storedLandlordData.source || "CoverageFit Landlord Plan Page"
+};
+
+const form = document.getElementById("landlordPlanForm");
+const formCard = document.getElementById("formCard");
+const steps = Array.from(document.querySelectorAll(".form-step"));
+const progress = document.getElementById("formProgress");
+const stepText = document.getElementById("stepText");
+const summaryList = document.getElementById("summaryList");
+let currentStep = 1;
+
+function buildReportUrl() {
+  const query = new URLSearchParams({
+    name: document.getElementById("firstName")?.value || prefillMap.name || "",
+    property: document.getElementById("property")?.value || prefillMap.property || "",
+    score: prefillMap.score || "",
+    risks: prefillMap.risks || "",
+    priority: prefillMap.priority || "",
+    source: "CoverageFit Landlord Plan Page"
+  });
+  return `/landlord/report?${query.toString()}`;
+}
+
+function setValue(id, value) { const el = document.getElementById(id); if (el && value) el.value = value; }
+
+function applyPrefill() {
+  setValue("quizScore", prefillMap.score);
+  setValue("quizRisks", prefillMap.risks);
+  setValue("quizPriority", prefillMap.priority);
+  setValue("reportUrl", window.location.origin + buildReportUrl());
+  setValue("firstName", prefillMap.name);
+  setValue("email", prefillMap.email);
+  setValue("phone", prefillMap.phone);
+  setValue("property", prefillMap.property);
+
+  const note = document.getElementById("prefillNote");
+  if (Object.values(prefillMap).some(Boolean) && note) {
+    note.classList.add("show");
+    note.textContent = prefillMap.score
+      ? `Based on your Rental Coverage Score (${prefillMap.score}/100), we’ll focus on the main areas that stood out.`
+      : "I pulled in details from your Rental Coverage Score so you do not have to repeat everything.";
+  }
+}
+
+function validateStep(step) {
+  const active = document.querySelector(`.form-step[data-step="${step}"]`);
+  if (!active) return true;
+  const requiredFields = Array.from(active.querySelectorAll("input[required], select[required], textarea[required]"));
+  for (const field of requiredFields) {
+    if (!field.checkValidity()) { field.reportValidity(); return false; }
+  }
+  return true;
+}
+
+function updateStep() {
+  steps.forEach(step => step.classList.toggle("active", Number(step.dataset.step) === currentStep));
+  if (progress) progress.style.width = ((currentStep / steps.length) * 100) + "%";
+  if (stepText) stepText.textContent = `Step ${currentStep} of ${steps.length}`;
+  updateSummary();
+}
+
+function updateSummary() {
+  if (!summaryList) return;
+  const property = document.getElementById("property")?.value || prefillMap.property || "Not provided yet";
+  const mainGoal = document.getElementById("mainGoal")?.value || "Not selected yet";
+  const currentPolicy = document.getElementById("currentPolicy")?.value || "Not selected yet";
+  const quizScore = prefillMap.score ? `${prefillMap.score}/100` : "Not from score tool";
+  summaryList.innerHTML = `<li>Property: ${property}</li><li>Main goal: ${mainGoal}</li><li>Current policy: ${currentPolicy}</li><li>Rental Coverage Score: ${quizScore}</li>`;
+}
+
+document.querySelectorAll("[data-next]").forEach(button => {
+  button.addEventListener("click", () => {
+    if (!validateStep(currentStep)) return;
+    if (currentStep < steps.length) { currentStep++; updateStep(); formCard?.scrollIntoView({ behavior:"smooth", block:"start" }); }
+  });
+});
+
+document.querySelectorAll("[data-prev]").forEach(button => {
+  button.addEventListener("click", () => {
+    if (currentStep > 1) { currentStep--; updateStep(); formCard?.scrollIntoView({ behavior:"smooth", block:"start" }); }
+  });
+});
+
+document.querySelectorAll(".choice-card").forEach(card => {
+  card.addEventListener("click", () => {
+    const group = card.closest("[data-choice-group]");
+    const targetId = group?.dataset.choiceGroup;
+    const value = card.dataset.value || "";
+    group?.querySelectorAll(".choice-card").forEach(item => item.classList.remove("selected"));
+    card.classList.add("selected");
+    if (targetId) { const target = document.getElementById(targetId); if (target) target.value = value; }
+    updateSummary();
+  });
+});
+
+["property","currentPolicy","tenantStatus","mainConcern","firstName","email","phone"].forEach(id => {
+  document.getElementById(id)?.addEventListener("input", updateSummary);
+  document.getElementById(id)?.addEventListener("change", updateSummary);
+});
+
+
+function persistUpdatedPlanSession() {
+  const updated = {
+    ...storedLandlordData,
+    name: document.getElementById("firstName")?.value || prefillMap.name || "Rental Property Owner",
+    email: document.getElementById("email")?.value || prefillMap.email || "",
+    phone: document.getElementById("phone")?.value || prefillMap.phone || "",
+    property: document.getElementById("property")?.value || prefillMap.property || "Not provided",
+    score: prefillMap.score || "",
+    risks: prefillMap.risks || "",
+    priority: prefillMap.priority || "",
+    mainGoal: document.getElementById("mainGoal")?.value || "",
+    currentPolicy: document.getElementById("currentPolicy")?.value || "",
+    tenantStatus: document.getElementById("tenantStatus")?.value || "",
+    mainConcern: document.getElementById("mainConcern")?.value || "",
+    source: "CoverageFit Landlord Plan Page",
+    session: localStorage.getItem("cf_session") || ""
+  };
+  localStorage.setItem("coveragefit_landlord", JSON.stringify(updated));
+  return updated;
+}
+
+form?.addEventListener("submit", async function(e) {
+  e.preventDefault();
+  persistUpdatedPlanSession();
+  const reportUrl = buildReportUrl();
+  setValue("reportUrl", window.location.origin + reportUrl);
+  const reportLink = document.getElementById("successReportLink");
+  if (reportLink) reportLink.href = reportUrl;
+  if (typeof gtag === "function") gtag("event", "landlord_plan_submit", { quiz_score: prefillMap.score || "" });
+  if (typeof fbq === "function") fbq("trackCustom", "LandlordPlanSubmit", { quiz_score: prefillMap.score || "" });
+  try { await fetch(this.action, { method:"POST", body:new FormData(this), headers:{ "Accept":"application/json" } }); } catch(err) {}
+  formCard?.classList.add("sent");
+});
+
+document.querySelectorAll('a[href="#plan"]').forEach(link => {
+  link.addEventListener("click", () => {
+    if (typeof gtag === "function") gtag("event", "landlord_plan_cta_click");
+    if (typeof fbq === "function") fbq("trackCustom", "LandlordPlanCtaClick");
+  });
+});
+
+applyPrefill();
+updateStep();
+</script>
+</body>
+</html>
