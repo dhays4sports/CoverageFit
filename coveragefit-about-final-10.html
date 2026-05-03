@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<title>About CoverageFit | Coverage Review Tools by Dylan Haysbert</title>
+<meta name="description" content="CoverageFit helps property owners and families identify insurance coverage gaps before a claim exposes them. Built by Dylan Haysbert, Insurance Producer with Virginia Tam Insurance Agency." />
+
+<style>
+:root {
+  --blue:#003a8f;
+  --blue-2:#124ec4;
+  --blue-dark:#071936;
+  --red:#e31837;
+  --green:#15803d;
+  --yellow:#b45309;
+  --text:#111827;
+  --muted:#5f6b7a;
+  --bg:#f5f7fb;
+  --border:#d8e0ec;
+  --blue-soft:#eef4ff;
+  --red-soft:#fff1f3;
+  --green-soft:#ecfdf3;
+  --yellow-soft:#fff7ed;
+  --shadow:0 18px 45px rgba(7,25,54,.12);
+  --radius:22px;
+}
+
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+
+body {
+  margin:0;
+  font-family:Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at 12% 2%, rgba(18,78,196,.12), transparent 28%),
+    linear-gradient(180deg,#fff 0%,var(--bg) 70%,#fff 100%);
+  color:var(--text);
+}
+
+a { color:inherit; text-decoration:none; }
+
+.wrap {
+  max-width:1120px;
+  margin:0 auto;
+  padding:0 22px;
+}
+
+header {
+  padding:18px 0;
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(216,224,236,.78);
+  position:sticky;
+  top:0;
+  z-index:50;
+}
+
+.nav {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:20px;
+}
+
+.logo {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-weight:950;
+  letter-spacing:-.045em;
+  color:var(--blue-dark);
+  font-size:20px;
+  line-height:1;
+}
+
+.logo-mark {
+  width:36px;
+  height:36px;
+  border-radius:11px;
+  background:linear-gradient(135deg,var(--blue),var(--blue-2));
+  display:grid;
+  place-items:center;
+  color:#fff;
+  font-weight:950;
+  font-size:15px;
+  box-shadow:0 10px 24px rgba(0,58,143,.28);
+}
+
+.logo small {
+  display:block;
+  margin-top:4px;
+  font-size:11px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--muted);
+  font-weight:800;
+}
+
+.nav-links {
+  display:flex;
+  gap:22px;
+  align-items:center;
+  font-size:13px;
+  font-weight:850;
+  color:#263247;
+}
+
+.nav-links a:hover { color:var(--blue); }
+
+.nav-cta {
+  background:var(--blue);
+  color:#fff;
+  padding:11px 16px;
+  border-radius:999px;
+  font-weight:900;
+  font-size:13px;
+  box-shadow:0 12px 26px rgba(0,58,143,.25);
+  white-space:nowrap;
+}
+
+.hero {
+  padding:58px 0 36px;
+}
+
+.hero-grid {
+  display:grid;
+  grid-template-columns:1.05fr .95fr;
+  gap:42px;
+  align-items:center;
+}
+
+.eyebrow {
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 12px;
+  background:var(--blue-soft);
+  color:var(--blue);
+  border:1px solid rgba(0,58,143,.12);
+  border-radius:999px;
+  font-size:13px;
+  font-weight:900;
+  margin-bottom:18px;
+}
+
+.dot {
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--red);
+}
+
+h1 {
+  margin:0;
+  font-size:64px;
+  line-height:.96;
+  letter-spacing:-.075em;
+  color:var(--blue-dark);
+}
+
+.lead {
+  margin:22px 0 0;
+  font-size:21px;
+  line-height:1.5;
+  color:var(--muted);
+  max-width:690px;
+}
+
+.hero-actions {
+  margin-top:30px;
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+.btn {
+  border:none;
+  cursor:pointer;
+  border-radius:999px;
+  padding:15px 22px;
+  font-weight:950;
+  font-size:15px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+
+.btn-primary {
+  background:var(--blue);
+  color:#fff;
+  box-shadow:0 16px 32px rgba(0,58,143,.26);
+}
+
+.btn-secondary {
+  background:#fff;
+  color:var(--blue-dark);
+  border:1px solid var(--border);
+}
+
+.micro {
+  font-size:13px;
+  color:var(--muted);
+  font-weight:750;
+}
+
+.proof-strip {
+  margin-top:20px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
+
+.proof-pill {
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  background:#fff;
+  border:1px solid var(--border);
+  color:#263247;
+  border-radius:999px;
+  padding:9px 12px;
+  font-size:13px;
+  font-weight:850;
+}
+
+.proof-pill:before {
+  content:"✓";
+  color:var(--green);
+  font-weight:1000;
+}
+
+.advisor-focus {
+  margin-top:8px;
+  display:inline-flex;
+  padding:7px 10px;
+  border-radius:999px;
+  background:var(--blue-soft);
+  color:var(--blue-dark);
+  font-size:11px;
+  font-weight:900;
+  line-height:1.25;
+}
+
+.contrast-line {
+  margin-top:16px;
+  padding:16px;
+  border-radius:18px;
+  background:#fff;
+  border:1px solid rgba(0,58,143,.12);
+  color:#263247;
+  font-size:15px;
+  line-height:1.5;
+  font-weight:850;
+}
+
+.contrast-line span {
+  display:block;
+  color:var(--blue);
+  margin-top:3px;
+}
+
+.card {
+  background:rgba(255,255,255,.94);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+}
+
+.trust-card {
+  padding:28px;
+  position:relative;
+  overflow:hidden;
+}
+
+.trust-card:before {
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(rgba(0,58,143,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,58,143,.05) 1px, transparent 1px);
+  background-size:28px 28px;
+  mask-image:linear-gradient(180deg,#000 0%,transparent 88%);
+  pointer-events:none;
+}
+
+.trust-inner {
+  position:relative;
+  z-index:1;
+}
+
+.advisor {
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:16px;
+  align-items:center;
+  padding:18px;
+  border-radius:20px;
+  background:#fff;
+  border:1px solid var(--border);
+  margin-bottom:18px;
+}
+
+.avatar {
+  width:64px;
+  height:64px;
+  border-radius:20px;
+  background:linear-gradient(135deg,var(--blue),var(--blue-2));
+  color:#fff;
+  display:grid;
+  place-items:center;
+  font-size:22px;
+  font-weight:950;
+}
+
+.advisor strong {
+  display:block;
+  color:var(--blue-dark);
+  font-size:21px;
+  letter-spacing:-.04em;
+}
+
+.advisor span {
+  display:block;
+  color:var(--muted);
+  line-height:1.4;
+  font-size:13px;
+  margin-top:4px;
+}
+
+.trust-card h2 {
+  margin:0;
+  color:var(--blue-dark);
+  font-size:30px;
+  line-height:1.06;
+  letter-spacing:-.055em;
+}
+
+.trust-card p {
+  margin:12px 0 0;
+  color:var(--muted);
+  line-height:1.6;
+  font-size:16px;
+}
+
+.trust-list {
+  margin-top:18px;
+  display:grid;
+  gap:11px;
+}
+
+.trust-item {
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:10px;
+  align-items:start;
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:13px;
+  color:#263247;
+  font-size:14px;
+  line-height:1.4;
+}
+
+.trust-item:before {
+  content:"✓";
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  background:var(--green-soft);
+  color:var(--green);
+  display:grid;
+  place-items:center;
+  font-weight:950;
+  font-size:12px;
+}
+
+.section {
+  padding:44px 0;
+}
+
+.section-head {
+  max-width:780px;
+  margin:0 auto 24px;
+  text-align:center;
+}
+
+.section-head h2 {
+  margin:0;
+  color:var(--blue-dark);
+  font-size:42px;
+  line-height:1.04;
+  letter-spacing:-.06em;
+}
+
+.section-head p {
+  margin:14px auto 0;
+  color:var(--muted);
+  font-size:18px;
+  line-height:1.6;
+}
+
+.grid-3 {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+}
+
+.info-card {
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:22px;
+  box-shadow:0 10px 28px rgba(7,25,54,.06);
+}
+
+.info-icon {
+  width:38px;
+  height:38px;
+  border-radius:13px;
+  display:grid;
+  place-items:center;
+  background:var(--blue-soft);
+  color:var(--blue);
+  font-weight:950;
+  margin-bottom:14px;
+}
+
+.info-card strong {
+  display:block;
+  color:var(--blue-dark);
+  font-size:19px;
+  letter-spacing:-.035em;
+}
+
+.info-card p {
+  margin:9px 0 0;
+  color:var(--muted);
+  line-height:1.55;
+  font-size:15px;
+}
+
+.origin-card {
+  padding:30px;
+  background:
+    radial-gradient(circle at 10% 10%, rgba(18,78,196,.10), transparent 30%),
+    linear-gradient(135deg,#fff 0%,#eef4ff 100%);
+  border:1px solid rgba(0,58,143,.12);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+}
+
+.origin-card h2 {
+  margin:0;
+  color:var(--blue-dark);
+  font-size:40px;
+  line-height:1.04;
+  letter-spacing:-.06em;
+}
+
+.origin-card p {
+  margin:14px 0 0;
+  color:var(--muted);
+  line-height:1.65;
+  font-size:17px;
+}
+
+.quote-line {
+  margin-top:22px;
+  padding:18px 20px;
+  border-left:4px solid var(--blue);
+  background:#fff;
+  border-radius:18px;
+  color:#263247;
+  font-size:18px;
+  line-height:1.5;
+  font-weight:850;
+}
+
+.split-card {
+  padding:30px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:28px;
+  align-items:center;
+}
+
+.split-card h2 {
+  margin:0;
+  color:var(--blue-dark);
+  font-size:40px;
+  line-height:1.04;
+  letter-spacing:-.06em;
+}
+
+.split-card p {
+  margin:16px 0 0;
+  color:var(--muted);
+  line-height:1.65;
+  font-size:17px;
+}
+
+.check-list {
+  display:grid;
+  gap:12px;
+  margin:0;
+  padding:0;
+  list-style:none;
+}
+
+.check-list li {
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:10px;
+  color:#263247;
+  line-height:1.45;
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:14px;
+}
+
+.check-list li:before {
+  content:"✓";
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  background:var(--blue-soft);
+  color:var(--blue);
+  display:grid;
+  place-items:center;
+  font-size:13px;
+  font-weight:950;
+  margin-top:1px;
+}
+
+.claim-moment {
+  padding:30px;
+  background:linear-gradient(135deg,var(--blue-dark),#0e2d62);
+  color:#fff;
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:26px;
+  align-items:center;
+}
+
+.claim-moment h2 {
+  margin:0;
+  font-size:38px;
+  line-height:1.04;
+  letter-spacing:-.06em;
+}
+
+.claim-moment p {
+  margin:14px 0 0;
+  color:rgba(255,255,255,.82);
+  line-height:1.6;
+  font-size:16px;
+}
+
+.claim-list {
+  display:grid;
+  gap:12px;
+}
+
+.claim-item {
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:12px;
+  align-items:start;
+  padding:14px;
+  border-radius:16px;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.16);
+  color:rgba(255,255,255,.90);
+  line-height:1.45;
+  font-size:14px;
+}
+
+.claim-item:before {
+  content:"!";
+  width:24px;
+  height:24px;
+  border-radius:50%;
+  background:#fff;
+  color:var(--red);
+  display:grid;
+  place-items:center;
+  font-weight:950;
+}
+
+.process {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+}
+
+.process-step {
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:22px;
+  padding:22px;
+  box-shadow:0 10px 28px rgba(7,25,54,.06);
+}
+
+.process-step small {
+  display:inline-flex;
+  width:32px;
+  height:32px;
+  border-radius:11px;
+  background:linear-gradient(135deg,var(--blue),var(--blue-2));
+  color:#fff;
+  align-items:center;
+  justify-content:center;
+  font-weight:950;
+  margin-bottom:14px;
+}
+
+.process-step strong {
+  display:block;
+  color:var(--blue-dark);
+  font-size:18px;
+  letter-spacing:-.035em;
+}
+
+.process-step span {
+  display:block;
+  margin-top:8px;
+  color:var(--muted);
+  line-height:1.5;
+  font-size:14px;
+}
+
+.system-card {
+  padding:28px;
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:0 10px 28px rgba(7,25,54,.06);
+}
+
+.system-card h2 {
+  margin:0;
+  color:var(--blue-dark);
+  font-size:36px;
+  line-height:1.04;
+  letter-spacing:-.06em;
+}
+
+.system-card p {
+  margin:12px 0 0;
+  color:var(--muted);
+  line-height:1.6;
+  font-size:16px;
+}
+
+.system-flow {
+  margin-top:22px;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+
+.flow-pill {
+  padding:16px;
+  border-radius:18px;
+  background:var(--blue-soft);
+  border:1px solid rgba(0,58,143,.12);
+}
+
+.flow-pill strong {
+  display:block;
+  color:var(--blue-dark);
+  font-size:15px;
+}
+
+.flow-pill span {
+  display:block;
+  margin-top:5px;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.4;
+}
+
+.disclaimer-card {
+  padding:22px;
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:22px;
+  color:var(--muted);
+  line-height:1.6;
+  font-size:14px;
+}
+
+.disclaimer-card strong {
+  display:block;
+  color:var(--blue-dark);
+  font-size:18px;
+  margin-bottom:6px;
+}
+
+.final {
+  padding:36px;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(18,78,196,.16), transparent 34%),
+    linear-gradient(135deg,var(--blue-dark),#0e2d62);
+  color:#fff;
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  text-align:center;
+}
+
+.final h2 {
+  margin:0;
+  font-size:42px;
+  line-height:1.04;
+  letter-spacing:-.06em;
+}
+
+.final p {
+  max-width:720px;
+  margin:14px auto 24px;
+  color:rgba(255,255,255,.80);
+  line-height:1.6;
+  font-size:17px;
+}
+
+.final .btn {
+  background:#fff;
+  color:var(--blue-dark);
+}
+
+.final-actions {
+  display:flex;
+  justify-content:center;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.final-actions .btn-secondary {
+  background:rgba(255,255,255,.10);
+  color:#fff;
+  border:1px solid rgba(255,255,255,.22);
+}
+
+footer {
+  border-top:1px solid var(--border);
+  padding:26px 0 92px;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.5;
+}
+
+.footer-grid {
+  display:flex;
+  justify-content:space-between;
+  gap:18px;
+  flex-wrap:wrap;
+}
+
+.footer-grid a {
+  color:var(--blue);
+  font-weight:850;
+}
+
+.mobile-sticky {
+  display:none;
+  position:fixed;
+  bottom:14px;
+  left:14px;
+  right:14px;
+  z-index:80;
+  background:var(--blue);
+  color:#fff;
+  text-align:center;
+  padding:15px 18px;
+  border-radius:18px;
+  font-weight:950;
+  box-shadow:0 16px 38px rgba(0,58,143,.36);
+}
+
+@media (max-width:900px) {
+  .nav-links { display:none; }
+
+  .hero-grid,
+  .grid-3,
+  .split-card,
+  .claim-moment,
+  .process,
+  .system-flow {
+    grid-template-columns:1fr;
+  }
+
+  h1 { font-size:50px; }
+
+  .section-head h2,
+  .split-card h2,
+  .origin-card h2,
+  .claim-moment h2,
+  .system-card h2,
+  .final h2 {
+    font-size:34px;
+  }
+
+  .mobile-sticky { display:block; }
+}
+
+@media (max-width:560px) {
+  .wrap { padding:0 16px; }
+
+  header { padding:16px 0; }
+
+  .logo { font-size:18px; }
+
+  .nav-cta { display:none; }
+
+  .hero { padding:34px 0 26px; }
+
+  h1 { font-size:40px; }
+
+  .lead { font-size:18px; }
+
+  .trust-card,
+  .info-card,
+  .split-card,
+  .origin-card,
+  .claim-moment,
+  .process-step,
+  .system-card,
+  .final {
+    padding:22px;
+  }
+
+  .advisor {
+    grid-template-columns:1fr;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a href="/" class="logo" aria-label="CoverageFit homepage">
+      <div class="logo-mark">CF</div>
+      <div>
+        CoverageFit
+        <small>Coverage Review Tools</small>
+      </div>
+    </a>
+
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="/landlord">Landlord</a>
+      <a href="/life">Life</a>
+      <a href="#how-it-works">How it works</a>
+      <a href="#contact">Contact</a>
+    </nav>
+
+    <a class="nav-cta" href="/landlord">Check My Coverage Fit</a>
+  </div>
+</header>
+
+<main>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow"><span class="dot"></span> About CoverageFit</div>
+
+      <h1>Insurance should be reviewed before a claim exposes the gap.</h1>
+
+      <p class="lead">
+        CoverageFit was built to help people slow down the insurance decision, identify common coverage gaps,
+        and understand what deserves attention before they rely on a policy.
+      </p>
+
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="/landlord">Check My Coverage Fit →</a>
+        <a class="btn btn-secondary" href="/life">Start Life Score →</a>
+        <span class="micro">Educational tools · Reviewed personally by Dylan</span>
+      </div>
+
+      <div class="proof-strip">
+        <span class="proof-pill">Used by property owners and families across California</span>
+        <span class="proof-pill">Built around real coverage decisions</span>
+      </div>
+    </div>
+
+    <div class="card trust-card">
+      <div class="trust-inner">
+        <div class="advisor">
+          <div class="avatar">DH</div>
+          <div>
+            <strong>Dylan Haysbert</strong>
+            <span>Insurance Producer<br>Virginia Tam Insurance Agency · Farmers Insurance</span>
+            <span class="advisor-focus">Focused on helping clients understand coverage before they rely on it.</span>
+          </div>
+        </div>
+
+        <h2>This is not a quote-first process.</h2>
+        <p>
+          The goal is to understand whether the coverage fits the real situation first —
+          then decide what to adjust, quote, or review.
+        </p>
+
+        <div class="contrast-line">
+          Most insurance conversations start with price.
+          <span>CoverageFit starts with whether the coverage actually fits.</span>
+        </div>
+
+        <div class="trust-list">
+          <div class="trust-item">Plain-English coverage review tools</div>
+          <div class="trust-item">Focused on structure, not just price</div>
+          <div class="trust-item">Designed to help avoid claim-time surprises</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="origin-card">
+      <div class="eyebrow"><span class="dot"></span> Why I built this</div>
+      <h2>People usually care about coverage. They just were never shown where the gaps hide.</h2>
+      <p>
+        After seeing how coverage gaps can show up during real claims and reviewing policies with clients, the same pattern kept showing up:
+        someone had insurance, paid for it faithfully, and still was not fully sure whether it matched their actual situation.
+      </p>
+      <p>
+        CoverageFit was built to make those questions easier to see before the pressure of a claim, a lender deadline,
+        a rental issue, or a family emergency forces the answer.
+      </p>
+      <div class="quote-line">
+        Most people are not trying to buy the cheapest policy. They are trying to avoid expensive surprises later.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Why CoverageFit exists</h2>
+      <p>
+        Most people do not find out they have an insurance problem when they buy the policy.
+        They find out when something happens.
+      </p>
+    </div>
+
+    <div class="grid-3">
+      <div class="info-card">
+        <div class="info-icon">1</div>
+        <strong>Policies can look fine</strong>
+        <p>
+          A declarations page may look complete while still leaving uncertainty around policy type, limits, exclusions, or use.
+        </p>
+      </div>
+
+      <div class="info-card">
+        <div class="info-icon">2</div>
+        <strong>Real life changes</strong>
+        <p>
+          Rentals, families, income, debt, housing, and liability exposures change over time. Coverage should be reviewed around reality.
+        </p>
+      </div>
+
+      <div class="info-card">
+        <div class="info-icon">3</div>
+        <strong>Claims are stressful</strong>
+        <p>
+          These are the same types of questions that commonly come up during real claims — CoverageFit surfaces them earlier.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="card split-card">
+      <div>
+        <div class="eyebrow"><span class="dot"></span> What I focus on</div>
+        <h2>The biggest issue is usually not whether you have insurance.</h2>
+        <p>
+          The bigger question is whether the policy is built for the job it is supposed to do.
+          A rental property, a family protection plan, and a primary home all need to be reviewed through different lenses.
+        </p>
+      </div>
+
+      <ul class="check-list">
+        <li>Does the policy match the actual use?</li>
+        <li>Are the limits aligned with the real exposure?</li>
+        <li>Are income, housing, liability, or family stability properly considered?</li>
+        <li>Are there gaps that may only become obvious during a claim?</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="claim-moment">
+      <div>
+        <div class="eyebrow"><span class="dot"></span> The claim-time problem</div>
+        <h2>The wrong time to discover a gap is after something happens.</h2>
+        <p>
+          CoverageFit is designed around the uncomfortable but important questions people often avoid until it is too late.
+        </p>
+      </div>
+
+      <div class="claim-list">
+        <div class="claim-item">If a rental becomes unlivable, does the income stop without protection?</div>
+        <div class="claim-item">If a tenant, guest, or vendor is hurt, are the liability limits enough?</div>
+        <div class="claim-item">If income disappears, does the family have time — or immediate financial pressure?</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="how-it-works">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>How the CoverageFit process works</h2>
+      <p>
+        Simple, low-pressure, and designed to give you clarity before you make a coverage decision.
+      </p>
+    </div>
+
+    <div class="process">
+      <div class="process-step">
+        <small>1</small>
+        <strong>Take a score</strong>
+        <span>Answer a few questions so the tool can surface common areas worth reviewing.</span>
+      </div>
+
+      <div class="process-step">
+        <small>2</small>
+        <strong>See your report</strong>
+        <span>Get a personalized summary of what appears stronger and what may deserve attention.</span>
+      </div>
+
+      <div class="process-step">
+        <small>3</small>
+        <strong>Build the plan</strong>
+        <span>If it makes sense, Dylan can walk through your situation and help translate it into a clear next step.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="system-card">
+      <h2>Each CoverageFit tool is designed to connect.</h2>
+      <p>
+        This is not just a collection of pages. Each flow is designed to move from quick self-check,
+        to personalized insight, to a practical decision layer.
+      </p>
+
+      <div class="system-flow">
+        <div class="flow-pill">
+          <strong>Score</strong>
+          <span>Find the areas that may deserve attention.</span>
+        </div>
+
+        <div class="flow-pill">
+          <strong>Report</strong>
+          <span>See what the answers may mean in plain English.</span>
+        </div>
+
+        <div class="flow-pill">
+          <strong>Plan</strong>
+          <span>Decide what to review, quote, or adjust next.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Current CoverageFit tools</h2>
+      <p>
+        Each tool is built around a different type of coverage decision.
+      </p>
+    </div>
+
+    <div class="grid-3">
+      <div class="info-card">
+        <div class="info-icon">🏠</div>
+        <strong>Landlord Coverage Score</strong>
+        <p>
+          Review rental property concerns like policy structure, loss of rent, liability, occupancy, water damage, and tenant insurance.
+        </p>
+        <p><a class="btn btn-secondary" href="/landlord">Check Landlord Coverage Fit →</a></p>
+      </div>
+
+      <div class="info-card">
+        <div class="info-icon">🛡</div>
+        <strong>Life Coverage Score</strong>
+        <p>
+          Review whether your family may have enough time, income, and financial breathing room if something happened.
+        </p>
+        <p><a class="btn btn-secondary" href="/life">Start Life Score →</a></p>
+      </div>
+
+      <div class="info-card">
+        <div class="info-icon">+</div>
+        <strong>More tools coming</strong>
+        <p>
+          CoverageFit is designed to expand into home, auto, business, and other coverage-fit review experiences.
+        </p>
+        <p><a class="btn btn-secondary" href="tel:14088262465">Call/Text Dylan →</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="disclaimer-card">
+      <strong>Important note</strong>
+      CoverageFit is an educational coverage review tool. It is not a coverage determination, claim decision,
+      financial plan, or guarantee of coverage. Actual coverage depends on policy terms, conditions, exclusions,
+      eligibility, endorsements, underwriting guidelines, and the carrier’s review. Dylan Haysbert is an Insurance Producer
+      with Virginia Tam Insurance Agency.
+    </div>
+  </div>
+</section>
+
+<section class="section" id="contact">
+  <div class="wrap">
+    <div class="final">
+      <h2>Before something happens, want to know where you stand?</h2>
+      <p>
+        Start with a score, or call/text Dylan directly if you already know you want to walk through your situation.
+      </p>
+
+      <div class="final-actions">
+        <a class="btn" href="/landlord">Check My Coverage Fit →</a>
+        <a class="btn btn-secondary" href="/life">Start Life Score →</a>
+        <a class="btn btn-secondary" href="tel:14088262465">Call/Text: (408) 826-2465</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap footer-grid">
+    <div>
+      <strong>CoverageFit</strong><br />
+      Coverage Review Tools
+    </div>
+
+    <div>
+      Dylan Haysbert, Insurance Producer<br />
+      Virginia Tam Insurance Agency<br />
+      Farmers Insurance<br />
+      <strong>Call/Text: (408) 826-2465</strong>
+    </div>
+
+    <div>
+      <a href="/about">About</a> ·
+      <a href="/landlord">Landlord Score</a> ·
+      <a href="/life">Life Score</a><br />
+      Educational information only.
+    </div>
+  </div>
+</footer>
+
+<a href="/landlord" class="mobile-sticky">Check My Coverage Fit →</a>
+
+</body>
+</html>
