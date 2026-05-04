@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<title>Rental Coverage Score Report | CoverageFit</title>
+<meta name="description" content="A personalized Rental Coverage Score Report from CoverageFit." />
+
+<style>
+:root {
+  --blue:#003a8f;
+  --blue-2:#124ec4;
+  --blue-dark:#071936;
+  --red:#e31837;
+  --green:#15803d;
+  --yellow:#b45309;
+  --text:#111827;
+  --muted:#5f6b7a;
+  --bg:#f5f7fb;
+  --surface:#ffffff;
+  --border:#d8e0ec;
+  --blue-soft:#eef4ff;
+  --red-soft:#fff1f3;
+  --green-soft:#ecfdf3;
+  --yellow-soft:#fff7ed;
+  --shadow:0 20px 60px rgba(7,25,54,.12);
+}
+
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+
+body {
+  margin:0;
+  font-family:Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(18,78,196,.13), transparent 30%),
+    linear-gradient(180deg,#ffffff 0%,var(--bg) 76%,#ffffff 100%);
+  color:var(--text);
+}
+
+a { color:inherit; text-decoration:none; }
+
+.report-shell { max-width:920px; margin:0 auto; padding:28px 20px 70px; }
+.top-actions { max-width:920px; margin:0 auto; padding:18px 20px 0; display:flex; justify-content:flex-end; gap:10px; }
+
+.btn { border:none; cursor:pointer; border-radius:999px; padding:13px 18px; font-weight:950; font-size:14px; display:inline-flex; align-items:center; justify-content:center; gap:8px; }
+.btn-primary { background:linear-gradient(135deg,var(--blue),var(--blue-2)); color:#fff; box-shadow:0 14px 28px rgba(0,58,143,.24); }
+.btn-secondary { background:#fff; color:var(--blue-dark); border:1px solid var(--border); }
+
+.report { background:#fff; border:1px solid var(--border); box-shadow:var(--shadow); }
+.pdf-page { width:8.5in; height:11in; min-height:11in; max-height:11in; padding:.45in; background:#fff; overflow:hidden; page-break-after:always; break-after:page; }
+.pdf-page:last-child { page-break-after:auto; break-after:auto; }
+
+.hero { position:relative; padding:26px; margin-bottom:18px; color:var(--blue-dark); background:radial-gradient(circle at 82% 18%, rgba(18,78,196,.10), transparent 32%), linear-gradient(135deg,#ffffff 0%,#eef4ff 100%); border:1px solid var(--border); border-radius:22px; overflow:hidden; }
+.hero:after { content:""; position:absolute; inset:0; background:linear-gradient(rgba(0,58,143,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,58,143,.04) 1px, transparent 1px); background-size:32px 32px; mask-image:linear-gradient(180deg,#000 0%,transparent 82%); pointer-events:none; }
+.hero-inner { position:relative; z-index:1; display:grid; grid-template-columns:1fr 220px; gap:20px; align-items:start; }
+.brand { display:flex; align-items:center; gap:12px; margin-bottom:20px; }
+.logo-mark { width:34px; height:34px; border-radius:11px; background:linear-gradient(135deg,var(--blue),var(--blue-2)); color:#fff; display:grid; place-items:center; font-weight:1000; font-size:13px; }
+.brand strong { display:block; color:var(--blue-dark); font-size:18px; letter-spacing:-.04em; }
+.brand small { display:block; margin-top:4px; font-size:9px; letter-spacing:.06em; text-transform:uppercase; color:#3f4d63; font-weight:850; line-height:1.35; }
+.powered-by { display:block; margin-top:4px; color:rgba(7,25,54,.65); font-size:9px; font-weight:750; }
+.eyebrow { display:inline-flex; align-items:center; gap:8px; padding:6px 10px; background:#fff; border:1px solid rgba(0,58,143,.14); border-radius:999px; font-size:9px; font-weight:950; letter-spacing:.04em; text-transform:uppercase; margin-bottom:12px; color:#263247; }
+.dot { width:7px; height:7px; border-radius:50%; background:var(--red); }
+h1 { margin:0; font-size:35px; line-height:1; letter-spacing:-.07em; color:var(--blue-dark); }
+.hero-copy { margin:10px 0 0; max-width:520px; color:#4b5563; line-height:1.45; font-size:12.5px; }
+.prepared-card { background:#fff; border:1px solid var(--border); border-radius:17px; padding:14px; min-width:0; }
+.prepared-card small { display:block; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; font-size:8.5px; font-weight:900; margin-bottom:6px; }
+.prepared-card strong { display:block; font-size:15px; line-height:1.25; color:var(--blue-dark); }
+.prepared-card span { display:block; margin-top:5px; color:var(--muted); font-size:10px; line-height:1.35; }
+
+.content { padding:0; }
+.score-row { display:grid; grid-template-columns:122px 1fr; gap:20px; align-items:center; margin-bottom:18px; }
+.score-circle { width:122px; height:122px; border-radius:50%; display:grid; place-items:center; background:conic-gradient(var(--blue) 0deg, var(--blue-soft) 0deg); position:relative; box-shadow:0 10px 24px rgba(0,58,143,.12); }
+.score-circle.good { box-shadow:0 10px 24px rgba(21,128,61,.13); }
+.score-circle.medium { box-shadow:0 10px 24px rgba(180,83,9,.14); }
+.score-circle.weak { box-shadow:0 10px 24px rgba(227,24,55,.13); }
+.score-circle:after { content:""; position:absolute; width:88px; height:88px; border-radius:50%; background:#fff; box-shadow:inset 0 0 0 1px var(--border); }
+.score-number { position:relative; z-index:1; text-align:center; color:var(--blue-dark); font-weight:1000; font-size:32px; letter-spacing:-.05em; }
+.score-number small { display:block; font-size:10px; color:var(--muted); letter-spacing:0; margin-top:-4px; }
+.status { display:inline-flex; padding:6px 10px; border-radius:999px; font-weight:950; font-size:10px; margin-bottom:9px; }
+.status.good { background:var(--green-soft); color:var(--green); }
+.status.medium { background:var(--yellow-soft); color:var(--yellow); }
+.status.weak { background:var(--red-soft); color:var(--red); }
+.score-summary h2 { margin:0; color:var(--blue-dark); font-size:25px; line-height:1.07; letter-spacing:-.06em; }
+.score-summary p { margin:10px 0 0; color:var(--muted); line-height:1.45; font-size:12.5px; }
+.anchor-note { margin-top:12px; padding:11px 13px; background:rgba(0,58,143,.05); border:1px solid rgba(0,58,143,.10); border-radius:14px; color:#4b5563; font-size:11.5px; line-height:1.4; }
+
+.exposure-strip { display:none; margin:0 0 18px; padding:14px 16px; border-radius:18px; background:linear-gradient(135deg,#fff 0%,var(--red-soft) 100%); border:1px solid rgba(227,24,55,.16); }
+.exposure-strip.show { display:grid; grid-template-columns:1fr auto; gap:16px; align-items:center; }
+.exposure-strip small { display:block; color:var(--red); font-size:8.5px; font-weight:950; letter-spacing:.07em; text-transform:uppercase; margin-bottom:4px; }
+.exposure-strip strong { display:block; color:var(--blue-dark); font-size:19px; line-height:1; letter-spacing:-.04em; }
+.exposure-strip span { display:block; margin-top:5px; color:#4b5563; font-size:10.8px; line-height:1.35; }
+.fast-meta { text-align:right; color:var(--muted); font-size:9.5px; line-height:1.35; font-weight:750; }
+
+.section { margin-top:18px; }
+.page-2 .section:first-child { margin-top:0; }
+.section h2 { margin:0 0 9px; color:var(--blue-dark); font-size:23px; line-height:1.08; letter-spacing:-.05em; }
+.section-lead { margin:0 0 13px; color:var(--muted); line-height:1.45; font-size:12.5px; }
+
+.risk-grid, .breakdown-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+.risk-card, .breakdown-card { border:1px solid var(--border); border-radius:16px; padding:13px; background:#fff; }
+.risk-card.priority { border-color:rgba(227,24,55,.18); background:var(--red-soft); }
+.risk-card.review { border-color:rgba(180,83,9,.18); background:var(--yellow-soft); }
+.risk-card.ok { border-color:rgba(21,128,61,.18); background:var(--green-soft); }
+.risk-top { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; }
+.risk-card strong, .breakdown-card h3 { margin:0; color:var(--blue-dark); font-size:13px; letter-spacing:-.02em; }
+.severity { display:inline-flex; align-items:center; padding:4px 7px; border-radius:999px; font-size:8px; font-weight:950; text-transform:uppercase; letter-spacing:.04em; white-space:nowrap; background:#fff; }
+.priority .severity { color:var(--red); }
+.review .severity { color:var(--yellow); }
+.ok .severity { color:var(--green); }
+.risk-card p, .breakdown-card p { margin:0; color:#4b5563; line-height:1.38; font-size:11px; }
+.breakdown-card p { margin-top:7px; }
+
+.exec-summary { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 0 14px; }
+.exec-callout { padding:12px; border-radius:14px; background:#f8fbff; border:1px solid var(--border); }
+.exec-callout strong { display:block; color:var(--blue-dark); font-size:12px; }
+.exec-callout p { margin:5px 0 0; color:var(--muted); line-height:1.35; font-size:10.5px; }
+
+.breakdown-meter { height:6px; background:var(--blue-soft); border-radius:999px; overflow:hidden; margin-top:9px; }
+.breakdown-fill { height:100%; width:50%; border-radius:999px; background:linear-gradient(135deg,var(--blue),var(--blue-2)); }
+.breakdown-fill.priority { background:var(--red); }
+.breakdown-fill.review { background:var(--yellow); }
+.breakdown-fill.ok { background:var(--green); }
+.breakdown-label { margin-top:8px !important; font-size:10px !important; font-weight:900 !important; color:var(--muted) !important; text-transform:uppercase; letter-spacing:.04em; }
+.breakdown-conclusion { margin:12px 0 0; padding:12px 14px; border-left:4px solid var(--blue); background:#fff; border-radius:14px; color:#394456; font-size:11.5px; line-height:1.42; }
+.next-step-box { margin-top:12px; padding:12px 14px; border-radius:14px; background:linear-gradient(180deg,#f8fbff 0%, #eef4ff 100%); border:1px solid rgba(0,58,143,.16); }
+.next-step-box strong { display:block; color:var(--blue-dark); font-size:13px; }
+.next-step-box p { margin:6px 0 0; color:var(--muted); line-height:1.42; font-size:11.5px; }
+
+.meaning { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.meaning-card { padding:13px; border-radius:16px; background:var(--blue-soft); border:1px solid rgba(0,58,143,.12); }
+.meaning-card span { width:24px; height:24px; border-radius:8px; background:linear-gradient(135deg,var(--blue),var(--blue-2)); color:#fff; display:grid; place-items:center; font-weight:1000; margin-bottom:8px; font-size:10px; }
+.meaning-card strong { display:block; color:var(--blue-dark); font-size:12px; }
+.meaning-card p { margin:5px 0 0; color:var(--muted); line-height:1.35; font-size:10.5px; }
+
+.cta-band { margin-top:18px; padding:16px 18px; border-radius:18px; background:radial-gradient(circle at 12% 18%, rgba(18,78,196,.16), transparent 34%), linear-gradient(135deg,var(--blue-dark),#0e2d62); color:#fff; }
+.cta-band h2 { margin:0; color:#fff; font-size:20px; line-height:1.1; letter-spacing:-.05em; }
+.cta-band p { color:rgba(255,255,255,.84); line-height:1.42; margin:7px 0 10px; font-size:11px; }
+.cta-band .btn { background:#fff; color:var(--blue-dark); padding:10px 14px; font-size:11px; }
+.cta-actions { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.call-line { color:rgba(255,255,255,.92); font-weight:900; font-size:12px; letter-spacing:-.02em; }
+
+.advisor-block { margin-top:12px; padding:12px 14px; border-radius:16px; background:#fff; border:1px solid var(--border); display:grid; grid-template-columns:1fr auto; gap:14px; align-items:center; }
+.advisor-kicker { display:block; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; font-size:8px; font-weight:950; margin-bottom:4px; }
+.advisor-name { display:block; color:var(--blue-dark); font-size:14px; font-weight:1000; letter-spacing:-.03em; line-height:1.1; }
+.advisor-meta { display:block; color:#394456; font-size:10px; font-weight:750; line-height:1.35; margin-top:4px; }
+.advisor-contact { text-align:right; }
+.advisor-contact a { display:block; color:var(--blue); font-weight:1000; font-size:13px; letter-spacing:-.03em; }
+.advisor-contact span { display:block; color:var(--muted); font-size:9px; margin-top:3px; }
+
+.footer { margin-top:12px; padding:12px 0 0; border-top:1px solid var(--border); display:flex; justify-content:space-between; gap:18px; flex-wrap:wrap; color:var(--muted); font-size:8.7px; line-height:1.25; }
+.footer-name { font-weight:950; color:var(--blue-dark); }
+.footer-medium { font-weight:750; color:#394456; }
+.footer-light { font-weight:400; color:var(--muted); max-width:300px; }
+.footer strong { color:var(--blue-dark); }
+
+/* PDF export mode: locks the report to a true Letter-size desktop layout on every device */
+.pdf-mode {
+  width:8.5in !important;
+  margin:0 auto !important;
+  background:#fff !important;
+  border:none !important;
+  box-shadow:none !important;
+}
+
+.pdf-mode * {
+  max-width:100% !important;
+}
+
+.pdf-mode .pdf-page {
+  width:8.5in !important;
+  height:11in !important;
+  min-height:11in !important;
+  max-height:11in !important;
+  margin:0 !important;
+  padding:.45in !important;
+  overflow:hidden !important;
+  box-shadow:none !important;
+  border:none !important;
+  page-break-after:always !important;
+  break-after:page !important;
+}
+
+.pdf-mode .pdf-page:last-child {
+  page-break-after:auto !important;
+  break-after:auto !important;
+}
+
+.pdf-mode .hero-inner {
+  grid-template-columns:1fr 220px !important;
+}
+
+.pdf-mode .score-row {
+  grid-template-columns:122px 1fr !important;
+}
+
+.pdf-mode .risk-grid,
+.pdf-mode .breakdown-grid,
+.pdf-mode .exec-summary {
+  grid-template-columns:repeat(2,1fr) !important;
+}
+
+.pdf-mode .meaning {
+  grid-template-columns:repeat(3,1fr) !important;
+}
+
+.pdf-mode .exposure-strip.show {
+  grid-template-columns:1fr auto !important;
+}
+
+.pdf-mode .advisor-block {
+  grid-template-columns:1fr auto !important;
+}
+
+.pdf-mode .footer {
+  display:flex !important;
+}
+
+.pdf-mode .advisor-contact,
+.pdf-mode .fast-meta {
+  text-align:right !important;
+}
+
+@page { size:Letter; margin:0; }
+
+@media print {
+  html, body { background:#fff !important; }
+  .top-actions { display:none !important; }
+  .report-shell { max-width:none !important; padding:0 !important; margin:0 !important; }
+  .report { border:none !important; box-shadow:none !important; }
+  .pdf-page {
+    width:8.5in !important;
+    height:11in !important;
+    min-height:11in !important;
+    max-height:11in !important;
+    margin:0 !important;
+    padding:.45in !important;
+    box-shadow:none !important;
+    border:none !important;
+    overflow:hidden !important;
+    page-break-after:always !important;
+    break-after:page !important;
+  }
+  .pdf-page:last-child {
+    page-break-after:auto !important;
+    break-after:auto !important;
+  }
+}
+
+@media (max-width:760px) {
+  .report-shell { padding:18px 12px 44px; }
+  .pdf-page { width:100%; height:auto; min-height:0; max-height:none; padding:22px; overflow:visible; }
+  .hero-inner, .score-row, .meaning, .exposure-strip.show { grid-template-columns:1fr; }
+  .fast-meta { text-align:left; }
+  .risk-grid, .breakdown-grid, .exec-summary { grid-template-columns:1fr; }
+  h1 { font-size:32px; }
+  .advisor-block { grid-template-columns:1fr; }
+  .advisor-contact { text-align:left; }
+  .footer { display:block; }
+  .footer > div { margin-bottom:12px; }
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+
+<body>
+
+<div class="top-actions">
+  <button class="btn btn-secondary" onclick="downloadPDF()">Download PDF</button>
+  <a class="btn btn-primary" id="reviewTopLink" href="/landlord/plan">Request Review →</a>
+</div>
+
+<div class="report-shell">
+  <article class="report" id="report">
+    <div class="pdf-page page-1">
+      <section class="hero">
+        <div class="hero-inner">
+          <div>
+            <div class="brand">
+              <div class="logo-mark">CF</div>
+              <div>
+                <strong>CoverageFit</strong>
+                <small>A landlord coverage review system for identifying gaps before a claim</small>
+                <span class="powered-by">Powered by BayAreaLandlordInsurance.com</span>
+              </div>
+            </div>
+            <div class="eyebrow"><span class="dot"></span> Rental Coverage Score Report</div>
+            <h1 id="reportTitle">Your Rental Coverage Score.</h1>
+            <p class="hero-copy" id="heroCopy">This report summarizes your score and the areas that may deserve a closer look before a claim forces the issue.</p>
+          </div>
+          <div class="prepared-card">
+            <small>Prepared for</small>
+            <strong id="preparedName">Rental Property Owner</strong>
+            <span id="preparedProperty">Property: Not provided</span>
+            <span id="preparedDate">Generated today</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="exposure-strip" id="exposureStrip">
+        <div>
+          <small>Estimated uncovered exposure range</small>
+          <strong id="exposureRange">$—</strong>
+          <span>This is directional only — not a prediction, quote, or coverage determination. It helps prioritize what to review first.</span>
+        </div>
+        <div class="fast-meta" id="fastMeta"></div>
+      </section>
+
+      <section class="content">
+        <div class="score-row">
+          <div class="score-circle" id="scoreCircle">
+            <div class="score-number"><span id="scoreNumber">—</span><small>/ 100</small></div>
+          </div>
+          <div class="score-summary">
+            <div class="status" id="statusBadge">Score Result</div>
+            <h2 id="resultTitle">Your rental coverage score is ready.</h2>
+            <p id="resultCopy">Your score is directional only. It highlights areas where your current rental coverage structure may deserve review.</p>
+            <div class="anchor-note" id="anchorNote">This score is based on common areas where coverage gaps are discovered during real claims.</div>
+          </div>
+        </div>
+        <section class="section">
+          <h2 id="riskHeading">Key Risk Areas Worth Reviewing</h2>
+          <p class="section-lead">These are the areas flagged by your Rental Coverage Score. They are not coverage determinations, but they are useful places to start.</p>
+          <div class="risk-grid" id="riskGrid"></div>
+        </section>
+      </section>
+    </div>
+
+    <div class="pdf-page page-2">
+      <section class="content">
+        <section class="section">
+          <h2 id="breakdownHeading">Coverage Score Breakdown</h2>
+          <p class="section-lead" id="breakdownLead">This breakdown summarizes the main coverage categories used in your score. It is meant to help prioritize what to review first.</p>
+          <div class="exec-summary">
+            <div class="exec-callout"><strong>Main purpose</strong><p id="purposeCopy">Identify where rental coverage may deserve review before a claim exposes the issue.</p></div>
+            <div class="exec-callout"><strong>Recommended use</strong><p>Use this report as a starting point, then confirm details against the actual policy.</p></div>
+          </div>
+          <div class="breakdown-grid" id="breakdownGrid"></div>
+          <div class="breakdown-conclusion" id="breakdownConclusion">Most rental owners don’t realize these gaps until a claim forces the issue. I can walk through this with you and show exactly how it applies to your policy.</div>
+          <div class="next-step-box" id="recommendedNextStep"><strong>Recommended next step</strong><p>Review your actual policy declarations page to confirm how the coverage is structured.</p></div>
+        </section>
+
+        <section class="section">
+          <h2>What This Could Mean In A Real Claim</h2>
+          <div class="meaning" id="meaningGrid">
+            <div class="meaning-card"><span>1</span><strong>Income interruption</strong><p>If the property becomes unlivable, rental income may stop while repairs are underway.</p></div>
+            <div class="meaning-card"><span>2</span><strong>Policy mismatch</strong><p>A rental property should be structured around rental use, occupancy, and landlord exposure.</p></div>
+            <div class="meaning-card"><span>3</span><strong>Liability exposure</strong><p>Tenants, guests, vendors, and visitors can create more moving parts than a primary home.</p></div>
+          </div>
+        </section>
+
+        <section class="cta-band">
+          <h2 id="ctaHeading">Want to see how this applies to your actual policy?</h2>
+          <p id="ctaCopy">A Coverage Fit Review looks at your real policy structure and helps identify what looks solid, what may be limited, and what deserves attention.</p>
+          <div class="cta-actions">
+            <a class="btn" id="reviewMainLink" href="/landlord/plan">Request My Rental Coverage Review →</a>
+            <a class="call-line" href="tel:14088262465">Call/Text: (408) 826-2465</a>
+          </div>
+        </section>
+
+        <section class="advisor-block" aria-label="Advisor contact">
+          <div>
+            <span class="advisor-kicker">Prepared by</span>
+            <span class="advisor-name">Dylan Haysbert</span>
+            <span class="advisor-meta">Insurance Producer · Virginia Tam Insurance Agency · Farmers Insurance</span>
+          </div>
+          <div class="advisor-contact">
+            <a href="tel:14088262465">(408) 826-2465</a>
+            <span>Call or text for a quick policy review</span>
+          </div>
+        </section>
+
+        <footer class="footer">
+          <div><span class="footer-name">Dylan Haysbert</span><br>Insurance Producer<br><span class="footer-medium">Virginia Tam Insurance Agency</span><br><span class="footer-medium">Farmers Insurance</span></div>
+          <div><strong>Powered by</strong><br>CoverageFit<br>BayAreaLandlordInsurance.com<br><strong>Call/Text Dylan: (408) 826-2465</strong></div>
+          <div class="footer-light">CoverageFit is a coverage review tool operated by Dylan Haysbert.<br>Prepared by Dylan Haysbert, Insurance Producer — Virginia Tam Insurance Agency.<br>Educational report only. Coverage depends on policy terms, conditions, eligibility, and underwriting guidelines.</div>
+        </footer>
+      </section>
+    </div>
+  </article>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+
+let storedLandlordData = {};
+try {
+  storedLandlordData = JSON.parse(localStorage.getItem("coveragefit_landlord") || "{}");
+} catch(e) {
+  storedLandlordData = {};
+}
+
+if (!localStorage.getItem("cf_session")) {
+  localStorage.setItem("cf_session", String(Date.now()));
+}
+
+const score = Number(params.get("score") || storedLandlordData.score || 0);
+const name = params.get("name") || params.get("first_name") || storedLandlordData.name || "Rental Property Owner";
+const property = params.get("property") || params.get("address") || params.get("zip") || storedLandlordData.property || "Not provided";
+const risksParam = params.get("risks") || storedLandlordData.risks || "";
+const priority = params.get("priority") || storedLandlordData.priority || "";
+const source = params.get("source") || storedLandlordData.source || "CoverageFit Landlord Score Report";
+
+const fastMap = {
+  estimatedExposure: params.get("estimatedExposure") || storedLandlordData.estimatedExposure || "",
+  propertyType: params.get("propertyType") || storedLandlordData.fastPropertyType || "",
+  insuranceStatus: params.get("insuranceStatus") || storedLandlordData.fastInsuranceStatus || "",
+  concern: params.get("concern") || storedLandlordData.fastConcern || "",
+  properties: params.get("properties") || storedLandlordData.fastProperties || "",
+  tenantInsurance: params.get("tenantInsurance") || storedLandlordData.fastTenantInsurance || ""
+};
+
+const riskDescriptions = {
+  "Property Type": "Property classification may affect how the policy should be structured.",
+  "Policy Type": "The property may need review to confirm it is insured for rental use.",
+  "Income Protection": "Loss of rent or rental income protection may need review.",
+  "Loss of rent": "Loss of rent or rental income protection may need review if the property becomes unlivable.",
+  "Liability": "Liability limits may need review against tenant, guest, vendor, and visitor exposure.",
+  "Liability / lawsuits": "Liability limits may need review against tenant, guest, vendor, and visitor exposure.",
+  "Occupancy": "Vacancy, short-term rental use, or changing occupancy can affect risk and eligibility.",
+  "Vacancy / between tenants": "Vacancy or between-tenant status can affect risk, claim handling, and eligibility.",
+  "Water Damage": "Water damage can interrupt rent and create expensive repair scenarios.",
+  "Water damage": "Water damage can interrupt rent and create expensive repair scenarios.",
+  "Tenant Damage": "Tenant-caused damage can be misunderstood if the policy structure is unclear.",
+  "Tenant-caused damage": "Tenant-caused damage can be misunderstood if the policy structure is unclear.",
+  "Tenant Insurance": "Tenant renters insurance requirements may reduce confusion during tenant-related losses.",
+  "Portfolio Size": "Multiple rentals compound liability, income interruption, and policy-structure complexity.",
+  "Coverage Uncertainty": "Uncertainty itself is worth clarifying before relying on the policy."
+};
+
+function cleanList(value) {
+  return String(value || "").split(",").map(item => item.trim()).filter(Boolean);
+}
+
+function hasFastData() {
+  return Object.values(fastMap).some(Boolean);
+}
+
+function getStatus(score) {
+  if (score >= 80) return { badge:"Strong Starting Point", className:"good", title:"Your rental coverage appears to have a stronger starting structure.", copy:"Your answers suggest some important areas may already be addressed. It can still be worth checking limits, exclusions, and whether the policy matches the property’s actual use.", color:"var(--green)" };
+  if (score >= 60) return { badge:"Needs Review", className:"medium", title:"Your rental coverage may have gaps worth reviewing.", copy:"Your answers suggest possible uncertainty around key areas like income protection, liability, occupancy, water damage, or tenant requirements.", color:"var(--yellow)" };
+  return { badge:"High Gap Risk", className:"weak", title:"Your rental coverage may have high-priority areas to review.", copy:"Your answers show multiple areas that deserve a closer look before a claim exposes the problem.", color:"var(--red)" };
+}
+
+function getPriorityStatus() {
+  const p = (priority || "").toLowerCase();
+  if (p.includes("high")) return { badge: priority, className:"weak", color:"var(--red)", title:"Your fast check flagged a high-priority rental coverage review.", copy:"Your answers suggest possible exposure around policy structure, liability, income interruption, occupancy, or tenant-related risk." };
+  if (p.includes("needs")) return { badge: priority, className:"medium", color:"var(--yellow)", title:"Your fast check suggests your rental coverage is worth reviewing.", copy:"Your setup may be okay, but there are enough moving parts that the actual policy should be checked before relying on it in a claim." };
+  if (p.includes("solid")) return { badge: priority, className:"good", color:"var(--green)", title:"Your fast check suggests a solid starting point.", copy:"Your answers suggest fewer obvious red flags, but it can still be worth confirming policy structure, limits, and rental-use details." };
+  return null;
+}
+
+function getSeverity(score, risk) {
+  const p = (priority || "").toLowerCase();
+  if (score === 0 && p.includes("high")) return { label:"Priority", className:"priority" };
+  if (score === 0 && p.includes("needs")) return { label:"Review", className:"review" };
+  if (score < 60) return { label:"Priority", className:"priority" };
+  if (score < 80) return { label:"Review", className:"review" };
+  return { label:"Confirm", className:"ok" };
+}
+
+function deriveRisks(baseRisks) {
+  let risks = [...baseRisks];
+
+  if (hasFastData()) {
+    if (fastMap.concern) risks.push(fastMap.concern);
+    if (fastMap.properties === "5+" || fastMap.properties === "2–5") risks.push("Portfolio Size");
+    if (fastMap.insuranceStatus) risks.push("Policy Type");
+    if (fastMap.tenantInsurance && fastMap.tenantInsurance !== "Yes — required") risks.push("Tenant Insurance");
+  }
+
+  if (!risks.length) risks = ["Policy Type", "Income Protection", "Liability"];
+
+  return [...new Set(risks)].slice(0,6);
+}
+
+function getBreakdownCategories(risks, score) {
+  const categories = [
+    { key:"Policy Type", title:"Policy Structure", copy:"Confirms whether the property is structured for rental use rather than owner-occupied use." },
+    { key:"Income Protection", alt:"Loss of rent", title:"Rental Income Protection", copy:"Checks whether rental income may be addressed if a covered loss makes the property unlivable." },
+    { key:"Liability", alt:"Liability / lawsuits", title:"Liability Exposure", copy:"Reviews tenant, guest, vendor, and visitor liability concerns against your coverage setup." },
+    { key:"Water Damage", alt:"Water damage", title:"Water / Property Loss", copy:"Highlights water-related risks that can create repair costs and income interruption." },
+    { key:"Portfolio Size", title:"Portfolio Complexity", copy:"Reviews how multiple rentals compound liability, income, occupancy, and policy management concerns." }
+  ];
+
+  return categories.slice(0,4).map(cat => {
+    const flagged = risks.includes(cat.key) || risks.includes(cat.alt);
+    let severity = "ok", label = "Appears Aligned", width = 82;
+    if (flagged && (score < 60 || priority.toLowerCase().includes("high"))) { severity = "priority"; label = "Review Soon"; width = 38; }
+    else if (flagged) { severity = "review"; label = "Worth Checking"; width = 58; }
+    return { ...cat, severity, label, width };
+  });
+}
+
+function renderBreakdown(risks, score) {
+  const grid = document.getElementById("breakdownGrid");
+  if (!grid) return;
+  grid.innerHTML = "";
+
+  getBreakdownCategories(risks, score).forEach(item => {
+    const div = document.createElement("div");
+    div.className = "breakdown-card";
+    div.innerHTML = `<h3>${item.title}</h3><p>${item.copy}</p><div class="breakdown-meter"><div class="breakdown-fill ${item.severity}" style="width:${item.width}%"></div></div><p class="breakdown-label">${item.label}</p>`;
+    grid.appendChild(div);
+  });
+
+  const nextStep = document.getElementById("recommendedNextStep");
+  if (nextStep) {
+    const concern = fastMap.concern || "";
+    if (fastMap.properties === "5+") {
+      nextStep.innerHTML = `<strong>Recommended next step</strong><p>Review the portfolio as a whole: policy structure by property, liability limits, loss of rent, entity setup, tenant requirements, and vacancy rules.</p>`;
+    } else if (concern === "Liability / lawsuits") {
+      nextStep.innerHTML = `<strong>Recommended next step</strong><p>Review premises liability, umbrella compatibility, tenant requirements, and whether limits match the real exposure.</p>`;
+    } else if (concern === "Loss of rent") {
+      nextStep.innerHTML = `<strong>Recommended next step</strong><p>Confirm whether loss of rent or rental income protection exists, how it is triggered, and what limits or duration apply.</p>`;
+    } else if (score < 60 || priority.toLowerCase().includes("high")) {
+      nextStep.innerHTML = `<strong>Recommended next step</strong><p>A quick review of your policy structure and income protection setup would be a strong next step.</p>`;
+    } else if (score < 80 || priority.toLowerCase().includes("needs")) {
+      nextStep.innerHTML = `<strong>Recommended next step</strong><p>A quick review of the flagged areas against your actual policy declarations page would be a strong next step before relying on the coverage in a claim.</p>`;
+    } else {
+      nextStep.innerHTML = `<strong>Recommended next step</strong><p>Your answers suggest a stronger starting point. A review can still help confirm limits, exclusions, endorsements, and rental-use structure.</p>`;
+    }
+  }
+}
+
+function buildReviewUrl(score, risks, status) {
+  const reviewParams = new URLSearchParams({
+    from: "report",
+    source,
+    coverage: "Rental Property",
+    score: String(score || ""),
+    risks: risks.join(","),
+    priority: priority || status.badge,
+    name,
+    property,
+    email: storedLandlordData.email || "",
+    phone: storedLandlordData.phone || "",
+    estimatedExposure: fastMap.estimatedExposure || "",
+    propertyType: fastMap.propertyType || "",
+    insuranceStatus: fastMap.insuranceStatus || "",
+    concern: fastMap.concern || "",
+    properties: fastMap.properties || "",
+    tenantInsurance: fastMap.tenantInsurance || ""
+  });
+  return `/landlord/plan?${reviewParams.toString()}`;
+}
+
+function applyFastPersonalization(status, renderedRisks) {
+  if (!hasFastData()) return;
+
+  document.getElementById("reportTitle").textContent = "Your Rental Coverage Fast Check.";
+  document.getElementById("heroCopy").textContent = "This report summarizes your quick check, estimated exposure range, and the areas that deserve the closest look before a claim tests the policy.";
+  document.getElementById("riskHeading").textContent = "Fast Check Priorities Worth Reviewing";
+  document.getElementById("breakdownHeading").textContent = "Fast Check Coverage Breakdown";
+  document.getElementById("breakdownLead").textContent = "This breakdown translates your fast-check answers into the coverage categories I would review first.";
+  document.getElementById("purposeCopy").textContent = "Turn your quick risk check into a focused review of the actual rental policy.";
+
+  const strip = document.getElementById("exposureStrip");
+  if (fastMap.estimatedExposure) {
+    strip.classList.add("show");
+    document.getElementById("exposureRange").textContent = fastMap.estimatedExposure;
+  }
+
+  document.getElementById("fastMeta").innerHTML = [
+    fastMap.propertyType ? `Property: ${fastMap.propertyType}` : "",
+    fastMap.properties ? `Portfolio: ${fastMap.properties}` : "",
+    fastMap.concern ? `Concern: ${fastMap.concern}` : ""
+  ].filter(Boolean).join("<br>");
+
+  const anchor = document.getElementById("anchorNote");
+  if (fastMap.estimatedExposure) {
+    anchor.textContent = `Your estimated exposure range (${fastMap.estimatedExposure}) is not a prediction. It is a directional anchor to help prioritize the areas most worth confirming against the actual policy.`;
+  }
+
+  if (fastMap.properties === "5+") {
+    document.getElementById("resultTitle").textContent = "Your portfolio should be reviewed as a connected coverage system.";
+    document.getElementById("resultCopy").textContent = "With 5+ rentals, the biggest risk is usually not one policy detail — it is how the portfolio handles liability, income interruption, occupancy, tenant requirements, and claim complexity across multiple properties.";
+    document.getElementById("ctaHeading").textContent = "Want a portfolio-level rental coverage review?";
+    document.getElementById("ctaCopy").textContent = "I’ll help review how the properties fit together, where the biggest weak points may be, and what should be confirmed first.";
+    document.getElementById("reviewMainLink").textContent = "Review My Rental Portfolio →";
+  } else if (fastMap.concern === "Liability / lawsuits") {
+    document.getElementById("ctaHeading").textContent = "Want to tighten liability before it is tested?";
+    document.getElementById("ctaCopy").textContent = "I’ll help review liability limits, umbrella compatibility, tenant requirements, and whether the setup matches the real exposure.";
+    document.getElementById("reviewMainLink").textContent = "Review My Liability Setup →";
+  } else if (fastMap.concern === "Loss of rent") {
+    document.getElementById("ctaHeading").textContent = "Want to confirm your rental income is protected?";
+    document.getElementById("ctaCopy").textContent = "I’ll help review whether loss of rent or rental income coverage exists, what may trigger it, and whether the limits make sense.";
+    document.getElementById("reviewMainLink").textContent = "Review My Income Protection →";
+  } else if (fastMap.concern === "Vacancy / between tenants") {
+    document.getElementById("ctaHeading").textContent = "Want to clarify your vacancy risk?";
+    document.getElementById("ctaCopy").textContent = "I’ll help review whether occupancy, vacancy, and tenant-transition details could create issues if a claim happens.";
+    document.getElementById("reviewMainLink").textContent = "Review My Occupancy Setup →";
+  }
+}
+
+function renderReport() {
+  const baseStatus = getStatus(score);
+  const priorityStatus = getPriorityStatus();
+  const status = score ? baseStatus : (priorityStatus || baseStatus);
+  const baseRisks = cleanList(risksParam);
+  const renderedRisks = deriveRisks(baseRisks);
+  const degrees = score ? Math.round((Math.max(0, Math.min(score, 100)) / 100) * 360) : (priority.toLowerCase().includes("high") ? 42 : priority.toLowerCase().includes("needs") ? 66 : 82);
+
+  document.getElementById("preparedName").textContent = name;
+  document.getElementById("preparedProperty").textContent = "Property: " + property;
+  document.getElementById("preparedDate").textContent = "Generated: " + new Date().toLocaleDateString();
+
+  document.getElementById("scoreNumber").textContent = score || "—";
+  const circle = document.getElementById("scoreCircle");
+  circle.className = `score-circle ${status.className}`;
+  circle.style.background = `conic-gradient(${status.color} ${degrees}deg, var(--blue-soft) ${degrees}deg)`;
+
+  const badge = document.getElementById("statusBadge");
+  badge.textContent = priority || status.badge;
+  badge.className = `status ${status.className}`;
+
+  document.getElementById("resultTitle").textContent = status.title;
+  document.getElementById("resultCopy").textContent = status.copy;
+
+  const riskGrid = document.getElementById("riskGrid");
+  riskGrid.innerHTML = "";
+
+  renderBreakdown(renderedRisks, score);
+
+  renderedRisks.forEach(risk => {
+    const severity = getSeverity(score, risk);
+    const div = document.createElement("div");
+    div.className = `risk-card ${severity.className}`;
+    div.innerHTML = `<div class="risk-top"><strong>${risk}</strong><span class="severity">${severity.label}</span></div><p>${riskDescriptions[risk] || "This area may deserve a closer look based on your answers."}</p>`;
+    riskGrid.appendChild(div);
+  });
+
+  applyFastPersonalization(status, renderedRisks);
+
+  const reviewUrl = buildReviewUrl(score, renderedRisks, status);
+  document.getElementById("reviewTopLink").href = reviewUrl;
+  document.getElementById("reviewMainLink").href = reviewUrl;
+}
+
+function downloadPDF() {
+  const element = document.querySelector(".report");
+  if (!element) return;
+
+  element.classList.add("pdf-mode");
+
+  const opt = {
+    margin: 0,
+    filename: "Rental-Coverage-Score-Report.pdf",
+    image: {
+      type: "jpeg",
+      quality: 1
+    },
+    html2canvas: {
+      scale: 3,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+      scrollY: 0,
+      windowWidth: 1200
+    },
+    pagebreak: {
+      mode: []
+    },
+    jsPDF: {
+      unit: "in",
+      format: "letter",
+      orientation: "portrait",
+      compress: true
+    }
+  };
+
+  html2pdf()
+    .set(opt)
+    .from(element)
+    .save()
+    .then(() => element.classList.remove("pdf-mode"))
+    .catch(() => element.classList.remove("pdf-mode"));
+}
+
+renderReport();
+</script>
+</body>
+</html>
