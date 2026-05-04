@@ -415,9 +415,7 @@ const params = new URLSearchParams(window.location.search);
 let storedLandlordData = {};
 try {
   storedLandlordData = JSON.parse(localStorage.getItem("coveragefit_landlord") || "{}");
-} catch(e) {
-  storedLandlordData = {};
-}
+} catch(e) {}
 
 if (!localStorage.getItem("cf_session")) {
   localStorage.setItem("cf_session", String(Date.now()));
@@ -426,302 +424,191 @@ if (!localStorage.getItem("cf_session")) {
 const rawScore = params.get("score") ?? storedLandlordData.score;
 const score = rawScore !== undefined && rawScore !== null && rawScore !== "" ? Number(rawScore) : null;
 
-const name = params.get("name") || params.get("first_name") || storedLandlordData.name || "Rental Property Owner";
-const property = params.get("property") || params.get("address") || params.get("zip") || storedLandlordData.property || "Not provided";
+const priority = (params.get("priority") || storedLandlordData.priority || "").toLowerCase();
+
+const name = params.get("name") || storedLandlordData.name || "Rental Property Owner";
+const property = params.get("property") || storedLandlordData.property || "Not provided";
 const risksParam = params.get("risks") || storedLandlordData.risks || "";
-const priority = params.get("priority") || storedLandlordData.priority || "";
-const source = params.get("source") || storedLandlordData.source || "CoverageFit Landlord Score Report";
 
-const fastMap = {
-  estimatedExposure: params.get("estimatedExposure") || storedLandlordData.estimatedExposure || "",
-  propertyType: params.get("propertyType") || storedLandlordData.fastPropertyType || "",
-  insuranceStatus: params.get("insuranceStatus") || storedLandlordData.fastInsuranceStatus || "",
-  concern: params.get("concern") || storedLandlordData.fastConcern || "",
-  properties: params.get("properties") || storedLandlordData.fastProperties || "",
-  tenantInsurance: params.get("tenantInsurance") || storedLandlordData.fastTenantInsurance || ""
-};
-
-const riskDescriptions = {
-  "Property Type": "Property classification may affect how the policy should be structured.",
-  "Policy Type": "The property may need review to confirm it is insured for rental use.",
-  "Income Protection": "Loss of rent or rental income protection may need review.",
-  "Loss of rent": "Loss of rent or rental income protection may need review if the property becomes unlivable.",
-  "Liability": "Liability limits may need review against tenant, guest, vendor, and visitor exposure.",
-  "Liability / lawsuits": "Liability limits may need review against tenant, guest, vendor, and visitor exposure.",
-  "Occupancy": "Vacancy, short-term rental use, or changing occupancy can affect risk and eligibility.",
-  "Vacancy / between tenants": "Vacancy or between-tenant status can affect risk, claim handling, and eligibility.",
-  "Water Damage": "Water damage can interrupt rent and create expensive repair scenarios.",
-  "Water damage": "Water damage can interrupt rent and create expensive repair scenarios.",
-  "Tenant Damage": "Tenant-caused damage can be misunderstood if the policy structure is unclear.",
-  "Tenant-caused damage": "Tenant-caused damage can be misunderstood if the policy structure is unclear.",
-  "Tenant Insurance": "Tenant renters insurance requirements may reduce confusion during tenant-related losses.",
-  "Portfolio Size": "Multiple rentals compound liability, income interruption, and policy-structure complexity.",
-  "Coverage Uncertainty": "Uncertainty itself is worth clarifying before relying on the policy."
-};
-
-function cleanList(value) {
-  return String(value || "").split(",").map(item => item.trim()).filter(Boolean);
-}
-
-function hasFastData() {
-  return Object.values(fastMap).some(Boolean);
-}
-
-function getStatus(scoreValue) {
-  if (scoreValue >= 80) return { badge:"Strong Starting Point", className:"good", title:"Your rental coverage appears to have a stronger starting structure.", copy:"Your answers suggest some important areas may already be addressed. It can still be worth checking limits, exclusions, and whether the policy matches the property’s actual use.", color:"var(--green)" };
-  if (scoreValue >= 60) return { badge:"Needs Review", className:"medium", title:"Your rental coverage may have gaps worth reviewing.", copy:"Your answers suggest possible uncertainty around key areas like income protection, liability, occupancy, water damage, or tenant requirements.", color:"var(--yellow)" };
-  return { badge:"High Gap Risk", className:"weak", title:"Your rental coverage may have high-priority areas to review.", copy:"Your answers show multiple areas that deserve a closer look before a claim exposes the problem.", color:"var(--red)" };
-}
-
-function getPriorityStatus() {
-  const p = (priority || "").toLowerCase();
-  if (p.includes("high")) return { badge: priority, className:"weak", color:"var(--red)", title:"Your fast check flagged a high-priority rental coverage review.", copy:"Your answers suggest possible exposure around policy structure, liability, income interruption, occupancy, or tenant-related risk." };
-  if (p.includes("needs")) return { badge: priority, className:"medium", color:"var(--yellow)", title:"Your fast check suggests your rental coverage is worth reviewing.", copy:"Your setup may be okay, but there are enough moving parts that the actual policy should be checked before relying on it in a claim." };
-  if (p.includes("solid")) return { badge: priority, className:"good", color:"var(--green)", title:"Your fast check suggests a solid starting point.", copy:"Your answers suggest fewer obvious red flags, but it can still be worth confirming policy structure, limits, and rental-use details." };
-  return null;
-}
-
-function getSeverity(scoreValue, risk) {
+/* -------------------------
+   SINGLE SOURCE OF TRUTH
+------------------------- */
+function getBand(scoreValue) {
   const hasScore = scoreValue !== null && !isNaN(scoreValue);
-  const p = (priority || "").toLowerCase();
 
-  if (!hasScore && p.includes("high")) return { label:"Priority", className:"priority" };
-  if (!hasScore && p.includes("needs")) return { label:"Review", className:"review" };
-  if (!hasScore) return { label:"Review", className:"review" };
-
-  if (scoreValue < 60) return { label:"Priority", className:"priority" };
-  if (scoreValue < 80) return { label:"Review", className:"review" };
-  return { label:"Confirm", className:"ok" };
-}
-
-function deriveRisks(baseRisks) {
-  let risks = [...baseRisks];
-
-  if (hasFastData()) {
-    if (fastMap.concern) risks.push(fastMap.concern);
-    if (fastMap.properties === "5+" || fastMap.properties === "2–5") risks.push("Portfolio Size");
-    if (fastMap.insuranceStatus) risks.push("Policy Type");
-    if (fastMap.tenantInsurance && fastMap.tenantInsurance !== "Yes — required") risks.push("Tenant Insurance");
+  if (hasScore) {
+    if (scoreValue >= 80) return buildBand("low");
+    if (scoreValue >= 60) return buildBand("medium");
+    return buildBand("high");
   }
 
+  if (priority.includes("high")) return buildBand("high");
+  if (priority.includes("needs")) return buildBand("medium");
+
+  return buildBand("medium");
+}
+
+function buildBand(level) {
+  if (level === "high") {
+    return {
+      level,
+      className: "weak",
+      badge: "High Gap Risk",
+      color: "var(--red)",
+      title: "Your rental coverage may have high-priority areas to review.",
+      copy: "Multiple areas may expose you during a claim if left unaddressed.",
+      cta: {
+        heading: "Let’s fix the gaps before they cost you",
+        copy: "I’ll walk through your policy and show exactly where the risks are.",
+        button: "Review My Coverage →"
+      }
+    };
+  }
+
+  if (level === "medium") {
+    return {
+      level,
+      className: "medium",
+      badge: "Needs Review",
+      color: "var(--yellow)",
+      title: "Your rental coverage may have gaps worth reviewing.",
+      copy: "Your setup may be okay, but there are areas worth confirming before relying on it.",
+      cta: {
+        heading: "Want to double-check your coverage?",
+        copy: "We’ll review key areas like liability, income protection, and structure.",
+        button: "Review My Coverage →"
+      }
+    };
+  }
+
+  return {
+    level,
+    className: "good",
+    badge: "Strong Starting Point",
+    color: "var(--green)",
+    title: "Your rental coverage appears to have a strong starting structure.",
+    copy: "Everything looks solid at a high level, but confirming details is still smart.",
+    cta: {
+      heading: "Want a quick confirmation review?",
+      copy: "We’ll validate limits, exclusions, and structure.",
+      button: "Confirm My Coverage →"
+    }
+  };
+}
+
+/* -------------------------
+   RISKS
+------------------------- */
+function cleanList(value) {
+  return String(value || "").split(",").map(v => v.trim()).filter(Boolean);
+}
+
+function deriveRisks(base) {
+  let risks = [...base];
   if (!risks.length) {
     risks = ["Policy Type", "Income Protection", "Liability"];
   }
-
-  return [...new Set(risks)].slice(0, 6);
+  return [...new Set(risks)].slice(0,6);
 }
 
-function getBreakdownCategories(risks, scoreValue) {
-  const hasScore = scoreValue !== null && !isNaN(scoreValue);
-  const p = (priority || "").toLowerCase();
-
-  const categories = [
-    { key:"Policy Type", title:"Policy Structure", copy:"Confirms whether the property is structured for rental use rather than owner-occupied use." },
-    { key:"Income Protection", alt:"Loss of rent", title:"Rental Income Protection", copy:"Checks whether rental income may be addressed if a covered loss makes the property unlivable." },
-    { key:"Liability", alt:"Liability / lawsuits", title:"Liability Exposure", copy:"Reviews tenant, guest, vendor, and visitor liability concerns against your coverage setup." },
-    { key:"Water Damage", alt:"Water damage", title:"Water / Property Loss", copy:"Highlights water-related risks that can create repair costs and income interruption." },
-    { key:"Portfolio Size", title:"Portfolio Complexity", copy:"Reviews how multiple rentals compound liability, income, occupancy, and policy management concerns." }
-  ];
-
-  return categories.slice(0, 4).map(cat => {
-    const flagged = risks.includes(cat.key) || risks.includes(cat.alt);
-    let severity = "ok", label = "Appears Aligned", width = 82;
-
-    if (flagged && ((!hasScore && p.includes("high")) || (hasScore && scoreValue < 60) || p.includes("high"))) {
-      severity = "priority";
-      label = "Review Soon";
-      width = 38;
-    } else if (flagged || (!hasScore && p.includes("needs"))) {
-      severity = "review";
-      label = "Worth Checking";
-      width = 58;
-    }
-
-    return { ...cat, severity, label, width };
-  });
+/* -------------------------
+   SEVERITY (NOW DETERMINISTIC)
+------------------------- */
+function getSeverity(band) {
+  if (band.level === "high") return { label:"Priority", className:"priority" };
+  if (band.level === "medium") return { label:"Review", className:"review" };
+  return { label:"Confirm", className:"ok" };
 }
 
-function renderBreakdown(risks, scoreValue) {
-  const grid = document.getElementById("breakdownGrid");
-  if (!grid) return;
-  grid.innerHTML = "";
-
-  getBreakdownCategories(risks, scoreValue).forEach(item => {
-    const div = document.createElement("div");
-    div.className = "breakdown-card";
-    div.innerHTML = `<h3>${item.title}</h3><p>${item.copy}</p><div class="breakdown-meter"><div class="breakdown-fill ${item.severity}" style="width:${item.width}%"></div></div><p class="breakdown-label">${item.label}</p>`;
-    grid.appendChild(div);
-  });
-
-  const nextStep = document.getElementById("recommendedNextStep");
-  if (nextStep) {
-    const hasScore = scoreValue !== null && !isNaN(scoreValue);
-    const concern = fastMap.concern || "";
-    const p = (priority || "").toLowerCase();
-
-    if (fastMap.properties === "5+") {
-      nextStep.innerHTML = `<strong>Recommended next step</strong><p>Review the portfolio as a whole: policy structure by property, liability limits, loss of rent, entity setup, tenant requirements, and vacancy rules.</p>`;
-    } else if (concern === "Liability / lawsuits") {
-      nextStep.innerHTML = `<strong>Recommended next step</strong><p>Review premises liability, umbrella compatibility, tenant requirements, and whether limits match the real exposure.</p>`;
-    } else if (concern === "Loss of rent") {
-      nextStep.innerHTML = `<strong>Recommended next step</strong><p>Confirm whether loss of rent or rental income protection exists, how it is triggered, and what limits or duration apply.</p>`;
-    } else if ((hasScore && scoreValue < 60) || p.includes("high")) {
-      nextStep.innerHTML = `<strong>Recommended next step</strong><p>A quick review of your policy structure and income protection setup would be a strong next step.</p>`;
-    } else if ((hasScore && scoreValue < 80) || p.includes("needs")) {
-      nextStep.innerHTML = `<strong>Recommended next step</strong><p>A quick review of the flagged areas against your actual policy declarations page would be a strong next step before relying on the coverage in a claim.</p>`;
-    } else {
-      nextStep.innerHTML = `<strong>Recommended next step</strong><p>Your answers suggest a stronger starting point. A review can still help confirm limits, exclusions, endorsements, and rental-use structure.</p>`;
-    }
-  }
+/* -------------------------
+   BREAKDOWN (ALIGNED WITH BAND)
+------------------------- */
+function getBreakdownLevel(band) {
+  if (band.level === "high") return { width: 35, className: "priority", label: "Review Soon" };
+  if (band.level === "medium") return { width: 55, className: "review", label: "Worth Checking" };
+  return { width: 80, className: "ok", label: "Appears Aligned" };
 }
 
-function buildReviewUrl(scoreValue, risks, status) {
-  const hasScore = scoreValue !== null && !isNaN(scoreValue);
-
-  const reviewParams = new URLSearchParams({
-    from: "report",
-    source,
-    coverage: "Rental Property",
-    score: hasScore ? String(scoreValue) : "",
-    risks: risks.join(","),
-    priority: priority || status.badge,
-    name,
-    property,
-    email: storedLandlordData.email || "",
-    phone: storedLandlordData.phone || "",
-    estimatedExposure: fastMap.estimatedExposure || "",
-    propertyType: fastMap.propertyType || "",
-    insuranceStatus: fastMap.insuranceStatus || "",
-    concern: fastMap.concern || "",
-    properties: fastMap.properties || "",
-    tenantInsurance: fastMap.tenantInsurance || ""
-  });
-
-  return `/landlord/plan?${reviewParams.toString()}`;
-}
-
-function applyFastPersonalization(status, renderedRisks) {
-  if (!hasFastData()) return;
-
-  document.getElementById("reportTitle").textContent = "Your Rental Coverage Fast Check.";
-  document.getElementById("heroCopy").textContent = "This report summarizes your quick check, estimated exposure range, and the areas that deserve the closest look before a claim tests the policy.";
-  document.getElementById("riskHeading").textContent = "Fast Check Priorities Worth Reviewing";
-  document.getElementById("breakdownHeading").textContent = "Fast Check Coverage Breakdown";
-  document.getElementById("breakdownLead").textContent = "This breakdown translates your fast-check answers into the coverage categories I would review first.";
-  document.getElementById("purposeCopy").textContent = "Turn your quick risk check into a focused review of the actual rental policy.";
-
-  const strip = document.getElementById("exposureStrip");
-  if (fastMap.estimatedExposure) {
-    strip.classList.add("show");
-    document.getElementById("exposureRange").textContent = fastMap.estimatedExposure;
-  }
-
-  document.getElementById("fastMeta").innerHTML = [
-    fastMap.propertyType ? `Property: ${fastMap.propertyType}` : "",
-    fastMap.properties ? `Portfolio: ${fastMap.properties}` : "",
-    fastMap.concern ? `Concern: ${fastMap.concern}` : ""
-  ].filter(Boolean).join("<br>");
-
-  const anchor = document.getElementById("anchorNote");
-  if (fastMap.estimatedExposure) {
-    anchor.textContent = `Your estimated exposure range (${fastMap.estimatedExposure}) is not a prediction. It is a directional anchor to help prioritize the areas most worth confirming against the actual policy.`;
-  }
-
-  if (fastMap.properties === "5+") {
-    document.getElementById("resultTitle").textContent = "Your portfolio should be reviewed as a connected coverage system.";
-    document.getElementById("resultCopy").textContent = "With 5+ rentals, the biggest risk is usually not one policy detail — it is how the portfolio handles liability, income interruption, occupancy, tenant requirements, and claim complexity across multiple properties.";
-    document.getElementById("ctaHeading").textContent = "Want a portfolio-level rental coverage review?";
-    document.getElementById("ctaCopy").textContent = "I’ll help review how the properties fit together, where the biggest weak points may be, and what should be confirmed first.";
-    document.getElementById("reviewMainLink").textContent = "Review My Rental Portfolio →";
-  } else if (fastMap.concern === "Liability / lawsuits") {
-    document.getElementById("ctaHeading").textContent = "Want to tighten liability before it is tested?";
-    document.getElementById("ctaCopy").textContent = "I’ll help review liability limits, umbrella compatibility, tenant requirements, and whether the setup matches the real exposure.";
-    document.getElementById("reviewMainLink").textContent = "Review My Liability Setup →";
-  } else if (fastMap.concern === "Loss of rent") {
-    document.getElementById("ctaHeading").textContent = "Want to confirm your rental income is protected?";
-    document.getElementById("ctaCopy").textContent = "I’ll help review whether loss of rent or rental income coverage exists, what may trigger it, and whether the limits make sense.";
-    document.getElementById("reviewMainLink").textContent = "Review My Income Protection →";
-  } else if (fastMap.concern === "Vacancy / between tenants") {
-    document.getElementById("ctaHeading").textContent = "Want to clarify your vacancy risk?";
-    document.getElementById("ctaCopy").textContent = "I’ll help review whether occupancy, vacancy, and tenant-transition details could create issues if a claim happens.";
-    document.getElementById("reviewMainLink").textContent = "Review My Occupancy Setup →";
-  }
-}
-
+/* -------------------------
+   RENDER
+------------------------- */
 function renderReport() {
-  const hasScore = score !== null && !isNaN(score);
+  const band = getBand(score);
+  const risks = deriveRisks(cleanList(risksParam));
 
-  const baseStatus = hasScore ? getStatus(score) : null;
-  const priorityStatus = getPriorityStatus();
-
-  const status = hasScore
-    ? baseStatus
-    : (priorityStatus || {
-        badge: "Fast Check Result",
-        className: "medium",
-        title: "Your rental coverage fast check is ready.",
-        copy: "This report highlights areas worth reviewing based on your answers.",
-        color: "var(--yellow)"
-      });
-
-  const baseRisks = cleanList(risksParam);
-  const renderedRisks = deriveRisks(baseRisks);
-
-  if (!renderedRisks.length) {
-    renderedRisks.push("Policy Type", "Income Protection", "Liability");
-  }
-
-  const degrees = hasScore
-    ? Math.round((Math.max(0, Math.min(score, 100)) / 100) * 360)
-    : (priority.toLowerCase().includes("high") ? 42 :
-       priority.toLowerCase().includes("needs") ? 66 : 82);
-
+  /* HEADER */
   document.getElementById("preparedName").textContent = name;
   document.getElementById("preparedProperty").textContent = "Property: " + property;
-  document.getElementById("preparedDate").textContent = "Generated: " + new Date().toLocaleDateString();
+  document.getElementById("preparedDate").textContent = new Date().toLocaleDateString();
+
+  /* SCORE */
+  const hasScore = score !== null && !isNaN(score);
+  const degrees = hasScore ? (Math.max(0, Math.min(score,100)) / 100) * 360 : 70;
 
   document.getElementById("scoreNumber").textContent = hasScore ? score : "—";
 
   const circle = document.getElementById("scoreCircle");
-  circle.className = `score-circle ${status.className}`;
-  circle.style.background = `conic-gradient(${status.color} ${degrees}deg, var(--blue-soft) ${degrees}deg)`;
+  circle.className = `score-circle ${band.className}`;
+  circle.style.background = `conic-gradient(${band.color} ${degrees}deg, var(--blue-soft) ${degrees}deg)`;
 
-  const badge = document.getElementById("statusBadge");
-  badge.textContent = priority || status.badge;
-  badge.className = `status ${status.className}`;
+  /* STATUS */
+  document.getElementById("statusBadge").textContent = band.badge;
+  document.getElementById("statusBadge").className = `status ${band.className}`;
 
-  document.getElementById("resultTitle").textContent = status.title;
-  document.getElementById("resultCopy").textContent = status.copy;
+  document.getElementById("resultTitle").textContent = band.title;
+  document.getElementById("resultCopy").textContent = band.copy;
 
+  /* RISKS */
   const riskGrid = document.getElementById("riskGrid");
   riskGrid.innerHTML = "";
 
-  renderBreakdown(renderedRisks, score);
+  const severity = getSeverity(band);
 
-  renderedRisks.forEach(risk => {
-    const severity = getSeverity(score, risk);
+  risks.forEach(risk => {
     const div = document.createElement("div");
     div.className = `risk-card ${severity.className}`;
-    div.innerHTML = `<div class="risk-top"><strong>${risk}</strong><span class="severity">${severity.label}</span></div><p>${riskDescriptions[risk] || "This area may deserve a closer look based on your answers."}</p>`;
+    div.innerHTML = `
+      <div class="risk-top">
+        <strong>${risk}</strong>
+        <span class="severity">${severity.label}</span>
+      </div>
+      <p>This area may deserve a closer look based on your answers.</p>
+    `;
     riskGrid.appendChild(div);
   });
 
-  applyFastPersonalization(status, renderedRisks);
+  /* BREAKDOWN */
+  const breakdown = getBreakdownLevel(band);
+  const grid = document.getElementById("breakdownGrid");
+  grid.innerHTML = "";
 
-  const reviewUrl = buildReviewUrl(score, renderedRisks, status);
-  document.getElementById("reviewTopLink").href = reviewUrl;
-  document.getElementById("reviewMainLink").href = reviewUrl;
+  for (let i = 0; i < 4; i++) {
+    const div = document.createElement("div");
+    div.className = "breakdown-card";
+    div.innerHTML = `
+      <h3>Coverage Area</h3>
+      <p>Based on your answers, this area may need review.</p>
+      <div class="breakdown-meter">
+        <div class="breakdown-fill ${breakdown.className}" style="width:${breakdown.width}%"></div>
+      </div>
+      <p class="breakdown-label">${breakdown.label}</p>
+    `;
+    grid.appendChild(div);
+  }
+
+  /* CTA (NOW MATCHES BAND) */
+  document.getElementById("ctaHeading").textContent = band.cta.heading;
+  document.getElementById("ctaCopy").textContent = band.cta.copy;
+  document.getElementById("reviewMainLink").textContent = band.cta.button;
 }
 
+/* -------------------------
+   PDF
+------------------------- */
 async function downloadPDF() {
   const source = document.querySelector(".report");
-  if (!source) return;
-
   const clone = source.cloneNode(true);
   clone.classList.add("pdf-mode");
-
-  const previousOverflow = document.body.style.overflow;
-  document.body.style.overflow = "hidden";
 
   const sandbox = document.createElement("div");
   sandbox.className = "pdf-export-sandbox";
@@ -733,34 +620,19 @@ async function downloadPDF() {
   const pdf = new jspdf.jsPDF({
     orientation: "portrait",
     unit: "in",
-    format: "letter",
-    compress: true
+    format: "letter"
   });
 
-  try {
-    for (let i = 0; i < pages.length; i++) {
-      const canvas = await html2canvas(pages[i], {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-        width: 816,
-        height: 1056,
-        windowWidth: 816,
-        windowHeight: 1056,
-        scrollX: 0,
-        scrollY: 0
-      });
+  for (let i = 0; i < pages.length; i++) {
+    const canvas = await html2canvas(pages[i], { scale: 2 });
+    const img = canvas.toDataURL("image/jpeg", 0.98);
 
-      const imgData = canvas.toDataURL("image/jpeg", 0.98);
-      if (i > 0) pdf.addPage("letter", "portrait");
-      pdf.addImage(imgData, "JPEG", 0, 0, 8.5, 11);
-    }
-
-    pdf.save("Rental-Coverage-Score-Report.pdf");
-  } finally {
-    sandbox.remove();
-    document.body.style.overflow = previousOverflow;
+    if (i > 0) pdf.addPage();
+    pdf.addImage(img, "JPEG", 0, 0, 8.5, 11);
   }
+
+  pdf.save("Rental-Coverage-Score-Report.pdf");
+  sandbox.remove();
 }
 
 document.addEventListener("DOMContentLoaded", renderReport);
