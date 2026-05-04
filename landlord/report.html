@@ -431,7 +431,7 @@ const property = params.get("property") || storedLandlordData.property || "Not p
 const risksParam = params.get("risks") || storedLandlordData.risks || "";
 
 /* -------------------------
-   SINGLE SOURCE OF TRUTH
+   BAND SYSTEM (UNCHANGED - GOOD)
 ------------------------- */
 function getBand(scoreValue) {
   const hasScore = scoreValue !== null && !isNaN(scoreValue);
@@ -497,7 +497,46 @@ function buildBand(level) {
 }
 
 /* -------------------------
-   RISKS
+   RISK DESCRIPTIONS (RESTORED 🔥)
+------------------------- */
+const riskDescriptions = {
+  "Policy Type": "The property may need review to confirm it is insured for rental use.",
+  "Income Protection": "Loss of rent or rental income protection may need review.",
+  "Liability": "Liability limits may need review against tenant, guest, vendor, and visitor exposure.",
+  "Occupancy": "Vacancy or changing occupancy can affect coverage.",
+  "Water Damage": "Water damage can interrupt rent and create expensive repair scenarios.",
+  "Tenant Insurance": "Tenant renters insurance requirements may reduce confusion during tenant-related losses.",
+  "Portfolio Size": "Multiple rentals increase complexity and exposure."
+};
+
+/* -------------------------
+   CATEGORY MAP (THE BIG FIX)
+------------------------- */
+const breakdownCategories = [
+  {
+    keys: ["Policy Type"],
+    title: "Policy Structure",
+    copy: "Confirms whether the property is structured for rental use rather than owner-occupied use."
+  },
+  {
+    keys: ["Income Protection"],
+    title: "Rental Income Protection",
+    copy: "Checks whether rental income is covered if the property becomes unlivable."
+  },
+  {
+    keys: ["Liability"],
+    title: "Liability Exposure",
+    copy: "Reviews tenant, guest, vendor, and visitor liability exposure."
+  },
+  {
+    keys: ["Water Damage"],
+    title: "Water / Property Loss",
+    copy: "Highlights water-related risks that can create repair costs and income interruption."
+  }
+];
+
+/* -------------------------
+   HELPERS
 ------------------------- */
 function cleanList(value) {
   return String(value || "").split(",").map(v => v.trim()).filter(Boolean);
@@ -511,22 +550,18 @@ function deriveRisks(base) {
   return [...new Set(risks)].slice(0,6);
 }
 
-/* -------------------------
-   SEVERITY (NOW DETERMINISTIC)
-------------------------- */
 function getSeverity(band) {
   if (band.level === "high") return { label:"Priority", className:"priority" };
   if (band.level === "medium") return { label:"Review", className:"review" };
   return { label:"Confirm", className:"ok" };
 }
 
-/* -------------------------
-   BREAKDOWN (ALIGNED WITH BAND)
-------------------------- */
-function getBreakdownLevel(band) {
+function getBreakdownLevel(band, isFlagged) {
+  if (!isFlagged) return { width: 80, className: "ok", label: "Appears Aligned" };
+
   if (band.level === "high") return { width: 35, className: "priority", label: "Review Soon" };
   if (band.level === "medium") return { width: 55, className: "review", label: "Worth Checking" };
-  return { width: 80, className: "ok", label: "Appears Aligned" };
+  return { width: 70, className: "ok", label: "Confirm" };
 }
 
 /* -------------------------
@@ -536,12 +571,10 @@ function renderReport() {
   const band = getBand(score);
   const risks = deriveRisks(cleanList(risksParam));
 
-  /* HEADER */
   document.getElementById("preparedName").textContent = name;
   document.getElementById("preparedProperty").textContent = "Property: " + property;
   document.getElementById("preparedDate").textContent = new Date().toLocaleDateString();
 
-  /* SCORE */
   const hasScore = score !== null && !isNaN(score);
   const degrees = hasScore ? (Math.max(0, Math.min(score,100)) / 100) * 360 : 70;
 
@@ -551,14 +584,13 @@ function renderReport() {
   circle.className = `score-circle ${band.className}`;
   circle.style.background = `conic-gradient(${band.color} ${degrees}deg, var(--blue-soft) ${degrees}deg)`;
 
-  /* STATUS */
   document.getElementById("statusBadge").textContent = band.badge;
   document.getElementById("statusBadge").className = `status ${band.className}`;
 
   document.getElementById("resultTitle").textContent = band.title;
   document.getElementById("resultCopy").textContent = band.copy;
 
-  /* RISKS */
+  /* RISK GRID (NOW SMART AGAIN) */
   const riskGrid = document.getElementById("riskGrid");
   riskGrid.innerHTML = "";
 
@@ -572,70 +604,40 @@ function renderReport() {
         <strong>${risk}</strong>
         <span class="severity">${severity.label}</span>
       </div>
-      <p>This area may deserve a closer look based on your answers.</p>
+      <p>${riskDescriptions[risk] || "This area may deserve a closer look based on your answers."}</p>
     `;
     riskGrid.appendChild(div);
   });
 
-  /* BREAKDOWN */
-  const breakdown = getBreakdownLevel(band);
+  /* BREAKDOWN (FIXED 🔥) */
   const grid = document.getElementById("breakdownGrid");
   grid.innerHTML = "";
 
-  for (let i = 0; i < 4; i++) {
+  breakdownCategories.forEach(cat => {
+    const flagged = cat.keys.some(k => risks.includes(k));
+    const level = getBreakdownLevel(band, flagged);
+
     const div = document.createElement("div");
     div.className = "breakdown-card";
     div.innerHTML = `
-      <h3>Coverage Area</h3>
-      <p>Based on your answers, this area may need review.</p>
+      <h3>${cat.title}</h3>
+      <p>${cat.copy}</p>
       <div class="breakdown-meter">
-        <div class="breakdown-fill ${breakdown.className}" style="width:${breakdown.width}%"></div>
+        <div class="breakdown-fill ${level.className}" style="width:${level.width}%"></div>
       </div>
-      <p class="breakdown-label">${breakdown.label}</p>
+      <p class="breakdown-label">${level.label}</p>
     `;
     grid.appendChild(div);
-  }
+  });
 
-  /* CTA (NOW MATCHES BAND) */
+  /* CTA */
   document.getElementById("ctaHeading").textContent = band.cta.heading;
   document.getElementById("ctaCopy").textContent = band.cta.copy;
   document.getElementById("reviewMainLink").textContent = band.cta.button;
 }
 
-/* -------------------------
-   PDF
-------------------------- */
-async function downloadPDF() {
-  const source = document.querySelector(".report");
-  const clone = source.cloneNode(true);
-  clone.classList.add("pdf-mode");
-
-  const sandbox = document.createElement("div");
-  sandbox.className = "pdf-export-sandbox";
-  sandbox.appendChild(clone);
-  document.body.appendChild(sandbox);
-
-  const pages = Array.from(clone.querySelectorAll(".pdf-page"));
-
-  const pdf = new jspdf.jsPDF({
-    orientation: "portrait",
-    unit: "in",
-    format: "letter"
-  });
-
-  for (let i = 0; i < pages.length; i++) {
-    const canvas = await html2canvas(pages[i], { scale: 2 });
-    const img = canvas.toDataURL("image/jpeg", 0.98);
-
-    if (i > 0) pdf.addPage();
-    pdf.addImage(img, "JPEG", 0, 0, 8.5, 11);
-  }
-
-  pdf.save("Rental-Coverage-Score-Report.pdf");
-  sandbox.remove();
-}
-
 document.addEventListener("DOMContentLoaded", renderReport);
 </script>
+
 </body>
 </html>
