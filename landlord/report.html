@@ -423,7 +423,9 @@ if (!localStorage.getItem("cf_session")) {
   localStorage.setItem("cf_session", String(Date.now()));
 }
 
-const score = Number(params.get("score") || storedLandlordData.score || 0);
+const rawScore = params.get("score") ?? storedLandlordData.score;
+const score = rawScore !== undefined && rawScore !== null && rawScore !== "" ? Number(rawScore) : null;
+
 const name = params.get("name") || params.get("first_name") || storedLandlordData.name || "Rental Property Owner";
 const property = params.get("property") || params.get("address") || params.get("zip") || storedLandlordData.property || "Not provided";
 const risksParam = params.get("risks") || storedLandlordData.risks || "";
@@ -465,9 +467,9 @@ function hasFastData() {
   return Object.values(fastMap).some(Boolean);
 }
 
-function getStatus(score) {
-  if (score >= 80) return { badge:"Strong Starting Point", className:"good", title:"Your rental coverage appears to have a stronger starting structure.", copy:"Your answers suggest some important areas may already be addressed. It can still be worth checking limits, exclusions, and whether the policy matches the property’s actual use.", color:"var(--green)" };
-  if (score >= 60) return { badge:"Needs Review", className:"medium", title:"Your rental coverage may have gaps worth reviewing.", copy:"Your answers suggest possible uncertainty around key areas like income protection, liability, occupancy, water damage, or tenant requirements.", color:"var(--yellow)" };
+function getStatus(scoreValue) {
+  if (scoreValue >= 80) return { badge:"Strong Starting Point", className:"good", title:"Your rental coverage appears to have a stronger starting structure.", copy:"Your answers suggest some important areas may already be addressed. It can still be worth checking limits, exclusions, and whether the policy matches the property’s actual use.", color:"var(--green)" };
+  if (scoreValue >= 60) return { badge:"Needs Review", className:"medium", title:"Your rental coverage may have gaps worth reviewing.", copy:"Your answers suggest possible uncertainty around key areas like income protection, liability, occupancy, water damage, or tenant requirements.", color:"var(--yellow)" };
   return { badge:"High Gap Risk", className:"weak", title:"Your rental coverage may have high-priority areas to review.", copy:"Your answers show multiple areas that deserve a closer look before a claim exposes the problem.", color:"var(--red)" };
 }
 
@@ -479,12 +481,16 @@ function getPriorityStatus() {
   return null;
 }
 
-function getSeverity(score, risk) {
+function getSeverity(scoreValue, risk) {
+  const hasScore = scoreValue !== null && !isNaN(scoreValue);
   const p = (priority || "").toLowerCase();
-  if (score === 0 && p.includes("high")) return { label:"Priority", className:"priority" };
-  if (score === 0 && p.includes("needs")) return { label:"Review", className:"review" };
-  if (score < 60) return { label:"Priority", className:"priority" };
-  if (score < 80) return { label:"Review", className:"review" };
+
+  if (!hasScore && p.includes("high")) return { label:"Priority", className:"priority" };
+  if (!hasScore && p.includes("needs")) return { label:"Review", className:"review" };
+  if (!hasScore) return { label:"Review", className:"review" };
+
+  if (scoreValue < 60) return { label:"Priority", className:"priority" };
+  if (scoreValue < 80) return { label:"Review", className:"review" };
   return { label:"Confirm", className:"ok" };
 }
 
@@ -498,12 +504,17 @@ function deriveRisks(baseRisks) {
     if (fastMap.tenantInsurance && fastMap.tenantInsurance !== "Yes — required") risks.push("Tenant Insurance");
   }
 
-  if (!risks.length) risks = ["Policy Type", "Income Protection", "Liability"];
+  if (!risks.length) {
+    risks = ["Policy Type", "Income Protection", "Liability"];
+  }
 
-  return [...new Set(risks)].slice(0,6);
+  return [...new Set(risks)].slice(0, 6);
 }
 
-function getBreakdownCategories(risks, score) {
+function getBreakdownCategories(risks, scoreValue) {
+  const hasScore = scoreValue !== null && !isNaN(scoreValue);
+  const p = (priority || "").toLowerCase();
+
   const categories = [
     { key:"Policy Type", title:"Policy Structure", copy:"Confirms whether the property is structured for rental use rather than owner-occupied use." },
     { key:"Income Protection", alt:"Loss of rent", title:"Rental Income Protection", copy:"Checks whether rental income may be addressed if a covered loss makes the property unlivable." },
@@ -512,21 +523,30 @@ function getBreakdownCategories(risks, score) {
     { key:"Portfolio Size", title:"Portfolio Complexity", copy:"Reviews how multiple rentals compound liability, income, occupancy, and policy management concerns." }
   ];
 
-  return categories.slice(0,4).map(cat => {
+  return categories.slice(0, 4).map(cat => {
     const flagged = risks.includes(cat.key) || risks.includes(cat.alt);
     let severity = "ok", label = "Appears Aligned", width = 82;
-    if (flagged && (score < 60 || priority.toLowerCase().includes("high"))) { severity = "priority"; label = "Review Soon"; width = 38; }
-    else if (flagged) { severity = "review"; label = "Worth Checking"; width = 58; }
+
+    if (flagged && ((!hasScore && p.includes("high")) || (hasScore && scoreValue < 60) || p.includes("high"))) {
+      severity = "priority";
+      label = "Review Soon";
+      width = 38;
+    } else if (flagged || (!hasScore && p.includes("needs"))) {
+      severity = "review";
+      label = "Worth Checking";
+      width = 58;
+    }
+
     return { ...cat, severity, label, width };
   });
 }
 
-function renderBreakdown(risks, score) {
+function renderBreakdown(risks, scoreValue) {
   const grid = document.getElementById("breakdownGrid");
   if (!grid) return;
   grid.innerHTML = "";
 
-  getBreakdownCategories(risks, score).forEach(item => {
+  getBreakdownCategories(risks, scoreValue).forEach(item => {
     const div = document.createElement("div");
     div.className = "breakdown-card";
     div.innerHTML = `<h3>${item.title}</h3><p>${item.copy}</p><div class="breakdown-meter"><div class="breakdown-fill ${item.severity}" style="width:${item.width}%"></div></div><p class="breakdown-label">${item.label}</p>`;
@@ -535,16 +555,19 @@ function renderBreakdown(risks, score) {
 
   const nextStep = document.getElementById("recommendedNextStep");
   if (nextStep) {
+    const hasScore = scoreValue !== null && !isNaN(scoreValue);
     const concern = fastMap.concern || "";
+    const p = (priority || "").toLowerCase();
+
     if (fastMap.properties === "5+") {
       nextStep.innerHTML = `<strong>Recommended next step</strong><p>Review the portfolio as a whole: policy structure by property, liability limits, loss of rent, entity setup, tenant requirements, and vacancy rules.</p>`;
     } else if (concern === "Liability / lawsuits") {
       nextStep.innerHTML = `<strong>Recommended next step</strong><p>Review premises liability, umbrella compatibility, tenant requirements, and whether limits match the real exposure.</p>`;
     } else if (concern === "Loss of rent") {
       nextStep.innerHTML = `<strong>Recommended next step</strong><p>Confirm whether loss of rent or rental income protection exists, how it is triggered, and what limits or duration apply.</p>`;
-    } else if (score < 60 || priority.toLowerCase().includes("high")) {
+    } else if ((hasScore && scoreValue < 60) || p.includes("high")) {
       nextStep.innerHTML = `<strong>Recommended next step</strong><p>A quick review of your policy structure and income protection setup would be a strong next step.</p>`;
-    } else if (score < 80 || priority.toLowerCase().includes("needs")) {
+    } else if ((hasScore && scoreValue < 80) || p.includes("needs")) {
       nextStep.innerHTML = `<strong>Recommended next step</strong><p>A quick review of the flagged areas against your actual policy declarations page would be a strong next step before relying on the coverage in a claim.</p>`;
     } else {
       nextStep.innerHTML = `<strong>Recommended next step</strong><p>Your answers suggest a stronger starting point. A review can still help confirm limits, exclusions, endorsements, and rental-use structure.</p>`;
@@ -552,12 +575,14 @@ function renderBreakdown(risks, score) {
   }
 }
 
-function buildReviewUrl(score, risks, status) {
+function buildReviewUrl(scoreValue, risks, status) {
+  const hasScore = scoreValue !== null && !isNaN(scoreValue);
+
   const reviewParams = new URLSearchParams({
     from: "report",
     source,
     coverage: "Rental Property",
-    score: String(score || ""),
+    score: hasScore ? String(scoreValue) : "",
     risks: risks.join(","),
     priority: priority || status.badge,
     name,
@@ -571,6 +596,7 @@ function buildReviewUrl(score, risks, status) {
     properties: fastMap.properties || "",
     tenantInsurance: fastMap.tenantInsurance || ""
   });
+
   return `/landlord/plan?${reviewParams.toString()}`;
 }
 
@@ -623,18 +649,39 @@ function applyFastPersonalization(status, renderedRisks) {
 }
 
 function renderReport() {
-  const baseStatus = getStatus(score);
+  const hasScore = score !== null && !isNaN(score);
+
+  const baseStatus = hasScore ? getStatus(score) : null;
   const priorityStatus = getPriorityStatus();
-  const status = score ? baseStatus : (priorityStatus || baseStatus);
+
+  const status = hasScore
+    ? baseStatus
+    : (priorityStatus || {
+        badge: "Fast Check Result",
+        className: "medium",
+        title: "Your rental coverage fast check is ready.",
+        copy: "This report highlights areas worth reviewing based on your answers.",
+        color: "var(--yellow)"
+      });
+
   const baseRisks = cleanList(risksParam);
   const renderedRisks = deriveRisks(baseRisks);
-  const degrees = score ? Math.round((Math.max(0, Math.min(score, 100)) / 100) * 360) : (priority.toLowerCase().includes("high") ? 42 : priority.toLowerCase().includes("needs") ? 66 : 82);
+
+  if (!renderedRisks.length) {
+    renderedRisks.push("Policy Type", "Income Protection", "Liability");
+  }
+
+  const degrees = hasScore
+    ? Math.round((Math.max(0, Math.min(score, 100)) / 100) * 360)
+    : (priority.toLowerCase().includes("high") ? 42 :
+       priority.toLowerCase().includes("needs") ? 66 : 82);
 
   document.getElementById("preparedName").textContent = name;
   document.getElementById("preparedProperty").textContent = "Property: " + property;
   document.getElementById("preparedDate").textContent = "Generated: " + new Date().toLocaleDateString();
 
-  document.getElementById("scoreNumber").textContent = score || "—";
+  document.getElementById("scoreNumber").textContent = hasScore ? score : "—";
+
   const circle = document.getElementById("scoreCircle");
   circle.className = `score-circle ${status.className}`;
   circle.style.background = `conic-gradient(${status.color} ${degrees}deg, var(--blue-soft) ${degrees}deg)`;
@@ -705,9 +752,7 @@ async function downloadPDF() {
       });
 
       const imgData = canvas.toDataURL("image/jpeg", 0.98);
-
       if (i > 0) pdf.addPage("letter", "portrait");
-
       pdf.addImage(imgData, "JPEG", 0, 0, 8.5, 11);
     }
 
@@ -717,6 +762,8 @@ async function downloadPDF() {
     document.body.style.overflow = previousOverflow;
   }
 }
+
+document.addEventListener("DOMContentLoaded", renderReport);
 </script>
 </body>
 </html>
