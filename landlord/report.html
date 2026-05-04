@@ -288,7 +288,8 @@ h1 { margin:0; font-size:35px; line-height:1; letter-spacing:-.07em; color:var(-
   .footer > div { margin-bottom:12px; }
 }
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 
 <body>
@@ -665,109 +666,57 @@ function renderReport() {
   document.getElementById("reviewMainLink").href = reviewUrl;
 }
 
-function downloadPDF() {
-
+async function downloadPDF() {
   const source = document.querySelector(".report");
-
   if (!source) return;
 
   const clone = source.cloneNode(true);
-
   clone.classList.add("pdf-mode");
 
   const previousOverflow = document.body.style.overflow;
-
   document.body.style.overflow = "hidden";
 
   const sandbox = document.createElement("div");
-
   sandbox.className = "pdf-export-sandbox";
-
   sandbox.appendChild(clone);
-
   document.body.appendChild(sandbox);
 
-  const opt = {
+  const pages = Array.from(clone.querySelectorAll(".pdf-page"));
 
-    margin: 0,
+  const pdf = new jspdf.jsPDF({
+    orientation: "portrait",
+    unit: "in",
+    format: "letter",
+    compress: true
+  });
 
-    filename: "Rental-Coverage-Score-Report.pdf",
+  try {
+    for (let i = 0; i < pages.length; i++) {
+      const canvas = await html2canvas(pages[i], {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        width: 816,
+        height: 1056,
+        windowWidth: 816,
+        windowHeight: 1056,
+        scrollX: 0,
+        scrollY: 0
+      });
 
-    image: { type: "jpeg", quality: 0.98 },
+      const imgData = canvas.toDataURL("image/jpeg", 0.98);
 
-    html2canvas: {
+      if (i > 0) pdf.addPage("letter", "portrait");
 
-      scale: 2,
-
-      useCORS: true,
-
-      backgroundColor: "#ffffff",
-
-      scrollX: 0,
-
-      scrollY: 0,
-
-      x: 0,
-
-      y: 0,
-
-      width: 816,
-
-      windowWidth: 816,
-
-      windowHeight: 1056
-
-    },
-
-    pagebreak: {
-
-      mode: ["css", "legacy"],
-
-      avoid: [".pdf-page"]
-
-    },
-
-    jsPDF: {
-
-      unit: "in",
-
-      format: "letter",
-
-      orientation: "portrait",
-
-      compress: true
-
+      pdf.addImage(imgData, "JPEG", 0, 0, 8.5, 11);
     }
 
-  };
-
-  html2pdf()
-
-    .set(opt)
-
-    .from(clone)
-
-    .save()
-
-    .then(() => {
-
-      sandbox.remove();
-
-      document.body.style.overflow = previousOverflow;
-
-    })
-
-    .catch(() => {
-
-      sandbox.remove();
-
-      document.body.style.overflow = previousOverflow;
-
-    });
-
+    pdf.save("Rental-Coverage-Score-Report.pdf");
+  } finally {
+    sandbox.remove();
+    document.body.style.overflow = previousOverflow;
+  }
 }
-
-renderReport();
 </script>
 </body>
 </html>
