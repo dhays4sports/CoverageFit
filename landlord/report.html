@@ -637,6 +637,50 @@ function renderReport() {
 }
 
 document.addEventListener("DOMContentLoaded", renderReport);
+
+  async function downloadPDF() {
+  const source = document.querySelector(".report");
+  if (!source) return;
+
+  const clone = source.cloneNode(true);
+  clone.classList.add("pdf-mode");
+
+  const sandbox = document.createElement("div");
+  sandbox.className = "pdf-export-sandbox";
+  sandbox.appendChild(clone);
+  document.body.appendChild(sandbox);
+
+  const pages = Array.from(clone.querySelectorAll(".pdf-page"));
+
+  const pdf = new jspdf.jsPDF({
+    orientation: "portrait",
+    unit: "in",
+    format: "letter"
+  });
+
+  try {
+    for (let i = 0; i < pages.length; i++) {
+      const canvas = await html2canvas(pages[i], {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: 816,
+        windowHeight: 1056
+      });
+
+      const img = canvas.toDataURL("image/jpeg", 0.98);
+
+      if (i > 0) pdf.addPage("letter", "portrait");
+      pdf.addImage(img, "JPEG", 0, 0, 8.5, 11);
+    }
+
+    pdf.save("Rental-Coverage-Score-Report.pdf");
+  } finally {
+    sandbox.remove();
+  }
+}
 </script>
 
 </body>
