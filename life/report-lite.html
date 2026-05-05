@@ -200,6 +200,13 @@ p{
   color:var(--blue);
 }
 
+.choiceGrid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:12px;
+  margin-top:14px;
+}
+
 .cta{
   display:block;
   width:100%;
@@ -212,7 +219,28 @@ p{
   color:white;
   background:linear-gradient(135deg,var(--red),#b90024);
   box-shadow:0 14px 30px rgba(227,24,55,.25);
-  margin-top:14px;
+}
+
+.secondaryBox{
+  display:block;
+  width:100%;
+  text-align:center;
+  text-decoration:none;
+  border:1px solid var(--border);
+  border-radius:17px;
+  padding:16px;
+  font-size:16px;
+  font-weight:950;
+  color:var(--blue);
+  background:white;
+}
+
+.helperLine{
+  font-size:13px;
+  color:var(--muted);
+  line-height:1.45;
+  margin-top:8px;
+  text-align:center;
 }
 
 .secondary{
@@ -292,23 +320,37 @@ p{
   </section>
 
   <section class="card">
-    <h2>The real next step</h2>
+    <h2>Next Step: Check Your Real Options</h2>
 
     <p>
-      This page is not a quote and it cannot approve you. The next step is simple:
+      This quick check only estimates whether there <strong>might</strong> be a gap. The Farmers application is what helps determine eligibility and possible coverage.
     </p>
 
     <div class="callout">
-      <strong>Complete the Farmers life application/questionnaire</strong><br>
-      so we can see if you may qualify, how much coverage may be available, and what options make sense.
+      <strong>Two easy options:</strong><br>
+      You can complete the application here with Dylan at the table, or have it emailed to you and finish it later.
     </div>
 
-    <a class="cta" id="emailCta" href="#">Have Dylan Send Me the Application</a>
+    <div class="choiceGrid">
+      <a class="cta" id="tableCta" href="#">
+        Complete the Application With Dylan Here
+      </a>
+      <div class="helperLine">
+        Dylan can help you get started on the laptop at the table.
+      </div>
+
+      <a class="secondaryBox" id="emailCta" href="#">
+        Email Me the Application Instead
+      </a>
+      <div class="helperLine">
+        No pressure — you can complete it later from your own device.
+      </div>
+    </div>
 
     <a class="secondary" id="textCta" href="#">Text Dylan Instead</a>
 
     <p class="micro">
-      Completing the application does not mean you are required to buy a policy. Coverage, eligibility, pricing, and approval are subject to underwriting and Farmers guidelines.
+      Takes a few minutes. No commitment to buy. Coverage, eligibility, pricing, and approval are subject to application, underwriting, and Farmers guidelines.
     </p>
   </section>
 
@@ -434,6 +476,11 @@ Email: ${email}`
 
 document.getElementById("textCta").href =
   `sms:4088262465&body=${smsBody}`;
+
+document.getElementById("tableCta").addEventListener("click", function(e){
+  e.preventDefault();
+  alert("Perfect — Dylan will help you complete the Farmers application on the laptop at the table.");
+});
 </script>
 
 </body>
