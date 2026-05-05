@@ -4,7 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<title>Your Protection Check Result | Dylan Haysbert</title>
+<title>Your Life Protection Check Result | Dylan Haysbert</title>
+<meta name="description" content="See whether it may be worth completing a Farmers life insurance application to check what you could qualify for." />
 
 <style>
 :root{
@@ -20,22 +21,59 @@
   --green:#15803d;
   --yellow:#b45309;
   --soft:#eef4ff;
+  --redsoft:#fff1f3;
+  --shadow:0 18px 45px rgba(7,25,54,.12);
 }
+
 *{box-sizing:border-box}
+
 body{
   margin:0;
   font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  background:linear-gradient(180deg,#fff 0%,var(--bg) 100%);
+  background:linear-gradient(180deg,#ffffff 0%,var(--bg) 100%);
   color:var(--text);
 }
-.wrap{max-width:540px;margin:auto;padding:18px}
-.result{
+
+.wrap{
+  max-width:540px;
+  margin:auto;
+  padding:18px;
+}
+
+.brand{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:14px;
+  font-size:12px;
+  font-weight:900;
+  color:var(--blue);
+}
+
+.farmers{
+  background:var(--blue);
+  color:white;
+  padding:8px 11px;
+  border-radius:12px;
+  line-height:1;
+  text-align:center;
+  font-size:12px;
+}
+
+.farmers small{
+  display:block;
+  font-size:8px;
+  letter-spacing:.08em;
+}
+
+.hero{
   background:linear-gradient(135deg,var(--blue),var(--dark));
   color:white;
   border-radius:30px;
   padding:30px 22px;
-  box-shadow:0 18px 45px rgba(7,25,54,.18);
+  box-shadow:var(--shadow);
 }
+
 .badge{
   display:inline-flex;
   background:rgba(255,255,255,.14);
@@ -47,36 +85,43 @@ body{
   text-transform:uppercase;
   margin-bottom:18px;
 }
+
 h1{
   font-size:34px;
   line-height:1.03;
   margin:0 0 12px;
   letter-spacing:-.045em;
 }
+
 .sub{
   font-size:16px;
   line-height:1.5;
   opacity:.92;
+  margin:0;
 }
-.scoreBox{
+
+.resultBox{
   background:white;
   color:var(--text);
   border-radius:24px;
   padding:20px;
   margin-top:18px;
 }
-.scoreLabel{
+
+.resultLabel{
   font-size:12px;
   font-weight:900;
   text-transform:uppercase;
   color:var(--muted);
 }
-.score{
-  font-size:46px;
+
+.resultTitle{
+  font-size:28px;
   font-weight:950;
-  letter-spacing:-.05em;
-  margin:4px 0;
+  letter-spacing:-.04em;
+  margin:4px 0 8px;
 }
+
 .level{
   display:inline-flex;
   padding:8px 12px;
@@ -86,6 +131,7 @@ h1{
   font-size:13px;
   font-weight:900;
 }
+
 .card{
   background:white;
   border:1px solid var(--border);
@@ -94,18 +140,29 @@ h1{
   margin-top:16px;
   box-shadow:0 12px 30px rgba(7,25,54,.07);
 }
+
 h2{
   margin:0 0 12px;
   font-size:22px;
   letter-spacing:-.03em;
 }
+
+p{
+  font-size:15px;
+  line-height:1.55;
+}
+
 .item{
   display:flex;
   gap:12px;
   border-top:1px solid var(--border);
   padding:14px 0;
 }
-.item:first-of-type{border-top:0}
+
+.item:first-of-type{
+  border-top:0;
+}
+
 .icon{
   width:34px;
   height:34px;
@@ -118,13 +175,31 @@ h2{
   color:var(--blue);
   flex:0 0 auto;
 }
-.item strong{display:block;margin-bottom:4px}
+
+.item strong{
+  display:block;
+  margin-bottom:4px;
+}
+
 .item p{
   margin:0;
   font-size:14px;
   line-height:1.45;
   color:var(--muted);
 }
+
+.callout{
+  background:var(--soft);
+  border:1px solid #cfe0ff;
+  border-radius:20px;
+  padding:16px;
+  margin-top:14px;
+}
+
+.callout strong{
+  color:var(--blue);
+}
+
 .cta{
   display:block;
   width:100%;
@@ -139,6 +214,7 @@ h2{
   box-shadow:0 14px 30px rgba(227,24,55,.25);
   margin-top:14px;
 }
+
 .secondary{
   display:block;
   text-align:center;
@@ -147,12 +223,14 @@ h2{
   margin-top:14px;
   text-decoration:none;
 }
+
 .micro{
   font-size:12px;
   color:var(--muted);
   line-height:1.45;
   margin-top:12px;
 }
+
 .footer{
   text-align:center;
   font-size:12px;
@@ -166,60 +244,100 @@ h2{
 <body>
 <div class="wrap">
 
-  <section class="result">
-    <div class="badge">Your result</div>
-    <h1 id="headline">You may have a protection gap.</h1>
+  <div class="brand">
+    <div>Dylan Haysbert</div>
+    <div class="farmers">FARMERS<small>INSURANCE</small></div>
+  </div>
+
+  <section class="hero">
+    <div class="badge">Your check result</div>
+    <h1 id="headline">It may be worth checking what you qualify for.</h1>
     <p class="sub" id="subline">
-      Based on your answers, there may be a gap between what your people would need and what’s currently protected.
+      Based on your answers, there may be a reason to complete the Farmers life application and see what coverage amount you could actually be approved for.
     </p>
 
-    <div class="scoreBox">
-      <div class="scoreLabel">Protection Score</div>
-      <div class="score" id="score">72</div>
-      <div class="level" id="level">Moderate Gap</div>
+    <div class="resultBox">
+      <div class="resultLabel">Suggested next step</div>
+      <div class="resultTitle" id="resultTitle">Check Real Options</div>
+      <div class="level" id="level">Application Recommended</div>
     </div>
   </section>
 
   <section class="card">
-    <h2>What this means</h2>
+    <h2>Why this matters</h2>
 
     <div class="item">
       <div class="icon">1</div>
       <div>
-        <strong id="point1">Your income matters.</strong>
-        <p id="copy1">If someone depends on your income, even partially, life insurance can help protect them from getting stuck financially.</p>
+        <strong id="point1">A quick quiz can only estimate the gap.</strong>
+        <p id="copy1">The actual answer comes from seeing what you can qualify for based on your age, health, and application details.</p>
       </div>
     </div>
 
     <div class="item">
       <div class="icon">2</div>
       <div>
-        <strong>Your cushion may not last forever.</strong>
-        <p id="copy2">If your savings would only last a few months, protection can help cover the bigger “what if” that savings alone may not handle.</p>
+        <strong id="point2">Your income may matter to someone else.</strong>
+        <p id="copy2">If anyone depends on you financially — even partially — it’s worth knowing what protection could be available.</p>
       </div>
     </div>
 
     <div class="item">
       <div class="icon">3</div>
       <div>
-        <strong>The best time to check is before life gets complicated.</strong>
-        <p>When you’re younger and healthier, starter protection is often more realistic than people expect.</p>
+        <strong>The next step is not a commitment.</strong>
+        <p>The Farmers application helps determine eligibility and possible coverage options. You can review what comes back before deciding anything.</p>
       </div>
     </div>
   </section>
 
   <section class="card">
-    <h2>Recommended next step</h2>
-    <p class="micro">
-      You don’t need a complicated policy. You need a simple starting point: enough protection to avoid leaving people exposed, without overbuying.
+    <h2>The real next step</h2>
+
+    <p>
+      This page is not a quote and it cannot approve you. The next step is simple:
     </p>
 
-    <a class="cta" href="/life-fast">See My Life Insurance Options</a>
-    <a class="secondary" href="sms:4088262465">Text Dylan Instead</a>
+    <div class="callout">
+      <strong>Complete the Farmers life application/questionnaire</strong><br>
+      so we can see if you may qualify, how much coverage may be available, and what options make sense.
+    </div>
+
+    <a class="cta" id="emailCta" href="#">Have Dylan Send Me the Application</a>
+
+    <a class="secondary" id="textCta" href="#">Text Dylan Instead</a>
 
     <p class="micro">
-      This is not a quote or guarantee of coverage. Final options depend on age, health, underwriting, and eligibility.
+      Completing the application does not mean you are required to buy a policy. Coverage, eligibility, pricing, and approval are subject to underwriting and Farmers guidelines.
     </p>
+  </section>
+
+  <section class="card">
+    <h2>What I’ll help you figure out</h2>
+
+    <div class="item">
+      <div class="icon">✓</div>
+      <div>
+        <strong>Whether you can get approved</strong>
+        <p>Not everyone qualifies the same way. The application gives us the real picture.</p>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="icon">✓</div>
+      <div>
+        <strong>How much coverage may be available</strong>
+        <p>Instead of guessing, we can look at actual options.</p>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="icon">✓</div>
+      <div>
+        <strong>What amount actually makes sense</strong>
+        <p>The goal is not to overbuy. It’s to protect the people or obligations that matter.</p>
+      </div>
+    </div>
   </section>
 
   <div class="footer">
@@ -233,45 +351,89 @@ h2{
 const params = new URLSearchParams(window.location.search);
 
 const firstName = params.get("firstName") || "";
+const phone = params.get("phone") || "";
+const email = params.get("email") || "";
 const dependents = params.get("dependents") || "";
 const family = params.get("family") || "";
+const household = params.get("household") || "";
+const concern = params.get("concern") || "";
 const buffer = params.get("buffer") || "";
 
-let score = 88;
-let gap = "Low Gap";
+let level = "Application Recommended";
+let resultTitle = "Check Real Options";
+let headline = "It may be worth checking what you qualify for.";
+let subline = "Based on your answers, there may be a reason to complete the Farmers life application and see what coverage amount you could actually be approved for.";
 
-if (dependents === "Yes") score -= 18;
-if (family === "Yes") score -= 14;
+let priority = 0;
 
-if (buffer === "Less than 1 month") score -= 22;
-if (buffer === "1–3 months") score -= 16;
-if (buffer === "3–6 months") score -= 10;
-if (buffer === "6–12 months") score -= 5;
+if (dependents === "Yes") priority += 2;
+if (family === "Yes") priority += 2;
+if (household === "Yes") priority += 2;
+if (buffer === "Less than 1 month") priority += 2;
+if (buffer === "1–3 months") priority += 1;
+if (concern && concern !== "I honestly haven’t thought about it") priority += 1;
 
-if (score < 50) gap = "High Gap";
-else if (score < 75) gap = "Moderate Gap";
-else gap = "Light Gap";
-
-document.getElementById("score").textContent = score;
-document.getElementById("level").textContent = gap;
+if (priority >= 5) {
+  level = "Strongly Worth Checking";
+  resultTitle = "You Should Check Your Options";
+  subline = "Your answers suggest someone or something may be financially impacted if something happened to you. The best next step is to see what you could actually qualify for.";
+} else if (priority >= 3) {
+  level = "Worth Checking";
+  resultTitle = "It’s Worth Seeing What You Qualify For";
+  subline = "Your answers suggest there may be a protection gap. The Farmers application can help determine whether coverage is available and what options you may have.";
+} else {
+  level = "Starter Check Recommended";
+  resultTitle = "A Starter Policy May Still Be Worth Checking";
+  subline = "Even if you don’t have major responsibilities yet, it can still be useful to see what you qualify for while you’re younger and healthier.";
+}
 
 if (firstName) {
-  document.getElementById("headline").textContent = firstName + ", you may have a protection gap.";
+  headline = firstName + ", it may be worth checking what you qualify for.";
 }
 
-if (dependents === "Yes") {
-  document.getElementById("point1").textContent = "Someone may rely on your income.";
-  document.getElementById("copy1").textContent = "That means your income is not just yours — it may be part of someone else’s financial stability.";
+document.getElementById("headline").textContent = headline;
+document.getElementById("subline").textContent = subline;
+document.getElementById("resultTitle").textContent = resultTitle;
+document.getElementById("level").textContent = level;
+
+if (dependents === "Yes" || family === "Yes" || household === "Yes") {
+  document.getElementById("point1").textContent = "Someone may be financially connected to you.";
+  document.getElementById("copy1").textContent = "That does not automatically mean you need a huge policy — but it does mean guessing is not ideal.";
+  document.getElementById("point2").textContent = "The application gives the real answer.";
+  document.getElementById("copy2").textContent = "The quiz creates awareness. The Farmers application is what helps determine possible approval and coverage amount.";
+} else {
+  document.getElementById("point1").textContent = "You may not need a large policy yet.";
+  document.getElementById("copy1").textContent = "But a simple starter policy may still be worth exploring, especially while you are younger and healthier.";
+  document.getElementById("point2").textContent = "The main question is what you qualify for.";
+  document.getElementById("copy2").textContent = "Instead of guessing, the application can show whether coverage is available and what options may make sense.";
 }
 
-if (dependents === "No" && family === "No") {
-  document.getElementById("point1").textContent = "You may not need a huge policy yet.";
-  document.getElementById("copy1").textContent = "But a simple starter policy can still protect future income, final expenses, and lock in coverage before life gets more complicated.";
-}
+const subject = encodeURIComponent("Farmers Life Application Request");
+const body = encodeURIComponent(
+`Hey Dylan,
 
-if (buffer === "Less than 1 month" || buffer === "1–3 months") {
-  document.getElementById("copy2").textContent = "Your savings buffer may run out quickly. That means a serious event could create financial pressure faster than expected.";
-}
+I completed the Life Protection Check and would like you to send me the Farmers life insurance application/questionnaire.
+
+Name: ${firstName}
+Phone: ${phone}
+Email: ${email}
+
+My biggest concern: ${concern}
+`
+);
+
+document.getElementById("emailCta").href =
+  `mailto:dylan@example.com?subject=${subject}&body=${body}`;
+
+const smsBody = encodeURIComponent(
+`Hey Dylan, I completed the Life Protection Check. Can you send me the Farmers life application/questionnaire?
+
+Name: ${firstName}
+Email: ${email}`
+);
+
+document.getElementById("textCta").href =
+  `sms:4088262465&body=${smsBody}`;
 </script>
 
 </body>
