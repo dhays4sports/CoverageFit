@@ -354,12 +354,23 @@ button{
 </div>
 
 <script>
-document.getElementById("protectionForm").addEventListener("submit", function(e){
+document.getElementById("protectionForm").addEventListener("submit", async function(e){
   e.preventDefault();
 
-  const data = new FormData(e.target);
-  const params = new URLSearchParams();
+  const form = e.target;
+  const data = new FormData(form);
 
+  // Send to Formspree
+  await fetch("https://formspree.io/f/YOUR_FORM_ID", {
+    method: "POST",
+    body: data,
+    headers: {
+      'Accept': 'application/json'
+    }
+  });
+
+  // Then redirect to report page
+  const params = new URLSearchParams();
   for (const [key,value] of data.entries()) {
     params.append(key,value);
   }
