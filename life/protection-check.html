@@ -4,8 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<title>60-Second Protection Check | Dylan Haysbert</title>
-<meta name="description" content="A fast life insurance protection check for young adults, families, and professionals." />
+<title>60-Second Life Protection Check | Dylan Haysbert</title>
+<meta name="description" content="Take a quick life insurance protection check and see whether it may be worth checking what you could qualify for through Farmers." />
 
 <style>
 :root{
@@ -21,18 +21,32 @@
   --soft:#eef4ff;
   --shadow:0 18px 45px rgba(7,25,54,.12);
 }
+
 *{box-sizing:border-box}
+
 body{
   margin:0;
   font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  background:linear-gradient(180deg,#fff 0%,var(--bg) 100%);
+  background:linear-gradient(180deg,#ffffff 0%,var(--bg) 100%);
   color:var(--text);
 }
-.wrap{max-width:540px;margin:auto;padding:18px}
-.brand{
-  display:flex;justify-content:space-between;align-items:center;
-  margin-bottom:14px;font-size:12px;font-weight:900;color:var(--blue);
+
+.wrap{
+  max-width:540px;
+  margin:auto;
+  padding:18px;
 }
+
+.brand{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:14px;
+  font-size:12px;
+  font-weight:900;
+  color:var(--blue);
+}
+
 .farmers{
   background:var(--blue);
   color:white;
@@ -42,7 +56,13 @@ body{
   text-align:center;
   font-size:12px;
 }
-.farmers small{display:block;font-size:8px;letter-spacing:.08em}
+
+.farmers small{
+  display:block;
+  font-size:8px;
+  letter-spacing:.08em;
+}
+
 .hero{
   background:linear-gradient(135deg,var(--blue),var(--dark));
   color:white;
@@ -50,6 +70,7 @@ body{
   padding:30px 22px;
   box-shadow:var(--shadow);
 }
+
 .badge{
   display:inline-flex;
   background:rgba(255,255,255,.14);
@@ -61,18 +82,21 @@ body{
   text-transform:uppercase;
   margin-bottom:18px;
 }
+
 h1{
-  font-size:36px;
+  font-size:35px;
   line-height:1.02;
   margin:0 0 14px;
   letter-spacing:-.045em;
 }
+
 .sub{
   font-size:16px;
   line-height:1.5;
   opacity:.92;
   margin:0;
 }
+
 .card{
   background:white;
   border:1px solid var(--border);
@@ -81,27 +105,44 @@ h1{
   margin-top:16px;
   box-shadow:0 14px 34px rgba(7,25,54,.08);
 }
-.question{margin-bottom:16px}
+
+.question{
+  margin-bottom:16px;
+}
+
 label{
   display:block;
   font-size:14px;
   font-weight:900;
   margin-bottom:8px;
 }
+
 input,select{
   width:100%;
   border:1px solid var(--border);
   border-radius:15px;
   padding:15px;
   font-size:16px;
+  background:white;
+  color:var(--text);
 }
+
 .grid{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:10px;
 }
-.pill{position:relative;margin:0}
-.pill input{position:absolute;opacity:0}
+
+.pill{
+  position:relative;
+  margin:0;
+}
+
+.pill input{
+  position:absolute;
+  opacity:0;
+}
+
 .pill span{
   display:block;
   border:1px solid var(--border);
@@ -110,13 +151,15 @@ input,select{
   text-align:center;
   font-size:14px;
   font-weight:900;
-  background:#fff;
+  background:white;
 }
+
 .pill input:checked + span{
   background:var(--soft);
   color:var(--blue);
   border-color:var(--blue);
 }
+
 button{
   width:100%;
   border:0;
@@ -127,19 +170,23 @@ button{
   color:white;
   background:linear-gradient(135deg,var(--red),#b90024);
   box-shadow:0 14px 30px rgba(227,24,55,.25);
+  cursor:pointer;
 }
+
 .micro{
   font-size:12px;
   color:var(--muted);
   line-height:1.45;
   margin-top:10px;
 }
+
 .trust{
   display:grid;
   grid-template-columns:1fr 1fr 1fr;
   gap:10px;
   margin-top:14px;
 }
+
 .trust div{
   border:1px solid var(--border);
   background:white;
@@ -149,6 +196,7 @@ button{
   font-size:12px;
   font-weight:900;
 }
+
 .footer{
   text-align:center;
   font-size:12px;
@@ -171,7 +219,7 @@ button{
     <div class="badge">Free 60-second check</div>
     <h1>Would your people be okay financially?</h1>
     <p class="sub">
-      Most people protect their phone, car, and apartment before they protect their income. This quick check helps you see where you stand.
+      Most people don’t know if they actually need life insurance — or what they could qualify for. This quick check helps you see whether it may be worth finding out.
     </p>
   </section>
 
@@ -187,6 +235,12 @@ button{
         <label>Phone number</label>
         <input name="phone" required placeholder="(408) 555-1234" />
         <div class="micro">I’ll text you your result. No spam.</div>
+      </div>
+
+      <div class="question">
+        <label>Email</label>
+        <input type="email" name="email" required placeholder="you@email.com" />
+        <div class="micro">Used if you want the Farmers application sent over.</div>
       </div>
 
       <div class="question">
@@ -217,6 +271,27 @@ button{
       </div>
 
       <div class="question">
+        <label>Do you have kids, a spouse, or a partner?</label>
+        <div class="grid">
+          <label class="pill"><input type="radio" name="household" value="Yes" required><span>Yes</span></label>
+          <label class="pill"><input type="radio" name="household" value="No"><span>No</span></label>
+        </div>
+      </div>
+
+      <div class="question">
+        <label>If something happened to you, what would be the biggest concern?</label>
+        <select name="concern" required>
+          <option value="">Choose one</option>
+          <option>Leaving family with bills</option>
+          <option>Mortgage or rent pressure</option>
+          <option>Debt / loans</option>
+          <option>Protecting kids</option>
+          <option>Funeral or final expenses</option>
+          <option>I honestly haven’t thought about it</option>
+        </select>
+      </div>
+
+      <div class="question">
         <label>If you couldn’t work tomorrow, how long would you be okay?</label>
         <select name="buffer" required>
           <option value="">Choose one</option>
@@ -228,22 +303,23 @@ button{
         </select>
       </div>
 
-      <button type="submit">See My Result</button>
+      <button type="submit">See If I Should Check My Options</button>
 
       <p class="micro">
-        By submitting, you agree Dylan Haysbert with Virginia Tam Insurance Agency may contact you by call/text about insurance options. Coverage subject to underwriting approval.
+        By submitting, you agree Dylan Haysbert with Virginia Tam Insurance Agency may contact you by call/text/email about insurance options. This is not an application, quote, or offer of coverage. Coverage and eligibility are subject to application, underwriting, and approval.
       </p>
+
     </form>
   </section>
 
   <div class="trust">
     <div>Fast</div>
     <div>No Pressure</div>
-    <div>Plain English</div>
+    <div>Real Next Step</div>
   </div>
 
   <div class="footer">
-    Virginia Tam Insurance Agency<br>
+    Dylan Haysbert · Virginia Tam Insurance Agency · Farmers Insurance<br>
     833 Corporate Way, Fremont, CA 94539
   </div>
 
