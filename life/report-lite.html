@@ -1,1 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+<title>Your Protection Check Result | Dylan Haysbert</title>
+
+<style>
+:root{
+  --blue:#003a8f;
+  --blue2:#124ec4;
+  --red:#e31837;
+  --dark:#071936;
+  --text:#111827;
+  --muted:#667085;
+  --bg:#f5f7fb;
+  --surface:#ffffff;
+  --border:#d8e0ec;
+  --green:#15803d;
+  --yellow:#b45309;
+  --soft:#eef4ff;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:linear-gradient(180deg,#fff 0%,var(--bg) 100%);
+  color:var(--text);
+}
+.wrap{max-width:540px;margin:auto;padding:18px}
+.result{
+  background:linear-gradient(135deg,var(--blue),var(--dark));
+  color:white;
+  border-radius:30px;
+  padding:30px 22px;
+  box-shadow:0 18px 45px rgba(7,25,54,.18);
+}
+.badge{
+  display:inline-flex;
+  background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.24);
+  padding:8px 12px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:900;
+  text-transform:uppercase;
+  margin-bottom:18px;
+}
+h1{
+  font-size:34px;
+  line-height:1.03;
+  margin:0 0 12px;
+  letter-spacing:-.045em;
+}
+.sub{
+  font-size:16px;
+  line-height:1.5;
+  opacity:.92;
+}
+.scoreBox{
+  background:white;
+  color:var(--text);
+  border-radius:24px;
+  padding:20px;
+  margin-top:18px;
+}
+.scoreLabel{
+  font-size:12px;
+  font-weight:900;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.score{
+  font-size:46px;
+  font-weight:950;
+  letter-spacing:-.05em;
+  margin:4px 0;
+}
+.level{
+  display:inline-flex;
+  padding:8px 12px;
+  border-radius:999px;
+  background:#fff7ed;
+  color:var(--yellow);
+  font-size:13px;
+  font-weight:900;
+}
+.card{
+  background:white;
+  border:1px solid var(--border);
+  border-radius:24px;
+  padding:20px;
+  margin-top:16px;
+  box-shadow:0 12px 30px rgba(7,25,54,.07);
+}
+h2{
+  margin:0 0 12px;
+  font-size:22px;
+  letter-spacing:-.03em;
+}
+.item{
+  display:flex;
+  gap:12px;
+  border-top:1px solid var(--border);
+  padding:14px 0;
+}
+.item:first-of-type{border-top:0}
+.icon{
+  width:34px;
+  height:34px;
+  border-radius:12px;
+  background:var(--soft);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+  color:var(--blue);
+  flex:0 0 auto;
+}
+.item strong{display:block;margin-bottom:4px}
+.item p{
+  margin:0;
+  font-size:14px;
+  line-height:1.45;
+  color:var(--muted);
+}
+.cta{
+  display:block;
+  width:100%;
+  text-align:center;
+  text-decoration:none;
+  border-radius:17px;
+  padding:17px;
+  font-size:17px;
+  font-weight:950;
+  color:white;
+  background:linear-gradient(135deg,var(--red),#b90024);
+  box-shadow:0 14px 30px rgba(227,24,55,.25);
+  margin-top:14px;
+}
+.secondary{
+  display:block;
+  text-align:center;
+  color:var(--blue);
+  font-weight:900;
+  margin-top:14px;
+  text-decoration:none;
+}
+.micro{
+  font-size:12px;
+  color:var(--muted);
+  line-height:1.45;
+  margin-top:12px;
+}
+.footer{
+  text-align:center;
+  font-size:12px;
+  line-height:1.5;
+  color:var(--muted);
+  padding:20px 0 4px;
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+  <section class="result">
+    <div class="badge">Your result</div>
+    <h1 id="headline">You may have a protection gap.</h1>
+    <p class="sub" id="subline">
+      Based on your answers, there may be a gap between what your people would need and what’s currently protected.
+    </p>
+
+    <div class="scoreBox">
+      <div class="scoreLabel">Protection Score</div>
+      <div class="score" id="score">72</div>
+      <div class="level" id="level">Moderate Gap</div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>What this means</h2>
+
+    <div class="item">
+      <div class="icon">1</div>
+      <div>
+        <strong id="point1">Your income matters.</strong>
+        <p id="copy1">If someone depends on your income, even partially, life insurance can help protect them from getting stuck financially.</p>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="icon">2</div>
+      <div>
+        <strong>Your cushion may not last forever.</strong>
+        <p id="copy2">If your savings would only last a few months, protection can help cover the bigger “what if” that savings alone may not handle.</p>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="icon">3</div>
+      <div>
+        <strong>The best time to check is before life gets complicated.</strong>
+        <p>When you’re younger and healthier, starter protection is often more realistic than people expect.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Recommended next step</h2>
+    <p class="micro">
+      You don’t need a complicated policy. You need a simple starting point: enough protection to avoid leaving people exposed, without overbuying.
+    </p>
+
+    <a class="cta" href="/life-fast">See My Life Insurance Options</a>
+    <a class="secondary" href="sms:4088262465">Text Dylan Instead</a>
+
+    <p class="micro">
+      This is not a quote or guarantee of coverage. Final options depend on age, health, underwriting, and eligibility.
+    </p>
+  </section>
+
+  <div class="footer">
+    Dylan Haysbert · Virginia Tam Insurance Agency · Farmers Insurance<br>
+    833 Corporate Way, Fremont, CA 94539
+  </div>
+
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+
+const firstName = params.get("firstName") || "";
+const dependents = params.get("dependents") || "";
+const family = params.get("family") || "";
+const buffer = params.get("buffer") || "";
+
+let score = 88;
+let gap = "Low Gap";
+
+if (dependents === "Yes") score -= 18;
+if (family === "Yes") score -= 14;
+
+if (buffer === "Less than 1 month") score -= 22;
+if (buffer === "1–3 months") score -= 16;
+if (buffer === "3–6 months") score -= 10;
+if (buffer === "6–12 months") score -= 5;
+
+if (score < 50) gap = "High Gap";
+else if (score < 75) gap = "Moderate Gap";
+else gap = "Light Gap";
+
+document.getElementById("score").textContent = score;
+document.getElementById("level").textContent = gap;
+
+if (firstName) {
+  document.getElementById("headline").textContent = firstName + ", you may have a protection gap.";
+}
+
+if (dependents === "Yes") {
+  document.getElementById("point1").textContent = "Someone may rely on your income.";
+  document.getElementById("copy1").textContent = "That means your income is not just yours — it may be part of someone else’s financial stability.";
+}
+
+if (dependents === "No" && family === "No") {
+  document.getElementById("point1").textContent = "You may not need a huge policy yet.";
+  document.getElementById("copy1").textContent = "But a simple starter policy can still protect future income, final expenses, and lock in coverage before life gets more complicated.";
+}
+
+if (buffer === "Less than 1 month" || buffer === "1–3 months") {
+  document.getElementById("copy2").textContent = "Your savings buffer may run out quickly. That means a serious event could create financial pressure faster than expected.";
+}
+</script>
+
+</body>
+</html>
