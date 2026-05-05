@@ -127,6 +127,12 @@ input,select{
   color:var(--text);
 }
 
+.row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
 .grid{
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -232,6 +238,17 @@ button{
       </div>
 
       <div class="question">
+        <label>Last name</label>
+        <input name="lastName" required placeholder="Haysbert" />
+      </div>
+
+      <div class="question">
+        <label>Date of birth</label>
+        <input type="date" name="dob" required />
+        <div class="micro">Needed to check eligibility and start the application process correctly.</div>
+      </div>
+
+      <div class="question">
         <label>Phone number</label>
         <input name="phone" required placeholder="(408) 555-1234" />
         <div class="micro">I’ll text you your result. No spam.</div>
@@ -244,14 +261,25 @@ button{
       </div>
 
       <div class="question">
-        <label>Age range</label>
-        <select name="age" required>
-          <option value="">Choose one</option>
-          <option>18–24</option>
-          <option>25–34</option>
-          <option>35–44</option>
-          <option>45+</option>
-        </select>
+        <label>Residence street address</label>
+        <input name="streetAddress" required placeholder="123 Main St" />
+      </div>
+
+      <div class="question row">
+        <div>
+          <label>City</label>
+          <input name="city" required placeholder="San Jose" />
+        </div>
+        <div>
+          <label>State</label>
+          <input name="state" required placeholder="CA" maxlength="2" />
+        </div>
+      </div>
+
+      <div class="question">
+        <label>ZIP code</label>
+        <input name="zip" required placeholder="95112" inputmode="numeric" />
+        <div class="micro">Needed before I can properly enter you into the Farmers system.</div>
       </div>
 
       <div class="question">
