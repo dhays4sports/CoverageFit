@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<title>Application Handoff | Dylan Haysbert</title>
+<meta name="description" content="Confirmation page for starting the Farmers life application handoff with Dylan Haysbert." />
+
+<style>
+:root{
+  --blue:#003a8f;
+  --blue-soft:#edf4ff;
+  --red:#d91632;
+  --red-dark:#a90020;
+  --dark:#071936;
+  --warm:#fff7ed;
+  --warm2:#fffdf8;
+  --text:#111827;
+  --muted:#667085;
+  --bg:#f7f8fb;
+  --border:#d8e0ec;
+  --soft:#eef4ff;
+  --green:#15803d;
+  --green-soft:#ecfdf3;
+  --shadow:0 18px 45px rgba(7,25,54,.12);
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+
+body{
+  margin:0;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:
+    radial-gradient(circle at top left,rgba(255,247,237,.95) 0%,rgba(255,247,237,0) 34%),
+    radial-gradient(circle at top right,rgba(237,244,255,.9) 0%,rgba(237,244,255,0) 36%),
+    linear-gradient(180deg,#ffffff 0%,var(--bg) 100%);
+  color:var(--text);
+}
+
+.wrap{
+  max-width:760px;
+  margin:auto;
+  padding:22px;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+
+.brand{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:16px;
+  gap:14px;
+}
+
+.brand-left{line-height:1.15}
+.brand-name{font-size:15px;font-weight:950;color:var(--blue)}
+.brand-sub{font-size:12px;color:var(--muted);font-weight:850;margin-top:4px}
+
+.farmers{
+  background:var(--blue);
+  color:white;
+  padding:10px 13px;
+  border-radius:13px;
+  line-height:1;
+  text-align:center;
+  font-size:13px;
+  font-weight:950;
+  box-shadow:0 8px 20px rgba(0,58,143,.18);
+}
+.farmers small{display:block;font-size:8px;letter-spacing:.08em;margin-top:3px}
+
+.hero{
+  position:relative;
+  overflow:hidden;
+  background:
+    linear-gradient(135deg,rgba(0,58,143,.95),rgba(7,25,54,.93)),
+    radial-gradient(circle at 88% 18%,rgba(255,255,255,.18) 0%,rgba(255,255,255,0) 28%);
+  color:white;
+  border-radius:32px;
+  padding:34px 30px 30px;
+  box-shadow:var(--shadow);
+}
+
+.hero:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 82% 20%,rgba(255,247,237,.18) 0%,rgba(255,247,237,0) 26%),
+    radial-gradient(circle at 12% 86%,rgba(255,255,255,.10) 0%,rgba(255,255,255,0) 28%);
+  pointer-events:none;
+}
+
+.hero > *{position:relative;z-index:1}
+
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.24);
+  padding:8px 12px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:950;
+  text-transform:uppercase;
+  margin-bottom:16px;
+}
+.badge span{width:8px;height:8px;border-radius:999px;background:#fff;box-shadow:0 0 0 4px rgba(255,255,255,.16)}
+
+h1{
+  font-size:44px;
+  line-height:1.02;
+  margin:0 0 14px;
+  letter-spacing:-.055em;
+  max-width:680px;
+}
+
+.sub{
+  font-size:18px;
+  line-height:1.55;
+  opacity:.94;
+  margin:0;
+  max-width:680px;
+}
+
+.confirmBox{
+  background:rgba(255,255,255,.96);
+  color:var(--text);
+  border-radius:24px;
+  padding:22px;
+  margin-top:22px;
+  border:1px solid rgba(255,255,255,.6);
+}
+
+.confirmLabel{
+  font-size:12px;
+  font-weight:950;
+  text-transform:uppercase;
+  color:var(--muted);
+  letter-spacing:.02em;
+}
+
+.confirmTitle{
+  font-size:30px;
+  font-weight:950;
+  letter-spacing:-.04em;
+  margin:5px 0 8px;
+}
+
+.confirmText{
+  font-size:15px;
+  line-height:1.5;
+  color:#344054;
+  margin:0;
+}
+
+.card{
+  background:rgba(255,255,255,.96);
+  border:1px solid var(--border);
+  border-radius:28px;
+  padding:24px;
+  margin-top:18px;
+  box-shadow:0 14px 34px rgba(7,25,54,.08);
+}
+
+.kicker{font-size:12px;font-weight:950;text-transform:uppercase;letter-spacing:.04em;color:var(--blue);margin-bottom:6px}
+h2{margin:0;font-size:26px;letter-spacing:-.035em;line-height:1.1}
+p{font-size:16px;line-height:1.58;margin:12px 0;color:#344054}
+
+.handoffBox{
+  background:linear-gradient(180deg,var(--green-soft),#ffffff);
+  border:1px solid #bbf7d0;
+  border-radius:22px;
+  padding:20px;
+  margin-top:16px;
+  display:flex;
+  gap:16px;
+  align-items:flex-start;
+}
+
+.check{
+  width:42px;
+  height:42px;
+  min-width:42px;
+  border-radius:999px;
+  background:var(--green);
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:24px;
+  font-weight:950;
+}
+
+.handoffBox strong{
+  display:block;
+  font-size:18px;
+  margin-bottom:4px;
+  color:var(--text);
+}
+
+.handoffBox p{
+  margin:0;
+  font-size:15px;
+  color:#344054;
+}
+
+.eventSteps{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:12px;
+  margin-top:18px;
+}
+
+.eventStep{
+  background:linear-gradient(180deg,#ffffff,#f8fbff);
+  border:1px solid #dbe8ff;
+  border-radius:18px;
+  padding:16px;
+  font-size:14px;
+  line-height:1.42;
+  color:var(--muted);
+}
+
+.eventStep b{
+  display:block;
+  color:var(--text);
+  font-size:15px;
+  margin-bottom:4px;
+}
+
+.actionRow{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-top:18px;
+}
+
+.cta,.secondaryBox{
+  display:flex;
+  min-height:72px;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  text-decoration:none;
+  border-radius:18px;
+  padding:18px;
+  font-size:17px;
+  font-weight:950;
+  cursor:pointer;
+}
+
+.cta{
+  color:white;
+  background:linear-gradient(135deg,var(--red),var(--red-dark));
+  box-shadow:0 14px 30px rgba(217,22,50,.22);
+}
+
+.secondaryBox{
+  border:1px solid var(--border);
+  color:var(--blue);
+  background:white;
+}
+
+.summaryBox{
+  display:none;
+  background:#fff;
+  border:1px dashed var(--border);
+  border-radius:18px;
+  padding:16px;
+  margin-top:16px;
+}
+
+.summaryBox h3{
+  margin:0 0 10px;
+  font-size:16px;
+}
+
+.summaryBox p{
+  margin:5px 0;
+  font-size:13px;
+  color:var(--muted);
+}
+
+.micro{
+  font-size:12px;
+  color:var(--muted);
+  line-height:1.5;
+  margin-top:14px;
+}
+
+.footer{
+  text-align:center;
+  font-size:12px;
+  line-height:1.6;
+  color:var(--muted);
+  padding:22px 0 6px;
+  margin-top:auto;
+}
+.footer a{color:var(--blue);font-weight:900;text-decoration:none}
+
+@media(max-width:700px){
+  .wrap{padding:14px;max-width:570px}
+  h1{font-size:34px}
+  .hero{border-radius:28px;padding:28px 20px 22px}
+  .eventSteps,.actionRow{grid-template-columns:1fr}
+  .brand{align-items:flex-start}
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+  <div class="brand">
+    <div class="brand-left">
+      <div class="brand-name">Dylan Haysbert</div>
+      <div class="brand-sub">Life Insurance Protection Review</div>
+    </div>
+    <div class="farmers">FARMERS<small>INSURANCE</small></div>
+  </div>
+
+  <section class="hero">
+    <div class="badge"><span></span> Application handoff</div>
+
+    <h1>Perfect — please hand the iPad back to Dylan.</h1>
+
+    <p class="sub">
+      Your protection check information has been captured. Dylan will now help send the official Farmers application to your email so you can complete it on the laptop at the table.
+    </p>
+
+    <div class="confirmBox">
+      <div class="confirmLabel">Next action</div>
+      <div class="confirmTitle">Move to the laptop</div>
+      <p class="confirmText">
+        The official Farmers application is completed from your email on the laptop — not on this iPad.
+      </p>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="kicker">What happens now</div>
+    <h2>Dylan will guide the handoff</h2>
+
+    <div class="handoffBox">
+      <div class="check">✓</div>
+      <div>
+        <strong>Your info is ready for the next step.</strong>
+        <p>You do not need to re-enter the same protection check details. Dylan will use what you provided to help send the official application to your email.</p>
+      </div>
+    </div>
+
+    <div class="eventSteps">
+      <div class="eventStep">
+        <b>1. Dylan sends it</b>
+        Dylan sends the official Farmers application to your email.
+      </div>
+      <div class="eventStep">
+        <b>2. Use the laptop</b>
+        You move to the laptop at the table and log into your email.
+      </div>
+      <div class="eventStep">
+        <b>3. Complete it there</b>
+        Open the Farmers application link and complete it on the laptop.
+      </div>
+    </div>
+
+    <div class="actionRow">
+      <a class="cta" href="#" id="readyCta">I Handed the iPad Back</a>
+      <a class="secondaryBox" href="/life/protection-check">Start New Check</a>
+    </div>
+
+    <div class="summaryBox" id="summaryBox">
+      <h3>Quick handoff summary for Dylan</h3>
+      <p><strong>Name:</strong> <span id="summaryName">Not provided</span></p>
+      <p><strong>Phone:</strong> <span id="summaryPhone">Not provided</span></p>
+      <p><strong>Email:</strong> <span id="summaryEmail">Not provided</span></p>
+      <p><strong>DOB:</strong> <span id="summaryDob">Not provided</span></p>
+      <p><strong>Address:</strong> <span id="summaryAddress">Not provided</span></p>
+      <p><strong>Current coverage:</strong> <span id="summaryCoverage">Not provided</span></p>
+      <p><strong>Main concern:</strong> <span id="summaryConcern">Not provided</span></p>
+    </div>
+
+    <p class="micro">
+      No commitment to buy. Coverage, eligibility, pricing, and approval are subject to application, underwriting, and Farmers guidelines.
+    </p>
+  </section>
+
+  <div class="footer">
+    Dylan Haysbert · Virginia Tam Insurance Agency · Farmers Insurance<br>
+    833 Corporate Way, Fremont, CA 94539<br>
+    <a href="https://dylanhaysbert.com">dylanhaysbert.com</a>
+  </div>
+
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+
+const firstName = params.get("firstName") || "";
+const lastName = params.get("lastName") || "";
+const phone = params.get("phone") || "";
+const email = params.get("email") || "";
+const dob = params.get("dob") || "";
+const streetAddress = params.get("streetAddress") || "";
+const city = params.get("city") || "";
+const state = params.get("state") || "";
+const zip = params.get("zip") || "";
+const currentLifeInsurance = params.get("currentLifeInsurance") || "";
+const concern = params.get("concern") || "";
+
+function safe(value){
+  return value && value.trim() ? value : "Not provided";
+}
+
+const fullName = `${firstName} ${lastName}`.trim();
+const fullAddress = [streetAddress, city, state, zip].filter(Boolean).join(" ");
+
+document.getElementById("summaryName").textContent = safe(fullName);
+document.getElementById("summaryPhone").textContent = safe(phone);
+document.getElementById("summaryEmail").textContent = safe(email);
+document.getElementById("summaryDob").textContent = safe(dob);
+document.getElementById("summaryAddress").textContent = safe(fullAddress);
+document.getElementById("summaryCoverage").textContent = safe(currentLifeInsurance);
+document.getElementById("summaryConcern").textContent = safe(concern);
+
+document.getElementById("readyCta").addEventListener("click", function(e){
+  e.preventDefault();
+  document.getElementById("summaryBox").style.display = "block";
+  this.textContent = "Ready for Dylan";
+});
+</script>
+
+</body>
+</html>
