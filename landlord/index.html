@@ -402,7 +402,27 @@ function buildCoverageFitHandoff(score){const cta=document.getElementById("cover
 function trackScoreStarted(){if(typeof gtag==="function")gtag("event","landlord_score_started");if(typeof fbq==="function")fbq("trackCustom","LandlordScoreStarted")}
 function trackScoreCompleted(score){if(typeof gtag==="function")gtag("event","landlord_score_completed",{score,risks:getRiskSummary()});if(typeof fbq==="function")fbq("trackCustom","LandlordScoreCompleted",{score,risks:getRiskSummary()})}
 function trackCoverageReviewClick(location){if(typeof gtag==="function")gtag("event","coverage_review_click",{location});if(typeof fbq==="function")fbq("trackCustom","CoverageReviewClick",{location})}
-function trackScoreCaptureSubmit(){if(typeof gtag==="function")gtag("event","landlord_score_capture_submit",{score:document.getElementById("captureScore")?.value||"",risks:document.getElementById("captureRisks")?.value||""});if(typeof fbq==="function")fbq("trackCustom","LandlordScoreCaptureSubmit",{score:document.getElementById("captureScore")?.value||"",risks:document.getElementById("captureRisks")?.value||""})}
+function trackScoreCaptureSubmit(){
+  if(typeof gtag==="function"){
+    gtag("event","landlord_score_capture_submit",{
+      score:document.getElementById("captureScore")?.value||"",
+      risks:document.getElementById("captureRisks")?.value||""
+    });
+
+    gtag("event","conversion",{
+      send_to:"AW-18154457410/HjAgCIeCi6scEMKS3NBD",
+      value:1.0,
+      currency:"USD"
+    });
+  }
+
+  if(typeof fbq==="function"){
+    fbq("trackCustom","LandlordScoreCaptureSubmit",{
+      score:document.getElementById("captureScore")?.value||"",
+      risks:document.getElementById("captureRisks")?.value||""
+    });
+  }
+}
 function showResult(){const score=calculateScore(),resultData=getResult(score),degrees=Math.round(score/100*360);quiz.style.display="none";result.style.display="block";result.classList.remove("reveal-cta","show-early-cta");const scoreNumber=document.getElementById("scoreNumber"),scoreCircle=document.getElementById("scoreCircle");scoreNumber.textContent="0";scoreCircle.style.background="conic-gradient(var(--blue) 0deg, var(--blue-soft) 0deg)";const badge=document.getElementById("statusBadge");badge.textContent=resultData.badge;badge.className=`status ${resultData.badgeClass}`;document.getElementById("resultTitle").textContent=resultData.title;document.getElementById("resultCopy").textContent=resultData.copy;renderGaps();buildCoverageFitHandoff(score);populateCaptureFields(score);trackScoreCompleted(score);setTimeout(()=>{document.getElementById("score-tool").scrollIntoView({behavior:"smooth",block:"start"})},100);const duration=900,startTime=performance.now();function animateScore(now){const elapsed=now-startTime,progress=Math.min(elapsed/duration,1),eased=1-Math.pow(1-progress,3),currentScore=Math.round(score*eased),currentDegrees=Math.round(degrees*eased);scoreNumber.textContent=currentScore;scoreCircle.style.background=`conic-gradient(var(--blue) ${currentDegrees}deg, var(--blue-soft) ${currentDegrees}deg)`;if(progress<1)requestAnimationFrame(animateScore)}requestAnimationFrame(animateScore);setTimeout(()=>result.classList.add("show-early-cta"),500);setTimeout(()=>result.classList.add("reveal-cta"),850)}
 nextBtn.addEventListener("click",()=>{if(current===questions.length-1){progressBar.style.width="100%";showResult()}else{current++;renderQuestion()}});
 backBtn.addEventListener("click",()=>{if(current>0){current--;renderQuestion()}});
