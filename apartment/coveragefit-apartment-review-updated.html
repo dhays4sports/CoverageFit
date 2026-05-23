@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<title>Request Apartment Coverage Review | CoverageFit</title>
+<meta name="description" content="Request a commercial apartment coverage review with Dylan Haysbert. Review rental income, liability, ordinance exposure, water damage, occupancy, and policy structure." />
+
+<style>
+:root{
+  --blue:#0047c7;
+  --blue2:#1766e8;
+  --blue3:#6ea8ff;
+  --dark:#071936;
+  --navy:#020d1f;
+  --red:#e31837;
+  --green:#15803d;
+  --yellow:#b45309;
+  --gold:#f2b84b;
+  --text:#111827;
+  --muted:#5f6b7a;
+  --bg:#f5f7fb;
+  --border:#d8e0ec;
+  --blueSoft:#eef4ff;
+  --redSoft:#fff1f3;
+  --greenSoft:#ecfdf3;
+  --yellowSoft:#fff7ed;
+  --goldSoft:#fff7e6;
+  --shadow:0 18px 45px rgba(7,25,54,.12);
+  --shadowDark:0 24px 60px rgba(0,0,0,.28);
+  --radius:22px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(180deg,#fff 0%,var(--bg) 72%,#fff 100%);color:var(--text)}
+a{text-decoration:none;color:inherit}
+.wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+.review-wrap{max-width:980px;margin:0 auto;padding:0 22px}
+header{padding:16px 0;background:rgba(255,255,255,.94);backdrop-filter:blur(16px);border-bottom:1px solid rgba(216,224,236,.78);position:relative;z-index:20}
+.nav{display:flex;justify-content:space-between;align-items:center;gap:20px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:950;letter-spacing:-.045em;color:var(--dark);font-size:20px;line-height:1}
+.logo-mark{width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,var(--blue),var(--blue2));display:grid;place-items:center;color:#fff;font-weight:950;font-size:15px;box-shadow:0 10px 24px rgba(0,58,143,.28)}
+.logo small{display:block;margin-top:4px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:800}
+.nav-trust{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;font-weight:850}
+.nav-cta{background:var(--blue);color:#fff;padding:11px 16px;border-radius:999px;font-weight:900;font-size:13px;box-shadow:0 12px 26px rgba(0,58,143,.25);white-space:nowrap}
+.hero{position:relative;padding:50px 0 34px;color:#fff;overflow:hidden;background:linear-gradient(90deg,rgba(2,13,31,.98) 0%,rgba(2,13,31,.92) 44%,rgba(2,13,31,.65) 76%,rgba(2,13,31,.55) 100%),radial-gradient(circle at 78% 18%,rgba(242,184,75,.30),transparent 31%),radial-gradient(circle at 88% 74%,rgba(23,102,232,.24),transparent 30%),linear-gradient(135deg,#041226 0%,#09244d 55%,#030914 100%)}
+.hero:before{content:"";position:absolute;inset:0;background:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:34px 34px;mask-image:linear-gradient(90deg,#000 0%,transparent 76%);pointer-events:none}
+.hero-grid{position:relative;z-index:1;display:grid;grid-template-columns:1fr 360px;gap:30px;align-items:center}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;color:var(--blue3);font-size:13px;font-weight:950;margin-bottom:14px;text-transform:uppercase;letter-spacing:.12em}
+.eyebrow:before,.eyebrow:after{content:"";width:44px;height:3px;background:linear-gradient(90deg,var(--blue2),var(--gold));display:block;border-radius:999px}
+h1{margin:0;font-size:56px;line-height:.96;letter-spacing:-.075em;color:#fff;text-transform:uppercase;text-shadow:0 5px 18px rgba(0,0,0,.24)}
+h1 span{display:block;color:var(--blue3)}
+.lead{margin:18px 0 0;font-size:19px;line-height:1.42;color:rgba(255,255,255,.90);font-weight:650}
+.lead em{color:#ffd98a;font-style:normal;font-weight:950}
+.hero-actions{margin-top:24px;display:flex;gap:12px;flex-wrap:wrap}
+.btn{border:none;cursor:pointer;border-radius:999px;padding:15px 22px;font-weight:950;font-size:15px;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-align:center}
+.btn-primary{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;box-shadow:0 18px 38px rgba(23,102,232,.34)}
+.btn-secondary{background:#fff;color:var(--dark);border:1px solid var(--border)}
+.context-card{background:rgba(255,255,255,.95);color:var(--text);border:1px solid rgba(255,255,255,.32);border-radius:var(--radius);box-shadow:var(--shadowDark);padding:26px;position:relative;overflow:hidden}
+.context-card:before{content:"";position:absolute;inset:0;background:linear-gradient(rgba(0,58,143,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,58,143,.05) 1px,transparent 1px);background-size:28px 28px;mask-image:linear-gradient(180deg,#000 0%,transparent 88%);pointer-events:none}
+.context-inner{position:relative;z-index:1}
+.score-pill{display:inline-flex;padding:8px 12px;border-radius:999px;background:var(--blueSoft);color:var(--blue);font-weight:950;font-size:13px;margin-bottom:12px}
+.context-card h2{margin:0;color:var(--dark);font-size:27px;line-height:1.05;letter-spacing:-.05em}
+.context-card p{margin:10px 0 0;color:var(--muted);line-height:1.5}
+.context-list{margin-top:16px;display:grid;gap:10px}
+.context-item{display:grid;grid-template-columns:auto 1fr;gap:9px;align-items:start;background:#fff;border:1px solid var(--border);border-radius:14px;padding:11px;color:#394456;font-size:13px;line-height:1.35;font-weight:750}
+.context-item:before{content:"✓";width:20px;height:20px;border-radius:50%;background:var(--greenSoft);color:var(--green);display:grid;place-items:center;font-size:11px;font-weight:950}
+.section{padding:28px 0 0}
+.card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px}
+.card h2{margin:0;color:var(--dark);font-size:31px;line-height:1.06;letter-spacing:-.055em}
+.card p{color:var(--muted);line-height:1.55;font-size:15px}
+.review-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
+.review-item{background:#fff;border:1px solid var(--border);border-radius:18px;padding:17px}
+.review-item strong{display:flex;align-items:center;gap:9px;color:var(--dark);font-size:16px}
+.review-item strong:before{content:"";width:11px;height:11px;border-radius:50%;background:var(--blue)}
+.review-item span{display:block;margin-top:8px;color:var(--muted);font-size:14px;line-height:1.45}
+.form-card{display:grid;grid-template-columns:1fr .82fr;gap:24px;align-items:start}
+.form-intro{padding-right:6px}
+.form-intro h2{font-size:34px}
+.form-intro .mini{display:inline-flex;padding:8px 11px;border-radius:999px;background:var(--goldSoft);border:1px solid rgba(242,184,75,.30);color:#7a4b00;font-size:12px;font-weight:950;margin-bottom:14px}
+.form-box{background:linear-gradient(135deg,#fff 0%,var(--blueSoft) 100%);border:1px solid rgba(0,58,143,.13);border-radius:20px;padding:20px}
+form{display:grid;gap:12px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label{font-size:13px;font-weight:850;color:var(--dark)}
+input,select,textarea{width:100%;margin-top:6px;border:1px solid var(--border);border-radius:14px;padding:14px;font:inherit;background:#fff;color:var(--text)}
+textarea{min-height:92px;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(0,58,143,.08);outline:none}
+button.btn{width:100%}
+.capture-note{font-size:12px!important;line-height:1.45!important;margin:0!important;color:var(--muted)!important}
+.compliance-note{padding:13px 14px;border-radius:16px;background:var(--yellowSoft);border:1px solid rgba(242,184,75,.30);font-size:12px!important;line-height:1.45!important;color:#63420f!important;margin:4px 0 0!important}
+.contact-strip{padding:24px 0 0}
+.contact-card{background:linear-gradient(135deg,var(--navy) 0%,#0b2b5a 100%);color:#fff;border-radius:var(--radius);padding:24px;box-shadow:var(--shadowDark);display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center;position:relative;overflow:hidden}
+.contact-card:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 86% 14%,rgba(242,184,75,.24),transparent 31%);pointer-events:none}
+.contact-card>*{position:relative;z-index:1}
+.contact-card h2{margin:0;font-size:28px;line-height:1.06;letter-spacing:-.055em}
+.contact-card p{margin:8px 0 0;color:rgba(255,255,255,.82);line-height:1.5;font-size:14px}
+.phone-box{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.phone-box a{white-space:nowrap}
+.trust-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px}
+.trust-card{background:#fff;border:1px solid var(--border);border-radius:18px;padding:18px;box-shadow:0 10px 28px rgba(7,25,54,.06)}
+.trust-card strong{display:block;color:var(--dark)}
+.trust-card span{display:block;margin-top:5px;color:var(--muted);font-size:13px;line-height:1.4}
+.disclaimer{margin-top:18px;color:var(--muted);font-size:12px;line-height:1.5}
+footer{border-top:1px solid var(--border);padding:26px 0 92px;color:var(--muted);font-size:13px;line-height:1.5;margin-top:36px}
+.footer-grid{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.mobile-sticky{display:none;position:fixed;bottom:14px;left:14px;right:14px;z-index:80;background:var(--blue);color:#fff;text-align:center;padding:15px 18px;border-radius:18px;font-weight:950;box-shadow:0 16px 38px rgba(0,58,143,.36)}
+@media(max-width:900px){
+  .hero-grid,.form-card,.review-grid,.trust-grid,.contact-card{grid-template-columns:1fr}
+  h1{font-size:44px}
+  .nav-trust{display:none}
+  .phone-box{justify-content:flex-start}
+}
+@media(max-width:560px){
+  .wrap,.review-wrap{padding:0 16px}
+  header{padding:16px 0}
+  .logo{font-size:18px}
+  .nav-cta{display:none}
+  .hero{padding:32px 0 26px}
+  h1{font-size:34px}
+  .lead{font-size:17px}
+  .hero-actions .btn,.phone-box .btn{width:100%}
+  .card,.context-card,.contact-card{padding:20px}
+  .field-row{grid-template-columns:1fr}
+  .mobile-sticky{display:block}
+  .eyebrow{font-size:12px;letter-spacing:.08em}
+  .eyebrow:before,.eyebrow:after{width:24px}
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="wrap nav">
+    <a href="/" class="logo" aria-label="CoverageFit homepage"><div class="logo-mark">CF</div><div>CoverageFit<small>Commercial Review Request</small></div></a>
+    <div class="nav-trust"><span>Apartment Policy Review</span><span>·</span><span>Educational · Not a quote request</span></div>
+    <a class="nav-cta" href="#review-form">Request Review</a>
+  </div>
+</header>
+
+<main>
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow">Commercial Apartment Policy Review</div>
+      <h1>Let’s Review Whether The Policy <span>Matches The Building.</span></h1>
+      <p class="lead">This is the next step after your Apartment Protection Score: a practical review of <em>rental income, liability, ordinance exposure, water damage, occupancy, deductibles, and policy structure.</em></p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#review-form">Request My Apartment Policy Review →</a>
+        <a class="btn btn-secondary" href="tel:14088262465">Call/Text Dylan</a>
+      </div>
+    </div>
+
+    <div class="context-card">
+      <div class="context-inner">
+        <div class="score-pill" id="scorePill">Apartment Protection Score</div>
+        <h2 id="contextTitle">Not a quote request. A coverage-structure review.</h2>
+        <p id="contextCopy">Apartment owners do not need another random quote. They need to know whether the current policy structure could survive a real claim.</p>
+        <div class="context-list">
+          <div class="context-item">Review what your score flagged</div>
+          <div class="context-item">Check whether the policy matches actual property use</div>
+          <div class="context-item">Decide whether to keep, adjust, or remarket before renewal</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="review-wrap">
+    <div class="card">
+      <h2>What I’ll look for</h2>
+      <p>This review is designed to catch the areas that can create surprises after a commercial apartment claim — before the building has to rely on the coverage.</p>
+      <div class="review-grid">
+        <div class="review-item"><strong>Rental income / loss of rents</strong><span>Whether the amount and timeframe could help cash flow during repairs.</span></div>
+        <div class="review-item"><strong>Liability and umbrella structure</strong><span>Whether limits fit tenants, guests, contractors, common areas, stairs, walkways, and parking.</span></div>
+        <div class="review-item"><strong>Ordinance and replacement cost</strong><span>Whether code upgrades or building valuation could create financial pressure.</span></div>
+        <div class="review-item"><strong>Water damage and deductibles</strong><span>Whether plumbing, water-loss limitations, deductibles, and prevention deserve attention.</span></div>
+        <div class="review-item"><strong>Occupancy and underwriting fit</strong><span>Whether the policy matches vacancy, long-term tenants, mixed use, or other occupancy details.</span></div>
+        <div class="review-item"><strong>Renewal and remarketing strategy</strong><span>Whether the current carrier should be kept, adjusted, or compared before renewal.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="review-form">
+  <div class="review-wrap">
+    <div class="card form-card">
+      <div class="form-intro">
+        <span class="mini">Apartment policy review · no obligation</span>
+        <h2>Request your apartment policy review</h2>
+        <p>Fill this out and I’ll use your score context to review what matters most. You do not need to upload a policy yet — this starts the conversation.</p>
+        <p><strong>Best next step:</strong> after this, send the declarations page/current policy summary if available so I can compare the structure against your score.</p>
+      </div>
+
+      <div class="form-box">
+        <form id="reviewForm" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+          <input type="hidden" name="_subject" value="Apartment Policy Review Request">
+          <input type="hidden" name="source" value="Apartment Review Page">
+          <input type="hidden" name="score" id="scoreInput">
+          <input type="hidden" name="priority" id="priorityInput">
+          <input type="hidden" name="risks" id="risksInput">
+          <input type="hidden" name="report_url" id="reportUrlInput">
+
+          <div class="field-row">
+            <label>First Name<input type="text" name="first_name" id="firstName" required placeholder="First name"></label>
+            <label>Email<input type="email" name="email" id="email" required placeholder="Email address"></label>
+          </div>
+
+          <div class="field-row">
+            <label>Phone<input type="tel" name="phone" id="phone" required placeholder="Phone number"></label>
+            <label>Preferred Contact Method
+              <select name="preferred_contact" id="preferredContact">
+                <option value="">Select one</option>
+                <option>Call</option>
+                <option>Text</option>
+                <option>Email</option>
+                <option>Any is fine</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="field-row">
+            <label>Best Time To Contact
+              <select name="best_time_to_contact" id="bestTimeToContact">
+                <option value="">Select one</option>
+                <option>Morning</option>
+                <option>Afternoon</option>
+                <option>Evening</option>
+                <option>Anytime</option>
+              </select>
+            </label>
+            <label>Property City<input type="text" name="property_city" id="propertyCity" placeholder="Example: San Jose"></label>
+          </div>
+
+          <div class="field-row">
+            <label>Unit Count<input type="text" name="unit_count" id="unitCount" placeholder="Example: 8 units"></label>
+            <label>Current Carrier <span style="color:var(--muted);font-weight:750;">(optional)</span><input type="text" name="current_carrier" id="currentCarrier" placeholder="Current insurance carrier"></label>
+          </div>
+
+          <div class="field-row">
+            <label>Renewal Month <span style="color:var(--muted);font-weight:750;">(optional)</span><input type="text" name="renewal_month" id="renewalMonth" placeholder="Example: August"></label>
+            <label>Property Address <span style="color:var(--muted);font-weight:750;">(optional)</span><input type="text" name="property_address" id="propertyAddress" placeholder="Optional property address"></label>
+          </div>
+
+          <label>What are you mainly trying to check?
+            <textarea name="main_concern" id="mainConcern" placeholder="Example: premium increase, older building, liability, lost rents, renewal coming up, not sure if policy is right..."></textarea>
+          </label>
+
+          <button class="btn btn-primary" type="submit">Request My Apartment Policy Review →</button>
+          <p class="capture-note">By submitting, you agree to be contacted by Dylan Haysbert / Virginia Tam Insurance Agency about your commercial apartment insurance review request. No obligation.</p>
+          <p class="compliance-note">CoverageFit is an educational review tool. Insurance products are offered through Dylan Haysbert / Virginia Tam Insurance Agency / Farmers Insurance where eligible. This review is not a quote, binder, coverage determination, or guarantee of eligibility.</p>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="contact-strip">
+  <div class="review-wrap">
+    <div class="contact-card">
+      <div>
+        <h2>Rather talk directly?</h2>
+        <p>Call or text Dylan and mention your Apartment Protection Score.</p>
+      </div>
+      <div class="phone-box">
+        <a class="btn btn-primary" href="tel:14088262465">Call/Text: (408) 826-2465</a>
+        <a class="btn btn-secondary" id="backToReportLink" href="/apartment/report">Back to Report</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="review-wrap">
+    <div class="trust-grid">
+      <div class="trust-card"><strong>Built for 5+ unit properties</strong><span>Focused on apartment buildings, income-property exposure, claim recovery, and commercial policy structure.</span></div>
+      <div class="trust-card"><strong>Reviewed by Dylan Haysbert</strong><span>Insurance Producer with coverage support through Virginia Tam Insurance Agency. CA Insurance License #4528400.</span></div>
+      <div class="trust-card"><strong>Not a quote request</strong><span>This starts as a coverage-structure review. Quoting only comes later if it makes sense.</span></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap footer-grid">
+    <div><strong>CoverageFit</strong><br>Apartment Policy Review<br>Apartment Protection Score</div>
+    <div>Dylan Haysbert, Insurance Producer<br>Virginia Tam Insurance Agency<br>Farmers Insurance<br>CA Insurance License #4528400<br><strong>Call/Text: (408) 826-2465</strong></div>
+    <div><a href="/apartment">Retake Apartment Score</a> · <a id="footerReportLink" href="/apartment/report">View Report</a> · <a href="/landlord">Landlord Score</a><br>Educational information only.<br>Not a quote, binder, or coverage determination.</div>
+  </div>
+</footer>
+
+<a href="#review-form" class="mobile-sticky">Request Apartment Policy Review →</a>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+
+function getParam(key, fallback=""){
+  const value = params.get(key);
+  return value && value.trim() ? value.trim() : fallback;
+}
+function setValue(id, value){
+  const el = document.getElementById(id);
+  if(el && value) el.value = value;
+}
+function setText(id, value){
+  const el = document.getElementById(id);
+  if(el && value) el.textContent = value;
+}
+function buildPathWithCurrentQuery(path){
+  const query = window.location.search || "";
+  return `${path}${query}`;
+}
+function getReportUrl(){
+  return new URL(buildPathWithCurrentQuery("/apartment/report"), window.location.origin).toString();
+}
+
+const score = getParam("score");
+const priority = getParam("priority");
+const risks = getParam("risks");
+const name = getParam("name");
+const city = getParam("city") || getParam("property_city");
+const property = getParam("property") || getParam("property_address");
+const units = getParam("units") || getParam("unit_count");
+const carrier = getParam("carrier") || getParam("current_carrier");
+const renewal = getParam("renewal") || getParam("renewal_month");
+
+if(score){
+  setText("scorePill", `Apartment Protection Score: ${score}/100`);
+}
+if(priority){
+  setText("contextTitle", priority);
+}
+if(risks){
+  setText("contextCopy", `Your score flagged: ${risks}. The review will focus on whether those areas are properly handled by the current policy structure.`);
+}
+
+setValue("firstName", name);
+setValue("propertyCity", city);
+setValue("propertyAddress", property);
+setValue("unitCount", units);
+setValue("currentCarrier", carrier);
+setValue("renewalMonth", renewal);
+setValue("scoreInput", score);
+setValue("priorityInput", priority);
+setValue("risksInput", risks);
+setValue("reportUrlInput", getReportUrl());
+
+const backToReportLink = document.getElementById("backToReportLink");
+const footerReportLink = document.getElementById("footerReportLink");
+if(backToReportLink) backToReportLink.href = buildPathWithCurrentQuery("/apartment/report");
+if(footerReportLink) footerReportLink.href = buildPathWithCurrentQuery("/apartment/report");
+
+document.getElementById("reviewForm")?.addEventListener("submit", async function(e){
+  e.preventDefault();
+  try{
+    await fetch(this.action,{method:"POST",body:new FormData(this),headers:{"Accept":"application/json"}});
+  }catch(err){}
+  const first = document.getElementById("firstName")?.value || "there";
+  document.body.innerHTML = `
+    <main style="min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,#020d1f,#0e2d62);font-family:Inter,system-ui;color:white;padding:24px;">
+      <section style="max-width:680px;background:rgba(255,255,255,.96);color:#111827;border-radius:24px;padding:34px;box-shadow:0 24px 60px rgba(0,0,0,.28);text-align:center;">
+        <div style="width:48px;height:48px;border-radius:16px;background:linear-gradient(135deg,#0047c7,#1766e8);color:white;display:grid;place-items:center;font-weight:950;margin:0 auto 16px;">CF</div>
+        <h1 style="margin:0;font-size:34px;letter-spacing:-.055em;color:#071936;">Request received, ${first}.</h1>
+        <p style="color:#5f6b7a;line-height:1.55;font-size:16px;">Your apartment policy review request has been submitted. Dylan will use your score context to review the key areas: rental income, liability, ordinance, water damage, occupancy, and policy structure.</p>
+        <a href="tel:14088262465" style="display:inline-flex;margin-top:14px;background:#0047c7;color:white;text-decoration:none;padding:14px 20px;border-radius:999px;font-weight:950;">Call/Text Dylan: (408) 826-2465</a>
+      </section>
+    </main>
+  `;
+});
+</script>
+</body>
+</html>
