@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Apartment Protection Report | CoverageFit</title>
+<meta name="description" content="Your personalized Apartment Protection Report from CoverageFit. Review commercial apartment insurance risk areas including rental income, liability, ordinance exposure, water damage, and policy structure." />
+
+<style>
+:root{
+  --blue:#0047c7;
+  --blue2:#1766e8;
+  --blue3:#6ea8ff;
+  --dark:#071936;
+  --navy:#020d1f;
+  --red:#e31837;
+  --green:#15803d;
+  --yellow:#b45309;
+  --gold:#f2b84b;
+  --text:#111827;
+  --muted:#5f6b7a;
+  --bg:#f5f7fb;
+  --border:#d8e0ec;
+  --blueSoft:#eef4ff;
+  --redSoft:#fff1f3;
+  --greenSoft:#ecfdf3;
+  --yellowSoft:#fff7ed;
+  --goldSoft:#fff7e6;
+  --shadow:0 18px 45px rgba(7,25,54,.12);
+  --shadowDark:0 24px 60px rgba(0,0,0,.28);
+  --radius:22px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(180deg,#fff 0%,var(--bg) 72%,#fff 100%);color:var(--text)}
+a{text-decoration:none;color:inherit}
+.wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+.report-wrap{max-width:980px;margin:0 auto;padding:0 22px}
+header{padding:16px 0;background:rgba(255,255,255,.94);backdrop-filter:blur(16px);border-bottom:1px solid rgba(216,224,236,.78);position:relative;z-index:20}
+.nav{display:flex;justify-content:space-between;align-items:center;gap:20px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:950;letter-spacing:-.045em;color:var(--dark);font-size:20px;line-height:1}
+.logo-mark{width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,var(--blue),var(--blue2));display:grid;place-items:center;color:#fff;font-weight:950;font-size:15px;box-shadow:0 10px 24px rgba(0,58,143,.28)}
+.logo small{display:block;margin-top:4px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:800}
+.nav-trust{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;font-weight:850}
+.nav-cta{background:var(--blue);color:#fff;padding:11px 16px;border-radius:999px;font-weight:900;font-size:13px;box-shadow:0 12px 26px rgba(0,58,143,.25);white-space:nowrap}
+.hero{position:relative;padding:48px 0 34px;color:#fff;overflow:hidden;background:linear-gradient(90deg,rgba(2,13,31,.98) 0%,rgba(2,13,31,.92) 44%,rgba(2,13,31,.65) 76%,rgba(2,13,31,.55) 100%),radial-gradient(circle at 78% 18%,rgba(242,184,75,.30),transparent 31%),radial-gradient(circle at 88% 74%,rgba(23,102,232,.24),transparent 30%),linear-gradient(135deg,#041226 0%,#09244d 55%,#030914 100%)}
+.hero:before{content:"";position:absolute;inset:0;background:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:34px 34px;mask-image:linear-gradient(90deg,#000 0%,transparent 76%);pointer-events:none}
+.hero-grid{position:relative;z-index:1;display:grid;grid-template-columns:1fr 360px;gap:30px;align-items:center}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;color:var(--blue3);font-size:13px;font-weight:950;margin-bottom:14px;text-transform:uppercase;letter-spacing:.12em}
+.eyebrow:before,.eyebrow:after{content:"";width:44px;height:3px;background:linear-gradient(90deg,var(--blue2),var(--gold));display:block;border-radius:999px}
+h1{margin:0;font-size:54px;line-height:.97;letter-spacing:-.075em;color:#fff;text-transform:uppercase;text-shadow:0 5px 18px rgba(0,0,0,.24)}
+h1 span{display:block;color:var(--blue3)}
+.lead{margin:18px 0 0;font-size:19px;line-height:1.42;color:rgba(255,255,255,.90);font-weight:650}
+.lead em{color:#ffd98a;font-style:normal;font-weight:950}
+.btn{border:none;cursor:pointer;border-radius:999px;padding:15px 22px;font-weight:950;font-size:15px;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-align:center}
+.btn-primary{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;box-shadow:0 18px 38px rgba(23,102,232,.34)}
+.btn-secondary{background:#fff;color:var(--dark);border:1px solid var(--border)}
+.hero-actions{margin-top:24px;display:flex;gap:12px;flex-wrap:wrap}
+.score-card{background:rgba(255,255,255,.95);color:var(--text);border:1px solid rgba(255,255,255,.32);border-radius:var(--radius);box-shadow:var(--shadowDark);padding:26px;position:relative;overflow:hidden}
+.score-card:before{content:"";position:absolute;inset:0;background:linear-gradient(rgba(0,58,143,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,58,143,.05) 1px,transparent 1px);background-size:28px 28px;mask-image:linear-gradient(180deg,#000 0%,transparent 88%);pointer-events:none}
+.score-inner{position:relative;z-index:1}
+.score-circle{width:148px;height:148px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--blue) 0deg,var(--blueSoft) 0deg);position:relative;margin:0 auto 18px}
+.score-circle:after{content:"";position:absolute;width:108px;height:108px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 1px var(--border)}
+.score-number{position:relative;z-index:1;text-align:center;color:var(--dark);font-weight:950;font-size:42px;letter-spacing:-.04em}
+.score-number small{display:block;font-size:13px;color:var(--muted);letter-spacing:0;margin-top:-4px}
+.status{display:inline-flex;padding:8px 12px;border-radius:999px;font-weight:900;font-size:13px;margin-bottom:10px}
+.status.good{background:var(--greenSoft);color:var(--green)}
+.status.medium{background:var(--yellowSoft);color:var(--yellow)}
+.status.weak{background:var(--redSoft);color:var(--red)}
+.score-card h2{margin:0;color:var(--dark);font-size:25px;line-height:1.05;letter-spacing:-.045em;text-align:center}
+.score-card p{margin:10px 0 0;color:var(--muted);line-height:1.5;text-align:center}
+.summary-strip{padding:24px 0 0}
+.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.summary-item{background:#fff;border:1px solid var(--border);border-radius:18px;padding:16px;box-shadow:0 10px 28px rgba(7,25,54,.06)}
+.summary-item strong{display:block;color:var(--dark);font-size:13px;text-transform:uppercase;letter-spacing:.06em}
+.summary-item span{display:block;margin-top:6px;color:var(--muted);font-size:14px;line-height:1.35;font-weight:750}
+.section{padding:26px 0 0}
+.card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:26px}
+.card h2{margin:0;color:var(--dark);font-size:30px;line-height:1.06;letter-spacing:-.055em}
+.card p{color:var(--muted);line-height:1.55;font-size:15px}
+.risk-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+.risk-card{border:1px solid var(--border);border-radius:18px;padding:17px;background:#fff}
+.risk-card.flagged{background:linear-gradient(135deg,#fff 0%,var(--yellowSoft) 100%);border-color:rgba(242,184,75,.34)}
+.risk-card.clear{background:linear-gradient(135deg,#fff 0%,var(--greenSoft) 100%);border-color:rgba(21,128,61,.16)}
+.risk-card strong{display:flex;align-items:center;gap:8px;color:var(--dark);font-size:16px}
+.risk-card strong:before{content:"";width:11px;height:11px;border-radius:50%;background:var(--blue)}
+.risk-card.flagged strong:before{background:var(--yellow)}
+.risk-card.clear strong:before{background:var(--green)}
+.risk-card span{display:block;margin-top:8px;color:var(--muted);font-size:14px;line-height:1.45}
+.answers-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+.answer-card{background:var(--blueSoft);border:1px solid rgba(0,58,143,.13);border-radius:16px;padding:15px}
+.answer-card strong{display:block;color:var(--blue);font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.answer-card span{display:block;margin-top:6px;color:#263247;font-size:14px;line-height:1.4;font-weight:750}
+.cta-card{background:linear-gradient(135deg,var(--navy) 0%,#0b2b5a 100%);color:#fff;border:none;box-shadow:var(--shadowDark);position:relative;overflow:hidden}
+.cta-card:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 86% 14%,rgba(242,184,75,.22),transparent 31%);pointer-events:none}
+.cta-card>*{position:relative;z-index:1}
+.cta-card h2{color:#fff}
+.cta-card p{color:rgba(255,255,255,.82)}
+.cta-list{margin:18px 0 0;display:grid;gap:10px}
+.cta-item{padding:13px 14px;border-radius:16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);font-size:14px;font-weight:850;line-height:1.35}
+.cta-item:before{content:"✓ ";color:#a7f3d0;font-weight:950}
+.cta-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+.cta-card .btn-secondary{background:rgba(255,255,255,.95)}
+.disclaimer{margin-top:18px;color:var(--muted);font-size:12px;line-height:1.5}
+.cta-card .disclaimer{color:rgba(255,255,255,.68)}
+footer{border-top:1px solid var(--border);padding:26px 0 92px;color:var(--muted);font-size:13px;line-height:1.5;margin-top:36px}
+.footer-grid{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.mobile-sticky{display:none;position:fixed;bottom:14px;left:14px;right:14px;z-index:80;background:var(--blue);color:#fff;text-align:center;padding:15px 18px;border-radius:18px;font-weight:950;box-shadow:0 16px 38px rgba(0,58,143,.36)}
+@media(max-width:900px){
+  .hero-grid,.summary-grid,.risk-grid,.answers-grid{grid-template-columns:1fr}
+  h1{font-size:44px}
+  .nav-trust{display:none}
+}
+@media(max-width:560px){
+  .wrap,.report-wrap{padding:0 16px}
+  header{padding:16px 0}
+  .logo{font-size:18px}
+  .nav-cta{display:none}
+  .hero{padding:32px 0 26px}
+  h1{font-size:34px}
+  .lead{font-size:17px}
+  .hero-actions .btn,.cta-actions .btn{width:100%}
+  .card,.score-card{padding:20px}
+  .mobile-sticky{display:block}
+  .eyebrow{font-size:12px;letter-spacing:.08em}
+  .eyebrow:before,.eyebrow:after{width:24px}
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="wrap nav">
+    <a href="/" class="logo" aria-label="CoverageFit homepage"><div class="logo-mark">CF</div><div>CoverageFit<small>Apartment Protection Report</small></div></a>
+    <div class="nav-trust"><span>Commercial Property Review</span><span>·</span><span>Educational · Not a quote request</span></div>
+    <a class="nav-cta" href="#next-step">Request Review</a>
+  </div>
+</header>
+
+<main>
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow">Apartment Protection Report</div>
+      <h1>Your Building Score <span>Is Ready</span></h1>
+      <p class="lead">This report summarizes the commercial apartment risk areas you flagged around <em>rental income, liability, ordinance exposure, water damage, occupancy, and policy structure.</em></p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#next-step">Request a Commercial Apartment Coverage Review →</a>
+        <a class="btn btn-secondary" href="tel:14088262465">Call/Text Dylan</a>
+      </div>
+    </div>
+
+    <div class="score-card">
+      <div class="score-inner">
+        <div class="score-circle" id="scoreCircle">
+          <div class="score-number"><span id="scoreNumber">0</span><small>/ 100</small></div>
+        </div>
+        <div style="text-align:center;"><div class="status" id="statusBadge">Report Result</div></div>
+        <h2 id="scoreTitle">Apartment Protection Score</h2>
+        <p id="scoreCopy">Loading your report details...</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="summary-strip">
+  <div class="wrap summary-grid">
+    <div class="summary-item"><strong>Owner</strong><span id="ownerName">Apartment Owner</span></div>
+    <div class="summary-item"><strong>Property City</strong><span id="propertyCity">Not provided</span></div>
+    <div class="summary-item"><strong>Unit Count</strong><span id="unitCount">Not provided</span></div>
+    <div class="summary-item"><strong>Current Carrier</strong><span id="currentCarrier">Not provided</span></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="report-wrap">
+    <div class="card">
+      <h2>What this score means</h2>
+      <p id="meaningCopy">Your Apartment Protection Score is directional. It is meant to identify whether your commercial apartment policy deserves a closer review before renewal, remarketing, or a major claim.</p>
+      <p><strong>Important:</strong> This is not a quote, binder, coverage confirmation, or underwriting decision. The next step is a human review of the actual policy structure, property details, eligibility, and coverage options.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="report-wrap">
+    <div class="card">
+      <h2>Flagged review areas</h2>
+      <p>Based on your answers, these are the commercial apartment coverage categories worth paying attention to.</p>
+      <div class="risk-grid" id="riskGrid"></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="report-wrap">
+    <div class="card">
+      <h2>Your answers</h2>
+      <p>These answers were used to create the report context.</p>
+      <div class="answers-grid" id="answersGrid"></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="next-step">
+  <div class="report-wrap">
+    <div class="card cta-card">
+      <h2>Next step: request a commercial apartment coverage review</h2>
+      <p>Apartment owners do not need another random quote. They need to know whether the policy structure can survive a real claim.</p>
+      <div class="cta-list">
+        <div class="cta-item">Review rental income/loss-of-rents structure and timeframe</div>
+        <div class="cta-item">Check liability and tenant/visitor exposure</div>
+        <div class="cta-item">Look for ordinance, replacement cost, vacancy, and water damage pressure points</div>
+        <div class="cta-item">Decide whether the current policy should be kept, adjusted, or remarketed</div>
+      </div>
+      <div class="cta-actions">
+        <a class="btn btn-primary" href="tel:14088262465">Call/Text Dylan: (408) 826-2465</a>
+        <a class="btn btn-secondary" href="mailto:9jwc9cwkkr@privaterelay.appleid.com?subject=Apartment%20Protection%20Review%20Request">Email Review Request</a>
+      </div>
+      <p class="disclaimer">CoverageFit is an educational review tool. Insurance products are offered through Dylan Haysbert / Virginia Tam Insurance Agency / Farmers Insurance where eligible. Coverage availability and eligibility vary by underwriting guidelines.</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap footer-grid">
+    <div><strong>CoverageFit</strong><br>Apartment Protection Report<br>Commercial Property Review</div>
+    <div>Dylan Haysbert, Insurance Producer<br>Virginia Tam Insurance Agency<br>Farmers Insurance<br>CA Insurance License #4528400<br><strong>Call/Text: (408) 826-2465</strong></div>
+    <div><a href="/apartment">Retake Apartment Score</a> · <a href="/life">Life Score</a> · <a href="/landlord">Landlord Score</a><br>Educational information only.<br>Not a quote, binder, or coverage determination.</div>
+  </div>
+</footer>
+
+<a href="#next-step" class="mobile-sticky">Request Commercial Coverage Review →</a>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+
+function getParam(key, fallback="Not provided"){
+  const value = params.get(key);
+  return value && value.trim() ? value.trim() : fallback;
+}
+
+function setText(id, value){
+  const el = document.getElementById(id);
+  if(el) el.textContent = value;
+}
+
+const score = Math.max(0, Math.min(100, Number(getParam("score", "0")) || 0));
+const owner = getParam("name", "Apartment Owner");
+const city = getParam("city", "Not provided");
+const units = getParam("units", "Not provided");
+const carrier = getParam("carrier", "Not provided");
+const risks = getParam("risks", "");
+const priority = getParam("priority", "");
+
+setText("ownerName", owner);
+setText("propertyCity", city);
+setText("unitCount", units);
+setText("currentCarrier", carrier);
+
+function getScoreData(score){
+  if(score >= 80){
+    return {
+      badge:"Strong Commercial Protection Foundation",
+      badgeClass:"good",
+      title:`Apartment Protection Score: ${score}/100`,
+      copy:"Your answers suggest a stronger foundation, but the actual policy still deserves review against rental income, ordinance, liability, deductibles, and property-specific underwriting details.",
+      meaning:"This score suggests fewer obvious red flags from the questionnaire. Even so, apartment insurance should still be checked against the actual policy, building age, tenant exposure, loss history, and renewal conditions."
+    };
+  }
+  if(score >= 60){
+    return {
+      badge:"Moderate Coverage Review Priority",
+      badgeClass:"medium",
+      title:`Apartment Protection Score: ${score}/100`,
+      copy:"Your answers suggest possible review areas around income interruption, ordinance exposure, liability, water damage, occupancy, or policy structure.",
+      meaning:"This score suggests the current setup may be workable, but there are enough possible pressure points that a commercial apartment coverage review is worth considering before the next renewal or claim."
+    };
+  }
+  return {
+    badge:"Elevated Apartment Risk Exposure",
+    badgeClass:"weak",
+    title:`Apartment Protection Score: ${score}/100`,
+    copy:"Your answers suggest meaningful uncertainty or exposure that could create financial pressure after a major claim, vacancy issue, liability event, or extended repair period.",
+    meaning:"This score suggests the building may have meaningful review areas that should not be ignored. The concern is not just whether a policy exists, but whether the structure could handle a real commercial apartment claim."
+  };
+}
+
+const scoreData = getScoreData(score);
+setText("scoreNumber", score);
+setText("scoreTitle", scoreData.title);
+setText("scoreCopy", scoreData.copy);
+setText("meaningCopy", scoreData.meaning);
+
+const statusBadge = document.getElementById("statusBadge");
+statusBadge.textContent = scoreData.badge;
+statusBadge.className = `status ${scoreData.badgeClass}`;
+
+const degrees = Math.round((score/100)*360);
+document.getElementById("scoreCircle").style.background = `conic-gradient(var(--blue) ${degrees}deg, var(--blueSoft) ${degrees}deg)`;
+
+const riskCatalog = [
+  {
+    key:"Rental Income Interruption",
+    title:"Rental income interruption",
+    text:"Review whether lost rents/business income protection is present, how long it lasts, and whether the limit would actually support the asset during repairs."
+  },
+  {
+    key:"Unit Count Exposure",
+    title:"Unit count and tenant exposure",
+    text:"More units can mean more tenants, more claim complexity, and a bigger need for clean policy structure and accurate underwriting."
+  },
+  {
+    key:"Building Age / Ordinance",
+    title:"Building age and ordinance exposure",
+    text:"Older buildings may face code upgrade, systems, or replacement-cost issues after a major loss."
+  },
+  {
+    key:"Ordinance / Law Exposure",
+    title:"Ordinance or law coverage",
+    text:"After a significant loss, ordinance requirements can create costs beyond ordinary repair work."
+  },
+  {
+    key:"Liability Exposure",
+    title:"Liability exposure",
+    text:"Apartments create recurring exposure from tenants, guests, contractors, common areas, stairs, walkways, and parking areas."
+  },
+  {
+    key:"Water Damage Exposure",
+    title:"Water damage exposure",
+    text:"Water losses can spread across multiple units and create both repair and tenant-displacement issues."
+  },
+  {
+    key:"Occupancy / Use",
+    title:"Occupancy and use",
+    text:"Vacancy, mixed use, short-term rental activity, or unusual occupancy can affect underwriting and claim handling."
+  },
+  {
+    key:"Policy Structure Confidence",
+    title:"Policy structure confidence",
+    text:"A policy can exist and still be mismatched to the property’s actual use, values, deductibles, exclusions, or income exposure."
+  }
+];
+
+const flaggedKeys = risks.split(",").map(r => r.trim()).filter(Boolean);
+const riskGrid = document.getElementById("riskGrid");
+
+riskCatalog.forEach(item => {
+  const flagged = flaggedKeys.includes(item.key);
+  const div = document.createElement("div");
+  div.className = `risk-card ${flagged ? "flagged" : "clear"}`;
+  div.innerHTML = `<strong>${item.title}</strong><span>${flagged ? item.text : "No major flag from your questionnaire, but this should still be confirmed against the actual policy."}</span>`;
+  riskGrid.appendChild(div);
+});
+
+const answers = [
+  ["Rental income confidence", getParam("income")],
+  ["Unit exposure", getParam("unitExposure")],
+  ["Year built", getParam("yearBuilt")],
+  ["Ordinance review", getParam("ordinance")],
+  ["Liability confidence", getParam("liability")],
+  ["Water damage concern", getParam("water")],
+  ["Occupancy / use", getParam("occupancy")],
+  ["Policy confidence", getParam("policyConfidence")],
+  ["Renewal month", getParam("renewal")],
+  ["Priority", priority || scoreData.badge]
+];
+
+const answersGrid = document.getElementById("answersGrid");
+answers.forEach(([label, value]) => {
+  const div = document.createElement("div");
+  div.className = "answer-card";
+  div.innerHTML = `<strong>${label}</strong><span>${value || "Not provided"}</span>`;
+  answersGrid.appendChild(div);
+});
+</script>
+</body>
+</html>
