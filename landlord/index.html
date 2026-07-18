@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Is Your Rental Actually Covered? | Landlord Coverage Score</title>
+  <meta name="description" content="Check your Landlord Coverage Score in about 60 seconds. Identify possible concerns involving policy structure, rental income protection, liability, occupancy, water damage, and tenant requirements." />
+
+  <!-- Replace these tracking IDs if needed -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18154457410"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'AW-18154457410');
+    gtag('config', 'G-SLYBV0R1X4');
+  </script>
+
+  <style>
+    :root{
+      --blue:#0755d8;
+      --blue-2:#1e6cf0;
+      --blue-dark:#071936;
+      --navy:#020d1f;
+      --navy-2:#061833;
+      --red:#d7263d;
+      --green:#15803d;
+      --amber:#a95b08;
+      --text:#111827;
+      --muted:#5f6b7a;
+      --bg:#f4f7fb;
+      --border:#d8e0ec;
+      --blue-soft:#eef4ff;
+      --red-soft:#fff1f3;
+      --green-soft:#ecfdf3;
+      --amber-soft:#fff7ed;
+      --shadow:0 18px 45px rgba(7,25,54,.12);
+      --radius:22px;
+    }
+
+    *{ box-sizing:border-box; }
+    html{ scroll-behavior:smooth; }
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:linear-gradient(180deg,#fff 0%,var(--bg) 72%,#fff 100%);
+      color:var(--text);
+    }
+    a{ color:inherit; text-decoration:none; }
+    button,input{ font:inherit; }
+    .wrap{ max-width:1160px; margin:0 auto; padding:0 22px; }
+    .score-wrap{ max-width:980px; margin:0 auto; padding:0 22px; }
+
+    header{
+      padding:14px 0;
+      background:rgba(255,255,255,.95);
+      backdrop-filter:blur(16px);
+      border-bottom:1px solid rgba(216,224,236,.82);
+      position:relative;
+      z-index:20;
+    }
+    .nav{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:18px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:11px;
+      min-width:0;
+    }
+    .brand-mark{
+      width:40px;
+      height:40px;
+      border-radius:12px;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(135deg,var(--blue),var(--blue-2));
+      color:#fff;
+      font-weight:950;
+      box-shadow:0 10px 24px rgba(7,85,216,.28);
+      flex:0 0 auto;
+    }
+    .brand-name{
+      color:var(--blue-dark);
+      font-size:19px;
+      font-weight:950;
+      letter-spacing:-.04em;
+      line-height:1;
+    }
+    .brand-sub{
+      display:block;
+      margin-top:5px;
+      color:var(--muted);
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.065em;
+      text-transform:uppercase;
+    }
+    .nav-trust{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.35;
+      font-weight:750;
+      text-align:center;
+    }
+    .nav-cta{
+      background:var(--blue);
+      color:#fff;
+      border-radius:999px;
+      padding:11px 16px;
+      font-size:13px;
+      font-weight:900;
+      white-space:nowrap;
+      box-shadow:0 12px 26px rgba(7,85,216,.24);
+    }
+
+    .hero{
+      position:relative;
+      color:#fff;
+      overflow:hidden;
+      background:
+        linear-gradient(90deg,rgba(2,13,31,.99) 0%,rgba(2,13,31,.96) 37%,rgba(2,13,31,.68) 60%,rgba(2,13,31,.30) 100%),
+        url("assets/landlord-house-hero.jpg") center right / cover no-repeat;
+    }
+    .hero:after{
+      content:"";
+      position:absolute;
+      inset:auto 0 0;
+      height:190px;
+      background:linear-gradient(180deg,transparent,rgba(2,13,31,.76));
+      pointer-events:none;
+    }
+    .hero-grid{
+      min-height:610px;
+      display:grid;
+      grid-template-columns:1.08fr .92fr;
+      align-items:center;
+      gap:30px;
+      position:relative;
+      z-index:1;
+      padding:64px 0 52px;
+    }
+    .eyebrow{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      color:var(--blue-2);
+      font-size:17px;
+      font-weight:950;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      margin-bottom:18px;
+    }
+    .eyebrow:before,
+    .eyebrow:after{
+      content:"";
+      width:68px;
+      height:3px;
+      border-radius:999px;
+      background:var(--blue-2);
+    }
+    h1{
+      margin:0;
+      max-width:680px;
+      color:#fff;
+      font-size:74px;
+      line-height:.94;
+      letter-spacing:-.075em;
+      text-transform:uppercase;
+      text-shadow:0 6px 20px rgba(0,0,0,.28);
+    }
+    h1 .accent{
+      display:block;
+      color:var(--blue-2);
+    }
+    .lead{
+      max-width:650px;
+      margin:24px 0 0;
+      color:rgba(255,255,255,.94);
+      font-size:23px;
+      line-height:1.35;
+      font-weight:700;
+    }
+    .lead em{
+      color:var(--blue-2);
+      font-style:italic;
+      font-weight:950;
+    }
+    .hero-actions{
+      margin-top:29px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .cta-stack{
+      display:inline-flex;
+      flex-direction:column;
+      align-items:flex-start;
+      gap:7px;
+    }
+    .cta-proof{
+      color:rgba(255,255,255,.83);
+      font-size:13px;
+      font-weight:800;
+      padding-left:4px;
+    }
+    .btn{
+      border:none;
+      cursor:pointer;
+      border-radius:999px;
+      padding:15px 22px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      text-align:center;
+      font-weight:950;
+      font-size:15px;
+    }
+    .btn-primary{
+      background:linear-gradient(135deg,var(--blue),var(--blue-2));
+      color:#fff;
+      box-shadow:0 18px 38px rgba(30,108,240,.32);
+    }
+    .btn-secondary{
+      background:#fff;
+      color:var(--blue-dark);
+      border:1px solid var(--border);
+    }
+    .proof-row{
+      margin-top:24px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .proof-pill{
+      padding:9px 12px;
+      color:#fff;
+      background:rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:999px;
+      font-size:13px;
+      font-weight:850;
+      backdrop-filter:blur(8px);
+    }
+    .hero-spacer{ min-height:1px; }
+
+    .intro-strip{
+      background:#fff;
+      border-bottom:1px solid var(--border);
+    }
+    .intro-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:0;
+    }
+    .intro-item{
+      padding:24px 22px;
+      border-right:1px solid var(--border);
+    }
+    .intro-item:last-child{ border-right:none; }
+    .intro-item strong{
+      display:block;
+      color:var(--blue);
+      font-size:16px;
+    }
+    .intro-item span{
+      display:block;
+      margin-top:5px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.45;
+    }
+
+    .tool-card,
+    .score-capture{
+      background:rgba(255,255,255,.97);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+    .tool-card{ padding:30px; margin:36px 0; }
+    .progress{
+      height:10px;
+      background:var(--blue-soft);
+      border-radius:999px;
+      overflow:hidden;
+      margin-bottom:22px;
+    }
+    .progress-bar{
+      width:0;
+      height:100%;
+      background:linear-gradient(135deg,var(--blue),var(--blue-2));
+      border-radius:999px;
+      transition:.25s ease;
+    }
+    .question-top{
+      display:flex;
+      justify-content:space-between;
+      gap:16px;
+      align-items:center;
+      margin-bottom:18px;
+    }
+    .step-label{
+      color:var(--blue);
+      font-weight:900;
+      font-size:13px;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+    }
+    .question h2,
+    .result h2{
+      margin:0;
+      color:var(--blue-dark);
+      font-size:32px;
+      line-height:1.08;
+      letter-spacing:-.05em;
+    }
+    .question p,
+    .result p{
+      color:var(--muted);
+      line-height:1.6;
+    }
+    .answers{
+      display:grid;
+      gap:12px;
+      margin-top:24px;
+    }
+    .answer{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:16px;
+      align-items:center;
+      width:100%;
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:17px;
+      cursor:pointer;
+      text-align:left;
+      transition:.18s ease;
+    }
+    .answer:hover{
+      transform:translateY(-2px);
+      border-color:rgba(7,85,216,.35);
+      box-shadow:0 12px 26px rgba(7,25,54,.08);
+    }
+    .answer.selected{
+      border-color:var(--blue);
+      background:#fbfdff;
+      box-shadow:0 0 0 4px rgba(7,85,216,.08);
+    }
+    .answer strong{
+      display:block;
+      color:var(--blue-dark);
+      font-size:16px;
+    }
+    .answer span{
+      display:block;
+      margin-top:4px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.35;
+    }
+    .answer .circle{
+      width:24px;
+      height:24px;
+      border:2px solid var(--border);
+      border-radius:50%;
+    }
+    .answer.selected .circle{
+      border-color:var(--blue);
+      background:radial-gradient(circle,var(--blue) 0 42%,transparent 45%);
+    }
+    .actions{
+      display:flex;
+      justify-content:space-between;
+      gap:14px;
+      margin-top:24px;
+    }
+    .btn:disabled{
+      opacity:.45;
+      cursor:not-allowed;
+      box-shadow:none;
+    }
+    .disclaimer{
+      margin-top:18px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.5;
+    }
+
+    .result{ display:none; }
+    .score-hero{
+      display:grid;
+      grid-template-columns:160px minmax(0,1fr);
+      gap:28px;
+      align-items:start;
+      margin-bottom:24px;
+    }
+    .score-circle{
+      width:142px;
+      height:142px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      background:conic-gradient(var(--blue) 0deg,var(--blue-soft) 0deg);
+      position:relative;
+    }
+    .score-circle:after{
+      content:"";
+      position:absolute;
+      width:104px;
+      height:104px;
+      border-radius:50%;
+      background:#fff;
+      box-shadow:inset 0 0 0 1px var(--border);
+    }
+    .score-number{
+      position:relative;
+      z-index:1;
+      color:var(--blue-dark);
+      text-align:center;
+      font-size:38px;
+      font-weight:950;
+      letter-spacing:-.04em;
+    }
+    .score-number small{
+      display:block;
+      margin-top:-4px;
+      color:var(--muted);
+      font-size:13px;
+      letter-spacing:0;
+    }
+    .status{
+      display:inline-flex;
+      padding:8px 12px;
+      border-radius:999px;
+      margin-bottom:10px;
+      font-size:13px;
+      font-weight:900;
+    }
+    .status.good{ background:var(--green-soft); color:var(--green); }
+    .status.medium{ background:var(--amber-soft); color:var(--amber); }
+    .status.weak{ background:var(--red-soft); color:var(--red); }
+
+    .review-factors{
+      margin:20px 0 0;
+      padding:16px 18px;
+      background:var(--blue-soft);
+      border:1px solid rgba(7,85,216,.10);
+      border-radius:16px;
+    }
+    .review-factors strong{
+      color:var(--blue-dark);
+      display:block;
+    }
+    .review-factors span{
+      display:block;
+      margin-top:5px;
+      color:var(--muted);
+      line-height:1.45;
+      font-size:14px;
+    }
+
+    .score-capture{
+      margin-top:24px;
+      padding:24px;
+      border-radius:20px;
+    }
+    .score-capture h3{
+      margin:0;
+      color:var(--blue-dark);
+      font-size:24px;
+      letter-spacing:-.04em;
+    }
+    .score-capture p{
+      margin:8px 0 16px;
+      color:var(--muted);
+      font-size:15px;
+      line-height:1.5;
+    }
+    .score-capture form{ display:grid; gap:12px; }
+    .field-row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+    .score-capture label{
+      color:var(--blue-dark);
+      font-size:13px;
+      font-weight:850;
+    }
+    .score-capture input{
+      width:100%;
+      margin-top:6px;
+      padding:14px;
+      border:1px solid var(--border);
+      border-radius:14px;
+    }
+    .score-capture input:focus{
+      outline:none;
+      border-color:var(--blue);
+      box-shadow:0 0 0 4px rgba(7,85,216,.08);
+    }
+    .capture-note{
+      margin:0!important;
+      font-size:12px!important;
+      line-height:1.45!important;
+    }
+
+    .gap-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:22px;
+    }
+    .gap-card{
+      padding:18px;
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:18px;
+    }
+    .gap-card.warning{
+      background:var(--red-soft);
+      border-color:rgba(215,38,61,.18);
+    }
+    .gap-card.caution{
+      background:var(--amber-soft);
+      border-color:rgba(169,91,8,.18);
+    }
+    .gap-card.good{
+      background:var(--green-soft);
+      border-color:rgba(21,128,61,.18);
+    }
+    .gap-card.factor{
+      background:var(--blue-soft);
+      border-color:rgba(7,85,216,.14);
+    }
+    .gap-card strong{
+      display:block;
+      color:var(--blue-dark);
+      font-size:16px;
+    }
+    .gap-card span{
+      display:block;
+      margin-top:6px;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.45;
+    }
+
+    .cta-band{
+      width:100%;
+      margin-top:28px;
+      padding:30px;
+      color:#fff;
+      background:linear-gradient(135deg,var(--blue-dark),#0e2d62);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+    .cta-band h2{
+      margin:0;
+      color:#fff;
+      font-size:30px;
+      letter-spacing:-.05em;
+    }
+    .cta-band p{
+      margin:10px 0 20px;
+      color:rgba(255,255,255,.90);
+      line-height:1.6;
+    }
+    .cta-band .btn-primary{
+      background:#fff;
+      color:var(--blue-dark);
+      box-shadow:none;
+    }
+    .audit-preview{
+      display:grid;
+      gap:12px;
+      margin:20px 0 22px;
+    }
+    .audit-item{
+      display:grid;
+      grid-template-columns:auto 1fr;
+      gap:12px;
+      align-items:start;
+      padding:15px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.16);
+      border-radius:18px;
+    }
+    .audit-icon{
+      width:28px;
+      height:28px;
+      display:grid;
+      place-items:center;
+      color:var(--blue-dark);
+      background:#fff;
+      border-radius:10px;
+      font-weight:950;
+      font-size:13px;
+    }
+    .audit-item strong{
+      display:block;
+      color:#fff;
+      font-size:15px;
+    }
+    .audit-item span{
+      display:block;
+      margin-top:3px;
+      color:rgba(255,255,255,.86);
+      font-size:13px;
+      line-height:1.4;
+    }
+
+    .trust-strip{ padding:12px 0 44px; }
+    .trust-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:14px;
+    }
+    .trust-card{
+      padding:18px;
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:18px;
+      box-shadow:0 10px 28px rgba(7,25,54,.06);
+    }
+    .trust-card strong{
+      display:block;
+      color:var(--blue-dark);
+    }
+    .trust-card span{
+      display:block;
+      margin-top:5px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.4;
+    }
+
+    footer{
+      padding:26px 0 92px;
+      color:var(--muted);
+      border-top:1px solid var(--border);
+      font-size:13px;
+      line-height:1.55;
+    }
+    .footer-grid{
+      display:flex;
+      justify-content:space-between;
+      gap:22px;
+      flex-wrap:wrap;
+    }
+    .mobile-sticky{
+      display:none;
+      position:fixed;
+      left:14px;
+      right:14px;
+      bottom:14px;
+      z-index:80;
+      padding:15px 18px;
+      color:#fff;
+      background:var(--blue);
+      border-radius:18px;
+      text-align:center;
+      font-weight:950;
+      box-shadow:0 16px 38px rgba(7,85,216,.36);
+    }
+
+    @media(max-width:900px){
+      .nav-trust{ display:none; }
+      .hero-grid{ grid-template-columns:1fr; min-height:auto; }
+      .hero-spacer{ display:none; }
+      h1{ font-size:52px; }
+      .hero{
+        background:
+          linear-gradient(90deg,rgba(2,13,31,.98),rgba(2,13,31,.74)),
+          url("assets/landlord-house-hero.jpg") center / cover no-repeat;
+      }
+      .intro-grid,
+      .trust-grid{
+        grid-template-columns:1fr;
+      }
+      .intro-item{
+        border-right:none;
+        border-bottom:1px solid var(--border);
+      }
+      .intro-item:last-child{ border-bottom:none; }
+      .score-hero{ grid-template-columns:1fr; }
+    }
+
+    @media(max-width:560px){
+      .wrap,.score-wrap{ padding:0 16px; }
+      .nav-cta{ display:none; }
+      .brand-name{ font-size:17px; }
+      .hero-grid{ padding:38px 0 32px; }
+      .eyebrow{ font-size:12px; letter-spacing:.08em; }
+      .eyebrow:before,.eyebrow:after{ width:36px; }
+      h1{ font-size:42px; }
+      .lead{ font-size:18px; }
+      .hero-actions .btn,
+      .cta-stack{
+        width:100%;
+      }
+      .cta-stack .btn{ width:100%; }
+      .cta-proof{
+        width:100%;
+        padding-left:0;
+        text-align:center;
+      }
+      .tool-card,
+      .score-capture,
+      .cta-band{
+        padding:22px;
+      }
+      .field-row,
+      .gap-grid{
+        grid-template-columns:1fr;
+      }
+      .question h2,
+      .result h2{
+        font-size:28px;
+      }
+      .mobile-sticky{ display:block; }
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="#top" aria-label="CoverageFit Landlord Coverage Score">
+      <div class="brand-mark">CF</div>
+      <div>
+        <div class="brand-name">CoverageFit</div>
+        <span class="brand-sub">Landlord Coverage Self-Check</span>
+      </div>
+    </a>
+
+    <div class="nav-trust">
+      By Dylan Haysbert, Insurance Producer<br>
+      Virginia Tam Insurance Agency · CA License #4528400
+    </div>
+
+    <a class="nav-cta" href="#score-tool">Check My Score</a>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <div class="eyebrow">Bay Area Landlords</div>
+        <h1>Is Your Rental <span class="accent">Actually</span> Covered?</h1>
+        <p class="lead">Most landlord policies look fine until something <em>actually goes wrong.</em></p>
+
+        <div class="hero-actions">
+          <div class="cta-stack">
+            <a class="btn btn-primary" href="#score-tool">Check My Landlord Coverage Score →</a>
+            <span class="cta-proof">Takes about 60 seconds · No obligation</span>
+          </div>
+          <a class="btn btn-secondary" href="tel:14083276377">Call/Text Dylan</a>
+        </div>
+
+        <div class="proof-row">
+          <div class="proof-pill">✓ Policy structure</div>
+          <div class="proof-pill">✓ Rental income protection</div>
+          <div class="proof-pill">✓ Liability exposure</div>
+        </div>
+      </div>
+      <div class="hero-spacer" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <section class="intro-strip">
+    <div class="wrap intro-grid">
+      <div class="intro-item">
+        <strong>Policy Structure</strong>
+        <span>Is the property insured as a true rental rather than an owner-occupied home?</span>
+      </div>
+      <div class="intro-item">
+        <strong>Rental Income Protection</strong>
+        <span>Could covered rental income continue if a claim made the property unlivable?</span>
+      </div>
+      <div class="intro-item">
+        <strong>Liability Exposure</strong>
+        <span>Are liability limits aligned with tenant, guest, vendor, and property-related risk?</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="score-wrap" id="score-tool">
+    <div class="tool-card">
+      <div id="quiz">
+        <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+
+        <div class="question-top">
+          <div class="step-label" id="stepLabel">Question 1 of 7</div>
+        </div>
+
+        <div class="question">
+          <h2 id="questionTitle"></h2>
+          <p id="questionHelp"></p>
+          <div class="answers" id="answers"></div>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-secondary" id="backBtn" type="button">← Back</button>
+          <button class="btn btn-primary" id="nextBtn" type="button" disabled>Next →</button>
+        </div>
+
+        <p class="disclaimer">
+          This tool is educational only. It is not a quote, coverage determination, or substitute for reviewing the actual policy, endorsements, exclusions, and underwriting requirements.
+        </p>
+      </div>
+
+      <div class="result" id="result">
+        <div class="score-hero">
+          <div class="score-circle" id="scoreCircle">
+            <div class="score-number"><span id="scoreNumber">0</span><small>/ 100</small></div>
+          </div>
+
+          <div>
+            <div class="status" id="statusBadge">Score Result</div>
+            <h2 id="resultTitle"></h2>
+            <p id="resultCopy"></p>
+
+            <div class="review-factors" id="reviewFactors">
+              <strong>Additional review factors</strong>
+              <span id="reviewFactorCopy">None identified.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="score-capture" id="scoreCapture">
+          <h3>Unlock your personalized coverage results.</h3>
+          <p>Enter your information to view your complete score, flagged areas, and recommended next step.</p>
+
+          <form id="scoreCaptureForm" action="https://formspree.io/f/mvzlgagr" method="POST">
+            <input type="hidden" name="_subject" value="New Landlord Coverage Score Lead" />
+            <input type="hidden" name="source" value="CoverageFit Landlord Coverage Score" />
+            <input type="hidden" name="coverage_type" value="Landlord Property" />
+            <input type="hidden" name="score" id="captureScore" />
+            <input type="hidden" name="risk_areas" id="captureRisks" />
+            <input type="hidden" name="review_factors" id="captureFactors" />
+            <input type="hidden" name="priority" id="capturePriority" />
+            <input type="hidden" name="report_url" id="captureReportUrl" />
+
+            <div class="field-row">
+              <label>
+                First Name
+                <input type="text" name="first_name" id="captureFirstName" required placeholder="First name" />
+              </label>
+
+              <label>
+                Email
+                <input type="email" name="email" id="captureEmail" required placeholder="Email address" />
+              </label>
+            </div>
+
+            <div class="field-row">
+              <label>
+                Phone
+                <input type="tel" name="phone" id="capturePhone" placeholder="Phone number" />
+              </label>
+
+              <label>
+                Property Address or ZIP
+                <input type="text" name="property" id="captureProperty" placeholder="Property address or ZIP" />
+              </label>
+            </div>
+
+            <button class="btn btn-primary" type="submit">View My Complete Results →</button>
+
+            <p class="capture-note">
+              Your results open immediately after submitting. Dylan may follow up to explain what the score means and whether reviewing the actual policy would be useful.
+            </p>
+          </form>
+        </div>
+
+        <div class="gap-grid" id="gapGrid"></div>
+
+        <div class="cta-band">
+          <h2>Want to review what your actual policy says?</h2>
+          <p>
+            The score identifies possible concerns based on your answers. A policy review looks at the declarations, endorsements, exclusions, occupancy details, and limits that actually control coverage.
+          </p>
+
+          <div class="audit-preview">
+            <div class="audit-item">
+              <div class="audit-icon">1</div>
+              <div>
+                <strong>Policy structure check</strong>
+                <span>Confirm whether the property is written for its actual rental use and occupancy.</span>
+              </div>
+            </div>
+
+            <div class="audit-item">
+              <div class="audit-icon">2</div>
+              <div>
+                <strong>Rental income check</strong>
+                <span>Review applicable limits, duration, and conditions for covered rental income loss.</span>
+              </div>
+            </div>
+
+            <div class="audit-item">
+              <div class="audit-icon">3</div>
+              <div>
+                <strong>Liability and gap check</strong>
+                <span>Review liability limits, water-related concerns, vacancy, tenant requirements, and other exposures.</span>
+              </div>
+            </div>
+          </div>
+
+          <a class="btn btn-primary" href="tel:14083276377">Call/Text Dylan: (408) 327-6377</a>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-secondary" id="restartBtn" type="button">Retake Score</button>
+          <a class="btn btn-secondary" href="#top">Back to Top</a>
+        </div>
+
+        <p class="disclaimer">
+          This score is directional and educational only. It does not confirm coverage, identify every possible issue, or replace review of the actual policy.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="trust-strip">
+    <div class="wrap trust-grid">
+      <div class="trust-card">
+        <strong>Built for rental owners</strong>
+        <span>Focused on landlord policy structure and rental-property risk rather than general homeowners insurance.</span>
+      </div>
+
+      <div class="trust-card">
+        <strong>Reviewed by Dylan Haysbert</strong>
+        <span>Insurance Producer with Virginia Tam Insurance Agency. CA Insurance License #4528400.</span>
+      </div>
+
+      <div class="trust-card">
+        <strong>Educational self-check</strong>
+        <span>A quick way to decide whether a deeper review of the actual landlord policy may make sense.</span>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap footer-grid">
+    <div>
+      <strong>CoverageFit</strong><br>
+      Landlord Coverage Self-Check
+    </div>
+
+    <div>
+      Dylan Haysbert, Insurance Producer<br>
+      Virginia Tam Insurance Agency<br>
+      Farmers Insurance<br>
+      CA Insurance License #4528400<br>
+      <strong>Call/Text: (408) 327-6377</strong>
+    </div>
+
+    <div>
+      Educational information only.<br>
+      Coverage availability and eligibility vary by underwriting guidelines.<br>
+      Actual coverage is governed by the issued policy and endorsements.
+    </div>
+  </div>
+</footer>
+
+<a href="#score-tool" class="mobile-sticky">Check My Landlord Coverage Score →</a>
+
+<script>
+  const questions = [
+    {
+      key:"propertyType",
+      title:"What type of rental property is this?",
+      help:"Property type affects complexity and underwriting, but it does not automatically mean your coverage is weak.",
+      scoring:false,
+      factor:true,
+      answers:[
+        {label:"Single-family rental", sub:"One rented house or condo.", points:0, tag:"Property Type"},
+        {label:"Duplex / triplex / fourplex", sub:"Small multi-unit rental.", points:0, tag:"Property Type", factorText:"Small multi-unit property"},
+        {label:"5+ unit property", sub:"Larger rental exposure that may require different market placement.", points:0, tag:"Property Type", factorText:"5+ unit property"},
+        {label:"Not sure how it is classified", sub:"Classification uncertainty deserves review.", points:-8, tag:"Property Type"}
+      ]
+    },
+    {
+      key:"policyType",
+      title:"Is it insured as a rental property?",
+      help:"A rental generally should not be structured like an owner-occupied primary residence.",
+      scoring:true,
+      answers:[
+        {label:"Yes, landlord or rental policy", sub:"Good starting point.", points:0, tag:"Policy Type"},
+        {label:"No, standard homeowners policy", sub:"This may be a major mismatch.", points:-25, tag:"Policy Type"},
+        {label:"I am not sure", sub:"Uncertainty here is worth reviewing.", points:-18, tag:"Policy Type"}
+      ]
+    },
+    {
+      key:"incomeProtection",
+      title:"Does your policy include loss of rent or rental income coverage?",
+      help:"The applicable limit, duration, and conditions matter if a covered claim makes the property unlivable.",
+      scoring:true,
+      answers:[
+        {label:"Yes, I believe it is included", sub:"Good, but the limit and duration still matter.", points:0, tag:"Income Protection"},
+        {label:"I am not sure", sub:"This is a common landlord blind spot.", points:-18, tag:"Income Protection"},
+        {label:"I do not think so", sub:"Rental income may be exposed.", points:-25, tag:"Income Protection"}
+      ]
+    },
+    {
+      key:"liability",
+      title:"What liability limit do you carry?",
+      help:"Rental properties create exposure involving tenants, guests, vendors, and visitors.",
+      scoring:true,
+      answers:[
+        {label:"$500,000 or higher", sub:"Stronger baseline, depending on the overall exposure.", points:0, tag:"Liability"},
+        {label:"$300,000", sub:"May be reasonable, but should be compared with assets and risk.", points:-6, tag:"Liability"},
+        {label:"$100,000 or less", sub:"Potentially weak for landlord exposure.", points:-20, tag:"Liability"},
+        {label:"Not sure", sub:"Liability uncertainty is worth reviewing.", points:-15, tag:"Liability"}
+      ]
+    },
+    {
+      key:"tenantStatus",
+      title:"What is the current tenant situation?",
+      help:"Occupancy status affects underwriting and may change how a policy should be structured.",
+      scoring:false,
+      factor:true,
+      answers:[
+        {label:"Long-term tenant", sub:"Generally simpler than short-term or vacant use.", points:0, tag:"Occupancy"},
+        {label:"Short-term rental or Airbnb", sub:"Often requires special policy treatment.", points:0, tag:"Occupancy", factorText:"Short-term rental use"},
+        {label:"Vacant or between tenants", sub:"Vacancy may trigger restrictions or special requirements.", points:0, tag:"Occupancy", factorText:"Vacancy or tenant transition"},
+        {label:"Occupancy is changing soon", sub:"A transition is worth reviewing.", points:0, tag:"Occupancy", factorText:"Upcoming occupancy change"}
+      ]
+    },
+    {
+      key:"waterRisk",
+      title:"How confident are you in the property’s water-damage setup?",
+      help:"Older systems and uncertainty can affect underwriting or exclusions, but they are review factors rather than automatic coverage failures.",
+      scoring:false,
+      factor:true,
+      answers:[
+        {label:"Very confident", sub:"Updated systems and a clear understanding of coverage.", points:0, tag:"Water Damage"},
+        {label:"Older plumbing or older property", sub:"Worth reviewing limitations and underwriting requirements.", points:0, tag:"Water Damage", factorText:"Older plumbing or property"},
+        {label:"Not sure", sub:"Water-related coverage uncertainty is common.", points:-8, tag:"Water Damage"}
+      ]
+    },
+    {
+      key:"rentersInsurance",
+      title:"Do your tenants carry renters insurance?",
+      help:"Tenant renters insurance can reduce confusion involving tenant belongings and certain liability issues.",
+      scoring:true,
+      answers:[
+        {label:"Yes, it is required", sub:"Good risk-management practice.", points:0, tag:"Tenant Insurance"},
+        {label:"No", sub:"This may create avoidable confusion during a tenant-related loss.", points:-8, tag:"Tenant Insurance"},
+        {label:"Not sure", sub:"Worth tightening as a landlord process.", points:-6, tag:"Tenant Insurance"}
+      ]
+    }
+  ];
+
+  let current = 0;
+  let selections = {};
+  let scoreStartedTracked = false;
+
+  if(!localStorage.getItem("cf_session")){
+    localStorage.setItem("cf_session", String(Date.now()));
+  }
+
+  const questionTitle = document.getElementById("questionTitle");
+  const questionHelp = document.getElementById("questionHelp");
+  const answersEl = document.getElementById("answers");
+  const stepLabel = document.getElementById("stepLabel");
+  const progressBar = document.getElementById("progressBar");
+  const backBtn = document.getElementById("backBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  const quiz = document.getElementById("quiz");
+  const result = document.getElementById("result");
+  const restartBtn = document.getElementById("restartBtn");
+
+  function renderQuestion(){
+    const q = questions[current];
+
+    questionTitle.textContent = q.title;
+    questionHelp.textContent = q.help;
+    stepLabel.textContent = `Question ${current + 1} of ${questions.length}`;
+    progressBar.style.width = `${current / questions.length * 100}%`;
+    answersEl.innerHTML = "";
+
+    q.answers.forEach((answer, index) => {
+      const selected = selections[q.key]?.index === index;
+      const btn = document.createElement("button");
+
+      btn.type = "button";
+      btn.className = `answer ${selected ? "selected" : ""}`;
+      btn.innerHTML = `
+        <div>
+          <strong>${answer.label}</strong>
+          <span>${answer.sub}</span>
+        </div>
+        <div class="circle"></div>
+      `;
+
+      btn.addEventListener("click", () => {
+        selections[q.key] = {...answer, index, scoring:q.scoring, factor:q.factor};
+        nextBtn.disabled = false;
+
+        if(!scoreStartedTracked){
+          trackScoreStarted();
+          scoreStartedTracked = true;
+        }
+
+        renderQuestion();
+      });
+
+      answersEl.appendChild(btn);
+    });
+
+    backBtn.disabled = current === 0;
+    nextBtn.textContent = current === questions.length - 1 ? "See My Score →" : "Next →";
+    nextBtn.disabled = !selections[q.key];
+  }
+
+  function calculateScore(){
+    let score = 100;
+
+    Object.values(selections).forEach(answer => {
+      score += answer.points || 0;
+    });
+
+    return Math.max(0, Math.min(100, score));
+  }
+
+  function getResult(score){
+    if(score >= 85){
+      return {
+        badge:"Stronger Starting Point",
+        badgeClass:"good",
+        title:"Your answers suggest a stronger starting structure.",
+        copy:"Several important areas appear to be addressed. Reviewing the actual policy can still confirm limits, exclusions, occupancy, and endorsements."
+      };
+    }
+
+    if(score >= 65){
+      return {
+        badge:"Needs Review",
+        badgeClass:"medium",
+        title:"Your answers identify possible coverage concerns.",
+        copy:"One or more areas may deserve a closer look, especially policy structure, rental income, liability, tenant requirements, or uncertainty about policy details."
+      };
+    }
+
+    return {
+      badge:"Higher Review Priority",
+      badgeClass:"weak",
+      title:"Your answers show multiple issues worth reviewing.",
+      copy:"The score does not determine coverage, but it suggests the actual policy should be reviewed before a claim forces the issue."
+    };
+  }
+
+  function getRiskSummary(){
+    const risks = Object.values(selections)
+      .filter(answer => (answer.points || 0) < 0)
+      .map(answer => answer.tag)
+      .filter((value,index,self) => self.indexOf(value) === index);
+
+    return risks.length ? risks.join(", ") : "No major answer-based concerns flagged";
+  }
+
+  function getReviewFactors(){
+    const factors = Object.values(selections)
+      .map(answer => answer.factorText)
+      .filter(Boolean)
+      .filter((value,index,self) => self.indexOf(value) === index);
+
+    return factors;
+  }
+
+  function getPriorityFromScore(score){
+    if(score >= 85) return "Confirm current landlord policy structure";
+    if(score >= 65) return "Review possible landlord coverage concerns";
+    return "Review higher-priority landlord coverage concerns";
+  }
+
+  function renderGaps(){
+    const gapGrid = document.getElementById("gapGrid");
+    gapGrid.innerHTML = "";
+
+    Object.values(selections).forEach(answer => {
+      let level = "good";
+      let label = "No concern flagged";
+
+      if((answer.points || 0) <= -15){
+        level = "warning";
+        label = "Review priority";
+      } else if((answer.points || 0) < 0){
+        level = "caution";
+        label = "Worth checking";
+      } else if(answer.factorText){
+        level = "factor";
+        label = "Review factor";
+      }
+
+      const div = document.createElement("div");
+      div.className = `gap-card ${level}`;
+      div.innerHTML = `
+        <strong>${answer.tag}: ${label}</strong>
+        <span>${answer.label}</span>
+      `;
+      gapGrid.appendChild(div);
+    });
+  }
+
+  function populateCaptureFields(score){
+    const factors = getReviewFactors();
+
+    document.getElementById("captureScore").value = score;
+    document.getElementById("captureRisks").value = getRiskSummary();
+    document.getElementById("captureFactors").value = factors.length ? factors.join(", ") : "None identified";
+    document.getElementById("capturePriority").value = getPriorityFromScore(score);
+
+    const params = new URLSearchParams({
+      score:String(score),
+      risks:getRiskSummary(),
+      factors:factors.join(", "),
+      priority:getPriorityFromScore(score),
+      source:"CoverageFit Landlord Coverage Score"
+    });
+
+    document.getElementById("captureReportUrl").value =
+      `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+  }
+
+  function trackScoreStarted(){
+    if(typeof gtag === "function"){
+      gtag("event","landlord_score_started");
+    }
+  }
+
+  function trackScoreCompleted(score){
+    if(typeof gtag === "function"){
+      gtag("event","landlord_score_completed",{
+        score,
+        risks:getRiskSummary(),
+        review_factors:getReviewFactors().join(", ")
+      });
+    }
+  }
+
+  function trackScoreCaptureSubmit(){
+    if(typeof gtag === "function"){
+      gtag("event","landlord_score_capture_submit",{
+        score:document.getElementById("captureScore").value,
+        risks:document.getElementById("captureRisks").value
+      });
+
+      gtag("event","conversion",{
+        send_to:"AW-18154457410/HjAgCIeCi6scEMKS3NBD",
+        value:1.0,
+        currency:"USD"
+      });
+    }
+  }
+
+  function showResult(){
+    const score = calculateScore();
+    const resultData = getResult(score);
+    const degrees = Math.round(score / 100 * 360);
+    const factors = getReviewFactors();
+
+    quiz.style.display = "none";
+    result.style.display = "block";
+
+    document.getElementById("statusBadge").textContent = resultData.badge;
+    document.getElementById("statusBadge").className = `status ${resultData.badgeClass}`;
+    document.getElementById("resultTitle").textContent = resultData.title;
+    document.getElementById("resultCopy").textContent = resultData.copy;
+    document.getElementById("reviewFactorCopy").textContent =
+      factors.length ? factors.join(", ") : "No additional property or occupancy factors were identified from your answers.";
+
+    renderGaps();
+    populateCaptureFields(score);
+    trackScoreCompleted(score);
+
+    setTimeout(() => {
+      document.getElementById("score-tool").scrollIntoView({behavior:"smooth", block:"start"});
+    }, 100);
+
+    const scoreNumber = document.getElementById("scoreNumber");
+    const scoreCircle = document.getElementById("scoreCircle");
+    scoreNumber.textContent = "0";
+    scoreCircle.style.background = "conic-gradient(var(--blue) 0deg, var(--blue-soft) 0deg)";
+
+    const duration = 900;
+    const startTime = performance.now();
+
+    function animateScore(now){
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const currentScore = Math.round(score * eased);
+      const currentDegrees = Math.round(degrees * eased);
+
+      scoreNumber.textContent = currentScore;
+      scoreCircle.style.background =
+        `conic-gradient(var(--blue) ${currentDegrees}deg, var(--blue-soft) ${currentDegrees}deg)`;
+
+      if(progress < 1){
+        requestAnimationFrame(animateScore);
+      }
+    }
+
+    requestAnimationFrame(animateScore);
+  }
+
+  nextBtn.addEventListener("click", () => {
+    if(current === questions.length - 1){
+      progressBar.style.width = "100%";
+      showResult();
+    } else {
+      current++;
+      renderQuestion();
+    }
+  });
+
+  backBtn.addEventListener("click", () => {
+    if(current > 0){
+      current--;
+      renderQuestion();
+    }
+  });
+
+  restartBtn.addEventListener("click", () => {
+    current = 0;
+    selections = {};
+    result.style.display = "none";
+    quiz.style.display = "block";
+    renderQuestion();
+    window.scrollTo({top:0, behavior:"smooth"});
+  });
+
+  document.getElementById("scoreCaptureForm").addEventListener("submit", async function(e){
+    e.preventDefault();
+
+    const scoreValue = Number(document.getElementById("captureScore").value || 0);
+    populateCaptureFields(scoreValue);
+    trackScoreCaptureSubmit();
+
+    const firstName = document.getElementById("captureFirstName").value.trim();
+    const property = document.getElementById("captureProperty").value.trim();
+
+    const payload = {
+      name:firstName || "Rental Property Owner",
+      email:document.getElementById("captureEmail").value.trim(),
+      phone:document.getElementById("capturePhone").value.trim(),
+      property:property || "Not provided",
+      score:String(scoreValue),
+      risks:getRiskSummary(),
+      reviewFactors:getReviewFactors(),
+      priority:getPriorityFromScore(scoreValue),
+      answers:selections,
+      source:"CoverageFit Landlord Coverage Score",
+      session:localStorage.getItem("cf_session") || ""
+    };
+
+    localStorage.setItem("coveragefit_landlord", JSON.stringify(payload));
+
+    try{
+      await fetch(this.action,{
+        method:"POST",
+        body:new FormData(this),
+        headers:{"Accept":"application/json"}
+      });
+    }catch(err){
+      console.warn("Lead submission could not be confirmed.", err);
+    }
+
+    const reportParams = new URLSearchParams({
+      name:payload.name,
+      property:payload.property,
+      score:payload.score,
+      risks:payload.risks,
+      factors:payload.reviewFactors.join(", "),
+      priority:payload.priority
+    });
+
+    window.location.href = `report.html?${reportParams.toString()}`;
+  });
+
+  renderQuestion();
+</script>
+</body>
+</html>
