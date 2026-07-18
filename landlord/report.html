@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Landlord Coverage Score | CoverageFit</title>
+  <style>
+    :root{
+      --blue:#0755d8;
+      --blue-dark:#071936;
+      --muted:#5f6b7a;
+      --border:#d8e0ec;
+      --bg:#f4f7fb;
+      --green:#15803d;
+      --amber:#a95b08;
+      --red:#d7263d;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      color:#111827;
+      background:linear-gradient(180deg,#fff,var(--bg));
+    }
+    a{text-decoration:none}
+    .wrap{max-width:900px;margin:0 auto;padding:30px 20px 70px}
+    .top{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:18px;
+      margin-bottom:26px;
+    }
+    .brand{
+      font-size:22px;
+      font-weight:950;
+      color:var(--blue-dark);
+    }
+    .brand small{
+      display:block;
+      color:var(--muted);
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      margin-top:5px;
+    }
+    .top-actions{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .phone{font-weight:900;color:var(--blue)}
+    .back-link{
+      color:var(--blue-dark);
+      font-size:13px;
+      font-weight:900;
+      padding:10px 14px;
+      border:1px solid var(--border);
+      border-radius:999px;
+      background:#fff;
+    }
+    .card{
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:24px;
+      padding:30px;
+      box-shadow:0 18px 45px rgba(7,25,54,.10);
+    }
+    .eyebrow{
+      color:var(--blue);
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      font-size:13px;
+    }
+    h1{
+      margin:10px 0 0;
+      color:var(--blue-dark);
+      font-size:42px;
+      line-height:1.02;
+      letter-spacing:-.055em;
+    }
+    .score-row{
+      display:grid;
+      grid-template-columns:150px 1fr;
+      gap:24px;
+      align-items:center;
+      margin-top:28px;
+    }
+    .circle{
+      width:140px;
+      height:140px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      background:conic-gradient(var(--blue) var(--score-deg),#eef4ff 0);
+      position:relative;
+    }
+    .circle:after{
+      content:"";
+      position:absolute;
+      width:102px;
+      height:102px;
+      background:#fff;
+      border-radius:50%;
+      box-shadow:inset 0 0 0 1px var(--border);
+    }
+    .circle strong{
+      position:relative;
+      z-index:1;
+      color:var(--blue-dark);
+      font-size:36px;
+    }
+    .summary{
+      color:var(--muted);
+      font-size:17px;
+      line-height:1.6;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+      margin-top:24px;
+    }
+    .item{
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:18px;
+      background:#fff;
+    }
+    .item strong{
+      display:block;
+      color:var(--blue-dark);
+    }
+    .item span{
+      display:block;
+      margin-top:6px;
+      color:var(--muted);
+      line-height:1.45;
+      font-size:14px;
+    }
+    .cta{
+      margin-top:26px;
+      background:linear-gradient(135deg,var(--blue-dark),#0e2d62);
+      color:#fff;
+      padding:26px;
+      border-radius:20px;
+    }
+    .cta h2{
+      margin:0;
+      font-size:27px;
+      letter-spacing:-.045em;
+    }
+    .cta p{
+      line-height:1.55;
+      color:rgba(255,255,255,.88);
+    }
+    .cta-actions{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top:8px;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      background:#fff;
+      color:var(--blue-dark);
+      padding:14px 20px;
+      border-radius:999px;
+      font-weight:950;
+    }
+    .btn-outline{
+      color:#fff;
+      background:transparent;
+      border:1px solid rgba(255,255,255,.34);
+    }
+    .site-return{
+      margin-top:18px;
+      padding:18px;
+      border:1px solid var(--border);
+      border-radius:18px;
+      background:var(--bg);
+      text-align:center;
+    }
+    .site-return strong{
+      display:block;
+      color:var(--blue-dark);
+      margin-bottom:5px;
+    }
+    .site-return span{
+      display:block;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.45;
+    }
+    .site-return a{
+      display:inline-flex;
+      margin-top:12px;
+      color:var(--blue);
+      font-weight:950;
+    }
+    .fine{
+      margin-top:18px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.5;
+    }
+    @media(max-width:620px){
+      .score-row,.grid{grid-template-columns:1fr}
+      h1{font-size:34px}
+      .top{
+        align-items:flex-start;
+        flex-direction:column;
+      }
+      .top-actions{
+        width:100%;
+        justify-content:space-between;
+      }
+      .cta-actions,
+      .cta-actions .btn{
+        width:100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">
+        CoverageFit
+        <small>Landlord Coverage Self-Check</small>
+      </div>
+
+      <div class="top-actions">
+        <a class="back-link" id="sourceBackLink" href="https://coveragefit.com/landlord/">
+          ← Back to CoverageFit Landlord
+        </a>
+        <a class="phone" href="tel:14083276377">(408) 327-6377</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow">Personalized Result</div>
+      <h1 id="headline">Your Landlord Coverage Score</h1>
+
+      <div class="score-row">
+        <div class="circle" id="circle">
+          <strong id="score">0</strong>
+        </div>
+        <div class="summary" id="summary"></div>
+      </div>
+
+      <div class="grid">
+        <div class="item">
+          <strong>Answer-based concerns</strong>
+          <span id="risks">None identified.</span>
+        </div>
+
+        <div class="item">
+          <strong>Additional review factors</strong>
+          <span id="factors">None identified.</span>
+        </div>
+
+        <div class="item">
+          <strong>Property</strong>
+          <span id="property">Not provided.</span>
+        </div>
+
+        <div class="item">
+          <strong>Recommended next step</strong>
+          <span id="priority">Review the actual policy if you want a definitive answer.</span>
+        </div>
+      </div>
+
+      <div class="cta">
+        <h2>Ready to review the actual policy?</h2>
+        <p>
+          Your score is based only on your answers. A real review looks at the declarations,
+          endorsements, exclusions, occupancy, limits, and underwriting details that control
+          how the policy may respond.
+        </p>
+
+        <div class="cta-actions">
+          <a class="btn" href="tel:14083276377">
+            Call/Text Dylan: (408) 327-6377
+          </a>
+
+          <a class="btn btn-outline" href="https://coveragefit.com/landlord/#score-tool">
+            Retake the Score
+          </a>
+        </div>
+      </div>
+
+      <div class="site-return">
+        <strong id="sourceReturnTitle">Want to continue exploring your landlord coverage?</strong>
+        <span id="sourceReturnCopy">
+          Return to CoverageFit Landlord to review the score tool, retake the assessment,
+          or continue exploring your landlord coverage options.
+        </span>
+        <a id="sourceReturnLink" href="https://coveragefit.com/landlord/">
+          Back to CoverageFit Landlord →
+        </a>
+      </div>
+
+      <p class="fine">
+        Educational result only. This page does not confirm coverage or replace the issued policy.
+        Actual coverage is governed by policy language, endorsements, exclusions, eligibility,
+        and underwriting requirements.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const name = params.get("name") || "Rental Property Owner";
+    const score = Math.max(0, Math.min(100, Number(params.get("score") || 0)));
+    const risks = params.get("risks") || "No major answer-based concerns flagged";
+    const factors = params.get("factors") || "None identified";
+    const property = params.get("property") || "Not provided";
+    const priority = params.get("priority") || "Review the actual policy if you want a definitive answer.";
+
+    const explicitSource = (params.get("source") || "").toLowerCase();
+    const referrerHost = (() => {
+      try {
+        return document.referrer ? new URL(document.referrer).hostname.toLowerCase() : "";
+      } catch (error) {
+        return "";
+      }
+    })();
+
+    const cameFromBayArea =
+      explicitSource === "bayarea" ||
+      explicitSource === "bayarealandlordinsurance" ||
+      referrerHost.includes("bayarealandlordinsurance.com");
+
+    const sourceBackLink = document.getElementById("sourceBackLink");
+    const sourceReturnTitle = document.getElementById("sourceReturnTitle");
+    const sourceReturnCopy = document.getElementById("sourceReturnCopy");
+    const sourceReturnLink = document.getElementById("sourceReturnLink");
+
+    if (cameFromBayArea) {
+      sourceBackLink.href = "https://bayarealandlordinsurance.com/";
+      sourceBackLink.textContent = "← Bay Area Landlord Insurance";
+
+      sourceReturnTitle.textContent = "Want to learn more about landlord insurance support?";
+      sourceReturnCopy.textContent =
+        "Return to BayAreaLandlordInsurance.com to learn about policy reviews, rental-property concerns, and working directly with Dylan.";
+      sourceReturnLink.href = "https://bayarealandlordinsurance.com/";
+      sourceReturnLink.textContent = "Visit BayAreaLandlordInsurance.com →";
+    } else {
+      sourceBackLink.href = "https://coveragefit.com/landlord/";
+      sourceBackLink.textContent = "← Back to CoverageFit Landlord";
+
+      sourceReturnTitle.textContent = "Want to continue exploring your landlord coverage?";
+      sourceReturnCopy.textContent =
+        "Return to CoverageFit Landlord to review the score tool, retake the assessment, or continue exploring your landlord coverage options.";
+      sourceReturnLink.href = "https://coveragefit.com/landlord/";
+      sourceReturnLink.textContent = "Back to CoverageFit Landlord →";
+    }
+
+    document.getElementById("headline").textContent =
+      `${name}, here is your Landlord Coverage Score`;
+
+    document.getElementById("score").textContent = score;
+
+    document.getElementById("circle").style.setProperty(
+      "--score-deg",
+      `${Math.round(score / 100 * 360)}deg`
+    );
+
+    document.getElementById("risks").textContent = risks;
+    document.getElementById("factors").textContent = factors || "None identified";
+    document.getElementById("property").textContent = property;
+    document.getElementById("priority").textContent = priority;
+
+    let summary;
+
+    if(score >= 85){
+      summary =
+        "Your answers suggest a stronger starting structure. The actual policy should still be reviewed to confirm limits, exclusions, endorsements, and occupancy.";
+    }else if(score >= 65){
+      summary =
+        "Your answers identify one or more areas worth reviewing. This does not mean a claim would be denied, but it does support checking the actual policy.";
+    }else{
+      summary =
+        "Your answers show several concerns that deserve closer review. The score does not determine coverage, but it suggests the actual policy should be examined before a claim forces the issue.";
+    }
+
+    document.getElementById("summary").textContent = summary;
+  </script>
+</body>
+</html>
