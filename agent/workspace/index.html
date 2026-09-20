@@ -56,13 +56,13 @@
   <p id="deskStatus" role="status" aria-live="polite">Connect your producer inbox below to load shared work.</p>
   <p id="deskSyncStatus" class="desk-muted" role="status" aria-live="polite"></p>
   <details class="desk-weekly-review" id="deskWeeklyReview">
-    <summary><span><strong>Weekly review</strong><small>Acquisition, economics, and FIV calibration — review when you are not in the middle of selling.</small></span><b>Background analytics</b></summary>
+    <summary><span><strong>Weekly review</strong><small>Exposure, acquisition economics, opportunity priority, and FIV calibration — review when you are not in the middle of selling.</small></span><b>Background analytics</b></summary>
     <div class="desk-weekly-review__body">
   <details class="desk-acq" id="deskAcq">
-    <summary><span><strong>Acquisition scoreboard</strong><small>Spend → qualified at-bats → binds → verified premium</small></span><b id="deskAcqHeadline">30-day view</b></summary>
+    <summary><span><strong>Acquisition scoreboard</strong><small>Exposure → qualified opportunities → binds → verified premium</small></span><b id="deskAcqHeadline">30-day view</b></summary>
     <div class="desk-acq-body">
       <div class="desk-acq-metrics" id="deskAcqMetrics"><p class="desk-muted">Connect the producer inbox to load acquisition economics.</p></div>
-      <div class="desk-acq-table-wrap"><table class="desk-acq-table"><thead><tr><th>Source / campaign</th><th>Spend</th><th>Qualified</th><th>Quotes</th><th>Binds</th><th>Premium</th><th>Cost / bind</th><th>Premium / $</th></tr></thead><tbody id="deskAcqRows"><tr><td colspan="8">No acquisition measurement loaded.</td></tr></tbody></table></div>
+      <div class="desk-acq-table-wrap"><table class="desk-acq-table"><thead><tr><th>Source / campaign</th><th>Exposures</th><th>Qualified / 1k</th><th>Spend</th><th>Qualified</th><th>Quotes</th><th>Binds</th><th>Premium</th><th>Cost / bind</th><th>Premium / $</th></tr></thead><tbody id="deskAcqRows"><tr><td colspan="10">No acquisition measurement loaded.</td></tr></tbody></table></div>
       <p class="desk-muted" id="deskAcqWarning"></p>
       <div class="desk-acq-controls">
         <details><summary>Register a campaign</summary><form id="deskCampaignForm" class="desk-form desk-acq-form">
@@ -78,6 +78,13 @@
           <label>Note<input name="note" maxlength="600" placeholder="Example: September Google Search budget"></label>
           <button class="button button--secondary" type="submit">Record spend</button><span class="desk-form-status" id="deskSpendStatus" role="status" aria-live="polite"></span>
         </form></details>
+        <details><summary>Record exposure denominator</summary><form id="deskExposureForm" class="desk-form desk-acq-form">
+          <div class="desk-form-grid"><label>Exposures<input name="exposures" type="number" min="1" step="1" inputmode="numeric" required placeholder="1000"></label><label>Date<input name="exposureDay" type="date" required></label></div>
+          <div class="desk-form-grid"><label>Campaign<select name="campaignId" id="deskExposureCampaign"><option value="">No registered campaign</option></select></label><label>Source family<select name="sourceFamily"><option value="paid_search">Paid search</option><option value="purchased_lead">Purchased lead</option><option value="direct_mail">Direct mail</option><option value="paid_social">Paid social</option><option value="referral_partner">Referral partner</option><option value="local_partner">Local partner</option><option value="district_lead">District lead</option><option value="organic_web">Organic web</option><option value="outbound">Outbound</option><option value="existing_relationship">Existing relationship</option><option value="event_or_affinity">Event / affinity</option><option value="other">Other</option></select></label></div>
+          <div class="desk-form-grid"><label>Source key<input name="sourceKey" maxlength="120" placeholder="web_408_life"></label><label>Measurement basis<select name="basis"><option value="platform_report">Platform report</option><option value="outbound_delivered">Outbound delivered</option><option value="first_party_visit">First-party visit</option><option value="direct_mail_households">Direct-mail households</option><option value="event_attendance">Event attendance</option><option value="manual_import">Manual import</option><option value="other">Other</option></select></label></div>
+          <label>Evidence / note<input name="note" maxlength="600" placeholder="Example: September campaign dashboard delivered count"></label>
+          <button class="button button--secondary" type="submit">Record exposures</button><span class="desk-form-status" id="deskExposureStatus" role="status" aria-live="polite"></span>
+        </form></details>
       </div>
     </div>
   </details>
@@ -87,6 +94,14 @@
       <div class="desk-acq-metrics" id="deskEconMetrics"><p class="desk-muted">Connect the producer inbox to load true acquisition economics.</p></div>
       <div class="desk-acq-table-wrap"><table class="desk-acq-table desk-econ-table"><thead><tr><th>Source / campaign</th><th>Spend</th><th>Producer hrs</th><th>Binds</th><th>Premium</th><th>Premium / producer hr</th><th>Observed cost*</th><th>True CAC</th><th>Evidence</th></tr></thead><tbody id="deskEconRows"><tr><td colspan="9">No economics loaded.</td></tr></tbody></table></div>
       <p class="desk-muted" id="deskEconWarning">*Observed cost includes only recorded attention when an attention cost/hour is explicitly configured. It is not automatically true CAC.</p>
+    </div>
+  </details>
+  <details class="desk-acq" id="deskPriorityCalibration">
+    <summary><span><strong>Opportunity priority calibration</strong><small>First complete Need + Intent + Timing + Fit score → binds → verified premium → producer minutes</small></span><b id="deskPriorityCalHeadline">90-day observational view</b></summary>
+    <div class="desk-acq-body">
+      <div class="desk-acq-metrics" id="deskPriorityCalMetrics"><p class="desk-muted">Connect the producer inbox to compare score-band performance.</p></div>
+      <div class="desk-acq-table-wrap"><table class="desk-acq-table"><thead><tr><th>First-ready score band</th><th>Opportunities</th><th>Binds</th><th>Bind rate</th><th>Premium</th><th>Min / bind</th><th>Premium / producer hr</th><th>Evidence</th></tr></thead><tbody id="deskPriorityCalRows"><tr><td colspan="8">No opportunity priority calibration loaded.</td></tr></tbody></table></div>
+      <p class="desk-muted" id="deskPriorityCalWarning">Observational only. Outcomes never rewrite scoring rules automatically.</p>
     </div>
   </details>
   <details class="desk-acq" id="deskFivCalibration">
@@ -99,7 +114,7 @@
   </details>
     </div>
   </details>
-  <div class="desk-toolbar"><div class="desk-filters" aria-label="Work queue"><button type="button" data-desk-view="today" aria-pressed="true">Today</button><button type="button" data-desk-view="all" aria-pressed="false">All opportunities</button><button type="button" data-desk-view="waiting" aria-pressed="false">Waiting</button><button type="button" data-desk-view="closed" aria-pressed="false">Closed</button></div><label>Small Ball queue<select id="deskQueue"><option value="">All queues</option><option value="shoot_now">🔥 Shoot now</option><option value="quick_play">⚡ Quick play</option><option value="develop">🏀 Develop</option><option value="nurture">🌱 Nurture</option><option value="low_priority">⬇ Low priority</option><option value="unclassified">Unclassified</option></select></label><label>Work type<select id="deskWork"><option value="">All work types</option><option value="outreach">Outreach</option><option value="quoting_service">Quoting / Service</option><option value="advice_closing">Advice / Closing</option></select></label></div>
+  <div class="desk-toolbar"><div class="desk-filters" aria-label="Work queue"><button type="button" data-desk-view="today" aria-pressed="true">Today</button><button type="button" data-desk-view="all" aria-pressed="false">All opportunities</button><button type="button" data-desk-view="waiting" aria-pressed="false">Waiting</button><button type="button" data-desk-view="closed" aria-pressed="false">Closed</button></div><label>Opportunity queue<select id="deskQueue"><option value="">All queues</option><option value="shoot_now">🔥 Shoot now</option><option value="quick_play">⚡ Quick play</option><option value="develop">🏀 Develop</option><option value="nurture">🌱 Nurture</option><option value="low_priority">⬇ Low priority</option><option value="unclassified">Unclassified</option></select></label><label>Work type<select id="deskWork"><option value="">All work types</option><option value="outreach">Outreach</option><option value="quoting_service">Quoting / Service</option><option value="advice_closing">Advice / Closing</option></select></label></div>
   <form class="desk-search" id="deskSearch"><label for="deskQuery">Find a person, source, product, or review reason</label><div><input type="search" id="deskQuery" maxlength="120" autocomplete="off"/><button class="button button--secondary" type="submit">Search</button></div></form>
   <div class="desk-layout"><div><div id="deskList" class="desk-list"><p class="desk-empty">Shared work will appear here after you connect.</p></div><button id="deskMore" type="button" class="button button--secondary" hidden>Load more</button></div><aside id="deskDetail" class="desk-detail" aria-label="Opportunity details"><p class="desk-empty">Choose an opportunity to see its next action and record a conversation.</p></aside></div>
 </section>
