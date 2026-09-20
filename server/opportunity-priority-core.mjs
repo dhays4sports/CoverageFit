@@ -113,50 +113,79 @@ function needCandidates(track,opportunity,context,lead){
   return out;
 }
 
+function ageDays(value,now){
+  const parsed=parseDate(value);
+  if(!parsed)return null;
+  return Math.max(0,daysBetween(parsed,now));
+}
 function intentCandidates(opportunity,tasks,sources,context,lead,now){
-  const out=[],at=lead?.updated_at||opportunity.updated_at||opportunity.created_at||null,ref=lead?`lead:${lead.source_id}`:'opportunity:record';
-  const task=(min)=>tasks.find(item=>Number(item?.priority||0)>=min&& !['completed','cancelled'].includes(item?.state));
+  const out=[],at=lead?.updated_at||opportunity.updated_at||opportunity.created_at||null,ref=lead?`lead:${lead.source_id}`:'opportunity:record',leadAge=ageDays(at,now);
+  const task=(min)=>tasks.find(item=>Number(item?.priority||0)>=min&&!['completed','cancelled'].includes(item?.state));
   const proceed=task(100),question=task(90),contact=tasks.find(item=>Number(item?.priority||0)>=70&&/requested contact|contact request/i.test(item?.title||''));
   if(proceed)out.push(reason(30,'explicit_proceed','The client explicitly asked to proceed.',{evidence:proceed.title,evidenceRef:`task:${proceed.id}`,source:'explicit_client_response',observedAt:proceed.created_at||null}));
   if(question)out.push(reason(28,'active_client_question','A client question is waiting for a human response.',{evidence:question.title,evidenceRef:`task:${question.id}`,source:'explicit_client_response',observedAt:question.created_at||null}));
   if(contact)out.push(reason(27,'explicit_contact_request','The customer explicitly requested producer contact.',{evidence:contact.title,evidenceRef:`task:${contact.id}`,source:'explicit_client_response',observedAt:contact.created_at||null}));
+
   const appt=activeAppointment(sources);
   if(appt)out.push(reason(27,'scheduled_conversation','The customer selected a time for a conversation.',{evidence:appt.start||appt.scheduledStart,evidenceRef:'calendar:scheduled',source:'scheduled_appointment',observedAt:appt.createdAt||at}));
   if(['recommendation','decision','quote_preparation'].includes(opportunity.stage))out.push(reason(opportunity.stage==='decision'?30:opportunity.stage==='recommendation'?28:24,'advanced_sales_stage','The opportunity has already advanced beyond initial discovery.',{evidence:`stage=${opportunity.stage}`,evidenceRef:'opportunity:stage',source:'producer_recorded',observedAt:opportunity.updated_at||at}));
-  const hasResponse=sources.some(source=>source?.kind==='response');
-  if(hasResponse)out.push(reason(22,'customer_response','A customer response is recorded.',{evidenceRef:'source:response',source:'explicit_client_response',observedAt:latest(sources.filter(source=>source?.kind==='response'))?.updated_at||at}));
-  if(context?.contactRequested===true||lead?.summary?.consent?.contactRequested===true)out.push(reason(26,'lead_contact_requested','The prospect requested contact in the acquisition flow.',{evidenceRef:ref,source:'explicit_client_response',observedAt:at}));
+
+  const response=latest(sources.filter(source=>source?.kind==='response'));
+  const responseAge=ageDays(response?.updated_at,now);
+  if(response&&(responseAge==null||responseAge<=30))out.push(reason(22,'customer_response','A recent customer response is recorded.',{evidence:responseAge==null?'recent response':`${responseAge} days old`,evidenceRef:`response:${response.source_id||'latest'}`,source:'explicit_client_response',observedAt:response.updated_at||at}));
+  else if(response&&responseAge<=90)out.push(reason(14,'aging_customer_response','A customer response exists, but it is no longer a fresh buying signal.',{evidence:`${responseAge} days old`,evidenceRef:`response:${response.source_id||'latest'}`,source:'explicit_client_response',observedAt:response.updated_at||at}));
+
+  if((context?.contactRequested===true||lead?.summary?.consent?.contactRequested===true)&&(leadAge==null||leadAge<=30))out.push(reason(26,'lead_contact_requested','The prospect recently requested contact in the acquisition flow.',{evidenceRef:ref,source:'explicit_client_response',observedAt:at}));
+  else if((context?.contactRequested===true||lead?.summary?.consent?.contactRequested===true)&&leadAge<=90)out.push(reason(16,'aging_contact_request','A prior contact request is recorded, but it should be reconfirmed before treating it as current intent.',{evidence:`${leadAge} days old`,evidenceRef:ref,source:'explicit_client_response',observedAt:at}));
+
   const statedIntent=lower(context.shoppingIntent,80).replace(/[\s-]+/g,'_');
-  if(['ready_now','ready','actively_comparing','active_now'].includes(statedIntent))out.push(reason(30,'stated_active_intent','The prospect explicitly reports active buying/comparison intent.',{evidence:statedIntent,evidenceRef:ref,source:'customer_reported',observedAt:at}));
-  else if(['open_to_review','open','comparing'].includes(statedIntent))out.push(reason(22,'stated_open_intent','The prospect explicitly reports being open to a review or comparison.',{evidence:statedIntent,evidenceRef:ref,source:'customer_reported',observedAt:at}));
-  else if(['exploring','researching'].includes(statedIntent))out.push(reason(10,'stated_exploring','The prospect explicitly reports early-stage exploration.',{evidence:statedIntent,evidenceRef:ref,source:'customer_reported',observedAt:at}));
-  else if(['not_interested','no_interest'].includes(statedIntent))out.push(reason(2,'stated_no_current_intent','The prospect explicitly reports no current purchase interest.',{evidence:statedIntent,evidenceRef:ref,source:'customer_reported',observedAt:at}));
+  const freshIntent=leadAge==null||leadAge<=30,agingIntent=leadAge!=null&&leadAge>30&&leadAge<=90;
+  if(freshIntent){
+    if(['ready_now','ready','actively_comparing','active_now'].includes(statedIntent))out.push(reason(30,'stated_active_intent','The prospect explicitly reports active buying/comparison intent.',{evidence:statedIntent,evidenceRef:ref,source:'customer_reported',observedAt:at}));
+    else if(['open_to_review','open','comparing'].includes(statedIntent))out.push(reason(22,'stated_open_intent','The prospect explicitly reports being open to a review or comparison.',{evidence:statedIntent,evidenceRef:ref,source:'customer_reported',observedAt:at}));
+    else if(['exploring','researching'].includes(statedIntent))out.push(reason(10,'stated_exploring','The prospect explicitly reports early-stage exploration.',{evidence:statedIntent,evidenceRef:ref,source:'customer_reported',observedAt:at}));
+    else if(['not_interested','no_interest'].includes(statedIntent))out.push(reason(2,'stated_no_current_intent','The prospect explicitly reports no current purchase interest.',{evidence:statedIntent,evidenceRef:ref,source:'customer_reported',observedAt:at}));
+  }else if(agingIntent){
+    if(['ready_now','ready','actively_comparing','active_now'].includes(statedIntent))out.push(reason(18,'aging_active_intent','The prospect previously reported active intent, but the signal is aging and should be reconfirmed.',{evidence:`${leadAge} days old`,evidenceRef:ref,source:'customer_reported',observedAt:at}));
+    else if(['open_to_review','open','comparing'].includes(statedIntent))out.push(reason(13,'aging_open_intent','The prospect previously reported openness to a review, but the signal is aging.',{evidence:`${leadAge} days old`,evidenceRef:ref,source:'customer_reported',observedAt:at}));
+    else if(['exploring','researching'].includes(statedIntent))out.push(reason(6,'aging_exploration','The prospect previously reported exploration; treat it as weak current intent.',{evidence:`${leadAge} days old`,evidenceRef:ref,source:'customer_reported',observedAt:at}));
+  }
+
   const why=reviewReason(context);
-  if(['nonrenewal_notice','buying_condo','renewal_change','shopping_price','coverage_review'].includes(why))out.push(reason(16,'explicit_review_reason','The prospect supplied a specific reason for the review.',{evidence:why,evidenceRef:ref,source:'customer_reported',observedAt:at}));
-  const leadAge=at&&parseDate(at)?daysBetween(parseDate(at),now):null;
+  if((leadAge==null||leadAge<=30)&&['nonrenewal_notice','buying_condo','renewal_change','shopping_price','coverage_review'].includes(why))out.push(reason(16,'explicit_review_reason','The prospect supplied a recent specific reason for the review.',{evidence:why,evidenceRef:ref,source:'customer_reported',observedAt:at}));
+  else if(leadAge!=null&&leadAge<=90&&['nonrenewal_notice','buying_condo','renewal_change','shopping_price','coverage_review'].includes(why))out.push(reason(9,'aging_review_reason','A specific review reason is recorded, but it is aging as an intent signal.',{evidence:`${why} · ${leadAge} days old`,evidenceRef:ref,source:'customer_reported',observedAt:at}));
+
   if(lead&&leadAge!=null&&leadAge<=14&&Object.keys(context||{}).some(key=>clean(context[key]).length))out.push(reason(12,'recent_structured_engagement','The prospect recently supplied structured acquisition context.',{evidence:`${leadAge} days old`,evidenceRef:ref,source:'customer_reported',observedAt:at,expiresAt:new Date(parseDate(at).getTime()+45*86400000).toISOString()}));
   return out;
 }
 
 function timingCandidates(opportunity,context,lead,now){
-  const out=[],ref=lead?`lead:${lead.source_id}`:'opportunity:record',at=lead?.updated_at||opportunity.updated_at||opportunity.created_at||null;
+  const out=[],ref=lead?`lead:${lead.source_id}`:'opportunity:record',at=lead?.updated_at||opportunity.updated_at||opportunity.created_at||null,leadAge=ageDays(at,now);
   const token=timingToken(context);
   const add=(points,code,label,evidence,source='customer_reported')=>out.push(reason(points,code,label,{evidence,evidenceRef:ref,source,observedAt:at}));
-  if(['now_urgent','now','urgent','within_14'].includes(token))add(25,'immediate_timing','The customer reported an immediate decision window.',token);
-  else if(['within_30','days_15_30','0_30'].includes(token))add(23,'within_30_days','The customer reported a decision window within 30 days.',token);
-  else if(['days_31_60','within_60','31_60'].includes(token))add(17,'within_60_days','The customer reported a 31–60 day decision window.',token);
-  else if(['days_61_90','within_90','61_90'].includes(token))add(12,'within_90_days','The customer reported a 61–90 day decision window.',token);
-  else if(['over_60','over_90','future'].includes(token))add(6,'future_timing','The customer reported a later decision window.',token);
 
+  // Relative timing statements are intentionally short-lived. "Within 30 days"
+  // from 60 days ago is not current timing evidence; it becomes UNKNOWN and the
+  // system asks one timing question again.
+  if(leadAge==null||leadAge<=30){
+    if(['now_urgent','now','urgent','within_14'].includes(token))add(25,'immediate_timing','The customer reported an immediate decision window.',token);
+    else if(['within_30','days_15_30','0_30'].includes(token))add(23,'within_30_days','The customer reported a decision window within 30 days.',token);
+    else if(['days_31_60','within_60','31_60'].includes(token))add(17,'within_60_days','The customer reported a 31–60 day decision window.',token);
+    else if(['days_61_90','within_90','61_90'].includes(token))add(12,'within_90_days','The customer reported a 61–90 day decision window.',token);
+    else if(['over_60','over_90','future'].includes(token))add(6,'future_timing','The customer reported a later decision window.',token);
+  }
+
+  // Absolute future dates are recalculated every time and therefore remain usable.
+  // Passed dates are not assigned low timing points; they become unknown so the
+  // next micro-question reconfirms what "now" means.
   const rawDeadline=clean(context.closingDate||opportunity.deadline,40),deadline=parseDate(rawDeadline);
   if(deadline){
     const days=daysBetween(now,deadline);
-    if(days<0)add(4,'deadline_passed','The recorded transaction deadline has passed and needs reconfirmation.',rawDeadline,'producer_or_customer_recorded');
-    else if(days<=14)add(25,'deadline_within_14','A recorded deadline is within 14 days.',rawDeadline,'producer_or_customer_recorded');
-    else if(days<=30)add(22,'deadline_within_30','A recorded deadline is within 30 days.',rawDeadline,'producer_or_customer_recorded');
-    else if(days<=60)add(17,'deadline_within_60','A recorded deadline is within 60 days.',rawDeadline,'producer_or_customer_recorded');
-    else if(days<=90)add(12,'deadline_within_90','A recorded deadline is within 90 days.',rawDeadline,'producer_or_customer_recorded');
-    else add(6,'future_deadline','A recorded deadline is more than 90 days away.',rawDeadline,'producer_or_customer_recorded');
+    if(days>=0&&days<=14)add(25,'deadline_within_14','A recorded deadline is within 14 days.',rawDeadline,'producer_or_customer_recorded');
+    else if(days<=30&&days>=0)add(22,'deadline_within_30','A recorded deadline is within 30 days.',rawDeadline,'producer_or_customer_recorded');
+    else if(days<=60&&days>=0)add(17,'deadline_within_60','A recorded deadline is within 60 days.',rawDeadline,'producer_or_customer_recorded');
+    else if(days<=90&&days>=0)add(12,'deadline_within_90','A recorded deadline is within 90 days.',rawDeadline,'producer_or_customer_recorded');
+    else if(days>90)add(6,'future_deadline','A recorded deadline is more than 90 days away.',rawDeadline,'producer_or_customer_recorded');
   }
   return out;
 }
