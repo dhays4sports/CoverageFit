@@ -177,7 +177,7 @@ export function sourceSync(repo){
     const saved=await sql('SELECT cursor_json FROM cf_solo_sync WHERE workspace_id=? AND stream=?',workspace,stream).first(),prior=saved?.cursor_json;
     const cursor=parse(prior),until=cursor.until||stamp(),after=cursor.after||'',key=cursor.key||'',time=c.time||'updated_at';
     const found=await rows(`SELECT ${c.select||'*'} FROM ${c.table} WHERE ${c.where} AND (${time}>? OR (${time}=? AND ${c.key}>?)) AND ${time}<=? ORDER BY ${time},${c.key} LIMIT 11`,...(c.args||[]),after,after,key,until);
-    let skipped=0;for(const row of found.slice(0,10)){const result=await c.apply(row);if(result===false||result===null)skipped++;else if(typeof result==='string'){await repo.refreshPossessionQuality?.(result);await repo.refreshOpportunityPriority?.(result);}}
+    let skipped=0;for(const row of found.slice(0,10)){const result=await c.apply(row);if(result===false||result===null)skipped++;else if(typeof result==='string'){if(repo.refreshOpportunityPriority)await repo.refreshOpportunityPriority(result);else await repo.refreshPossessionQuality?.(result);}}
     const more=found.length>10,last=found[Math.min(found.length,10)-1];
     // A short overlap catches source writes that finish near the sync boundary.
     const next=more?{after:last[time.split('.').at(-1)],key:last[c.key.split('.').at(-1)],until}:{after:new Date(Date.parse(until)-120000).toISOString(),key:'',lastCompletedAt:until};
