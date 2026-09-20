@@ -5,6 +5,7 @@ const ratio=(a,b)=>b?Math.round((a/b)*1000)/10:null;
 const moneyRatio=(cents,minutes)=>minutes?Math.round((Number(cents||0)*60)/minutes):null;
 const evidenceStatus=n=>n>=30?'usable':n>=10?'directional':'early';
 export const PRIORITY_CALIBRATION_BUILD='CF-OPPORTUNITY-PRIORITY-CAL-1.0';
+export const PRIORITY_ENGINE='CF-OPPORTUNITY-PRIORITY-1.0';
 const BANDS=Object.freeze([
   {key:'tier_a',label:'Tier A · 80–100',min:80,max:100},
   {key:'tier_b',label:'Tier B · 65–79',min:65,max:79},
@@ -21,8 +22,8 @@ export async function capturePriorityBaseline(repo,opportunityId,projection){
       workspace_id,opportunity_id,score,need_points,intent_points,timing_points,fit_points,queue,projection_json,engine,basis,captured_at
     ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)`,
       repo.scope.workspace,opportunityId,projection.score,d.need?.points,d.intent?.points,d.timing?.points,d.fit?.points,
-      projection.queue,JSON.stringify(projection),projection.engine||'CF-OPPORTUNITY-PRIORITY-1.0','first_ready',at).run();
-    const row=await repo.sql('SELECT * FROM cf_opportunity_priority_baselines WHERE workspace_id=? AND opportunity_id=?',repo.scope.workspace,opportunityId).first();
+      projection.queue,JSON.stringify(projection),projection.engine||PRIORITY_ENGINE,'first_ready',at).run();
+    const row=await repo.sql('SELECT * FROM cf_opportunity_priority_baselines WHERE workspace_id=? AND opportunity_id=? AND engine=?',repo.scope.workspace,opportunityId,projection.engine||PRIORITY_ENGINE).first();
     return row?{score:Number(row.score),queue:row.queue,capturedAt:row.captured_at,basis:row.basis}:null;
   }catch(error){if(/no such table/i.test(String(error?.message||'')))return null;throw error;}
 }
@@ -45,7 +46,7 @@ export function opportunityPriorityCalibration(repo){
       const rows=await repo.rows(`SELECT b.*,m.qualified_possession_at,m.quote_prepared_at,m.recommendation_delivered_at,m.close_asked_at,m.bound_at,m.written_premium_cents,m.producer_minutes,m.producer_minutes_basis
         FROM cf_opportunity_priority_baselines b
         LEFT JOIN cf_acq_opportunity_measurements m ON m.workspace_id=b.workspace_id AND m.opportunity_id=b.opportunity_id
-        WHERE b.workspace_id=? AND b.captured_at>=? AND b.captured_at<=? ORDER BY b.captured_at`,workspace,fromIso,toIso);
+        WHERE b.workspace_id=? AND b.engine=? AND b.captured_at>=? AND b.captured_at<=? ORDER BY b.captured_at`,workspace,PRIORITY_ENGINE,fromIso,toIso);
       const bands=new Map(BANDS.map(b=>[b.key,blankBand(b)])),signals=new Map();
       for(const row of rows){
         const band=bandForScore(Number(row.score));if(!band)continue;const g=bands.get(band.key);
@@ -59,7 +60,7 @@ export function opportunityPriorityCalibration(repo){
       if(total.effortCoveragePct==null||total.effortCoveragePct<60)warnings.push('Producer-time evidence is sparse. Treat revenue/premium-per-hour comparisons as directional until more actual minutes are recorded.');
       if(bandRows.every(row=>row.evidenceStatus==='early'))warnings.push('Score-band samples are still early. Do not change point rules from small samples.');
       if(total.premiumEvidenceGaps)warnings.push('Some bound opportunities lack verified term-premium evidence and are excluded from premium comparisons.');
-      return {build:PRIORITY_CALIBRATION_BUILD,period:{days,from:fromIso,to:toIso},baseline:'first_ready_opportunity_priority',observationalOnly:true,autoRecalibration:false,bands:bandRows,signals:signalRows,totals:total,warnings};
+      return {build:PRIORITY_CALIBRATION_BUILD,engine:PRIORITY_ENGINE,period:{days,from:fromIso,to:toIso},baseline:'first_ready_opportunity_priority_per_engine',observationalOnly:true,autoRecalibration:false,bands:bandRows,signals:signalRows,totals:total,warnings};
     }
   };
 }
