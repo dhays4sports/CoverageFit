@@ -37,6 +37,8 @@ Checks:
 
 **Result:** PASS.
 
+The baseline table is keyed by workspace + opportunity + scoring-engine version so future scoring versions can be calibrated independently.
+
 ### Producer workspace DOM identifiers
 
 The updated `agent/workspace/index.html` was checked for duplicate `id` attributes.
@@ -174,6 +176,53 @@ Expected NBA:
 - `ASK_ONE_SIGNAL`
 - label is the recommended micro-question
 - no full intake restart
+
+**Result:** PASS.
+
+### HOME-001 — nonrenewal + active intent
+
+Evidence:
+- home review
+- nonrenewal notice
+- ready now
+- within 14 days
+
+Expected:
+- score 90
+- queue SHOOT NOW
+
+**Result:** PASS.
+
+### HOME-002 — buyer closing within 14 days
+
+Evidence:
+- purchase/closing trigger
+- ready now
+- absolute closing date within 14 days
+
+Expected:
+- score 88
+- queue SHOOT NOW
+
+**Result:** PASS.
+
+### AUTO-001 — new vehicle + open to review + 31–60 days
+
+Expected:
+- Need 22
+- Intent 22
+- Timing 17
+- Fit 10
+- score 71
+- queue QUICK PLAY
+
+**Result:** PASS.
+
+### BUSINESS-001 — COI / contract requirement + urgent timing
+
+Expected:
+- score 90
+- queue SHOOT NOW
 
 **Result:** PASS.
 
