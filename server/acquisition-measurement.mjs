@@ -133,7 +133,10 @@ export async function refreshOpportunityMeasurement(repo,opportunityId){
     repo.sql('SELECT updated_at FROM cf_fiv_projections WHERE workspace_id=? AND opportunity_id=?',repo.scope.workspace,opportunityId).first().catch(()=>null),
     repo.sql('SELECT updated_at FROM cf_opportunity_priority_projections WHERE workspace_id=? AND opportunity_id=?',repo.scope.workspace,opportunityId).first().catch(()=>null)
   ]);
-  const qualified=Boolean((priority?.status==='ready'&&priority?.queue&&priority.queue!=='unclassified')||(fiv?.status==='ready'&&fiv?.queue&&fiv.queue!=='unclassified')||(STAGE_RANK[op.stage]||1)>1||events.some(a=>a.kind==='wrap'&&['conversation','incoming_reply','work_completed'].includes(a.payload?.outcome)));
+  const priorityQualified=priority?.status==='ready'&&['shoot_now','quick_play'].includes(priority?.queue);
+  const priorityRaisedHand=['human_now','scheduled_human'].includes(priority?.routeOverride?.kind);
+  const fivFallback=!priority&&(fiv?.status==='ready'&&['shoot_now','quick_play'].includes(fiv?.queue));
+  const qualified=Boolean(priorityQualified||priorityRaisedHand||fivFallback||(STAGE_RANK[op.stage]||1)>1||events.some(a=>a.kind==='wrap'&&['conversation','incoming_reply','work_completed'].includes(a.payload?.outcome)));
   const contactAt=earliest([
     minEvent(events,a=>a.kind==='wrap'&&['conversation','incoming_reply'].includes(a.payload?.outcome)),
     ...detail.sources.filter(s=>s.kind==='response').map(s=>s.updated_at)
@@ -152,7 +155,7 @@ export async function refreshOpportunityMeasurement(repo,opportunityId){
   }
   const premium=await boundPremiumEvidence(repo,opportunityId),writtenAt=premium.totalCents!=null?premium.boundAt:null,effort=await producerEffortEvidence(repo,opportunityId);
   const measurement={
-    opportunityId,opportunityCreatedAt:op.created_at,qualifiedPossessionAt:qualified?earliest([priority?.status==='ready'?priorityRow?.updated_at:null,fiv?.status==='ready'?fivRow?.updated_at:null,conversationAt,quoteableAt,(STAGE_RANK[op.stage]||1)>1?op.updated_at:null]):null,contactMadeAt:contactAt,meaningfulConversationAt:conversationAt,quoteableAt,quotePreparedAt,recommendationDeliveredAt,closeAskedAt,boundAt:premium.boundAt,writtenPremiumRecordedAt:writtenAt,writtenPremiumCents:premium.totalCents,premiumEvidence:premium.evidence,producerMinutes:effort.minutes,producerMinutesBasis:effort.basis,producerEffortEntries:effort.entries,engine:ACQ_BUILD
+    opportunityId,opportunityCreatedAt:op.created_at,qualifiedPossessionAt:qualified?earliest([(priorityQualified||priorityRaisedHand)?priorityRow?.updated_at:null,fivFallback?fivRow?.updated_at:null,conversationAt,quoteableAt,(STAGE_RANK[op.stage]||1)>1?op.updated_at:null]):null,contactMadeAt:contactAt,meaningfulConversationAt:conversationAt,quoteableAt,quotePreparedAt,recommendationDeliveredAt,closeAskedAt,boundAt:premium.boundAt,writtenPremiumRecordedAt:writtenAt,writtenPremiumCents:premium.totalCents,premiumEvidence:premium.evidence,producerMinutes:effort.minutes,producerMinutesBasis:effort.basis,producerEffortEntries:effort.entries,engine:ACQ_BUILD
   };
   const at=stamp();
   await repo.sql(`INSERT INTO cf_acq_opportunity_measurements(workspace_id,opportunity_id,opportunity_created_at,qualified_possession_at,contact_made_at,meaningful_conversation_at,quoteable_at,quote_prepared_at,recommendation_delivered_at,close_asked_at,bound_at,written_premium_recorded_at,written_premium_cents,premium_evidence_json,producer_minutes,producer_minutes_basis,measurement_json,engine,updated_at)
