@@ -189,6 +189,17 @@ Expected NBA:
 
 **Result:** PASS.
 
+### METRIC-001 — low-priority complete score is not automatically qualified
+
+Expected:
+- Tier A / SHOOT NOW can count as priority-qualified
+- Tier B / QUICK PLAY can count as priority-qualified
+- explicit human-now / scheduled-human override can count as qualified
+- Tier C / D / E does not count as qualified solely because its score is complete
+- downstream meaningful conversation or advanced sales-stage evidence can independently establish qualification
+
+**Result:** rule verified in acquisition-measurement implementation.
+
 ## Acquisition denominator math
 
 Synthetic channel evidence:
