@@ -42,9 +42,9 @@ CREATE TABLE IF NOT EXISTS cf_opportunity_priority_baselines (
   PRIMARY KEY(workspace_id,opportunity_id,engine)
 );
 CREATE INDEX IF NOT EXISTS idx_cf_priority_baseline_queue
-  ON cf_opportunity_priority_baselines(workspace_id,queue,captured_at,opportunity_id);
+  ON cf_opportunity_priority_baselines(workspace_id,engine,queue,captured_at,opportunity_id);
 CREATE INDEX IF NOT EXISTS idx_cf_priority_baseline_score
-  ON cf_opportunity_priority_baselines(workspace_id,score,captured_at,opportunity_id);
+  ON cf_opportunity_priority_baselines(workspace_id,engine,score,captured_at,opportunity_id);
 
 CREATE TABLE IF NOT EXISTS cf_acq_exposure_rollups (
   id TEXT PRIMARY KEY,
