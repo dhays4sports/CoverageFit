@@ -10,7 +10,7 @@ export const parse=value=>{try{return JSON.parse(value||'{}')}catch{return {}}};
 export const identity=env=>({workspace:String(env.COVERAGEFIT_SOLO_WORKSPACE_ID||'virginia-tam:dylan-haysbert'),actor:producer.id,name:producer.name||'Dylan Haysbert'});
 export async function digest(value){return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value))),b=>b.toString(16).padStart(2,'0')).join('');}
 export const stamp=()=>new Date().toISOString();
-const decodeCursor=value=>{if(!value)return null;try{const c=JSON.parse(atob(value));if(Array.isArray(c)&&c.length<=4&&c.every(x=>typeof x==='string'||typeof x==='number'))return c;}catch{}fail(422,'cursor','Refresh the list to continue.');};
+const decodeCursor=value=>{if(!value)return null;try{const c=JSON.parse(atob(value));if(Array.isArray(c)&&c.length<=5&&c.every(x=>typeof x==='string'||typeof x==='number'))return c;}catch{}fail(422,'cursor','Refresh the list to continue.');};
 const encodeCursor=value=>btoa(JSON.stringify(value));
 const publicOpportunity=row=>row?{...row,contact:parse(row.contact_json),contact_json:undefined,last_mutation_id:undefined}:null;
 export function soloRepository(db,scope){
@@ -79,8 +79,10 @@ export function soloRepository(db,scope){
       const cursor=decodeCursor(params.get('cursor')),limit=40,args=[workspace];
       const pattern='%'+q.replace(/[\\%_]/g,'\\$&')+'%';
       const hasFiv=await fivAvailable(),hasPriority=await priorityAvailable();
+      const priorityRank=hasPriority?"CASE p.queue WHEN 'shoot_now' THEN 5 WHEN 'quick_play' THEN 4 WHEN 'develop' THEN 3 WHEN 'nurture' THEN 2 WHEN 'low_priority' THEN 1 ELSE 0 END":"0";
+      const priorityScore=hasPriority?"COALESCE(p.score,-1)":"-1";
       let where='o.workspace_id=?';
-      if(routeQueue&&hasPriority){where+=' AND p.queue=?';args.push(routeQueue);}
+      if(routeQueue&&hasPriority){where+=routeQueue==='unclassified'?" AND COALESCE(p.queue,'unclassified')=?":" AND p.queue=?";args.push(routeQueue);}
       else if(routeQueue&&hasFiv){where+=' AND f.queue=?';args.push(routeQueue);}
       else if(routeQueue){return {records:[],nextCursor:null,view:mode,timeZone:'America/Los_Angeles',prioritySetupRequired:true};}
       if(q){where+=" AND (o.contact_json LIKE ? ESCAPE '\\' OR o.source LIKE ? ESCAPE '\\' OR o.reason LIKE ? ESCAPE '\\' OR o.products LIKE ? ESCAPE '\\')";args.push(pattern,pattern,pattern,pattern);}
@@ -90,16 +92,37 @@ export function soloRepository(db,scope){
         if(mode==='today'){where+=' AND t.due_at<?';args.push(new Date(Date.parse(pacificInputToISO(`${pacificDay(now)}T23:59`))+60000).toISOString());}
         if(mode==='waiting')where+=" AND t.state='waiting'";
         if(work){where+=' AND t.work_type=?';args.push(work);}
-        if(cursor){if(cursor.length!==3)fail(422,'cursor','Refresh the queue.');where+=' AND (t.priority<? OR (t.priority=? AND (t.due_at>? OR (t.due_at=? AND t.id>?))))';args.push(cursor[0],cursor[0],cursor[1],cursor[1],cursor[2]);}
-        found=await rows(`SELECT o.*,t.id AS task_id,t.title AS task_title,t.due_at,t.state AS task_state,t.blocker,t.work_type,t.priority${hasFiv?',f.fit AS fiv_fit,f.intent AS fiv_intent,f.value AS fiv_value,f.queue AS fiv_queue':''}${hasPriority?',p.status AS priority_status,p.score AS priority_score,p.score_min AS priority_score_min,p.score_max AS priority_score_max,p.evidence_completeness AS priority_evidence_completeness,p.queue AS priority_queue':''} FROM cf_solo_opportunities o JOIN cf_solo_tasks t ON t.opportunity_id=o.id AND t.workspace_id=o.workspace_id ${hasFiv?'LEFT JOIN cf_fiv_projections f ON f.workspace_id=o.workspace_id AND f.opportunity_id=o.id':''} ${hasPriority?'LEFT JOIN cf_opportunity_priority_projections p ON p.workspace_id=o.workspace_id AND p.opportunity_id=o.id':''} WHERE ${where} ORDER BY t.priority DESC${hasPriority?',CASE p.queue WHEN \'shoot_now\' THEN 5 WHEN \'quick_play\' THEN 4 WHEN \'develop\' THEN 3 WHEN \'nurture\' THEN 2 WHEN \'low_priority\' THEN 1 ELSE 0 END DESC,p.score DESC':''},t.due_at,t.id LIMIT ?`,...args,limit+1);
+        if(cursor){
+          if(hasPriority){
+            if(cursor.length!==5)fail(422,'cursor','Refresh the queue.');
+            where+=` AND (t.priority<? OR (t.priority=? AND (${priorityRank}<? OR (${priorityRank}=? AND (${priorityScore}<? OR (${priorityScore}=? AND (t.due_at>? OR (t.due_at=? AND t.id>?))))))))`;
+            args.push(cursor[0],cursor[0],cursor[1],cursor[1],cursor[2],cursor[2],cursor[3],cursor[3],cursor[4]);
+          }else{
+            if(cursor.length!==3)fail(422,'cursor','Refresh the queue.');
+            where+=' AND (t.priority<? OR (t.priority=? AND (t.due_at>? OR (t.due_at=? AND t.id>?))))';
+            args.push(cursor[0],cursor[0],cursor[1],cursor[1],cursor[2]);
+          }
+        }
+        found=await rows(`SELECT o.*,t.id AS task_id,t.title AS task_title,t.due_at,t.state AS task_state,t.blocker,t.work_type,t.priority${hasFiv?',f.fit AS fiv_fit,f.intent AS fiv_intent,f.value AS fiv_value,f.queue AS fiv_queue':''}${hasPriority?`,p.status AS priority_status,p.score AS priority_score,p.score_min AS priority_score_min,p.score_max AS priority_score_max,p.evidence_completeness AS priority_evidence_completeness,p.queue AS priority_queue,${priorityRank} AS priority_rank`:''} FROM cf_solo_opportunities o JOIN cf_solo_tasks t ON t.opportunity_id=o.id AND t.workspace_id=o.workspace_id ${hasFiv?'LEFT JOIN cf_fiv_projections f ON f.workspace_id=o.workspace_id AND f.opportunity_id=o.id':''} ${hasPriority?'LEFT JOIN cf_opportunity_priority_projections p ON p.workspace_id=o.workspace_id AND p.opportunity_id=o.id':''} WHERE ${where} ORDER BY t.priority DESC${hasPriority?`,${priorityRank} DESC,${priorityScore} DESC`:''},t.due_at,t.id LIMIT ?`,...args,limit+1);
       }else{
         where+=mode==='closed'?" AND o.status='closed'":" AND o.status!='closed'";
         if(work){where+=" AND EXISTS(SELECT 1 FROM cf_solo_tasks t WHERE t.opportunity_id=o.id AND t.state IN ('open','waiting','in_progress') AND t.work_type=?)";args.push(work);}
-        if(cursor){if(cursor.length!==2)fail(422,'cursor','Refresh the opportunities.');where+=' AND (o.updated_at<? OR (o.updated_at=? AND o.id<?))';args.push(cursor[0],cursor[0],cursor[1]);}
-        found=await rows(`SELECT o.*,(SELECT MIN(due_at) FROM cf_solo_tasks t WHERE t.opportunity_id=o.id AND t.state IN ('open','waiting','in_progress')) AS due_at${hasFiv?',f.fit AS fiv_fit,f.intent AS fiv_intent,f.value AS fiv_value,f.queue AS fiv_queue':''}${hasPriority?',p.status AS priority_status,p.score AS priority_score,p.score_min AS priority_score_min,p.score_max AS priority_score_max,p.evidence_completeness AS priority_evidence_completeness,p.queue AS priority_queue':''} FROM cf_solo_opportunities o ${hasFiv?'LEFT JOIN cf_fiv_projections f ON f.workspace_id=o.workspace_id AND f.opportunity_id=o.id':''} ${hasPriority?'LEFT JOIN cf_opportunity_priority_projections p ON p.workspace_id=o.workspace_id AND p.opportunity_id=o.id':''} WHERE ${where} ORDER BY ${hasPriority?"CASE p.queue WHEN 'shoot_now' THEN 5 WHEN 'quick_play' THEN 4 WHEN 'develop' THEN 3 WHEN 'nurture' THEN 2 WHEN 'low_priority' THEN 1 ELSE 0 END DESC,p.score DESC,":''}o.updated_at DESC,o.id DESC LIMIT ?`,...args,limit+1);
+        if(cursor){
+          if(hasPriority){
+            if(cursor.length!==4)fail(422,'cursor','Refresh the opportunities.');
+            where+=` AND (${priorityRank}<? OR (${priorityRank}=? AND (${priorityScore}<? OR (${priorityScore}=? AND (o.updated_at<? OR (o.updated_at=? AND o.id<?))))))`;
+            args.push(cursor[0],cursor[0],cursor[1],cursor[1],cursor[2],cursor[2],cursor[3]);
+          }else{
+            if(cursor.length!==2)fail(422,'cursor','Refresh the opportunities.');
+            where+=' AND (o.updated_at<? OR (o.updated_at=? AND o.id<?))';
+            args.push(cursor[0],cursor[0],cursor[1]);
+          }
+        }
+        found=await rows(`SELECT o.*,(SELECT MIN(due_at) FROM cf_solo_tasks t WHERE t.opportunity_id=o.id AND t.state IN ('open','waiting','in_progress')) AS due_at${hasFiv?',f.fit AS fiv_fit,f.intent AS fiv_intent,f.value AS fiv_value,f.queue AS fiv_queue':''}${hasPriority?`,p.status AS priority_status,p.score AS priority_score,p.score_min AS priority_score_min,p.score_max AS priority_score_max,p.evidence_completeness AS priority_evidence_completeness,p.queue AS priority_queue,${priorityRank} AS priority_rank`:''} FROM cf_solo_opportunities o ${hasFiv?'LEFT JOIN cf_fiv_projections f ON f.workspace_id=o.workspace_id AND f.opportunity_id=o.id':''} ${hasPriority?'LEFT JOIN cf_opportunity_priority_projections p ON p.workspace_id=o.workspace_id AND p.opportunity_id=o.id':''} WHERE ${where} ORDER BY ${hasPriority?`${priorityRank} DESC,${priorityScore} DESC,`:''}o.updated_at DESC,o.id DESC LIMIT ?`,...args,limit+1);
       }
       const page=found.slice(0,limit),last=page.at(-1);
-      return {records:page.map(publicOpportunity),nextCursor:found.length>limit?encodeCursor(queue?[last.priority,last.due_at,last.task_id]:[last.updated_at,last.id]):null,view:mode,timeZone:'America/Los_Angeles'};
+      const nextCursor=found.length>limit?encodeCursor(queue?(hasPriority?[last.priority,last.priority_rank,Number(last.priority_score??-1),last.due_at,last.task_id]:[last.priority,last.due_at,last.task_id]):(hasPriority?[last.priority_rank,Number(last.priority_score??-1),last.updated_at,last.id]:[last.updated_at,last.id])):null;
+      return {records:page.map(publicOpportunity),nextCursor,view:mode,timeZone:'America/Los_Angeles'};
     },
     async create(value,requestId){
       const fingerprint=await digest(JSON.stringify(value)),prior=await replay(requestId,fingerprint);if(prior)return this.detail(prior.opportunity_id);
