@@ -205,7 +205,7 @@ function reflectCampaign(formId){const form=$(formId),id=form?.elements.campaign
 async function syncAll(){
   if(token().length<24){status('Connect your producer inbox below to sync shared work.');return;}
   if(syncing)return;syncing=true;$('deskRefresh').disabled=true;$('deskSyncStatus').dataset.error='false';
-  let count=0,skipped=0,unfinished=[];const failures=[];
+  let count=0,skipped=0,scored=0,priorityMore=false,unfinished=[];const failures=[];
   try{
     for(const stream of streams){
       for(let page=0;page<3;page++){
@@ -216,7 +216,19 @@ async function syncAll(){
       }
     }
     if(token().length<24)return;
-    $('deskSyncStatus').textContent=failures.length?`Source sync is incomplete. ${failures.join(' ')}`:unfinished.length?`${count} source records checked. More ${unfinished.join(', ')} remain; use Sync & refresh to continue.`:`Sources checked at ${time(new Date().toISOString())}.${skipped?' Some sources lack a matching inquiry or contact basis; review the original inbox.':''}`;
+    $('deskSyncStatus').textContent='Refreshing opportunity priority…';
+    for(let page=0;page<5;page++){
+      try{
+        const r=await api('priority-backfill',{limit:60});
+        if(r.setupRequired)break;
+        scored+=Number(r.processed||0);priorityMore=r.hasMore===true;
+        if(!priorityMore)break;
+      }catch(error){failures.push(`priority: ${error.message}`);break;}
+    }
+    if(token().length<24)return;
+    const scoredNote=scored?` ${scored} opportunit${scored===1?'y':'ies'} priority-refreshed.`:'';
+    const moreNote=priorityMore?' More opportunity priorities remain; use Sync & refresh again.':'';
+    $('deskSyncStatus').textContent=failures.length?`Source sync is incomplete. ${failures.join(' ')}${scoredNote}`:unfinished.length?`${count} source records checked. More ${unfinished.join(', ')} remain; use Sync & refresh to continue.${scoredNote}${moreNote}`:`Sources checked at ${time(new Date().toISOString())}.${scoredNote}${moreNote}${skipped?' Some sources lack a matching inquiry or contact basis; review the original inbox.':''}`;
     $('deskSyncStatus').dataset.error=String(failures.length>0||unfinished.length>0);
     await loadList();if($('deskWeeklyReview')?.open)await loadAcquisition(true);
   }finally{syncing=false;$('deskRefresh').disabled=false;}
