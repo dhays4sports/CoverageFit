@@ -250,7 +250,7 @@ CoverageFit does not invent producer time. Missing time remains missing.
 
 ## Calibration
 
-The first evidence-complete Opportunity Priority projection is frozen into `cf_opportunity_priority_baselines`.
+The first evidence-complete Opportunity Priority projection is frozen into `cf_opportunity_priority_baselines` **per scoring-engine version**. A future versioned engine therefore gets its own calibration baseline instead of being judged against historical scores produced by a different rule set.
 
 The 90-day observational calibration view compares:
 - first-ready score band
@@ -286,7 +286,7 @@ No customer message is sent by backfill.
 Current mutable projection.
 
 ### `cf_opportunity_priority_baselines`
-Immutable first-ready calibration baseline.
+Immutable first-ready calibration baseline keyed by workspace + opportunity + scoring engine.
 
 ### `cf_acq_exposure_rollups`
 Aggregate acquisition exposure denominator.
