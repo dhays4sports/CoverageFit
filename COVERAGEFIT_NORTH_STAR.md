@@ -1,9 +1,9 @@
 # CoverageFit North Star
 
 **Document:** CF-NORTH-STAR-1.0  
-**CoverageFit baseline:** v3.20.249  
+**CoverageFit baseline:** v3.20.255  
 **Status:** Product North Star / long-range architectural reference  
-**Date:** 2026-09-17
+**Date:** 2026-09-20
 
 ## North Star
 
@@ -88,8 +88,9 @@ The producer should see the richer operational projection needed to allocate sca
 
 - Universal Customer Profile
 - Opportunities and source history
+- Opportunity Priority — Need / Intent / Timing / Fit, with score ranges when evidence is incomplete
 - Fit / Intent / Value (FIV)
-- Small Ball queue
+- Small Ball / attention queue
 - Next Best Action (NBA)
 - Assignments, tasks and blockers
 - Documents and evidence
@@ -131,7 +132,38 @@ CoverageFit's near-term agency intelligence should continue to support the long-
 
 The agency-side operating chain is:
 
-**Source → UCP → Opportunity → FIV → Queue → NBA → Assignee / Action**
+**Source → UCP → Opportunity → Opportunity Priority + FIV → Queue → NBA → Assignee / Action**
+
+### Opportunity Priority
+
+Opportunity Priority is the deterministic, explainable producer-attention projection for the signal-first acquisition model.
+
+It asks:
+
+> **Given what is actually known right now, how much scarce human attention does this opportunity deserve—and what single missing signal would most improve that decision?**
+
+A complete Opportunity Priority score is bounded to 100 points:
+
+- **Intent — 30**
+- **Timing — 25**
+- **Need — 25**
+- **Fit — 20**
+
+A score is emitted only when all four dimensions have usable evidence. Missing evidence does not become zero. Incomplete records carry a bounded score range and remain **UNCLASSIFIED** until the next useful signal is captured.
+
+The score is an internal allocation device, not a probability that someone will buy. It must not use protected or highly sensitive characteristics, health information, credit, household income, inferred affluence, or demographic proxies as quality shortcuts. It does not grant contact permission, make underwriting or eligibility decisions, determine price, authorize binding, or alter the consumer Protection Score.
+
+Explicit customer state outranks scoring. A request to proceed, active customer question, explicit contact request, scheduled conversation, or existing closing state must route appropriately even when the numeric projection is incomplete or low.
+
+Intent and relative timing are perishable. Durable protection need may persist, while old “ready now” or “within 30 days” statements must weaken or expire and be reconfirmed. A passed deadline becomes unknown timing rather than a low-timing judgment.
+
+Opportunity Priority and FIV remain separate objects:
+
+- **Opportunity Priority** allocates producer attention from Need / Intent / Timing / Fit.
+- **FIV** remains a qualitative possession / relationship lens using Fit / Intent / Value.
+- **NBA** determines the exact next action.
+
+Where appropriate, governed FIV evidence may inform Opportunity Priority, but neither object silently overwrites the other.
 
 ### Fit
 **Can the agency / available carrier path plausibly win this opportunity without disproportionate friction?**
@@ -166,6 +198,16 @@ NBA answers a different question from FIV:
 > **What exactly should happen next?**
 
 Priority and next action must remain separate. Two opportunities in the same queue can have different NBAs.
+
+### Signal-first acquisition principle
+
+The operating doctrine is:
+
+> **Expose many → ask little → detect signal → score evidence → route → use human judgment only where it adds disproportionate value.**
+
+408FARMERS should maximize low-friction surface area. CoverageFit should convert responses into governed signals and preserve them. Automation should ask the smallest question that materially improves routing. Dylan / the licensed producer should disproportionately spend time on nuanced discovery, recommendations, objections, underwriting/application guidance, relationship building, and closing.
+
+The primary channel metric should move toward **qualified opportunities per 1,000 exposures**, followed by downstream economics such as bound premium, acquisition cost, producer minutes, and useful revenue per producer hour. Channel/source performance is a separate object from individual Opportunity Priority; a great opportunity can come from a weak channel and vice versa.
 
 ### Producer throughput principle
 Producer-facing workflows should collapse available intelligence into the clearest useful next action. FIV and NBA should prioritize scarce human attention without creating unnecessary intake friction or starving producers of workable opportunities. When an opportunity is not actionable now, CoverageFit should preserve context and create a dated return rather than repeatedly reworking the possession.
@@ -364,6 +406,10 @@ When future product work needs a concise statement of direction, use:
 > **CoverageFit is building a living protection profile for consumers and an intelligence layer for advisors. It should help people understand what they have, see what changed, know what deserves attention, and take the next useful action—without restarting the relationship every time.**
 
 
+
+## CF-OPPORTUNITY-PRIORITY-1.0 — Signal-First Producer Attention (v3.20.255)
+
+CoverageFit adds an evidence-gated Opportunity Priority projection built around Need / Intent / Timing / Fit, bounded to 100 points only when all four dimensions are known. Incomplete opportunities carry a score range and one next micro-question instead of treating UNKNOWN as LOW. Explicit customer requests and scheduled conversations override score-derived routing. Intent and relative timing decay while durable need can persist. The producer workspace shows the explainable priority evidence alongside, not instead of, existing FIV. Aggregate exposure rollups add qualified opportunities per 1,000 exposures without person-level impression storage, and the economics layer can show first-year commission per producer hour when explicit commission and actual producer-time evidence exist. Calibration freezes the first ready score and remains observational; CoverageFit never auto-rewrites weights from outcome data. Internal priority does not authorize contact, underwriting, eligibility, pricing, binding, identity merging, or consumer-facing scoring.
 
 ## CF-AGED-LEAD-1.0.1 — Aged Lead SMS Reply Intelligence
 
