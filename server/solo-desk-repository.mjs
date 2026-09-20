@@ -4,7 +4,7 @@ import {universalCustomerProfile} from './universal-customer-profile.mjs';
 import {deriveNextBestAction} from './next-best-action-core.mjs';
 import {derivePossessionQuality,FIV_QUEUES} from './fiv-core.mjs';
 import {captureFivCalibrationBaseline,opportunityEffortSummary} from './fiv-calibration.mjs';
-import {deriveOpportunityPriority,PRIORITY_QUEUES} from './opportunity-priority-core.mjs';
+import {deriveOpportunityPriority,PRIORITY_QUEUES,PRIORITY_BUILD} from './opportunity-priority-core.mjs';
 import {capturePriorityBaseline} from './opportunity-priority-calibration.mjs';
 export const parse=value=>{try{return JSON.parse(value||'{}')}catch{return {}}};
 export const identity=env=>({workspace:String(env.COVERAGEFIT_SOLO_WORKSPACE_ID||'virginia-tam:dylan-haysbert'),actor:producer.id,name:producer.name||'Dylan Haysbert'});
@@ -70,6 +70,7 @@ export function soloRepository(db,scope){
     async opportunityPriority(id){return readPriority(id);},
     async refreshPossessionQuality(id){const op=await own(id),sources=(await rows('SELECT kind,source_id,summary_json,updated_at FROM cf_solo_sources WHERE workspace_id=? AND opportunity_id=? ORDER BY kind,source_id',workspace,id)).map(v=>({...v,summary:parse(v.summary_json),summary_json:undefined})),profile=await universalCustomerProfile(this).detail(id),projection=derivePossessionQuality({opportunity:publicOpportunity(op),sources,customerProfile:profile});return persistFiv(id,projection);},
     async refreshOpportunityPriority(id){const op=await own(id),tasks=await rows("SELECT * FROM cf_solo_tasks WHERE workspace_id=? AND opportunity_id=? AND state NOT IN ('completed','cancelled') ORDER BY priority DESC,due_at,id",workspace,id),sources=(await rows('SELECT kind,source_id,summary_json,updated_at FROM cf_solo_sources WHERE workspace_id=? AND opportunity_id=? ORDER BY kind,source_id',workspace,id)).map(v=>({...v,summary:parse(v.summary_json),summary_json:undefined})),profile=await universalCustomerProfile(this).detail(id),possessionQuality=await this.refreshPossessionQuality(id),projection=deriveOpportunityPriority({opportunity:publicOpportunity(op),tasks,sources,customerProfile:profile,possessionQuality});return persistPriority(id,projection);},
+    async backfillOpportunityPriority(limit=40){if(!await priorityAvailable())return {processed:0,hasMore:false,setupRequired:true};const size=Math.max(1,Math.min(100,Number(limit)||40)),found=await rows(`SELECT o.id FROM cf_solo_opportunities o LEFT JOIN cf_opportunity_priority_projections p ON p.workspace_id=o.workspace_id AND p.opportunity_id=o.id WHERE o.workspace_id=? AND (p.opportunity_id IS NULL OR p.engine<>?) ORDER BY o.updated_at DESC,o.id DESC LIMIT ?`,workspace,PRIORITY_BUILD,size+1),page=found.slice(0,size);for(const item of page)await this.refreshOpportunityPriority(item.id);return {processed:page.length,hasMore:found.length>size,engine:PRIORITY_BUILD};},
     async linkProfile(sourceOpportunityId,targetOpportunityId,requestId){return universalCustomerProfile(this).linkOpportunity(sourceOpportunityId,targetOpportunityId,requestId);},
     async splitProfile(id,requestId){return universalCustomerProfile(this).splitOpportunity(id,requestId);},
     async list(params,now=new Date()){
