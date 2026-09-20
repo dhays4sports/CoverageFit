@@ -4,6 +4,8 @@ import {universalCustomerProfile} from './universal-customer-profile.mjs';
 import {deriveNextBestAction} from './next-best-action-core.mjs';
 import {derivePossessionQuality,FIV_QUEUES} from './fiv-core.mjs';
 import {captureFivCalibrationBaseline,opportunityEffortSummary} from './fiv-calibration.mjs';
+import {deriveOpportunityPriority,PRIORITY_QUEUES} from './opportunity-priority-core.mjs';
+import {capturePriorityBaseline} from './opportunity-priority-calibration.mjs';
 export const parse=value=>{try{return JSON.parse(value||'{}')}catch{return {}}};
 export const identity=env=>({workspace:String(env.COVERAGEFIT_SOLO_WORKSPACE_ID||'virginia-tam:dylan-haysbert'),actor:producer.id,name:producer.name||'Dylan Haysbert'});
 export async function digest(value){return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value))),b=>b.toString(16).padStart(2,'0')).join('');}
@@ -25,6 +27,10 @@ export function soloRepository(db,scope){
   const fivAvailable=async()=>{if(fivReady!==undefined)return fivReady;try{await sql('SELECT opportunity_id FROM cf_fiv_projections WHERE workspace_id=? LIMIT 1',workspace).first();fivReady=true;}catch{fivReady=false;}return fivReady;};
   const readFiv=async id=>{if(!await fivAvailable())return null;const row=await sql('SELECT projection_json FROM cf_fiv_projections WHERE workspace_id=? AND opportunity_id=?',workspace,id).first();return row?parse(row.projection_json):null;};
   const persistFiv=async(id,projection)=>{if(!projection||!await fivAvailable())return projection;const at=stamp();await sql(`INSERT INTO cf_fiv_projections(workspace_id,opportunity_id,fit,intent,value,queue,projection_json,engine,updated_at) VALUES(?,?,?,?,?,?,?,?,?) ON CONFLICT(workspace_id,opportunity_id) DO UPDATE SET fit=excluded.fit,intent=excluded.intent,value=excluded.value,queue=excluded.queue,projection_json=excluded.projection_json,engine=excluded.engine,updated_at=excluded.updated_at`,workspace,id,projection.fit?.level||'unknown',projection.intent?.level||'unknown',projection.value?.level||'unknown',projection.queue||'unclassified',JSON.stringify(projection),projection.engine||'CF-FIV-1.1',at).run();await captureFivCalibrationBaseline({sql,scope:{workspace,actor}},id,projection);return projection;};
+  let priorityReady;
+  const priorityAvailable=async()=>{if(priorityReady!==undefined)return priorityReady;try{await sql('SELECT opportunity_id FROM cf_opportunity_priority_projections WHERE workspace_id=? LIMIT 1',workspace).first();priorityReady=true;}catch{priorityReady=false;}return priorityReady;};
+  const readPriority=async id=>{if(!await priorityAvailable())return null;const row=await sql('SELECT projection_json FROM cf_opportunity_priority_projections WHERE workspace_id=? AND opportunity_id=?',workspace,id).first();return row?parse(row.projection_json):null;};
+  const persistPriority=async(id,projection)=>{if(!projection||!await priorityAvailable())return projection;const d=projection.dimensions||{},at=stamp();await sql(`INSERT INTO cf_opportunity_priority_projections(workspace_id,opportunity_id,status,score,score_min,score_max,need_points,intent_points,timing_points,fit_points,evidence_completeness,queue,projection_json,engine,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(workspace_id,opportunity_id) DO UPDATE SET status=excluded.status,score=excluded.score,score_min=excluded.score_min,score_max=excluded.score_max,need_points=excluded.need_points,intent_points=excluded.intent_points,timing_points=excluded.timing_points,fit_points=excluded.fit_points,evidence_completeness=excluded.evidence_completeness,queue=excluded.queue,projection_json=excluded.projection_json,engine=excluded.engine,updated_at=excluded.updated_at`,workspace,id,projection.status||'unclassified',projection.score,Number(projection.scoreMin||0),Number(projection.scoreMax??100),d.need?.points,d.intent?.points,d.timing?.points,d.fit?.points,Number(projection.evidenceCompleteness||0),projection.queue||'unclassified',JSON.stringify(projection),projection.engine||'CF-OPPORTUNITY-PRIORITY-1.0',at).run();await capturePriorityBaseline({sql,scope:{workspace,actor}},id,projection);return projection;};
   function taskStatement(op,id,next,key,at,condition,conditionValues=[]){
     return sql(`INSERT INTO cf_solo_tasks(id,workspace_id,opportunity_id,assignee_id,work_type,title,due_at,state,blocker,source_key,created_at)
       SELECT ?,?,?,?,?,?,?,?,?,?,? WHERE ${condition}`,id,workspace,op,actor,next.workType,next.title,next.dueAt,next.state||'open',next.blocker||'',key,at,...conditionValues);
@@ -53,25 +59,29 @@ export function soloRepository(db,scope){
       }
       const opportunity=publicOpportunity(op),profile=await universalCustomerProfile(this).detail(id);
       const possessionQuality=await persistFiv(id,derivePossessionQuality({opportunity,sources:projected,customerProfile:profile}));
-      const nextBestAction=deriveNextBestAction({opportunity,tasks,sources:projected,possessionQuality});
+      const opportunityPriority=await persistPriority(id,deriveOpportunityPriority({opportunity,tasks,sources:projected,customerProfile:profile,possessionQuality}));
+      const nextBestAction=deriveNextBestAction({opportunity,tasks,sources:projected,possessionQuality,opportunityPriority});
       const effortSummary=await opportunityEffortSummary(this,id);
-      return {opportunity,tasks,sources:projected,customerProfile:profile,possessionQuality,nextBestAction,effortSummary,...timeline};
+      return {opportunity,tasks,sources:projected,customerProfile:profile,possessionQuality,opportunityPriority,nextBestAction,effortSummary,...timeline};
     },
     async profile(id){return universalCustomerProfile(this).detail(id);},
     async ensureProfile(id){const ucp=universalCustomerProfile(this);return await ucp.available()?ucp.ensure(id):null;},
     async possessionQuality(id){return readFiv(id);},
+    async opportunityPriority(id){return readPriority(id);},
     async refreshPossessionQuality(id){const op=await own(id),sources=(await rows('SELECT kind,source_id,summary_json,updated_at FROM cf_solo_sources WHERE workspace_id=? AND opportunity_id=? ORDER BY kind,source_id',workspace,id)).map(v=>({...v,summary:parse(v.summary_json),summary_json:undefined})),profile=await universalCustomerProfile(this).detail(id),projection=derivePossessionQuality({opportunity:publicOpportunity(op),sources,customerProfile:profile});return persistFiv(id,projection);},
+    async refreshOpportunityPriority(id){const op=await own(id),tasks=await rows("SELECT * FROM cf_solo_tasks WHERE workspace_id=? AND opportunity_id=? AND state NOT IN ('completed','cancelled') ORDER BY priority DESC,due_at,id",workspace,id),sources=(await rows('SELECT kind,source_id,summary_json,updated_at FROM cf_solo_sources WHERE workspace_id=? AND opportunity_id=? ORDER BY kind,source_id',workspace,id)).map(v=>({...v,summary:parse(v.summary_json),summary_json:undefined})),profile=await universalCustomerProfile(this).detail(id),possessionQuality=await this.refreshPossessionQuality(id),projection=deriveOpportunityPriority({opportunity:publicOpportunity(op),tasks,sources,customerProfile:profile,possessionQuality});return persistPriority(id,projection);},
     async linkProfile(sourceOpportunityId,targetOpportunityId,requestId){return universalCustomerProfile(this).linkOpportunity(sourceOpportunityId,targetOpportunityId,requestId);},
     async splitProfile(id,requestId){return universalCustomerProfile(this).splitOpportunity(id,requestId);},
     async list(params,now=new Date()){
       const mode=['today','all','waiting','closed'].includes(params.get('view'))?params.get('view'):'today';
-      const q=(params.get('q')||'').trim().slice(0,120),work=['outreach','quoting_service','advice_closing'].includes(params.get('work'))?params.get('work'):'',fivQueue=FIV_QUEUES.has(params.get('queue'))?params.get('queue'):'';
+      const q=(params.get('q')||'').trim().slice(0,120),work=['outreach','quoting_service','advice_closing'].includes(params.get('work'))?params.get('work'):'',routeQueue=(PRIORITY_QUEUES.has(params.get('queue'))||FIV_QUEUES.has(params.get('queue')))?params.get('queue'):'';
       const cursor=decodeCursor(params.get('cursor')),limit=40,args=[workspace];
       const pattern='%'+q.replace(/[\\%_]/g,'\\$&')+'%';
-      const hasFiv=await fivAvailable();
+      const hasFiv=await fivAvailable(),hasPriority=await priorityAvailable();
       let where='o.workspace_id=?';
-      if(fivQueue&&hasFiv){where+=' AND f.queue=?';args.push(fivQueue);}
-      else if(fivQueue&&!hasFiv){return {records:[],nextCursor:null,view:mode,timeZone:'America/Los_Angeles',fivSetupRequired:true};}
+      if(routeQueue&&hasPriority){where+=' AND p.queue=?';args.push(routeQueue);}
+      else if(routeQueue&&hasFiv){where+=' AND f.queue=?';args.push(routeQueue);}
+      else if(routeQueue){return {records:[],nextCursor:null,view:mode,timeZone:'America/Los_Angeles',prioritySetupRequired:true};}
       if(q){where+=" AND (o.contact_json LIKE ? ESCAPE '\\' OR o.source LIKE ? ESCAPE '\\' OR o.reason LIKE ? ESCAPE '\\' OR o.products LIKE ? ESCAPE '\\')";args.push(pattern,pattern,pattern,pattern);}
       let found,queue=mode==='today'||mode==='waiting';
       if(queue){
@@ -80,12 +90,12 @@ export function soloRepository(db,scope){
         if(mode==='waiting')where+=" AND t.state='waiting'";
         if(work){where+=' AND t.work_type=?';args.push(work);}
         if(cursor){if(cursor.length!==3)fail(422,'cursor','Refresh the queue.');where+=' AND (t.priority<? OR (t.priority=? AND (t.due_at>? OR (t.due_at=? AND t.id>?))))';args.push(cursor[0],cursor[0],cursor[1],cursor[1],cursor[2]);}
-        found=await rows(`SELECT o.*,t.id AS task_id,t.title AS task_title,t.due_at,t.state AS task_state,t.blocker,t.work_type,t.priority${hasFiv?',f.fit AS fiv_fit,f.intent AS fiv_intent,f.value AS fiv_value,f.queue AS fiv_queue':''} FROM cf_solo_opportunities o JOIN cf_solo_tasks t ON t.opportunity_id=o.id AND t.workspace_id=o.workspace_id ${hasFiv?'LEFT JOIN cf_fiv_projections f ON f.workspace_id=o.workspace_id AND f.opportunity_id=o.id':''} WHERE ${where} ORDER BY t.priority DESC,t.due_at,t.id LIMIT ?`,...args,limit+1);
+        found=await rows(`SELECT o.*,t.id AS task_id,t.title AS task_title,t.due_at,t.state AS task_state,t.blocker,t.work_type,t.priority${hasFiv?',f.fit AS fiv_fit,f.intent AS fiv_intent,f.value AS fiv_value,f.queue AS fiv_queue':''}${hasPriority?',p.status AS priority_status,p.score AS priority_score,p.score_min AS priority_score_min,p.score_max AS priority_score_max,p.evidence_completeness AS priority_evidence_completeness,p.queue AS priority_queue':''} FROM cf_solo_opportunities o JOIN cf_solo_tasks t ON t.opportunity_id=o.id AND t.workspace_id=o.workspace_id ${hasFiv?'LEFT JOIN cf_fiv_projections f ON f.workspace_id=o.workspace_id AND f.opportunity_id=o.id':''} ${hasPriority?'LEFT JOIN cf_opportunity_priority_projections p ON p.workspace_id=o.workspace_id AND p.opportunity_id=o.id':''} WHERE ${where} ORDER BY t.priority DESC${hasPriority?',CASE p.queue WHEN \'shoot_now\' THEN 5 WHEN \'quick_play\' THEN 4 WHEN \'develop\' THEN 3 WHEN \'nurture\' THEN 2 WHEN \'low_priority\' THEN 1 ELSE 0 END DESC,p.score DESC':''},t.due_at,t.id LIMIT ?`,...args,limit+1);
       }else{
         where+=mode==='closed'?" AND o.status='closed'":" AND o.status!='closed'";
         if(work){where+=" AND EXISTS(SELECT 1 FROM cf_solo_tasks t WHERE t.opportunity_id=o.id AND t.state IN ('open','waiting','in_progress') AND t.work_type=?)";args.push(work);}
         if(cursor){if(cursor.length!==2)fail(422,'cursor','Refresh the opportunities.');where+=' AND (o.updated_at<? OR (o.updated_at=? AND o.id<?))';args.push(cursor[0],cursor[0],cursor[1]);}
-        found=await rows(`SELECT o.*,(SELECT MIN(due_at) FROM cf_solo_tasks t WHERE t.opportunity_id=o.id AND t.state IN ('open','waiting','in_progress')) AS due_at${hasFiv?',f.fit AS fiv_fit,f.intent AS fiv_intent,f.value AS fiv_value,f.queue AS fiv_queue':''} FROM cf_solo_opportunities o ${hasFiv?'LEFT JOIN cf_fiv_projections f ON f.workspace_id=o.workspace_id AND f.opportunity_id=o.id':''} WHERE ${where} ORDER BY o.updated_at DESC,o.id DESC LIMIT ?`,...args,limit+1);
+        found=await rows(`SELECT o.*,(SELECT MIN(due_at) FROM cf_solo_tasks t WHERE t.opportunity_id=o.id AND t.state IN ('open','waiting','in_progress')) AS due_at${hasFiv?',f.fit AS fiv_fit,f.intent AS fiv_intent,f.value AS fiv_value,f.queue AS fiv_queue':''}${hasPriority?',p.status AS priority_status,p.score AS priority_score,p.score_min AS priority_score_min,p.score_max AS priority_score_max,p.evidence_completeness AS priority_evidence_completeness,p.queue AS priority_queue':''} FROM cf_solo_opportunities o ${hasFiv?'LEFT JOIN cf_fiv_projections f ON f.workspace_id=o.workspace_id AND f.opportunity_id=o.id':''} ${hasPriority?'LEFT JOIN cf_opportunity_priority_projections p ON p.workspace_id=o.workspace_id AND p.opportunity_id=o.id':''} WHERE ${where} ORDER BY ${hasPriority?"CASE p.queue WHEN 'shoot_now' THEN 5 WHEN 'quick_play' THEN 4 WHEN 'develop' THEN 3 WHEN 'nurture' THEN 2 WHEN 'low_priority' THEN 1 ELSE 0 END DESC,p.score DESC,":''}o.updated_at DESC,o.id DESC LIMIT ?`,...args,limit+1);
       }
       const page=found.slice(0,limit),last=page.at(-1);
       return {records:page.map(publicOpportunity),nextCursor:found.length>limit?encodeCursor(queue?[last.priority,last.due_at,last.task_id]:[last.updated_at,last.id]):null,view:mode,timeZone:'America/Los_Angeles'};
@@ -100,7 +110,7 @@ export function soloRepository(db,scope){
         sql("INSERT INTO cf_solo_activity(id,workspace_id,opportunity_id,actor_id,kind,request_id,fingerprint,payload_json,created_at) VALUES(?,?,?,?,'created',?,?,?,?)",`act_${requestId}`,workspace,id,actor,requestId,fingerprint,JSON.stringify({source:value.source,next:value.next}),at)
       ]).catch(async error=>{if(!await replay(requestId,fingerprint))throw error;});
       await this.ensureProfile(id);
-      await this.refreshPossessionQuality(id);
+      await this.refreshOpportunityPriority(id);
       return this.detail(id);
     },
     async wrap(id,value,requestId){
