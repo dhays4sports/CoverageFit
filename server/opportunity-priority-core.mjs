@@ -64,11 +64,11 @@ function productTrack(opportunity={},context={}){
 function textBlob(opportunity={},context={}){
   return lower([
     opportunity.reason,opportunity.products,context.reviewReason,context.reviewContext,
-    context.autoNeed,context.lifeGoal,context.businessNeed,context.businessType
+    context.autoNeed,context.lifeGoal,context.lifeCoverageStatus,context.lifeProtectionTrigger,context.shoppingIntent,context.statedTrigger,context.businessNeed,context.businessType
   ].filter(Boolean).join(' '),1200);
 }
 function reviewReason(context={}){return lower(context.reviewReason,80).replace(/[\s-]+/g,'_');}
-function timingToken(context={}){return lower(context.renewalTiming,80).replace(/[\s-]+/g,'_');}
+function timingToken(context={}){return lower(context.decisionTiming||context.renewalTiming,80).replace(/[\s-]+/g,'_');}
 
 function needCandidates(track,opportunity,context,lead){
   const why=reviewReason(context),blob=textBlob(opportunity,context),ref=lead?`lead:${lead.source_id}`:'opportunity:record',at=lead?.updated_at||opportunity.updated_at||opportunity.created_at||null;
@@ -82,6 +82,12 @@ function needCandidates(track,opportunity,context,lead){
   if(/coverage gap|not enough|underinsured|only through work|employer only|no life|no coverage/.test(blob))push(25,'explicit_protection_gap','The prospect explicitly described a protection gap.','stated protection gap');
 
   if(track==='life'){
+    const coverage=lower(context.lifeCoverageStatus,80).replace(/[\s-]+/g,'_');
+    if(['none','no_personal','no_personal_coverage'].includes(coverage))push(25,'life_no_personal_coverage','The prospect reports no personally owned life coverage.',coverage);
+    else if(['employer_only','work_only','through_work_only'].includes(coverage))push(23,'life_employer_only','The prospect reports relying on employer-provided life coverage only.',coverage);
+    else if(['unsure','unknown'].includes(coverage))push(12,'life_coverage_unsure','The prospect is unsure what personal life coverage is in force.',coverage);
+    const trigger=lower(context.lifeProtectionTrigger,120);
+    if(trigger&&/mortgage|child|dependent|income|family|business|key_person|final/.test(trigger))push(22,'life_trigger','The prospect identified a concrete protection trigger.',trigger);
     const goal=lower(context.lifeGoal,120);
     if(goal){
       if(/mortgage|income|family|child|dependent|final|business|key person/.test(goal))push(22,'life_protection_goal','A concrete life-protection goal is already stated.',goal);
@@ -120,6 +126,11 @@ function intentCandidates(opportunity,tasks,sources,context,lead,now){
   const hasResponse=sources.some(source=>source?.kind==='response');
   if(hasResponse)out.push(reason(22,'customer_response','A customer response is recorded.',{evidenceRef:'source:response',source:'explicit_client_response',observedAt:latest(sources.filter(source=>source?.kind==='response'))?.updated_at||at}));
   if(context?.contactRequested===true||lead?.summary?.consent?.contactRequested===true)out.push(reason(26,'lead_contact_requested','The prospect requested contact in the acquisition flow.',{evidenceRef:ref,source:'explicit_client_response',observedAt:at}));
+  const statedIntent=lower(context.shoppingIntent,80).replace(/[\s-]+/g,'_');
+  if(['ready_now','ready','actively_comparing','active_now'].includes(statedIntent))out.push(reason(30,'stated_active_intent','The prospect explicitly reports active buying/comparison intent.',{evidence:statedIntent,evidenceRef:ref,source:'customer_reported',observedAt:at}));
+  else if(['open_to_review','open','comparing'].includes(statedIntent))out.push(reason(22,'stated_open_intent','The prospect explicitly reports being open to a review or comparison.',{evidence:statedIntent,evidenceRef:ref,source:'customer_reported',observedAt:at}));
+  else if(['exploring','researching'].includes(statedIntent))out.push(reason(10,'stated_exploring','The prospect explicitly reports early-stage exploration.',{evidence:statedIntent,evidenceRef:ref,source:'customer_reported',observedAt:at}));
+  else if(['not_interested','no_interest'].includes(statedIntent))out.push(reason(2,'stated_no_current_intent','The prospect explicitly reports no current purchase interest.',{evidence:statedIntent,evidenceRef:ref,source:'customer_reported',observedAt:at}));
   const why=reviewReason(context);
   if(['nonrenewal_notice','buying_condo','renewal_change','shopping_price','coverage_review'].includes(why))out.push(reason(16,'explicit_review_reason','The prospect supplied a specific reason for the review.',{evidence:why,evidenceRef:ref,source:'customer_reported',observedAt:at}));
   const leadAge=at&&parseDate(at)?daysBetween(parseDate(at),now):null;
@@ -234,7 +245,10 @@ function handoff({track,dimensions,score,scoreMin,scoreMax,queue,routeOverride:o
     .sort((a,b)=>b.points-a.points).slice(0,6);
   const knownFacts=[];
   if(context.reviewReason)knownFacts.push(`Review reason: ${clean(context.reviewReason,100)}`);
-  if(context.renewalTiming)knownFacts.push(`Timing: ${clean(context.renewalTiming,100)}`);
+  if(context.decisionTiming||context.renewalTiming)knownFacts.push(`Timing: ${clean(context.decisionTiming||context.renewalTiming,100)}`);
+  if(context.shoppingIntent)knownFacts.push(`Intent: ${clean(context.shoppingIntent,100)}`);
+  if(context.statedTrigger)knownFacts.push(`Trigger: ${clean(context.statedTrigger,120)}`);
+  if(context.lifeCoverageStatus)knownFacts.push(`Life coverage status: ${clean(context.lifeCoverageStatus,100)}`);
   if(context.closingDate)knownFacts.push(`Closing date: ${clean(context.closingDate,100)}`);
   if(context.lifeGoal)knownFacts.push(`Life goal: ${clean(context.lifeGoal,120)}`);
   if(context.autoNeed)knownFacts.push(`Auto need: ${clean(context.autoNeed,120)}`);
