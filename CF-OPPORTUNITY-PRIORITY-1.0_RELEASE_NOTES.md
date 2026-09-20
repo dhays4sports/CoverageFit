@@ -221,6 +221,8 @@ Supported aggregate exposure bases include:
 - manual import
 - other documented aggregate basis
 
+For exposure-normalized channel reporting, a **qualified opportunity** is not merely a fully scored record. It is a Tier A/B Opportunity Priority, an explicit human/scheduled raised-hand override, or an opportunity that has independently advanced through meaningful conversation/stage evidence. Tier C/D/E records do not inflate qualified-opportunity counts merely because all four score dimensions are known.
+
 The acquisition scoreboard now supports:
 - exposures
 - qualified opportunities per 1,000 exposures
