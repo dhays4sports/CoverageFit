@@ -47,6 +47,7 @@ export async function handleSoloDesk(context){
     if(request.headers.get('origin')!==url.origin)fail(403,'origin','Use the CoverageFit workspace to save this update.');
     const value=await body(request);
     if(route==='sync')return json({ok:true,...await sourceSync(repo).sync(value.stream)});
+    if(route==='priority-backfill'){const result=await repo.backfillOpportunityPriority(value.limit||60);return json({ok:true,...result});}
     if(!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(value.requestId||''))fail(422,'request_id','Reload the form before saving.');
     if(route==='acquisition-campaign'){const acq=acquisitionMeasurement(repo,env);try{await acq.ready();}catch{fail(503,'acquisition_setup_required','Acquisition measurement needs its database update before it can save campaigns.');}return json({ok:true,campaign:await acq.campaign(value,value.requestId)},201);}
     if(route==='acquisition-spend'){const acq=acquisitionMeasurement(repo,env);try{await acq.ready();}catch{fail(503,'acquisition_setup_required','Acquisition measurement needs its database update before it can save acquisition spend.');}return json({ok:true,spend:await acq.spend(value,value.requestId)},201);}
