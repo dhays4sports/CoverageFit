@@ -49,6 +49,7 @@ function economicsRow(group={},settings={}){
     premiumPerObservedAcquisitionDollar:observedCost?ratio(premium,observedCost):null,
     premiumPerTrueAcquisitionDollar:trueCost?ratio(premium,trueCost):null,
     firstYearCommissionCents:firstYearCommission,
+    firstYearCommissionPerProducerHourCents:firstYearCommission!=null&&minutes?rounded((firstYearCommission*60)/minutes):null,
     firstYearCommissionPerObservedAcquisitionDollar:firstYearCommission!=null&&observedCost?ratio(firstYearCommission,observedCost):null,
     firstYearCommissionPerTrueAcquisitionDollar:firstYearCommission!=null&&trueCost?ratio(firstYearCommission,trueCost):null,
     firstYearCommissionLessObservedAcquisitionCostCents:firstYearCommission!=null&&observedCost!=null?firstYearCommission-observedCost:null,
