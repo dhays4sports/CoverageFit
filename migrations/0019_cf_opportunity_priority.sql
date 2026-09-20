@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS cf_opportunity_priority_baselines (
   engine TEXT NOT NULL,
   basis TEXT NOT NULL DEFAULT 'first_ready',
   captured_at TEXT NOT NULL,
-  PRIMARY KEY(workspace_id,opportunity_id)
+  PRIMARY KEY(workspace_id,opportunity_id,engine)
 );
 CREATE INDEX IF NOT EXISTS idx_cf_priority_baseline_queue
   ON cf_opportunity_priority_baselines(workspace_id,queue,captured_at,opportunity_id);
