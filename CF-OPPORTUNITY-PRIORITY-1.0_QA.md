@@ -7,6 +7,11 @@
 
 ## Automated / executable checks completed
 
+### Permanent regression test
+
+`tests/opportunity-priority-core.test.mjs` now preserves the deterministic core scenarios for future Node-based regression runs, including life, home, auto, business, staleness, UNKNOWN ranges, explicit proceed precedence, incomplete-signal NBA, and Tier A routing.
+
+
 ### Runtime syntax
 
 The following touched JavaScript modules were parsed as JavaScript after removing module import/export syntax for the isolated check:
