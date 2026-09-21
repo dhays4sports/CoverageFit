@@ -14,6 +14,31 @@ const base=canonicalSignals=>({
 function decision(signals){return deriveSignalDecision(base(signals),NOW);}
 
 {
+  const result=decision({product:'life'});
+  assert.equal(result.public.decision,'ASK_ONE_SIGNAL');
+  assert.equal(result.public.nextQuestionId,'life_coverage_status');
+  assert.equal(result.public.missingDimension,'need');
+}
+
+{
+  const result=decision({product:'home'});
+  assert.equal(result.public.nextQuestionId,'home_trigger');
+  assert.equal(result.public.missingDimension,'need');
+}
+
+{
+  const result=decision({product:'auto'});
+  assert.equal(result.public.nextQuestionId,'auto_trigger');
+  assert.equal(result.public.missingDimension,'need');
+}
+
+{
+  const result=decision({product:'business'});
+  assert.equal(result.public.nextQuestionId,'business_trigger');
+  assert.equal(result.public.missingDimension,'need');
+}
+
+{
   const result=decision({product:'life',lifeCoverageStatus:'employer_only'});
   assert.equal(result.public.decision,'ASK_ONE_SIGNAL');
   assert.equal(result.public.nextQuestionId,'life_shopping_intent');
