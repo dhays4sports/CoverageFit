@@ -25,6 +25,23 @@ const SESSION_RE=/^[A-Za-z0-9_-]{12,120}$/;
 const FLOW_RE=/^[a-z0-9][a-z0-9_.:-]{0,99}$/;
 const VERSION_RE=/^[A-Za-z0-9][A-Za-z0-9_.-]{0,39}$/;
 
+const SIGNAL_VALUE_SETS=Object.freeze({
+  product:new Set(['home','auto','life','business','unknown']),
+  statedTrigger:new Set(['something_changed','comparing_options','just_exploring','just_researching','price_changed','renewal','purchase','closing','coverage_change','family_change','business_change']),
+  shoppingIntent:new Set(['ready_now','ready','actively_comparing','active_now','open_to_review','open','comparing','exploring','researching','not_interested','no_interest']),
+  decisionTiming:new Set(['now','now_urgent','urgent','within_14','within_30','days_15_30','0_30','days_31_60','within_60','31_60','days_61_90','within_90','61_90','over_60','over_90','future','later']),
+  reviewReason:new Set(['nonrenewal_notice','renewal_change','buying_condo','buying_home','shopping_price','coverage_review','new_home_or_vehicle','price','upcoming_renewal','coverage_concern','comparison']),
+  renewalTiming:new Set(['now','now_urgent','urgent','within_14','within_30','days_15_30','0_30','days_31_60','within_60','31_60','days_61_90','within_90','61_90','over_60','over_90','future','later']),
+  propertyType:new Set(['house','single_family','condo','townhome','multi_unit','landlord','manufactured','mobile_home','other','unsure']),
+  autoNeed:new Set(['new_vehicle','add_driver','teen_driver','financing','finance','lease','lapse','cancellation','need_now','renewal_price','coverage_change','just_comparing','price','upcoming_renewal']),
+  businessNeed:new Set(['coi','certificate','contract','lease_lender','lease','lender','opening','new_business','hiring','workers_comp','renewal','price_change','just_researching']),
+  businessType:new Set(['contractor','restaurant','professional','retail','habitational','other']),
+  professionalProgram:new Set(['healthcare','teachers','teacher','tech','engineers','engineer','realtor','lender','first_responder','lawyer','cpa','other']),
+  lifeCoverageStatus:new Set(['yes_personal','none','no_personal','no_personal_coverage','employer_only','work_only','through_work_only','unsure','unknown']),
+  lifeProtectionTrigger:new Set(['mortgage','child','children','dependent','dependents','income','family','business','key_person','final_expenses']),
+  lifeGoal:new Set(['family_income','mortgage','children','child','dependents','dependent','business','key_person','final_expenses','final','review_existing','income','family'])
+});
+
 function fail(status,code,message){
   const error=new Error(message);
   error.status=status;error.code=code;
@@ -74,7 +91,10 @@ function normalizeSignals(raw={}){
       out[field]=value;
       continue;
     }
-    out[field]=enumValue(raw[field],field,{allowEmpty:false});
+    const normalized=enumValue(raw[field],field,{allowEmpty:false});
+    const allowed=SIGNAL_VALUE_SETS[field];
+    if(allowed&&!allowed.has(normalized))fail(422,'signal_value',`${field} is not a supported canonical option code.`);
+    out[field]=normalized;
   }
   const product=enumValue(out.product||'unknown','product',{allowEmpty:false});
   if(!PRODUCT_VALUES.has(product))fail(422,'product','product must be home, auto, life, business, or unknown.');
@@ -92,7 +112,7 @@ function normalizeAttribution(raw={}){
     if(value==null||value==='')continue;
     if(field==='landingPage'){out[field]=safePath(value);continue;}
     const normalized=clean(value,120);
-    if(!/^[A-Za-z0-9][A-Za-z0-9_.:@/-]{0,119}$/.test(normalized))fail(422,'attribution_value',`${field} contains unsupported characters.`);
+    if(!/^[A-Za-z0-9][A-Za-z0-9_.:/-]{0,119}$/.test(normalized)||/@/.test(normalized)||/\d{7,}/.test(normalized))fail(422,'attribution_value',`${field} contains unsupported or personal-looking characters.`);
     out[field]=normalized;
   }
   return Object.freeze(out);
