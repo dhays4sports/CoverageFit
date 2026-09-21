@@ -138,7 +138,7 @@ const option=(code,label,signals={})=>Object.freeze({code,label,signals:Object.f
 
 const QUESTIONS=Object.freeze({
   signal_product:Object.freeze({
-    id:'signal_product',dimension:'fit',prompt:'What are you looking for help with?',canonicalField:'product',
+    id:'signal_product',dimension:'product',prompt:'What are you looking for help with?',canonicalField:'product',
     options:Object.freeze([
       option('home','Home coverage',{product:'home'}),
       option('auto','Auto coverage',{product:'auto'}),
@@ -430,7 +430,7 @@ export function deriveSignalDecision(raw={},now=new Date()){
     decision,
     state,
     nextQuestionId:question?.id||null,
-    missingDimension:decision==='ASK_ONE_SIGNAL'?priority.missingCriticalFact||question?.dimension||null:null,
+    missingDimension:decision==='ASK_ONE_SIGNAL'?question?.dimension||priority.missingCriticalFact||null:null,
     nextQuestion:question?publicQuestion(question):null,
     publicExperience:publicExperience(decision),
     evaluatedAt:now.toISOString(),
