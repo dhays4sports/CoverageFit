@@ -361,7 +361,7 @@ function syntheticPriorityInput(input,now){
       consent:Object.freeze({})
     })
   });
-  return {opportunity,tasks:[],sources:[source],customerProfile:null,possessionQuality:null};
+  return {opportunity,tasks:[],sources:[source],customerProfile:null,possessionQuality:null,evidenceMode:'signal'};
 }
 
 export function deriveSignalDecision(raw={},now=new Date()){
