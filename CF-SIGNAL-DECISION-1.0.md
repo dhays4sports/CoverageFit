@@ -88,6 +88,20 @@ Signal values are canonical option codes, not free-form prose.
 
 `closingDate` is the only date-valued field. Other values must be approved canonical option codes.
 
+## Opening-question policy
+
+Signal Decision does not blindly use the producer-side missing-dimension order for a blank consumer session.
+
+For a newly selected product:
+
+- Life → ask personal coverage status first
+- Home → ask what changed / why they are looking
+- Auto → ask what changed / why they are looking
+- Business → ask what changed / why coverage is needed
+- Unknown product → ask which product the visitor wants help with
+
+After that opening evidence exists, Opportunity Priority determines the next missing fact.
+
 ## Public decision semantics
 
 ### ASK_ONE_SIGNAL
