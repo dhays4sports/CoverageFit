@@ -377,6 +377,9 @@ export function deriveSignalDecision(raw={},now=new Date()){
   }else if(priority.status!=='ready'){
     question=nextQuestion(priority.track,priority.missingCriticalFact,input.canonicalSignals);
     decision='ASK_ONE_SIGNAL';state='signal_developing';
+  }else if(priority.track==='business'&&!input.canonicalSignals.businessType){
+    question=QUESTIONS.business_type;
+    decision='ASK_ONE_SIGNAL';state='signal_developing';
   }else if(['shoot_now','quick_play'].includes(priority.queue)){
     decision='OFFER_HUMAN';state='qualified_signal';
   }else if(priority.queue==='develop'){
