@@ -97,7 +97,7 @@ function needCandidates(track,opportunity,context,lead){
   if(track==='auto'){
     const need=lower(context.autoNeed,120);
     if(need){
-      if(/new_vehicle|new vehicle|add_driver|add driver|teen|financ|lease|lapse|cancellation/.test(need))push(22,'auto_change_trigger','A vehicle, driver, financing, or coverage change creates a concrete auto need.',need);
+      if(/new_vehicle|new vehicle|add_driver|add driver|teen|financ|lease|lapse|cancellation|need_now|need coverage now/.test(need))push(22,'auto_change_trigger','A vehicle, driver, financing, or immediate coverage change creates a concrete auto need.',need);
       else push(14,'auto_review_need','The prospect stated an auto-insurance reason for review.',need);
     }
   }
