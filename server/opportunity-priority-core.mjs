@@ -118,7 +118,7 @@ function ageDays(value,now){
   if(!parsed)return null;
   return Math.max(0,daysBetween(parsed,now));
 }
-function intentCandidates(opportunity,tasks,sources,context,lead,now){
+function intentCandidates(opportunity,tasks,sources,context,lead,now,{allowStructuredEngagement=true}={}){
   const out=[],at=lead?.updated_at||opportunity.updated_at||opportunity.created_at||null,ref=lead?`lead:${lead.source_id}`:'opportunity:record',leadAge=ageDays(at,now);
   const task=(min)=>tasks.find(item=>Number(item?.priority||0)>=min&&!['completed','cancelled'].includes(item?.state));
   const proceed=task(100),question=task(90),contact=tasks.find(item=>Number(item?.priority||0)>=70&&/requested contact|contact request/i.test(item?.title||''));
@@ -155,7 +155,7 @@ function intentCandidates(opportunity,tasks,sources,context,lead,now){
   if((leadAge==null||leadAge<=30)&&['nonrenewal_notice','buying_condo','renewal_change','shopping_price','coverage_review'].includes(why))out.push(reason(16,'explicit_review_reason','The prospect supplied a recent specific reason for the review.',{evidence:why,evidenceRef:ref,source:'customer_reported',observedAt:at}));
   else if(leadAge!=null&&leadAge<=90&&['nonrenewal_notice','buying_condo','renewal_change','shopping_price','coverage_review'].includes(why))out.push(reason(9,'aging_review_reason','A specific review reason is recorded, but it is aging as an intent signal.',{evidence:`${why} · ${leadAge} days old`,evidenceRef:ref,source:'customer_reported',observedAt:at}));
 
-  if(lead&&leadAge!=null&&leadAge<=14&&Object.keys(context||{}).some(key=>clean(context[key]).length))out.push(reason(12,'recent_structured_engagement','The prospect recently supplied structured acquisition context.',{evidence:`${leadAge} days old`,evidenceRef:ref,source:'customer_reported',observedAt:at,expiresAt:new Date(parseDate(at).getTime()+45*86400000).toISOString()}));
+  if(allowStructuredEngagement&&lead&&leadAge!=null&&leadAge<=14&&Object.keys(context||{}).some(key=>clean(context[key]).length))out.push(reason(12,'recent_structured_engagement','The prospect recently supplied structured acquisition context.',{evidence:`${leadAge} days old`,evidenceRef:ref,source:'customer_reported',observedAt:at,expiresAt:new Date(parseDate(at).getTime()+45*86400000).toISOString()}));
   return out;
 }
 
@@ -303,12 +303,12 @@ function handoff({track,dimensions,score,scoreMin,scoreMax,queue,routeOverride:o
   });
 }
 
-export function deriveOpportunityPriority({opportunity=null,tasks=[],sources=[],customerProfile=null,possessionQuality=null}={},now=new Date()){
+export function deriveOpportunityPriority({opportunity=null,tasks=[],sources=[],customerProfile=null,possessionQuality=null,evidenceMode='opportunity'}={},now=new Date()){
   if(!opportunity)return Object.freeze({schemaVersion:'1.0',engine:PRIORITY_BUILD,status:'unclassified',score:null,scoreMin:0,scoreMax:100,evidenceCompleteness:0,queue:'unclassified',queueLabel:QUEUE_LABELS.unclassified});
   const {lead,context,attribution,consent}=contextFromSources(sources),track=productTrack(opportunity,context),override=routeOverride(opportunity,tasks,sources);
   const dimensions=Object.freeze({
     need:dimension('need',needCandidates(track,opportunity,context,lead)),
-    intent:dimension('intent',intentCandidates(opportunity,tasks,sources,context,lead,now)),
+    intent:dimension('intent',intentCandidates(opportunity,tasks,sources,context,lead,now,{allowStructuredEngagement:evidenceMode!=='signal'})),
     timing:dimension('timing',timingCandidates(opportunity,context,lead,now)),
     fit:dimension('fit',fitCandidates(track,opportunity,context,lead,possessionQuality))
   });
