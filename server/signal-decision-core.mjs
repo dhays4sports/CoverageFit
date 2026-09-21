@@ -286,6 +286,14 @@ const QUESTIONS=Object.freeze({
   })
 });
 
+function openingQuestion(track,signals){
+  if(track==='life'&&!signals.lifeCoverageStatus)return QUESTIONS.life_coverage_status;
+  if(track==='home'&&!signals.reviewReason&&!signals.statedTrigger)return QUESTIONS.home_trigger;
+  if(track==='auto'&&!signals.autoNeed)return QUESTIONS.auto_trigger;
+  if(track==='business'&&!signals.businessNeed)return QUESTIONS.business_trigger;
+  return null;
+}
+
 function nextQuestion(track,missing,signals){
   if(track==='unknown')return QUESTIONS.signal_product;
   if(track==='life'){
@@ -390,10 +398,13 @@ export function deriveSignalDecision(raw={},now=new Date()){
   const weak=weakEarlyExit(input.canonicalSignals);
   let decision='',state='',question=null;
 
+  const opening=openingQuestion(priority.track,input.canonicalSignals);
   if(input.canonicalSignals.product==='unknown'){
     decision='ASK_ONE_SIGNAL';state='signal_developing';question=QUESTIONS.signal_product;
   }else if(weak){
     decision=weak;state='signal_only';
+  }else if(opening){
+    decision='ASK_ONE_SIGNAL';state='signal_developing';question=opening;
   }else if(priority.status!=='ready'){
     question=nextQuestion(priority.track,priority.missingCriticalFact,input.canonicalSignals);
     decision='ASK_ONE_SIGNAL';state='signal_developing';
