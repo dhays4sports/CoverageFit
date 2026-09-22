@@ -1,7 +1,7 @@
 # CoverageFit North Star
 
 **Document:** CF-NORTH-STAR-1.0  
-**CoverageFit baseline:** v3.20.255  
+**CoverageFit baseline:** v3.20.256  
 **Status:** Product North Star / long-range architectural reference  
 **Date:** 2026-09-20
 
@@ -110,6 +110,15 @@ It may capture bounded contextual signals, but should not become the customer in
 
 ### CoverageFit — protection intelligence and orchestration
 CoverageFit is the system that understands the relationship, preserves state, interprets evidence, prioritizes opportunities, explains what changed, and determines useful next actions.
+
+### Anonymous Signal Decision
+Before a person becomes a lead or opportunity, 408FARMERS may hold a lightweight anonymous SignalSession. CoverageFit may evaluate that bounded evidence without persisting it or promoting it into the durable customer graph.
+
+The public decision surface returns only the next useful interaction state — ask one signal, offer human help, offer education, or continue later. Internal Opportunity Priority score, queue, dimensions, underwriting state, eligibility, pricing and contact authority remain private.
+
+Anonymous participation itself is not buying intent. Signal evaluation therefore must not award the weak Intent credit that a real recent structured lead interaction may receive merely because the visitor answered a web question.
+
+A qualified signal is still not an Opportunity. Promotion occurs only after a later explicit human/contact action or another governed promotion event. Contact permission remains a separate object and is never inferred from score or signal strength.
 
 ### Policy.box — document intelligence
 Policy.box should eventually extract structured, provenance-preserving insurance facts from declarations, proposals and related documents so CoverageFit can use evidence without forcing customers or producers to re-enter known information.
@@ -406,6 +415,10 @@ When future product work needs a concise statement of direction, use:
 > **CoverageFit is building a living protection profile for consumers and an intelligence layer for advisors. It should help people understand what they have, see what changed, know what deserves attention, and take the next useful action—without restarting the relationship every time.**
 
 
+
+## CF-SIGNAL-DECISION-1.0 — Anonymous Signal Decision (v3.20.256)
+
+CoverageFit adds a stateless public decision layer for 408FARMERS Signal Sessions. Anonymous canonical signals are adapted into the existing Opportunity Priority engine under a dedicated signal evidence mode, so there is one scoring truth without treating mere web-question participation as buying intent. Public decisions are limited to ASK_ONE_SIGNAL, OFFER_HUMAN, OFFER_LEARN and CONTINUE_LATER; score, queue, dimensions and producer-only evidence remain hidden. The endpoint rejects identity/contact/health fields and arbitrary prose, rate-limits fail-closed, restricts browser origins, and does not persist, create a lead/opportunity, grant contact permission, price, underwrite or bind. Commercial high-priority sessions must still identify a basic business class before human handoff.
 
 ## CF-OPPORTUNITY-PRIORITY-1.0 — Signal-First Producer Attention (v3.20.255)
 
