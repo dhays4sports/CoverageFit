@@ -19,7 +19,10 @@ export async function withD1RateLimit(context, settings, handler) {
   const limit = Math.max(1, Number(settings?.limit) || 60);
   const windowSeconds = Math.max(1, Number(settings?.windowSeconds) || 60);
   const route = String(settings?.route || new URL(context.request.url).pathname);
-  if (!db?.prepare) return settings?.failClosed ? json({ok:false,error:{code:'rate_limit_unavailable',message:'The connection is temporarily unavailable.'}},503) : handler();
+  if (!db?.prepare) {
+    if (settings?.failClosed) console.warn('CoverageFit rate limiter unavailable', {reason:'binding_missing'});
+    return settings?.failClosed ? json({ok:false,error:{code:'rate_limit_unavailable',message:'The connection is temporarily unavailable.'}},503) : handler();
+  }
 
   const nowSeconds = Math.floor(Date.now() / 1000);
   const windowStart = Math.floor(nowSeconds / windowSeconds) * windowSeconds;
@@ -43,7 +46,13 @@ export async function withD1RateLimit(context, settings, handler) {
       context.waitUntil?.(db.prepare('DELETE FROM api_rate_limits WHERE reset_at < ?1').bind(nowSeconds - 3600).run());
     }
   } catch (error) {
-    if(settings?.failClosed)return json({ok:false,error:{code:'rate_limit_unavailable',message:'The connection is temporarily unavailable.'}},503);
+    if(settings?.failClosed) {
+      // Log only a bounded category: never request data, client IP, SQL values or raw errors.
+      const message=String(error?.message||'');
+      const reason=/no such table/i.test(message)?'table_missing':/no such column|has no column/i.test(message)?'schema_mismatch':'query_failed';
+      console.warn('CoverageFit rate limiter unavailable', {reason});
+      return json({ok:false,error:{code:'rate_limit_unavailable',message:'The connection is temporarily unavailable.'}},503);
+    }
     console.warn('CoverageFit D1 rate limit check failed open', error);
   }
 
