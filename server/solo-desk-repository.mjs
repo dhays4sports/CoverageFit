@@ -1,4 +1,4 @@
-import producer from '../producer.json' with {type:'json'};
+import producer from '../producer.json';
 import {fail,pacificDay,pacificInputToISO} from '../assets/js/solo-desk-model.mjs';
 import {universalCustomerProfile} from './universal-customer-profile.mjs';
 import {deriveNextBestAction} from './next-best-action-core.mjs';

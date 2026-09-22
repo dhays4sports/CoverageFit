@@ -6,7 +6,7 @@ import {listProtectionPresets,saveProtectionPreset,attachProtectionPresets} from
 import {launchProtection,protectionBridge,protectionClientContext,protectionQueue,reviewProtection} from './protection-bridge.mjs';
 import {launchDeviceTask,deviceBridge,deviceClientContext,deviceWorkQueue,recordDeviceReview} from './device-task-bridge.mjs';
 import {applyQuoteWorkflow} from '../assets/js/quote-template-model.mjs';
-import producer from '../producer.json' with {type:'json'};
+import producer from '../producer.json';
 import { authorizeProducer } from './consultation-inbox-core.mjs';
 import { resolveProducerEnvironment } from './cloudflare-pages-handlers.mjs';
 import { createConsultationStore,createPVXRecordStore,createSmsConversationStore } from './d1-json-store.mjs';
