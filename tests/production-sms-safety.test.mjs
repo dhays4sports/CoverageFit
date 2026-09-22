@@ -85,3 +85,32 @@ test('precise follow-up time continues normal scheduling instead of handoff', as
   assert.equal(b.handoff,undefined);
   assert.match(b.conversation.callbackScheduling.proposedStart,/2026-09-25T17:00/);
 });
+import {recoverMissedRingCentralSms, RINGCENTRAL_RECOVERY_CURSOR_KEY} from '../server/ringcentral-webhook-recovery-core.mjs';
+const historyRecord=(id,direction,subject,creationTime=opts.now)=>({id,type:'SMS',direction,subject,creationTime,from:{phoneNumber:direction==='Outbound'?env.RINGCENTRAL_FROM_NUMBER:'+12025550101'},to:[{phoneNumber:direction==='Outbound'?'+12025550101':env.RINGCENTRAL_FROM_NUMBER}]});
+test('history recovery ingests outbound manual message and subsequent inbound remains silent',async()=>{
+ const store=memoryStore();
+ const result=await recoverMissedRingCentralSms({...opts,env,store,listHistory:async input=>{
+  assert.equal(input.direction,'All');
+  return {records:[historyRecord('recover-out','Outbound','I will handle this personally','2026-09-22T21:59:00Z'),historyRecord('recover-in','Inbound','Friday')],hasMore:false};
+ },processEvent:async payload=>(await webhook(store,payload.body.direction,payload.body.subject,payload.body.id)).json()});
+ assert.equal(result.counts.replayed,2);
+ assert.equal((await store.get('sms-live-events/recover-out')).manualTakeover,true);
+ assert.equal((await store.get('sms-live-events/recover-in')).routeReason,'automation_paused');
+});
+test('registered automation recovered from history does not trigger manual takeover',async()=>{
+ const store=memoryStore();
+ await store.setJSON('sms-outbound-registry/provider/registered-1',{providerMessageId:'registered-1',origin:'appointment',workflow:'missed_call_callback_v1',replyRoute:'appointment',ownershipEffect:'transfer',ownershipTarget:'appointment',status:'sent',businessPhone:env.RINGCENTRAL_FROM_NUMBER,contactPhone:'+12025550101',message:'Your call is booked',registrationId:'test-registration'});
+ const result=await webhook(store,'Outbound','Your call is booked','registered-1');
+ const response=await result.json();assert.equal(response.registeredOutbound,true);assert.notEqual(response.manualTakeover,true);
+});
+test('truncated history fails without replay or advancing recovery cursor',async()=>{
+ const store=memoryStore();let replayed=0;
+ await assert.rejects(recoverMissedRingCentralSms({...opts,env:{...env,RINGCENTRAL_RECOVERY_MAX_MESSAGES:'1'},store,listHistory:async()=>({records:[historyRecord('limited','Outbound','Manual')],hasMore:true}),processEvent:async()=>{replayed++;return {ok:true};}}),/recovery_window_limit/);
+ assert.equal(replayed,0); assert.equal((await store.get(RINGCENTRAL_RECOVERY_CURSOR_KEY)).lastRecoveryCompletedThrough,'');
+});
+test('inbound webhook checkpoint cannot skip older outbound history on upgrade',async()=>{
+ const store=memoryStore();await store.setJSON(RINGCENTRAL_RECOVERY_CURSOR_KEY,{lastConfirmedEventAt:opts.now,lastRecoveryCompletedThrough:opts.now});
+ let from;
+ await recoverMissedRingCentralSms({...opts,env,store,listHistory:async input=>{from=input.dateFrom;return {records:[],hasMore:false};},processEvent:async()=>({ok:true})});
+ assert.equal(from,'2026-09-19T22:00:00.000Z');assert.equal((await store.get(RINGCENTRAL_RECOVERY_CURSOR_KEY)).historyDirections,'both');
+});

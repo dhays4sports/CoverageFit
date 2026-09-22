@@ -454,11 +454,13 @@ export async function handleRingCentralWebhook(request, options = {}) {
         occurredAt
       }, options);
       if (registration) {
+        const pausedControl = smsAutomationPaused(conversation) ? {orchestration: conversation.orchestration, state: conversation.state} : null;
         conversation = applyRegisteredOutboundToConversation(conversation, registration, {
           providerMessageId: event.messageId,
           message: event.body,
           occurredAt
         });
+        if (pausedControl) Object.assign(conversation, pausedControl);
         conversation.producerSummary = buildSmsProducerSummary(conversation);
         await store.setJSON(conversationKey, conversation, { metadata: metadata(conversation) });
         await markOutboundRegistrationWebhookSeen(store, registration, event.messageId, occurredAt);
@@ -1024,7 +1026,8 @@ function maintenanceAuthorization(request, env = {}) {
 }
 
 async function recoveryAfterReconnect(result, request, options = {}) {
-  if (!['created', 'recreated'].includes(text(result?.action))) return { started: false, reason: 'continuous_subscription' };
+  // A healthy inbound subscription does not prove manual outbound delivery.
+  // Sweep history on every maintenance run, not just subscription recreation.
   const recoveryTask = runRingCentralRecovery(request, options);
   if (typeof options.waitUntil === 'function') {
     options.waitUntil(recoveryTask.catch(cause => writeOpsAudit(options.store, 'ringcentral_recovery_failed', {

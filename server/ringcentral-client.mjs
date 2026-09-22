@@ -320,10 +320,10 @@ export async function listRingCentralMessageHistory(input = {}, env = {}, option
   const perPage = integer(input.perPage, 100, 1, 1000);
   const query = new URLSearchParams({
     messageType: 'SMS',
-    direction: 'Inbound',
     page: String(page),
     perPage: String(perPage)
   });
+  if (input.direction !== 'All') query.set('direction', input.direction === 'Outbound' ? 'Outbound' : 'Inbound');
   if (dateFrom) query.set('dateFrom', dateFrom);
   if (dateTo) query.set('dateTo', dateTo);
   const payload = await ringCentralRequest(accountExtensionPath(config, `/message-store?${query.toString()}`), { method: 'GET' }, env, options);

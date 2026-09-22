@@ -12,7 +12,7 @@ Known live rollback: dontworrycoverage 90dbffdca9524d562d0e7dfb4f381ef311da6a74 
 - Manual outbound ingestion stops remaining callback campaign steps.
 
 ## Validation
-Run the test entry tests/production-sms-safety.test.mjs bundled for Node with esbuild (JSON modules in this deployment require bundling). Eleven tests cover the incident, bounded availability, deferral, prior booking acknowledgment, exact timing, webhook manual takeover, STOP, stale gateway snapshot and suppressed retry creation.
+Run the test entry tests/production-sms-safety.test.mjs bundled for Node with esbuild (JSON modules in this deployment require bundling). Fifteen tests cover the incident, bounded availability, deferral, prior booking acknowledgment, exact timing, webhook manual takeover, STOP, stale gateway snapshot and suppressed retry creation.
 Run: npx --yes wrangler@3.114.17 pages functions build --outdir=<directory outside deploy root>
 
 ## Release gates still requiring live access
@@ -30,3 +30,10 @@ A store read and an external provider send are not atomic: messages already acce
 Existing pending retry jobs must be reviewed/suppressed before resuming paused conversations. The new handler does not create retry jobs for pause or consent rejections.
 
 Release status: candidate only, pending live schema/configuration verification and controlled canary.
+
+## Outbound recovery follow-up
+Production binding and schema definitions through 0017 were confirmed by the operator; operator supplied verification of both 0018 tables and all four indexes after applying migration 0018. Current webhook UI reports 236 successes, zero failures, zero pending retries. Manual outbound test did not appear.
+
+Recovery now requests both directions, validates each against the configured business number, replays chronologically using the existing provider-ID/fingerprint registry, and runs even when maintenance finds the subscription healthy. Registered automation cannot override an existing explicit producer pause. Failed replay stops later replay. Truncated history fails without advancing the cursor or replaying a partial window. Initial upgrade scans the configured lookback instead of trusting an inbound-only checkpoint.
+
+Live follow-up: verify the maintenance worker schedule and run a recovery cycle after deployment. Default recovery limit is 100 messages and lookback 72 hours; if recovery_window_limit occurs, use a suitable bounded lookback or increase RINGCENTRAL_RECOVERY_MAX_MESSAGES (maximum 500), then retry. No history was fetched or replayed against production during development. Recovery is periodic, not an instant manual-send notification guarantee. Use explicit producer pause until the live canary establishes ingestion and latency.
