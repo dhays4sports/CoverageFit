@@ -19,3 +19,7 @@ The deployed Signal API still reports rate_limit_unavailable. Current settings/s
 ## Runtime binding recovery — 2026-09-22
 
 Live request logs from deployment 347fdab6 at 18:53:19 UTC confirm reason binding_missing: the limiter received no usable COVERAGEFIT_DB binding, before executing SQL. The Signal route passes the original Pages context directly to the limiter. The operator has now recreated the Preview-only COVERAGEFIT_DB binding to the existing coveragefit-signal-preview database. This documentation commit triggers a fresh preview with that configuration. Runtime recovery and browser certification remain unverified pending retest; no production configuration or database changes were made by this commit.
+
+## Life preview origin — 2026-09-22
+
+Operator confirms saving the exact signal-life-1-0.408farmers-v2.pages.dev HTTPS origin alongside the bridge origin in Preview CF_SIGNAL_ALLOWED_ORIGINS. This documentation-only commit triggers a fresh feature preview to apply that setting. Life pilot browser verification follows; no production configuration or application logic change.
