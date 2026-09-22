@@ -114,6 +114,7 @@ export function buildSmsProducerSummary(conversation = {}) {
     ...(conversation.agedLead?.renewal?.display ? [`Renewal: ${text(conversation.agedLead.renewal.display)}`] : []),
     ...(conversation.agedLead?.carrier?.carrier ? [`Current carrier: ${text(conversation.agedLead.carrier.carrier)}`] : []),
     ...(conversation.callbackScheduling?.status === 'scheduled' ? [`Appointment: ${text(conversation.callbackScheduling.proposedDisplay)}`] : []),
+    ...(conversation.callbackScheduling?.handoffReason ? [`Scheduling follow-up (${text(conversation.callbackScheduling.handoffReason)}): ${text(conversation.callbackScheduling.requestedRaw)}`] : []),
     ...Object.entries(conversation.callbackPreparation?.answers || {}).map(([key, value]) => `Call preparation — ${key}: ${text(value)}`),
     `CoverageFit: ${summary.coverageFit}`
   ].join('\n');

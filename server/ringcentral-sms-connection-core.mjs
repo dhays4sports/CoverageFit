@@ -1,3 +1,4 @@
+import {smsAutomationPaused} from './sms-safety-core.mjs';
 import { authorizeProducer } from './consultation-inbox-core.mjs';
 import { timingSafeTextEqual } from './runtime-crypto.mjs';
 import { createSmsHandoff } from './sms-handoff-core.mjs';
@@ -491,6 +492,7 @@ export async function handleRingCentralWebhook(request, options = {}) {
       conversation.preTakeoverState = conversation.orchestration.workflow.state;
       conversation.state = 'human_takeover';
       conversation.manualTakeoverAt = occurredAt;
+      await markCallbackSequenceReplied(conversation, event.body, {...options, env, store, now: occurredAt});
       conversation.outboundContext = {
         providerMessageId: event.messageId,
         origin: 'external_unknown',
@@ -550,6 +552,18 @@ export async function handleRingCentralWebhook(request, options = {}) {
       });
     }
 
+    // Explicit producer takeover wins over every automatic intent/booking router.
+    // STOP/START were processed above and retain priority.
+    if (smsAutomationPaused(conversation)) {
+      await markCallbackSequenceReplied(conversation, event.body, {...options, env, store, now: occurredAt});
+      conversation.producerSummary = buildSmsProducerSummary(conversation);
+      await store.setJSON(conversationKey, conversation, {metadata: metadata(conversation)});
+      await store.setJSON(eventKey, {status: 'processed', replied: false, conversationId, state: conversation.state,
+        routedTo: 'producer', routeReason: 'automation_paused', occurredAt, processedAt: nowIso(options)},
+        {metadata: {status: 'processed', replied: false, createdAt: occurredAt, updatedAt: nowIso(options)}});
+      return json({ok: true, replied: false, routedTo: 'producer', routeReason: 'automation_paused'});
+    }
+
     // Aged-lead re-engagement replies are interpreted before the generic callback
     // heuristic. This is essential for replies like "December", which should be
     // captured as an x-date rather than mistaken for appointment scheduling.
@@ -580,6 +594,9 @@ export async function handleRingCentralWebhook(request, options = {}) {
           conversation.retryPending = false;
           replied = true;
         } catch (sendError) {
+            if (['sms_automation_paused', 'sms_channel_suppressed'].includes(sendError?.code)) {
+              conversation = normalizeLiveConversation(await store.get(conversationKey)) || conversation;
+            }
           const retry = await queueSmsRetry(store, {
             conversationId,
             to: event.fromNumber,
@@ -591,7 +608,7 @@ export async function handleRingCentralWebhook(request, options = {}) {
             ownershipEffect: 'preserve',
             replyContext: agedLeadResult.replyContext || '',
             replyContextTtlSeconds: agedLeadResult.replyContext ? 21 * 86400 : 0,
-            error: sendError?.message
+            errorCode: sendError?.code, error: sendError?.message
           }, options);
           conversation.deliveryFailure = { at: occurredAt, code: text(sendError?.code, 'ringcentral_send_failed'), message: 'Aged-lead SMS delivery failed and was queued for retry.' };
           conversation.retryPending = Boolean(retry);
@@ -629,7 +646,7 @@ export async function handleRingCentralWebhook(request, options = {}) {
         const exitsScheduling = callAnytime || callNow;
         conversation = callbackResult.conversation;
         conversation.preTakeoverState = conversation.orchestration?.workflow?.state || conversation.preTakeoverState || before;
-        conversation.orchestration = markSpecializedInbound(conversation, 'appointment', { occurredAt, reason: 'callback_scheduling_reply' });
+        if (!callbackResult.handoff) conversation.orchestration = markSpecializedInbound(conversation, 'appointment', { occurredAt, reason: 'callback_scheduling_reply' });
         if (exitsScheduling) {
           conversation.orchestration = clearSmsReplyContext({ ...conversation, orchestration: conversation.orchestration }, { occurredAt });
         }
@@ -656,6 +673,9 @@ export async function handleRingCentralWebhook(request, options = {}) {
             conversation.retryPending = false;
             replied = true;
           } catch (sendError) {
+            if (['sms_automation_paused', 'sms_channel_suppressed'].includes(sendError?.code)) {
+              conversation = normalizeLiveConversation(await store.get(conversationKey)) || conversation;
+            }
             const retry = await queueSmsRetry(store, {
               conversationId,
               to: event.fromNumber,
@@ -665,7 +685,7 @@ export async function handleRingCentralWebhook(request, options = {}) {
               workflow: 'missed_call_callback_v1',
               replyRoute: 'appointment',
               ownershipEffect: 'transfer',
-              error: sendError?.message
+              errorCode: sendError?.code, error: sendError?.message
             }, options);
             conversation.deliveryFailure = { at: occurredAt, code: text(sendError?.code, 'ringcentral_send_failed'), message: 'Callback SMS delivery failed and was queued for retry.' };
             conversation.retryPending = Boolean(retry);
@@ -840,6 +860,9 @@ Dylan will collect any quote or application details during or after your convers
         if (!conversation.welcomeSentAt) conversation.welcomeSentAt = occurredAt;
         replied = true;
       } catch (sendError) {
+            if (['sms_automation_paused', 'sms_channel_suppressed'].includes(sendError?.code)) {
+              conversation = normalizeLiveConversation(await store.get(conversationKey)) || conversation;
+            }
         const retry = await queueSmsRetry(store, {
           conversationId,
           to: event.fromNumber,
@@ -849,7 +872,7 @@ Dylan will collect any quote or application details during or after your convers
           workflow: conversation.orchestration?.workflow?.type || 'coveragefit_intake',
           replyRoute: 'coveragefit',
           ownershipEffect: 'preserve',
-          error: sendError?.message
+          errorCode: sendError?.code, error: sendError?.message
         }, options);
         conversation.deliveryFailure = { at: occurredAt, code: text(sendError?.code, 'ringcentral_send_failed'), message: 'Automated SMS delivery failed and was queued for retry.' };
         conversation.retryPending = Boolean(retry);

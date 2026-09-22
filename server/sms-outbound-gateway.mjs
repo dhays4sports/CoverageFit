@@ -1,3 +1,4 @@
+import {smsAutomationPaused, automaticSmsOrigin} from './sms-safety-core.mjs';
 import { authorizeProducer } from './consultation-inbox-core.mjs';
 import { sha256Hex } from './runtime-crypto.mjs';
 import { normalizeE164, ringCentralConfig, sendRingCentralSms } from './ringcentral-client.mjs';
@@ -320,6 +321,7 @@ function baseConversation(conversationId, descriptor, businessPhone, occurredAt)
 }
 
 function channelPermission(conversation, descriptor, options = {}) {
+  if (automaticSmsOrigin(descriptor.origin) && smsAutomationPaused(conversation)) throw new SmsGatewayError('Automation is paused for producer follow-up.', {status: 409, code: 'sms_automation_paused'});
   const permission = smsPermissionSnapshot(conversation, { occurredAt: options.occurredAt });
   const orchestration = normalizeSmsOrchestration({ ...conversation, smsConsent: permission.consent });
   if (!permission.allowed) {
@@ -545,7 +547,9 @@ export async function sendSmsThroughGateway(input = {}, options = {}) {
   const fingerprint = await writeFingerprintRegistration(store, descriptor, { businessPhone: config.fromNumber, registeredAt: occurredAt, registrationId, status: 'pending' });
   let sent;
   try {
-    // Re-check the authoritative channel permission immediately before provider delivery.
+    // Reload persisted consent/ownership; a snapshot can predate a manual reply or STOP.
+    const latest = await store.get(conversationKey);
+    if (latest) channelPermission(latest, descriptor, { ...options, occurredAt: nowDate(options).toISOString() });
     channelPermission(conversation, descriptor, { ...options, occurredAt: nowDate(options).toISOString() });
     sent = await sendRingCentralSms({ to: descriptor.to, textBody: descriptor.message }, env, options);
   } catch (cause) {
@@ -558,7 +562,14 @@ export async function sendSmsThroughGateway(input = {}, options = {}) {
   const sentAt = nowDate(options).toISOString();
   const provider = await writeProviderRegistration(store, fingerprint.record, providerMessageId, { sentAt, onlyIfNew: true, now: options.now });
   await store.setJSON(fingerprint.key, { ...provider.record, expiresAt: fingerprint.record.expiresAt }, { metadata: { ...registryMetadata(provider.record), expiresAt: fingerprint.record.expiresAt } });
-  conversation = applyRegisteredOutboundToConversation(conversation, provider.record, { providerMessageId, message: descriptor.message, occurredAt: sentAt, now: options.now });
+  const afterDelivery = await store.get(conversationKey);
+  const preserveControl = afterDelivery && (smsAutomationPaused(afterDelivery) || !smsPermissionSnapshot(afterDelivery, {occurredAt: sentAt}).allowed);
+  conversation = applyRegisteredOutboundToConversation(preserveControl ? afterDelivery : conversation, provider.record, { providerMessageId, message: descriptor.message, occurredAt: sentAt, now: options.now });
+  if (preserveControl) {
+    conversation.orchestration = afterDelivery.orchestration;
+    conversation.smsConsent = afterDelivery.smsConsent;
+    conversation.state = afterDelivery.state;
+  }
   await store.setJSON(conversationKey, conversation, { metadata: {
     state: conversation.state || '', intent: conversation.intent || '', owner: conversation.orchestration?.ownership?.owner || '', automationMode: conversation.orchestration?.automationMode || '',
     workflowType: conversation.orchestration?.workflow?.type || '', outboundOrigin: descriptor.origin, replyRoute: descriptor.replyRoute,

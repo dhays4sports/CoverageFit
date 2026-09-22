@@ -1,3 +1,5 @@
+import {smsAutomationPaused} from './sms-safety-core.mjs';
+import {takeProducerOwnership, clearSmsReplyContext} from './sms-orchestrator-core.mjs';
 import { authorizeProducer } from './consultation-inbox-core.mjs';
 import { normalizeE164 } from './ringcentral-client.mjs';
 import { smsLiveConversationId, sendSmsThroughGateway } from './sms-outbound-gateway.mjs';
@@ -263,6 +265,7 @@ function scheduledTimingCandidate(body, options = {}) {
 }
 
 export function shouldHandleCallbackInbound(conversation = {}, body, options = {}) {
+  if (smsAutomationPaused(conversation)) return false;
   const callback = conversation.callbackScheduling && typeof conversation.callbackScheduling === 'object' ? conversation.callbackScheduling : {};
   const scheduled = callback.status === 'scheduled';
   const command = callbackCommand(body);
@@ -282,6 +285,7 @@ export function shouldHandleCallbackInbound(conversation = {}, body, options = {
   const replyContext = conversation.orchestration?.replyContext?.context === 'callback_time_request';
   if (command === 'callback' || command === 'anytime' || command === 'call_now') return true;
   if (explicitNonCallback(body)) return Boolean(active && ['cancel', 'status'].includes(command));
+  if (callbackDeferral(body) && (active || replyContext || recentCallbackInvitation(conversation, options))) return true;
   if (independentProducerRequest(body)) return false;
   if (active || replyContext || recentCallbackInvitation(conversation, options)) return true;
   // RingCentral's instant SMS webhook is inbound-focused, so an AgencyZoom
@@ -627,8 +631,33 @@ export async function markCallbackSequenceReplied(conversation, body, options = 
   await stopSequence(options.store, conversation, outcome, options);
 }
 
+function callbackDeferral(body) {
+  return /\b(?:text|message|email)\b|\b(?:i(?:['’]ll| will) see|best i can do|not sure|let you know|my (?:dad|mom|father|mother)|maybe|possibly)\b/i.test(cleanLine(body, 500));
+}
+function callbackHandoff(conversation, body, reason, options) {
+  const at = nowDate(options).toISOString();
+  const next = {...conversation, state: 'human_takeover', callbackScheduling: {
+    ...conversation.callbackScheduling, status: 'producer_confirmation_needed',
+    handoffReason: reason, requestedRaw: cleanLine(body, 500), followupRequested: reason === 'deferred', updatedAt: at
+  }};
+  next.orchestration = takeProducerOwnership(next, {occurredAt: at, reason: `callback_safety:${reason}`});
+  next.orchestration = clearSmsReplyContext(next, {occurredAt: at});
+  return {handled: true, handoff: true, conversation: next, reply: ''};
+}
 export async function handleCallbackInbound(conversation = {}, body, options = {}) {
+  if (smsAutomationPaused(conversation)) return {handled: false, conversation, reply: ''};
+  if (shouldHandleCallbackInbound(conversation, body, options) && callbackDeferral(body)) {
+    await stopSequence(options.store, conversation, 'engaged', options);
+    return callbackHandoff(conversation, body, 'deferred', options);
+  }
   const result = await handleCallbackTurn(conversation, body, options);
+  const unresolved = result.handled && result.reply && /\?/.test(result.reply)
+    && !['scheduled', 'awaiting_confirmation'].includes(result.conversation.callbackScheduling?.status);
+  if (unresolved) {
+    const count = Number(conversation.callbackScheduling?.clarificationCount || 0);
+    if (count >= 1) return callbackHandoff(result.conversation, body, 'clarification_limit', options);
+    result.conversation = {...result.conversation, callbackScheduling: {...result.conversation.callbackScheduling, clarificationCount: count + 1}};
+  }
   if (result.handled && result.reply && !result.conversation.callbackScheduling?.assistantIntroducedAt) {
     result.reply = `I’m Dylan’s automated scheduling assistant. ${result.reply}`;
     result.conversation = {...result.conversation, callbackScheduling: {...result.conversation.callbackScheduling, assistantIntroducedAt: nowDate(options).toISOString()}};
