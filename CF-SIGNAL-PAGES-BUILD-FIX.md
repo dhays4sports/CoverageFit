@@ -15,3 +15,7 @@ Closing-flow's remaining JSON import was fixed at 2b58e1ead97083baa2d364a5a4c16b
 Operator screenshots verify Preview (all non-production branches) COVERAGEFIT_DB -> coveragefit-signal-preview, with api_rate_limits(bucket_key TEXT PRIMARY KEY, request_count INTEGER NOT NULL DEFAULT 0, reset_at INTEGER NOT NULL) and idx_api_rate_limits_reset_at. Production binding remains coveragefit-production. Preview contains the exact CF_SIGNAL_ALLOWED_ORIGINS variable.
 
 The deployed Signal API still reports rate_limit_unavailable. Current settings/schema evidence does not prove that the last deployed Functions bundle received the binding. This documentation-only commit triggers a fresh Git-integrated feature preview to distinguish stale deployment configuration from a runtime database failure. No production setting or application logic is changed. Browser gate remains blocked until successful evaluation and the full matrix are verified.
+
+## Runtime binding recovery — 2026-09-22
+
+Live request logs from deployment 347fdab6 at 18:53:19 UTC confirm reason binding_missing: the limiter received no usable COVERAGEFIT_DB binding, before executing SQL. The Signal route passes the original Pages context directly to the limiter. The operator has now recreated the Preview-only COVERAGEFIT_DB binding to the existing coveragefit-signal-preview database. This documentation commit triggers a fresh preview with that configuration. Runtime recovery and browser certification remain unverified pending retest; no production configuration or database changes were made by this commit.
