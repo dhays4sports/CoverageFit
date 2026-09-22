@@ -23,3 +23,5 @@ Live request logs from deployment 347fdab6 at 18:53:19 UTC confirm reason bindin
 ## Life preview origin — 2026-09-22
 
 Operator confirms saving the exact signal-life-1-0.408farmers-v2.pages.dev HTTPS origin alongside the bridge origin in Preview CF_SIGNAL_ALLOWED_ORIGINS. This documentation-only commit triggers a fresh feature preview to apply that setting. Life pilot browser verification follows; no production configuration or application logic change.
+
+The operator's saved second origin had https// instead of https://. The colon was corrected and saved in Preview on2026-09-22. This documentation commit triggers the fresh preview required to apply the corrected exact origin; no CORS matching rules or production settings change.
