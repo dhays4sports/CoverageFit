@@ -1,4 +1,4 @@
-import producer from '../producer.json' with {type:'json'};
+import producer from './producer-config.mjs';
 import {authorizeProducer} from './consultation-inbox-core.mjs';
 import {resolveProducerEnvironment} from './cloudflare-pages-handlers.mjs';
 import {withD1RateLimit} from './cloudflare-rate-limit.mjs';
