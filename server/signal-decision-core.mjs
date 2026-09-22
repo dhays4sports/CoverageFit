@@ -17,7 +17,7 @@ const PROHIBITED_KEYS=new Set([
   'name','firstname','first_name','lastname','last_name','email','phone','mobile','dob','dateofbirth',
   'date_of_birth','ssn','socialsecuritynumber','social_security_number','driverlicense','driver_license',
   'medicalhistory','medical_history','healthinformation','health_information','vin','fulladdress','full_address',
-  'street','streetaddress','street_address','address'
+  'street','streetaddress','street_address','address','health'
 ]);
 const ENUM_RE=/^[a-z0-9][a-z0-9_:-]{0,79}$/;
 const DATE_RE=/^\d{4}-\d{2}-\d{2}$/;
@@ -121,6 +121,8 @@ function normalizeAttribution(raw={}){
 export function normalizeSignalDecisionInput(raw={}){
   if(!isObject(raw))fail(400,'json','The Signal Decision request must be an object.');
   scanProhibitedKeys(raw);
+  const allowedFields=new Set(['schemaVersion','signalSessionId','flowId','flowVersion','canonicalSignals','attribution']);
+  if(Object.keys(raw).some(key=>!allowedFields.has(key)))fail(422,'request_field','Unsupported Signal Decision request field.');
   const schemaVersion=clean(raw.schemaVersion||SIGNAL_DECISION_SCHEMA,20);
   if(schemaVersion!==SIGNAL_DECISION_SCHEMA)fail(422,'schema_version','Unsupported Signal Decision schema version.');
   const signalSessionId=clean(raw.signalSessionId,120);
@@ -405,6 +407,12 @@ export function deriveSignalDecision(raw={},now=new Date()){
     decision=weak;state='signal_only';
   }else if(opening){
     decision='ASK_ONE_SIGNAL';state='signal_developing';question=opening;
+  }else if(!input.canonicalSignals.shoppingIntent){
+    // A concrete need is not explicit willingness to compare or buy.
+    // Opportunity heuristics may credit a review reason as intent; anonymous
+    // Signal routing must ask for the visitor's own answer before handoff.
+    question=nextQuestion(priority.track,'intent',input.canonicalSignals);
+    decision='ASK_ONE_SIGNAL';state='signal_developing';
   }else if(priority.status!=='ready'){
     question=nextQuestion(priority.track,priority.missingCriticalFact,input.canonicalSignals);
     decision='ASK_ONE_SIGNAL';state='signal_developing';
