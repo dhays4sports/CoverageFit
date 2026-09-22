@@ -8,10 +8,6 @@ function attachCors(response,origin){
 }
 
 export const onRequest=async context=>{
-  // TEMPORARY preview-only CORS failure fixture; remove immediately after QA.
-  if(new URL(context.request.url).hostname==='cf-signal-decision-1-0.coveragefit.pages.dev' && context.request.headers.get('Origin')==='https://signal-decision-bridge-1-0.408farmers-v2.pages.dev'){
-    return new Response(JSON.stringify({ok:false,error:{code:'origin_not_allowed',message:'Preview failure exercise'}}),{status:403,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
-  }
   const origin=allowedSignalOrigin(context.request,context.env||{});
   if(context.request.method==='OPTIONS'||!origin){
     return handleSignalDecision(context.request,{env:context.env||{},now:context.now||new Date()});
