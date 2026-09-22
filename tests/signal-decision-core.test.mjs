@@ -181,3 +181,10 @@ assert.throws(
 }
 
 console.log('CF-SIGNAL-DECISION-1.0 tests passed');
+
+// Anonymous need must not substitute for explicit shopping intent.
+assert.equal(decision({product:'home',reviewReason:'nonrenewal_notice'}).public.nextQuestionId,'home_shopping_intent');
+assert.equal(decision({product:'home',reviewReason:'nonrenewal_notice',decisionTiming:'within_14'}).public.nextQuestionId,'home_shopping_intent');
+assert.throws(()=>normalizeSignalDecisionInput({...base({product:'life'}),health:'synthetic'}),e=>e.code==='pii_not_allowed');
+assert.throws(()=>normalizeSignalDecisionInput({...base({product:'life'}),unrecognizedNotes:'synthetic'}),e=>e.code==='request_field');
+console.log('PASS explicit anonymous intent and strict request envelope regressions');
