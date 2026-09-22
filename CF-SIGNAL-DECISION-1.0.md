@@ -199,3 +199,10 @@ This build does not:
 - migrate a 408FARMERS production page
 
 The next 408FARMERS package should replace the local lab decision adapter with this API and then build the Life pilot on top of the same Signal Shell.
+
+
+## Offline integration corrections — 2026-09-22
+
+Anonymous routing now requires explicit shoppingIntent after the opening need question, before relying on Opportunity Priority completeness. A Home nonrenewal reason alone must not substitute for willingness to compare. Score weights and persisted Opportunity behavior remain unchanged. Unknown top-level request fields are rejected; health is explicitly prohibited.
+
+Weak Life research intentionally returns OFFER_LEARN before requesting timing. Browser/Cloudflare certification remains deferred, not passed. See the bridge repository SIGNAL_REMOTE_BROWSER_QA_1.0.md for offline evidence and remaining gates.
