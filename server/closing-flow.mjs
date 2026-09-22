@@ -1,4 +1,4 @@
-import producer from '../producer.json' with {type:'json'};
+import producer from '../producer.json';
 import {clean} from '../assets/js/recommendation-model.mjs';
 
 export const CLOSE_BUILD='CF-CLOSE-1.0';
