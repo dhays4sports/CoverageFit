@@ -114,3 +114,29 @@ test('inbound webhook checkpoint cannot skip older outbound history on upgrade',
  await recoverMissedRingCentralSms({...opts,env,store,listHistory:async input=>{from=input.dateFrom;return {records:[],hasMore:false};},processEvent:async()=>({ok:true})});
  assert.equal(from,'2026-09-19T22:00:00.000Z');assert.equal((await store.get(RINGCENTRAL_RECOVERY_CURSOR_KEY)).historyDirections,'both');
 });
+test('large newest-first history drains oldest complete slices without gaps',async()=>{
+ const store=memoryStore(); const seen=[];
+ const start=Date.parse(opts.now)-72*3600000;
+ const history=Array.from({length:15},(_,i)=>historyRecord('batch-'+i,i%2?'Inbound':'Outbound','test',new Date(start+(i+1)*4*3600000).toISOString()));
+ const listHistory=async input=>{
+  const matches=history.filter(r=>Date.parse(r.creationTime)>=Date.parse(input.dateFrom)&&Date.parse(r.creationTime)<=Date.parse(input.dateTo)).reverse();
+  const offset=(input.page-1)*input.perPage;
+  return {records:matches.slice(offset,offset+input.perPage),hasMore:offset+input.perPage<matches.length};
+ };
+ let result;
+ for(let run=0;run<30;run++){
+  result=await recoverMissedRingCentralSms({...opts,env:{...env,RINGCENTRAL_RECOVERY_MAX_MESSAGES:'3'},store,listHistory,processEvent:async p=>{seen.push(p.body.id);await store.setJSON('sms-live-events/'+p.body.id,{ok:true});return {ok:true};}});
+  if(result.status==='completed')break;
+  assert.equal(result.status,'catching_up');
+ }
+ assert.equal(result.status,'completed');
+ assert.deepEqual(seen,history.map(r=>r.id));
+ assert.equal((await store.get(RINGCENTRAL_RECOVERY_CURSOR_KEY)).pendingFrom,'');
+});
+test('unfinished recovery preserves its start beyond the moving lookback floor',async()=>{
+ const store=memoryStore(); const pending='2026-09-18T00:00:00.000Z';
+ await store.setJSON(RINGCENTRAL_RECOVERY_CURSOR_KEY,{historyDirections:'both',pendingFrom:pending});
+ let actual;
+ await recoverMissedRingCentralSms({...opts,env,store,listHistory:async input=>{actual=input.dateFrom;return {records:[],hasMore:false};},processEvent:async()=>({ok:true})});
+ assert.equal(actual,pending);
+});
