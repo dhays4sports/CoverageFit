@@ -51,16 +51,17 @@ export function normalizeAcquisitionTouch(input={}){
   const utm=attribution.utm&&typeof attribution.utm==='object'?attribution.utm:{};
   const sourceKey=nonempty(input.sourceKey||attribution.sourceKey),campaignId=nonempty(input.campaignId||attribution.campaignId||utm.campaign||attribution.campaign),campaignVariant=nonempty(input.campaignVariant||attribution.campaignVariant||utm.content),partnerId=nonempty(input.partnerId||attribution.partnerId),batchId=nonempty(input.batchId||attribution.batchId);
   const touch={
-    sourceFamily:deriveSourceFamily({sourceFamily:input.sourceFamily,sourceKey,utmSource:utm.source,utmMedium:utm.medium,source:input.source||attribution.source||attribution.sourceLabel}),
+    sourceFamily:deriveSourceFamily({sourceFamily:input.sourceFamily||attribution.sourceFamily,sourceKey,utmSource:input.utmSource||attribution.utmSource||utm.source,utmMedium:input.utmMedium||attribution.utmMedium||utm.medium,source:input.source||attribution.source||attribution.sourceLabel}),
     sourceKey,
     campaignId,
     campaignVariant,
+    creative:nonempty(input.creative||attribution.creative),
     partnerId,
     batchId,
-    utm:{source:nonempty(utm.source),medium:nonempty(utm.medium),campaign:nonempty(utm.campaign),content:nonempty(utm.content),term:nonempty(utm.term)},
+    utm:{source:nonempty(input.utmSource||attribution.utmSource||utm.source),medium:nonempty(input.utmMedium||attribution.utmMedium||utm.medium),campaign:nonempty(input.utmCampaign||attribution.utmCampaign||utm.campaign),content:nonempty(input.utmContent||attribution.utmContent||utm.content),term:nonempty(input.utmTerm||attribution.utmTerm||utm.term)},
     source:nonempty(input.source||attribution.source||attribution.sourceLabel),
-    landingPage:nonempty(attribution.landingPage),
-    occurredAt:date(input.occurredAt||input.updatedAt)||stamp(),
+    landingPage:nonempty(input.landingPage||attribution.landingPage),
+    occurredAt:date(input.occurredAt||attribution.occurredAt||input.updatedAt)||stamp(),
     basis:nonempty(input.basis)||'derived'
   };
   return Object.freeze(touch);
@@ -110,7 +111,7 @@ async function boundPremiumEvidence(repo,opportunityId){
     const outcome=parse(rec.outcome_json);if(!['bound','partial'].includes(outcome.kind)||!Array.isArray(outcome.policyIds)||!outcome.policyIds.length)continue;
     const revision=await repo.sql('SELECT payload_json,created_at FROM cf_recommendation_revisions WHERE recommendation_id=? AND revision=?',id,rec.current_revision).first();if(!revision)continue;
     const payload=parse(revision.payload_json),policies=(payload.options||[]).flatMap(o=>(o.policies||[]).map(p=>({...p,optionId:o.id}))),ids=new Set(outcome.policyIds.map(String));
-    for(const policy of policies){if(!ids.has(String(policy.id)))continue;const premium=Number(policy.termPremium);if(!Number.isFinite(premium)||premium<0)continue;const pc=Math.round(premium*100);total+=pc;evidence.push({recommendationId:id,revision:rec.current_revision,policyId:String(policy.id),product:clean(policy.product,100),termMonths:Number(policy.termMonths)||null,termPremiumCents:pc,evidence:'producer-confirmed bound policy + approved recommendation revision'});}
+    for(const policy of policies){if(!ids.has(String(policy.id)))continue;if(policy.termPremium==null||String(policy.termPremium).trim()==='')continue;const premium=Number(policy.termPremium);if(!Number.isFinite(premium)||premium<0)continue;const pc=Math.round(premium*100);total+=pc;evidence.push({recommendationId:id,revision:rec.current_revision,policyId:String(policy.id),product:clean(policy.product,100),termMonths:Number(policy.termMonths)||null,termPremiumCents:pc,evidence:'producer-confirmed bound policy + approved recommendation revision'});}
     boundAt=earliest([boundAt,outcome.updatedAt,revision.created_at]);
   }
   return {boundAt,totalCents:evidence.length?total:null,evidence};
@@ -194,7 +195,7 @@ function blankGroup(key,attribution={}){return {key,sourceFamily:attribution.sou
 function groupKey(a){return a.campaign_id?`campaign:${a.campaign_id}`:`source:${a.source_family}:${a.source_key||'unclassified'}:${a.partner_id||''}:${a.batch_id||''}`;}
 function finalize(group,rate){
   const ratio=(a,b)=>b?Math.round((a/b)*1000)/10:null;
-  return {...group,qualifiedPer1000Exposures:group.exposures?Math.round((group.qualified*100000)/group.exposures)/100:null,boundPer1000Exposures:group.exposures?Math.round((group.bound*100000)/group.exposures)/100:null,premiumPer1000ExposuresCents:group.exposures?Math.round((group.boundPremiumCents*1000)/group.exposures):null,quoteRatePct:ratio(group.quotesPrepared,group.qualified),recommendationRatePct:ratio(group.recommendationsDelivered,group.quotesPrepared),closeAskRatePct:ratio(group.closeAsked,group.recommendationsDelivered),bindRatePct:ratio(group.bound,group.qualified),costPerBoundRelationshipCents:group.bound&&group.spendCents?Math.round(group.spendCents/group.bound):null,premiumPerAcquisitionDollar:group.spendCents?Math.round((group.boundPremiumCents/group.spendCents)*100)/100:null,firstYearCommissionPerAcquisitionDollar:group.spendCents&&rate!=null?Math.round(((group.boundPremiumCents*rate)/group.spendCents)*100)/100:null,producerMinutesPerBind:group.bound&&group.producerMinutes?Math.round((group.producerMinutes/group.bound)*10)/10:null,premiumPerProducerHourCents:group.producerMinutes?Math.round((group.boundPremiumCents*60)/group.producerMinutes):null,effortCoveragePct:ratio(group.effortMeasuredOpportunities,group.opportunities)};
+  return {...group,producerMinutes:group.effortMeasuredOpportunities?group.producerMinutes:null,qualifiedPer1000Exposures:group.exposures?Math.round((group.qualified*100000)/group.exposures)/100:null,boundPer1000Exposures:group.exposures?Math.round((group.bound*100000)/group.exposures)/100:null,premiumPer1000ExposuresCents:group.exposures?Math.round((group.boundPremiumCents*1000)/group.exposures):null,quoteRatePct:ratio(group.quotesPrepared,group.qualified),recommendationRatePct:ratio(group.recommendationsDelivered,group.quotesPrepared),closeAskRatePct:ratio(group.closeAsked,group.recommendationsDelivered),bindRatePct:ratio(group.bound,group.qualified),costPerBoundRelationshipCents:group.bound&&group.spendCents?Math.round(group.spendCents/group.bound):null,premiumPerAcquisitionDollar:group.spendCents?Math.round((group.boundPremiumCents/group.spendCents)*100)/100:null,firstYearCommissionPerAcquisitionDollar:group.spendCents&&rate!=null?Math.round(((group.boundPremiumCents*rate)/group.spendCents)*100)/100:null,producerMinutesPerBind:group.bound&&group.producerMinutes?Math.round((group.producerMinutes/group.bound)*10)/10:null,premiumPerProducerHourCents:group.producerMinutes?Math.round((group.boundPremiumCents*60)/group.producerMinutes):null,effortCoveragePct:ratio(group.effortMeasuredOpportunities,group.opportunities)};
 }
 
 export function acquisitionMeasurement(repo,env={}){

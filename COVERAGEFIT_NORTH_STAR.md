@@ -445,3 +445,18 @@ CoverageFit now exposes a public `/support/` destination suitable for third-part
 
 CoverageFit now exposes a public agent-API discovery endpoint at `/api/agent`, a human-readable `/docs/agent-api/` reference, and an OpenAPI 3.0.3 document at `/openapi.json`. These surfaces document the existing `CF-AGENT-CAPABILITY-1.0` contract for connector review without expanding its authority or capability set. The public docs identify the California-only jurisdiction, existing `408d_...` contact requirement, custom signed `X-Mesh-Service-Auth` boundary, fresh Mesh `ALLOW` requirement, CoverageFit consent checks, idempotency/replay protections, exact inputs for the three bounded capabilities, and the `PREPARE_ONLY` versus explicitly enabled `LIVE_BOUNDED` execution modes. This release does not enable live execution, add new-contact registration, expose CRM data, add quoting/binding, or treat a third-party platform as insurance authority.
 
+
+## SIGNAL-NORTH-STAR-1.0 — Future economic decision layer
+
+Current runtime: **Signal → Evidence → Deterministic Priority / State → NBA → Execution → Outcome**.
+Future direction: **Signal → Evidence → State → Action EV → Execution → Outcome → Learning**.
+
+Action EV is future calibration, not current runtime behavior. Opportunity Priority is Need / Intent / Timing / Fit; FIV is Fit / Intent / Value; NBA selects the next action. None is P(Bind): 82 priority points never means an 82% bind probability. Value is not a fifth Priority dimension. Explicit customer state and suppression outrank scores.
+
+The economic unit is evidence plus a selected action, not an undifferentiated lead. Current intent must be earned by fresh evidence; passed timing becomes UNKNOWN / NEEDS REFRESH. Ask one question only when its answer can change evidence, state, priority or routing. ZERO-REPEAT preserves Evidence(t+1) = Evidence(t) + New Evidence across governed channel transitions; it never authorizes silent anonymous-to-identified stitching.
+
+Optimize useful revenue / producer hour and producer effort / useful conversation. A useful negative disposition can save time without being sales-positive. Preserve Future Bind context instead of repeatedly calling now. CLOSED means no opportunity; STOP means hard suppression.
+
+Future EV(action | state) = expected incremental customer value − expected execution cost. Contactability, response velocity and channel responsiveness may later inform execution success/cost, not intrinsic person quality. No arbitrary points, numeric EV, fake DIG/$ or automatic weight changes are introduced. Calibration remains observational; scoring changes require human review and a new engine version.
+
+market.ad integration is deferred. It is one potential acquisition source, not the North Star. Generic attribution, canonical Signal, exposure, spend and outcome contracts should allow future source and feedback adapters without a core rewrite. Channel economics remain separate from individual opportunity quality. The system must work if market.ad never launches. See [the economic roadmap and conformance evidence](docs/SIGNAL-NORTH-STAR-1.0.md).

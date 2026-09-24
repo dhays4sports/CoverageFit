@@ -1,3 +1,5 @@
+> Historical checkpoint snapshot. SIGNAL-NORTH-STAR-1.0.md records the subsequent production-first hardening mandate. The manual configuration requirements below remain unresolved until Dylan confirms them.
+
 # Signal production cutover — checkpoint A
 
 Cloudflare configuration is exclusively manual. No Cloudflare configuration, database or deployment settings were changed by the agent.
