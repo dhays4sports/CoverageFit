@@ -393,7 +393,7 @@ async function hmacHex(secret, message) {
   return [...new Uint8Array(signature)].map(byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
-async function authenticateIntake(request, raw, options = {}) {
+export async function authenticateIntake(request, raw, options = {}) {
   const secret = clean(options.env?.COVERAGEFIT_LEAD_SYNC_SECRET, 500);
   if (secret.length < 32) return { ok: false, response: error(503, 'intake_not_configured', 'Secure lead intake is not configured.') };
   const sentAt = clean(request.headers.get('x-coveragefit-sent-at'), 30);
