@@ -37,3 +37,6 @@ Open CoverageFit `/agent/solo-desk/` using existing producer authentication. Fin
 - Functions bundle compiled successfully.
 
 Hosted end-to-end delivery and authenticated producer visibility must be verified after configuration. Until then, this is implemented and locally verified, not certified ready for real traffic.
+
+## Hosted check, September 24, 2026
+The deployed Home form loads, resumes prior answers, opens contact choice, reveals a Pacific callback window and requires explicit permission. A synthetic submission returned the unconfirmed-delivery state; hosted receipt and producer visibility are NOT verified. Cloudflare dashboard access stopped at security verification, so configuration could not be changed from this session. Configure the Preview settings above and redeploy both branches before repeating the synthetic test. Keep real traffic on the existing live Home route until this gate passes.
