@@ -1,3 +1,5 @@
+> Production cutover now follows SIGNAL-PRODUCTION-CUTOVER-20260924.md. Preview settings below are historical; retain for QA provenance.
+
 # Home Signal — contact handoff v1
 
 ## Delivered flow
@@ -26,7 +28,7 @@ CoverageFit Cloudflare Pages project, Preview environment / `cf-signal-sms-integ
 Redeploy both previews after configuration changes. Do not alter production bindings or replace `/home/` for this validation.
 
 ## Operator steps
-Open CoverageFit `/agent/solo-desk/` using existing producer authentication. Find the submitted synthetic name. Open Original inquiry to see Home questions/answers, requested method and callback window. Contact manually using the selected method. A window is not an appointment; confirm availability directly with the prospect.
+Open CoverageFit `/agent/workspace/` using existing producer authentication. Find the submitted synthetic name. Open Original inquiry to see Home questions/answers, requested method and callback window. Contact manually using the selected method. A window is not an appointment; confirm availability directly with the prospect.
 
 ## Validation
 - Backend: `node --test tests/signal-home-handoff.test.mjs` (4 tests).
