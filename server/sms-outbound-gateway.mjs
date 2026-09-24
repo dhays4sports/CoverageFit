@@ -321,6 +321,8 @@ function baseConversation(conversationId, descriptor, businessPhone, occurredAt)
 }
 
 function channelPermission(conversation, descriptor, options = {}) {
+  if (conversation.signal?.contact_suppressed) throw new SmsGatewayError('Contact suppressed as wrong number/spam.', {status:409,code:'sms_channel_suppressed'});
+  if (options.env?.CF_SMS_SIGNAL_ENABLED === '1' && conversation.signal?.managed && automaticSmsOrigin(descriptor.origin)) throw new SmsGatewayError('Signal pilot requires producer approval; AgencyZoom owns campaign timing.', {status:409,code:'sms_automation_paused'});
   if (automaticSmsOrigin(descriptor.origin) && smsAutomationPaused(conversation)) throw new SmsGatewayError('Automation is paused for producer follow-up.', {status: 409, code: 'sms_automation_paused'});
   const permission = smsPermissionSnapshot(conversation, { occurredAt: options.occurredAt });
   const orchestration = normalizeSmsOrchestration({ ...conversation, smsConsent: permission.consent });

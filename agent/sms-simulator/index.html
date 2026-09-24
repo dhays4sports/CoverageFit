@@ -149,7 +149,7 @@
         </aside>
       </div>
     </section>
-  </main>
+  <section id="signalDesk" class="sim-card"><h2>SMS Decision Queue</h2><p id="signalStatus" role="status">Use your existing producer access key, then refresh.</p><div class="sim-actions"><button id="signalRefresh" type="button">Refresh decisions</button><select id="signalView" aria-label="Decision view"><option value="all">All decisions</option><option value="call">CALL NOW — high / urgent</option><option value="future">Future Bind</option></select></div><p id="signalMetrics"></p><div id="signalCards"></div><details><summary>Signal simulator — fictional data only; never sends</summary><label>Previous outbound<input id="signalPrevious" value="Is this for auto, home, or both?"></label><label>Inbound reply<input id="signalInbound" value="Auto"></label><button id="signalSimulate" type="button">Simulate Decision 2</button><pre id="signalResult"></pre></details><details><summary>AgencyZoom template registry</summary><p>Patterns are normalized literal phrases. Every phrase must match. Review these example templates against your actual AgencyZoom copy.</p><textarea id="signalTemplates" rows="10" aria-label="Template registry JSON"></textarea><button id="signalSaveTemplates" type="button">Save registry</button></details></section></main>
   <script src="/assets/js/sms-simulator.js"></script>
-</body>
+<script src="/assets/js/sms-signal.js"></script></body>
 </html>

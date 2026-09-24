@@ -98,3 +98,6 @@ button { cursor: pointer; }
 
 .sim-summary{white-space:pre-wrap;margin:12px 0 0;padding:14px;border:1px solid rgba(11,47,87,.12);border-radius:12px;background:#f7f9fb;color:#173047;font:600 13px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;overflow-wrap:anywhere}
 .sim-live-queue{display:grid;gap:12px;margin-top:12px}.sim-live-item{border:1px solid rgba(11,47,87,.12);border-radius:12px;padding:12px;background:#fff}.sim-live-item pre{margin:0 0 10px;white-space:pre-wrap;font:600 12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;color:#173047}.sim-live-actions{display:flex;gap:8px;flex-wrap:wrap}.sim-live-actions button{font-size:12px;padding:8px 10px}
+
+#signalDesk{margin-top:24px}#signalDesk textarea,#signalDesk input{width:100%;padding:10px}#signalDesk button,#signalDesk select{padding:10px;margin:4px;cursor:pointer}#signalDesk button:disabled{opacity:.5;cursor:not-allowed}#signalDesk pre{white-space:pre-wrap;overflow-wrap:anywhere}.signal-card{margin:16px 0}.signal-warning{border-left:4px solid #b45309;padding:10px;background:#fff8e5}
+#signalDesk .sim-actions--inline{display:flex;flex-wrap:wrap;gap:6px}#signalDesk .sim-actions--inline button{flex:0 1 auto}#signalDesk select{max-width:100%;margin-left:0}
