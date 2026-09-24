@@ -1,3 +1,4 @@
+import {handleSmsSignal} from './sms-signal-api.mjs';
 import {
   handleConsultationActivity,
   handleConsultationChecklist,
@@ -313,4 +314,8 @@ export function ringCentralSmsMaintenance(context) {
   return withD1RateLimit(context, { route: 'ringcentral-sms-maintenance', limit: 6, windowSeconds: 60 }, () =>
     handleRingCentralMaintenance(context.request, smsOptions(context))
   );
+}
+
+export function smsSignal(context) {
+ return withProducerEnvironment(context, env => withD1RateLimit(context,{route:'sms-signal',limit:120,windowSeconds:60},()=>handleSmsSignal(context.request,smsOptions(context,env))));
 }

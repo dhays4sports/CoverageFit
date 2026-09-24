@@ -1,0 +1,28 @@
+{
+  "build": "CF-SMS-SIGNAL-1.0",
+  "base_commit": "961d242a2fbdfc27f634a9836e66dfb3f2c60ef1",
+  "tests": {
+    "passed": 123,
+    "failed": 0,
+    "inherited": 17,
+    "new": 106
+  },
+  "syntax": {
+    "checked": 175,
+    "failures": 0
+  },
+  "functions_build": "PASS Wrangler 3.114.17",
+  "browser_qa": "PASS synthetic desktop/mobile, CALL/Future filters, Quote Ready/Future summaries, fresh/quote/replay/mismatch scenarios; live provider and protected-flow canaries remain unverified",
+  "production": "NOT_DEPLOYED",
+  "live_messages_sent": 0,
+  "migration_count": 0,
+  "default_send_policy": "review_first",
+  "default_pilot_enabled": false,
+  "publication": "BLOCKED automatic approval review: explicit public-repository publication approval required",
+  "fresh_templates": [
+    "AZ-FRESH-01",
+    "AZ-FRESH-02"
+  ],
+  "synthetic_scenarios": 26,
+  "acceptance_review": "CF-SMS-SIGNAL-1.0_ACCEPTANCE.md"
+}

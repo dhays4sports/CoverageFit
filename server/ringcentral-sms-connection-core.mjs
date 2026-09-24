@@ -1,3 +1,6 @@
+import {enabled as signalEnabled, compliance as signalCompliance, SIGNAL_PREFIX} from './sms-signal-core.mjs';
+import {signalOutbound, signalInbound, recordSignalEvent} from './sms-signal-service.mjs';
+import {smsAutomationPaused} from './sms-safety-core.mjs';
 import { authorizeProducer } from './consultation-inbox-core.mjs';
 import { timingSafeTextEqual } from './runtime-crypto.mjs';
 import { createSmsHandoff } from './sms-handoff-core.mjs';
@@ -187,6 +190,8 @@ function normalizeLiveConversation(value) {
   if (!contactPhone || !businessPhone) return null;
   const state = text(value.state).toLowerCase();
   return {
+    agedLead: value.agedLead && typeof value.agedLead === 'object' ? structuredClone(value.agedLead) : null,
+    signal: value.signal && typeof value.signal === 'object' ? structuredClone(value.signal) : null,
     schemaVersion: '1.6',
     engineBuild: SMS_ENGINE_BUILD,
     build: RC_SMS_CONNECTION_BUILD,
@@ -410,8 +415,14 @@ export async function handleRingCentralWebhook(request, options = {}) {
   const locked = await acquireEvent(store, eventKey, occurredAt);
   if (!locked || await store.get(eventKey).then(value => value?.status !== 'processing')) return json({ ok: true, deduped: true });
 
+  const signalConversationId = await smsLiveConversationId(event.prospectNumber, event.businessNumber, config.conversationHashSecret);
+  const signalLock = signalEnabled(env) ? SIGNAL_PREFIX+'locks/'+signalConversationId : null;
+  if (signalLock) {
+    try { await store.setJSON(signalLock,{at:nowIso(options)},{onlyIfNew:true}); }
+    catch { await store.delete(eventKey); return error(503,'signal_thread_busy','Conversation processing; retry this event.'); }
+  }
   try {
-    const conversationId = await smsLiveConversationId(event.prospectNumber, event.businessNumber, config.conversationHashSecret);
+    const conversationId = signalConversationId;
     const conversationKey = `${LIVE_CONVERSATION_PREFIX}${conversationId}`;
     const stored = normalizeLiveConversation(await store.get(conversationKey));
     const createdAt = stored?.createdAt || occurredAt;
@@ -453,11 +464,13 @@ export async function handleRingCentralWebhook(request, options = {}) {
         occurredAt
       }, options);
       if (registration) {
+        const pausedControl = smsAutomationPaused(conversation) ? {orchestration: conversation.orchestration, state: conversation.state} : null;
         conversation = applyRegisteredOutboundToConversation(conversation, registration, {
           providerMessageId: event.messageId,
           message: event.body,
           occurredAt
         });
+        if (pausedControl) Object.assign(conversation, pausedControl);
         conversation.producerSummary = buildSmsProducerSummary(conversation);
         await store.setJSON(conversationKey, conversation, { metadata: metadata(conversation) });
         await markOutboundRegistrationWebhookSeen(store, registration, event.messageId, occurredAt);
@@ -480,6 +493,14 @@ export async function handleRingCentralWebhook(request, options = {}) {
         await store.setJSON(eventKey, { status: 'processed', replied: false, conversationId, state: conversation.state, direction: 'outbound', automationEcho: true, build: RC_SMS_CONNECTION_BUILD, occurredAt, processedAt }, { metadata: { status: 'processed', replied: false, state: conversation.state, build: RC_SMS_CONNECTION_BUILD, createdAt: occurredAt, updatedAt: processedAt } });
         return json({ ok: true, deduped: false, replied: false, automationEcho: true, state: conversation.state });
       }
+      const signalObserved = await signalOutbound(conversation,{...event,occurredAt},{...options,env,store});
+      if(signalObserved.matched){
+        conversation=signalObserved.conversation;
+        await store.setJSON(conversationKey,conversation,{metadata:metadata(conversation)});
+        await store.setJSON(eventKey,{status:'processed',direction:'outbound',replied:false,conversationId,templateMatched:true,occurredAt,processedAt:nowIso(options)});
+        return json({ok:true,replied:false,templateMatched:true,stageMismatch:!!signalObserved.mismatch});
+      }
+      if(signalEnabled(env)&&conversation.signal)conversation.signal={...conversation.signal,human_active:true,automation_lock:true,reply:'',draft_status:'none',revision:(conversation.signal.revision||0)+1};
       conversation = appendTranscript(conversation, transcriptItem('outbound', event.body, occurredAt, {
         id: `rc-${event.messageId}`,
         kind: 'producer',
@@ -491,6 +512,8 @@ export async function handleRingCentralWebhook(request, options = {}) {
       conversation.preTakeoverState = conversation.orchestration.workflow.state;
       conversation.state = 'human_takeover';
       conversation.manualTakeoverAt = occurredAt;
+      if(signalEnabled(env)&&conversation.signal)await writeOpsAudit(store,'human_takeover',{conversationId,detail:'Unregistered human outbound invalidated the signal draft and locked conversation automation.'},options);
+      await markCallbackSequenceReplied(conversation, event.body, {...options, env, store, now: occurredAt});
       conversation.outboundContext = {
         providerMessageId: event.messageId,
         origin: 'external_unknown',
@@ -525,10 +548,14 @@ export async function handleRingCentralWebhook(request, options = {}) {
     const partnerResolution = resolveSmsPartnerAttribution(event.body, partnerRegistry);
     if (partnerResolution.active) conversation.attribution = partnerResolution.attribution;
 
-    const globalConsentCommand = normalizeSmsCommand(event.body);
+    const globalConsentCommand = signalCompliance(event.body)==='opt_out' ? 'stop' : normalizeSmsCommand(event.body);
     if (globalConsentCommand === 'stop' || globalConsentCommand === 'start') {
       await markCallbackSequenceReplied(conversation, event.body, { ...options, env, store, now: occurredAt });
       conversation = applySmsConsentCommand(conversation, globalConsentCommand, { occurredAt });
+      if(signalEnabled(env)&&globalConsentCommand==='stop'){
+        const signalResult=await signalInbound(conversation,{...event,occurredAt},{...options,env,store});
+        if(signalResult)conversation=signalResult;
+      }
       conversation.updatedAt = occurredAt;
       conversation.producerSummary = buildSmsProducerSummary(conversation);
       await store.setJSON(conversationKey, conversation, { metadata: metadata(conversation) });
@@ -548,6 +575,28 @@ export async function handleRingCentralWebhook(request, options = {}) {
         routedTo: globalConsentCommand === 'stop' ? 'suppressed' : 'consent', routeReason: `global_${globalConsentCommand}_command`,
         consent: conversation.smsConsent, orchestration: orchestrationSummary(conversation)
       });
+    }
+
+    const signalResult=await signalInbound(conversation,{...event,occurredAt},{...options,env,store});
+    if(signalResult){
+      conversation=signalResult;
+      if(signalCompliance(event.body)!=='automatic_response')await markCallbackSequenceReplied(conversation,event.body,{...options,env,store,now:occurredAt});
+      await store.setJSON(conversationKey,conversation,{metadata:metadata(conversation)});
+      await store.setJSON(eventKey,{status:'processed',direction:'inbound',replied:false,conversationId,routeReason:'signal_review_first',decision_2:conversation.signal?.decision_2,occurredAt,processedAt:nowIso(options)});
+      await updateWebhookHealth(store,{success:true},options);
+      return json({ok:true,replied:false,routeReason:'signal_review_first',decision_2:conversation.signal?.decision_2,humanRequired:conversation.signal?.human_required});
+    }
+
+    // Explicit producer takeover wins over every automatic intent/booking router.
+    // STOP/START were processed above and retain priority.
+    if (smsAutomationPaused(conversation)) {
+      await markCallbackSequenceReplied(conversation, event.body, {...options, env, store, now: occurredAt});
+      conversation.producerSummary = buildSmsProducerSummary(conversation);
+      await store.setJSON(conversationKey, conversation, {metadata: metadata(conversation)});
+      await store.setJSON(eventKey, {status: 'processed', replied: false, conversationId, state: conversation.state,
+        routedTo: 'producer', routeReason: 'automation_paused', occurredAt, processedAt: nowIso(options)},
+        {metadata: {status: 'processed', replied: false, createdAt: occurredAt, updatedAt: nowIso(options)}});
+      return json({ok: true, replied: false, routedTo: 'producer', routeReason: 'automation_paused'});
     }
 
     // Aged-lead re-engagement replies are interpreted before the generic callback
@@ -580,6 +629,9 @@ export async function handleRingCentralWebhook(request, options = {}) {
           conversation.retryPending = false;
           replied = true;
         } catch (sendError) {
+            if (['sms_automation_paused', 'sms_channel_suppressed'].includes(sendError?.code)) {
+              conversation = normalizeLiveConversation(await store.get(conversationKey)) || conversation;
+            }
           const retry = await queueSmsRetry(store, {
             conversationId,
             to: event.fromNumber,
@@ -591,7 +643,7 @@ export async function handleRingCentralWebhook(request, options = {}) {
             ownershipEffect: 'preserve',
             replyContext: agedLeadResult.replyContext || '',
             replyContextTtlSeconds: agedLeadResult.replyContext ? 21 * 86400 : 0,
-            error: sendError?.message
+            errorCode: sendError?.code, error: sendError?.message
           }, options);
           conversation.deliveryFailure = { at: occurredAt, code: text(sendError?.code, 'ringcentral_send_failed'), message: 'Aged-lead SMS delivery failed and was queued for retry.' };
           conversation.retryPending = Boolean(retry);
@@ -629,7 +681,7 @@ export async function handleRingCentralWebhook(request, options = {}) {
         const exitsScheduling = callAnytime || callNow;
         conversation = callbackResult.conversation;
         conversation.preTakeoverState = conversation.orchestration?.workflow?.state || conversation.preTakeoverState || before;
-        conversation.orchestration = markSpecializedInbound(conversation, 'appointment', { occurredAt, reason: 'callback_scheduling_reply' });
+        if (!callbackResult.handoff) conversation.orchestration = markSpecializedInbound(conversation, 'appointment', { occurredAt, reason: 'callback_scheduling_reply' });
         if (exitsScheduling) {
           conversation.orchestration = clearSmsReplyContext({ ...conversation, orchestration: conversation.orchestration }, { occurredAt });
         }
@@ -656,6 +708,9 @@ export async function handleRingCentralWebhook(request, options = {}) {
             conversation.retryPending = false;
             replied = true;
           } catch (sendError) {
+            if (['sms_automation_paused', 'sms_channel_suppressed'].includes(sendError?.code)) {
+              conversation = normalizeLiveConversation(await store.get(conversationKey)) || conversation;
+            }
             const retry = await queueSmsRetry(store, {
               conversationId,
               to: event.fromNumber,
@@ -665,7 +720,7 @@ export async function handleRingCentralWebhook(request, options = {}) {
               workflow: 'missed_call_callback_v1',
               replyRoute: 'appointment',
               ownershipEffect: 'transfer',
-              error: sendError?.message
+              errorCode: sendError?.code, error: sendError?.message
             }, options);
             conversation.deliveryFailure = { at: occurredAt, code: text(sendError?.code, 'ringcentral_send_failed'), message: 'Callback SMS delivery failed and was queued for retry.' };
             conversation.retryPending = Boolean(retry);
@@ -840,6 +895,9 @@ Dylan will collect any quote or application details during or after your convers
         if (!conversation.welcomeSentAt) conversation.welcomeSentAt = occurredAt;
         replied = true;
       } catch (sendError) {
+            if (['sms_automation_paused', 'sms_channel_suppressed'].includes(sendError?.code)) {
+              conversation = normalizeLiveConversation(await store.get(conversationKey)) || conversation;
+            }
         const retry = await queueSmsRetry(store, {
           conversationId,
           to: event.fromNumber,
@@ -849,7 +907,7 @@ Dylan will collect any quote or application details during or after your convers
           workflow: conversation.orchestration?.workflow?.type || 'coveragefit_intake',
           replyRoute: 'coveragefit',
           ownershipEffect: 'preserve',
-          error: sendError?.message
+          errorCode: sendError?.code, error: sendError?.message
         }, options);
         conversation.deliveryFailure = { at: occurredAt, code: text(sendError?.code, 'ringcentral_send_failed'), message: 'Automated SMS delivery failed and was queued for retry.' };
         conversation.retryPending = Boolean(retry);
@@ -909,6 +967,8 @@ Dylan will collect any quote or application details during or after your convers
     await updateWebhookHealth(store, { success: false, code }, options);
     await writeOpsAudit(store, 'webhook_failure', { message }, options);
     return error(cause instanceof RingCentralApiError ? Math.max(500, cause.status) : 502, code, message);
+  } finally {
+    if(signalLock)await store.delete(signalLock);
   }
 }
 
@@ -1001,7 +1061,8 @@ function maintenanceAuthorization(request, env = {}) {
 }
 
 async function recoveryAfterReconnect(result, request, options = {}) {
-  if (!['created', 'recreated'].includes(text(result?.action))) return { started: false, reason: 'continuous_subscription' };
+  // A healthy inbound subscription does not prove manual outbound delivery.
+  // Sweep history on every maintenance run, not just subscription recreation.
   const recoveryTask = runRingCentralRecovery(request, options);
   if (typeof options.waitUntil === 'function') {
     options.waitUntil(recoveryTask.catch(cause => writeOpsAudit(options.store, 'ringcentral_recovery_failed', {

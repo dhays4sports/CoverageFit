@@ -5,7 +5,7 @@ import {
 } from './ringcentral-client.mjs';
 import { writeOpsAudit } from './sms-operations-core.mjs';
 
-export const RINGCENTRAL_RECOVERY_BUILD = 'RC-RECOVERY-1.0';
+export const RINGCENTRAL_RECOVERY_BUILD = 'RC-RECOVERY-1.2';
 export const RINGCENTRAL_RECOVERY_CURSOR_KEY = 'sms-ringcentral-recovery/cursor';
 export const RINGCENTRAL_RECOVERY_LOCK_KEY = 'sms-ringcentral-recovery/lock';
 
@@ -47,7 +47,9 @@ function recoveryConfig(env = {}) {
 
 function safeCursor(value = {}) {
   return {
-    schemaVersion: '1.0',
+    schemaVersion: '1.1',
+    historyDirections: text(value.historyDirections),
+    pendingFrom: text(value.pendingFrom),
     build: RINGCENTRAL_RECOVERY_BUILD,
     lastConfirmedEventAt: text(value.lastConfirmedEventAt).slice(0, 60),
     lastConfirmedMessageId: text(value.lastConfirmedMessageId).replace(/[^a-zA-Z0-9._:-]/g, '').slice(0, 120),
@@ -88,15 +90,18 @@ export async function ringCentralRecoveryStatus(store) {
   return safeCursor(await store.get(RINGCENTRAL_RECOVERY_CURSOR_KEY) || {});
 }
 
-function inboundSmsRecord(record, configuredNumber) {
+function recoverableSmsRecord(record, configuredNumber) {
   if (!record || typeof record !== 'object') return false;
   const destinations = Array.isArray(record.to) ? record.to : [];
   const target = destinations.find(item => item?.target === true) || destinations[0];
-  return text(record.type).toUpperCase() === 'SMS'
-    && text(record.direction).toLowerCase() === 'inbound'
-    && normalizeE164(target?.phoneNumber) === normalizeE164(configuredNumber)
-    && Boolean(normalizeE164(record.from?.phoneNumber))
-    && Boolean(text(record.id));
+  const from = normalizeE164(record.from?.phoneNumber);
+  const to = normalizeE164(target?.phoneNumber);
+  const configured = normalizeE164(configuredNumber);
+  const direction = text(record.direction).toLowerCase();
+  return text(record.type).toUpperCase() === 'SMS' && Boolean(text(record.id))
+    && Boolean(from && to)
+    && ((direction === 'inbound' && to === configured)
+      || (direction === 'outbound' && from === configured));
 }
 
 function replayPayload(record) {
@@ -139,10 +144,10 @@ export async function recoverMissedRingCentralSms(options = {}) {
   const ringCentral = ringCentralConfig(env);
   const prior = safeCursor(await store.get(RINGCENTRAL_RECOVERY_CURSOR_KEY) || {});
   const floor = started.getTime() - config.lookbackHours * 3600000;
-  const checkpoint = instant(prior.lastRecoveryCompletedThrough) || instant(prior.lastConfirmedEventAt) || floor;
-  const fromMs = Math.max(floor, checkpoint - config.overlapMinutes * 60000);
+  const checkpoint = prior.historyDirections === 'both' ? instant(prior.lastRecoveryCompletedThrough) || floor : floor;
+  const fromMs = instant(prior.pendingFrom) || Math.max(floor, checkpoint - config.overlapMinutes * 60000);
   const dateFrom = new Date(fromMs).toISOString();
-  const dateTo = startedAt;
+  let dateTo = startedAt;
   const running = { ...prior, lastRecoveryStartedAt: startedAt, lastRecoveryStatus: 'running' };
   await store.setJSON(RINGCENTRAL_RECOVERY_CURSOR_KEY, running, {
     metadata: { status: 'running', build: RINGCENTRAL_RECOVERY_BUILD, createdAt: prior.lastConfirmedEventAt || startedAt, updatedAt: startedAt }
@@ -152,16 +157,29 @@ export async function recoverMissedRingCentralSms(options = {}) {
   let earliestFailureAt = 0;
   let page = 1;
   const records = [];
+  let scanned = 0;
   const listHistory = typeof options.listHistory === 'function' ? options.listHistory : listRingCentralMessageHistory;
   try {
-    while (records.length < config.maxMessages) {
-      const batch = await listHistory({ dateFrom, dateTo, page, perPage: Math.min(100, config.maxMessages - records.length) }, env, options);
-      for (const record of batch.records) {
-        if (inboundSmsRecord(record, ringCentral.fromNumber)) records.push(record);
-        if (records.length >= config.maxMessages) break;
+    // Read a complete oldest time slice before replaying any event. The provider
+    // may return newest-first pages, so a truncated page cannot be checkpointed.
+    for (let attempt = 0; ; attempt += 1) {
+      records.length = 0; scanned = 0; page = 1;
+      let overflow = false;
+      while (scanned < config.maxMessages) {
+        const batch = await listHistory({ dateFrom, dateTo, page, direction: 'All', perPage: Math.min(100, config.maxMessages - scanned) }, env, options);
+        scanned += batch.records.length;
+        for (const record of batch.records) {
+          if (recoverableSmsRecord(record, ringCentral.fromNumber)) records.push(record);
+        }
+        if (!batch.hasMore) break;
+        if (!batch.records.length) throw new Error('recovery_empty_page_with_more');
+        if (scanned >= config.maxMessages) { overflow = true; break; }
+        page += 1;
       }
-      if (!batch.hasMore || records.length >= config.maxMessages) break;
-      page += 1;
+      if (!overflow) break;
+      const width = Date.parse(dateTo) - fromMs;
+      if (attempt >= 19 || width <= 1000) throw new Error('recovery_window_limit: dense minimum time slice exceeds message limit; cursor not advanced');
+      dateTo = new Date(fromMs + Math.floor(width / 2)).toISOString();
     }
     records.sort((left, right) => instant(left.creationTime) - instant(right.creationTime));
     counts.found = records.length;
@@ -180,6 +198,8 @@ export async function recoverMissedRingCentralSms(options = {}) {
         counts.failed += 1;
         const failedAt = instant(record.creationTime) || fromMs;
         earliestFailureAt = earliestFailureAt ? Math.min(earliestFailureAt, failedAt) : failedAt;
+        // Do not replay a later inbound before a failed manual-outbound takeover.
+        break;
       }
     }
 
@@ -188,9 +208,11 @@ export async function recoverMissedRingCentralSms(options = {}) {
     const latest = safeCursor(await store.get(RINGCENTRAL_RECOVERY_CURSOR_KEY) || running);
     const cursor = {
       ...latest,
+      historyDirections: 'both',
+      pendingFrom: counts.failed ? new Date(earliestFailureAt || fromMs).toISOString() : (dateTo !== startedAt ? dateTo : ''),
       lastRecoveryCompletedAt: completedAt,
       lastRecoveryCompletedThrough: completedThrough,
-      lastRecoveryStatus: counts.failed ? 'partial' : 'completed',
+      lastRecoveryStatus: counts.failed ? 'partial' : (dateTo !== startedAt ? 'catching_up' : 'completed'),
       lastRecoveryCounts: counts
     };
     await store.setJSON(RINGCENTRAL_RECOVERY_CURSOR_KEY, cursor, {
