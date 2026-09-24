@@ -34,3 +34,13 @@ This combines the two implementations in one CoverageFit codebase. It does not m
 The earlier SMS handoff's publication-blocked status describes its historical local handoff; that SMS branch was subsequently published as `6b347ef` with a tree identical to approved local `9b8a6aa`. It is not evidence of deployment or activation.
 
 No automatic production merge, environment mutation, customer outreach, or AgencyZoom write is part of this integration.
+
+## Hosted preview result — 2026-09-24
+
+Integration published as merge commit `05d674d968c925082650995c017fabf461136132`, with both approved parents and a tree matching the tested local candidate.
+
+The branch preview is reachable at https://cf-signal-sms-integration.coveragefit.pages.dev/agent/sms-simulator/ and renders the SMS Decision Queue. Secure sign-in returned: “The secure producer inbox has not been configured.” The producer authorization handler returns this when Preview `COVERAGEFIT_PRODUCER_ACCESS_TOKEN` is absent or shorter than 24 characters. Credential values were not inspected or logged.
+
+Protected browser/API verification is therefore blocked by Preview configuration. Configure the existing producer access secret for Preview through the normal Cloudflare secret mechanism, preserve the isolated D1 binding and exact allowed origins, and redeploy. Keep `CF_SMS_SIGNAL_ENABLED` unset/0 until the internal canary gate. No environment variables were changed here.
+
+Original `cf-signal-decision-1.0` remains at `e02e857`; production main is unchanged. Do not advance the original preview until hosted verification succeeds.
