@@ -100,3 +100,7 @@ These changes are on the audit branch, **not activated in production**. They red
 3. **Timed rehearsal:** prove the target using the real screens, including navigation and weekly overhead. Compact form source tests are not a usability timing test.
 
 Until these pass, **NO-GO on administrative burden**. Do not ask Dylan to compensate with spreadsheets, per-lead completion clicks or extra daily uploads. Do not enable SMS or resume rollout simply because the form is shorter.
+
+## Measurement hardening status (2026-09-25)
+
+Batch reconciliation is now implemented in Analytics: grouped observed outcomes, explicit completeness/zero-work confirmation, preview fingerprint, per-row conflicts, no silent defaults, and preserved external totals. Actual call confirmation and optional cumulative missing totals share the worked-record detail. Silent inventory requires no individual opportunity opening. This replaces the earlier implementation gap; it does not claim the 30–60-second target has been met. Human burden trial and internal live-provider certification remain launch gates.

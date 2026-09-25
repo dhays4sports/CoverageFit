@@ -31,3 +31,5 @@ test('normal web work wrap renders saved ISO due dates without breaking the deta
  assert.match(root.innerHTML,/Save work/);
  assert.doesNotMatch(root.innerHTML,/Approve &amp; send|DISTRICT_SIGNAL/);
 });
+
+test('same opportunity reload returns newest inbound, facts, draft revision and stage',async()=>{const f=prepared();try{source(f,'one','district_pilot_v1',pilot('SIGNAL'));await f.store.setJSON('sms-live-conversations/'+cid,{id:cid,signal:signal(),transcript:[]});const first=await f.work.detail('one');const latest={...signal(),revision:4,latest_inbound:'Under $220',facts:{line:'AUTO',price_target:220},decision_2:'CALL',reply:'',draft_status:'none',az_recommended_stage:'QUOTE_READY'};await f.store.setJSON('sms-live-conversations/'+cid,{id:cid,signal:latest,transcript:[]});const next=await f.work.detail('one');assert.equal(first.sms.revision,1);assert.equal(next.sms.revision,4);assert.equal(next.sms.latest_inbound,'Under $220');assert.equal(next.sms.facts.price_target,220);assert.equal(next.sms.az_recommended_stage,'QUOTE_READY');assert.ok(smsPanel(next).includes('Revision 4'));}finally{f.sql.close()}});

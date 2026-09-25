@@ -1,3 +1,4 @@
+import {pilotReconciliation} from './pilot-reconciliation.mjs';
 import {producerWorkspace} from './producer-workspace.mjs';
 import {rawImporter} from './agencyzoom-import.mjs';
 import {districtPilot} from './district-pilot.mjs';
@@ -14,7 +15,7 @@ import {shotsBoard} from './shots-board.mjs';
 import {economicsService} from './economics-core.mjs';
 const json=(body,status=200)=>Response.json(body,{status,headers:{'Cache-Control':'private, no-store','Referrer-Policy':'no-referrer','X-Content-Type-Options':'nosniff','Content-Security-Policy':"default-src 'none'; frame-ancestors 'none'"}});
 async function body(request){
-  const limit=/\/raw-(preview|import)\/?$/.test(new URL(request.url).pathname)?320000:16000;
+  const limit=/\/(raw-(preview|import)|pilot-reconcile-(preview|apply))\/?$/.test(new URL(request.url).pathname)?320000:16000;
   if(!request.headers.get('content-type')?.includes('application/json'))fail(415,'content_type','A JSON request is required.');
   if(Number(request.headers.get('content-length')||0)>limit)fail(413,'size','Request exceeds the endpoint size limit.');
   const reader=request.body?.getReader();let text='',size=0;const decoder=new TextDecoder();
@@ -59,6 +60,9 @@ export async function handleSoloDesk(context){
     if(route==='sync')return json({ok:true,...await sourceSync(repo).sync(value.stream)});
     if(route==='priority-backfill'){const result=await repo.backfillOpportunityPriority(value.limit||60);return json({ok:true,...result});}
     if(!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(value.requestId||''))fail(422,'request_id','Reload the form before saving.');
+    if(route==='pilot-call-attempt')return json({ok:true,attempt:await pilotReconciliation(repo).call(value,value.requestId)});
+    if(route==='pilot-reconcile-preview'){const p=await pilotReconciliation(repo).preview(value);return json({ok:true,fingerprint:p.fingerprint,rows:p.rows.map(r=>({id:r.id,cohort:r.cohort,pilot_phase:r.pilot_phase,observation:r.next.observation,measurement:r.next.reconciliation}))});}
+    if(route==='pilot-reconcile-apply')return json({ok:true,...await pilotReconciliation(repo).apply(value,value.requestId)});
     if(route==='pilot-enroll')return json({ok:true,pilot:await districtPilot(repo,env).enroll(value,value.requestId)},201);
     if(route==='pilot-quick-review')return json({ok:true,pilot:await districtPilot(repo,env).quickReview(value,value.requestId)});
     if(route==='pilot-observe')return json({ok:true,pilot:await districtPilot(repo,env).observe(value,value.requestId)});

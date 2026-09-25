@@ -44,3 +44,11 @@ No individual pilot check-in is needed solely because a lead is silent. Unsucces
 ## Compatibility
 
 Original opportunity_id links open Work. Existing consultation_id and Today/Inbox/Consultation/Pipeline query links retain access to the historical workspace. Documents, recommendations, Shots and diagnostics are preserved. The historical shell is a specialist compatibility path, not the default daily screen.
+
+## Pilot measurement update
+
+After an actual call, use **+ Record call attempt** once if no reliable existing evidence captured it. The CALL recommendation button never counts a call. Both cohorts use the same measurement rule. Do not enter call duration.
+
+Use **Analytics → weekly scorecard → Refresh → Batch reconciliation** for silent/unqualified inventory and shared observed outcomes. Select a group sharing the same verified update, preview, confirm once. Unknown stays unknown; never confirm zero merely because someone did not reply. Confirm existing recorded effort/calls only if they cover ALL work, including unsuccessful attempts and administration. Missing external totals can be reconciled on a worked record; totals include already-recorded activity and must not also be entered as additional minutes.
+
+Record verified term premium and Farmers policy count in the optional observed outcomes after an actual bind. No annualization or estimated commission. Analytics separates historical district reference from enrolled cohort evidence.

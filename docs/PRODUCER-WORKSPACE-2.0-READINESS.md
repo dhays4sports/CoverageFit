@@ -99,3 +99,7 @@ Frontend: producer-workspace.mjs; producer-sms.mjs; producer-work-wrap.mjs; lega
 Backend: producer-workspace.mjs; solo-desk-api.mjs; sms-signal-api.mjs; agencyzoom-import.mjs; district-pilot.mjs under server.
 Tests: tests/producer-workspace.test.mjs.
 Documentation: this readiness matrix, PRODUCER-SURFACE-INVENTORY-2.0.md, PRODUCER-WORKSPACE-2.0-GUIDE.md and updated historical framing in SIGNAL-PILOT-MANUAL-WORK-AUDIT.md.
+
+## Measurement hardening follow-on
+
+SIGNAL-PILOT-MEASUREMENT-HARDENING-1.0 adds producer-confirmed actual-call events, complete-only efficiency/premium ratios, batch reconciliation and multi-turn refresh/certification tests. The earlier “batch reconciliation unimplemented” limitation is superseded at source/local-test level. Human timing and live provider/producer certification remain unresolved. See SIGNAL-PILOT-MEASUREMENT-HARDENING-1.0.md; this does not retroactively turn earlier checks into live certification.

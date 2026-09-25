@@ -121,3 +121,33 @@ test('STOP bypasses unavailable pilot cohort lookup',async()=>{
  const result=await signalInbound({id:'sms-live-'+ 'a'.repeat(64),transcript:[]},{body:'STOP',messageId:'stop-db-outage',occurredAt:at},{env:{...env,COVERAGEFIT_DB:badDB},store:st});
  assert.equal(result.signal.decision_2,'STOP');assert.equal(result.signal.reply,'');assert.equal(result.smsConsent.status,'opted_out');
 });
+
+// Measurement hardening: actual successive inbound/approved outbound contracts, fake provider only.
+test('multi-turn RAW memory, adaptive next question and fresh strong interruption',async()=>{
+ const st=store();await hook(st,'Outbound',fresh,'multi-raw-out');let c=conversation(st);c.signal={...c.signal,pilot_cohort:'SIGNAL',facts:{line:'AUTO',current_carrier:'MERCURY',renewal_date:'2026-10-31',vehicle:'Subaru Ascent'}};await st.setJSON('sms-live-conversations/'+c.id,c);
+ let sends=0;const sendSignal=async()=>({providerMessageId:'multi-sent-'+(++sends)});
+ await hook(st,'Inbound','Auto','multi-raw-1');c=conversation(st);assert.equal(c.signal.decision_2,'ASK_ONE_QUESTION');assert.ok(!['IDENTIFY_LINE','DETECT_CARRIER','DETECT_TIMING','VEHICLE_COUNT'].includes(c.signal.reply_goal));assert.equal(sends,0);
+ const oldRevision=c.signal.revision;assert.equal((await api(st,{action:'edit',conversation_id:c.id,revision:oldRevision,message:c.signal.reply})).status,200);assert.equal(sends,0);assert.equal((await api(st,{action:'approve_send',conversation_id:c.id,revision:oldRevision},{sendSignal})).status,409);
+ c=conversation(st);const approve={action:'approve_send',conversation_id:c.id,revision:c.signal.revision};assert.equal((await api(st,approve,{sendSignal})).status,200);assert.equal((await api(st,approve,{sendSignal})).status,409);assert.equal(sends,1);
+ await hook(st,'Inbound',"I'm mainly checking price.",'multi-raw-2');c=conversation(st);assert.equal(c.signal.facts.shopping_reason,'price');assert.equal(c.signal.facts.current_carrier,'MERCURY');assert.equal(c.signal.facts.vehicle,'Subaru Ascent');assert.notEqual(c.signal.reply_goal,'IDENTIFY_LINE');
+ await hook(st,'Inbound','I need to switch this week.','multi-raw-3');c=conversation(st);assert.equal(c.signal.decision_2,'CALL');assert.ok(['HIGH','URGENT'].includes(c.signal.priority));assert.equal(c.signal.reply,'');assert.equal(sends,1);
+});
+test('three actually approved questions reach ceiling and never generate question four',async()=>{
+ const st=store();await hook(st,'Outbound',fresh,'ceiling-out');let sends=0;
+ for(const [i,reply] of ['Auto','I am open to comparing','Mercury'].entries()){
+  await hook(st,'Inbound',reply,'ceiling-'+i);const c=conversation(st);assert.equal(c.signal.decision_2,'ASK_ONE_QUESTION');assert.equal((c.signal.reply.match(/\?/g)||[]).length,1);assert.equal(c.signal.questions_sent||0,i);
+  assert.equal((await api(st,{action:'approve_send',conversation_id:c.id,revision:c.signal.revision},{sendSignal:async()=>({providerMessageId:'ceiling-send-'+(++sends)})})).status,200);
+ }
+ await hook(st,'Inbound','Yes','ceiling-final');const s=conversation(st).signal;assert.equal(s.questions_sent,3);assert.equal(s.decision_2,'CALL');assert.equal(s.reply,'');assert.equal(sends,3);
+});
+for(const [reply,action] of [['Call me.','CALL'],['I need coverage Friday.','CALL'],['My policy cancels tomorrow.','CALL'],['Send me a quote.','CALL'],['I just renewed. Call me in February.','LATER'],['Already switched.','CLOSE'],['Not interested.','CLOSE'],['STOP','STOP'],['Wrong number.','CLOSE']])test('subsequent inbound interrupts qualification: '+reply,async()=>{
+ const st=store();await hook(st,'Outbound',fresh,'interrupt-out');await hook(st,'Inbound','Auto','interrupt-1');let c=conversation(st);await api(st,{action:'approve_send',conversation_id:c.id,revision:c.signal.revision},{sendSignal:async()=>({providerMessageId:'question-one'})});await hook(st,'Inbound',reply,'interrupt-2');c=conversation(st);assert.equal(c.signal.decision_2,action);
+ if(action==='CALL'){assert.ok(['HIGH','URGENT'].includes(c.signal.priority));assert.equal(c.signal.reply,'');}
+ if(action==='LATER'){assert.equal(c.signal.az_recommended_stage,'FUTURE_BIND');assert.equal(c.signal.future_month,'2027-02');assert.equal(c.signal.reply_goal,'SIMPLE_ACKNOWLEDGMENT');}
+ if(action==='STOP'){assert.equal(c.smsConsent.status,'opted_out');assert.equal(c.signal.reply,'');assert.equal((await api(st,{action:'approve_send',conversation_id:c.id,revision:c.signal.revision})).status,409);}
+});
+test('quote-price second turn retains target and hands off without repeating',async()=>{
+ const st=store();await hook(st,'Outbound',fresh,'quote-multi-out');let c=conversation(st);c.signal={...c.signal,az_confirmed_stage:'QUOTE_SENT'};await st.setJSON('sms-live-conversations/'+c.id,c);
+ await hook(st,'Inbound',"It's too expensive.",'quote-multi-1');c=conversation(st);assert.equal(c.signal.quote_response,'PRICE');assert.equal(c.signal.reply_goal,'DETECT_PRICE_TARGET');await api(st,{action:'approve_send',conversation_id:c.id,revision:c.signal.revision},{sendSignal:async()=>({providerMessageId:'price-question'})});
+ await hook(st,'Inbound','Under $220.','quote-multi-2');c=conversation(st);assert.equal(c.signal.facts.price_target,220);assert.equal(c.signal.decision_2,'CALL');assert.equal(c.signal.reply,'');
+});

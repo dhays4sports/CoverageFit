@@ -155,7 +155,7 @@ export function decideSignal(conversation,body,options={}) {
  if(/\b(cover|coverage|liability|deductible|claim|complaint|angry|upset|refund|change my|cancel my)\b/.test(t)&&!s.facts.shopping_reason)return finish('CALL','human_required',.9,'Insurance/service question needs producer review.',{useful:true,priority:'HIGH'});
  const paymentUrgent=ex.newFacts.payment_due_date&&dt?.days<=1&&ex.newFacts.price_target!=null;
  const urgent=/\b(today|tomorrow|this week|now|friday)\b/.test(t),active=/\b(?:i'm|im|i am|yes i'm) interested|shopping now|actively shopping|need coverage\b/.test(t);
- if(paymentUrgent||ex.newFacts.explicit_call_request||ex.newFacts.explicit_quote_request||s.facts.shopping_reason==='cancellation_nonrenewal'||active||(dt&&dt.days<=30))return finish('CALL','active_intent',.96,'Fresh request or near-term need warrants producer attention.',{useful:true,sales_positive:true,priority:(paymentUrgent||urgent)?'URGENT':'HIGH'});
+ if(paymentUrgent||ex.newFacts.explicit_call_request||ex.newFacts.explicit_quote_request||s.facts.shopping_reason==='cancellation_nonrenewal'||active||/\bneed to switch (?:today|tomorrow|this week|now)\b/.test(t)||(dt&&dt.days<=30))return finish('CALL','active_intent',.96,'Fresh request or near-term need warrants producer attention.',{useful:true,sales_positive:true,priority:(paymentUrgent||urgent)?'URGENT':'HIGH'});
  const positive=/\b(yes|sure|maybe|possibly|open|compare|send me|interested|checking price)\b/.test(t)||Object.keys(ex.newFacts).length>0;
  if(!positive)return finish('CALL','review',.4,'Low-information/contextual ambiguity; review, do not guess.');
  const enough=s.facts.line&&s.facts.timing&&s.facts.current_carrier&&(s.facts.current_premium||s.facts.shopping_reason);
