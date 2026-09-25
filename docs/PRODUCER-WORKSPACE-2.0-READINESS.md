@@ -25,7 +25,7 @@ This release extends the pilot candidate. It does not activate customer-facing S
 
 169 tests passed, 0 failed, 0 skipped before hosted verification. Ten new tests cover explicit population classification, durable persistence, counts, global search, detail isolation, attention precedence, escaped and suppressed presentation, authenticated API, exact linked opportunity, editing without send, stale revision rejection, one approved send maximum and manual AZ acknowledgement. A hosted catch added regression coverage for rendering existing ISO due dates in normal web work wrap. Existing RAW, effort/outcome, SMS safety and measurement suites remain passing.
 
-403 JavaScript/module files passed syntax validation. HTML checks found no duplicate IDs or missing referenced assets in either workspace shell. Local browser preview was blocked by the browser client; this is not evidence of a site failure. Hosted verification must be recorded below after deployment. No local test is labeled a live provider canary.
+403 JavaScript/module files passed syntax validation. HTML checks found no duplicate IDs or missing referenced assets in either workspace shell. Local browser preview was blocked by the browser client; this is not evidence of a site failure. Hosted verification is recorded below. No local test is labeled a live provider canary.
 
 ## Release limitations / gates
 
@@ -51,7 +51,7 @@ Observed with an existing authenticated producer connection:
 - Import renders the multi-file selection/preview flow; actual import was not performed during this UI check.
 - Analytics returns 0 enrolled in both cohorts despite six non-pilot work records; effort remains Not measured, not fabricated zero.
 - Tools contains the retained specialist/connection paths.
-- Opening an existing WEB / DIRECT record exposed an ISO-date rendering defect in its normal work form. Corrected the Date conversion and added a regression test; production recheck must confirm the corrected form.
+- Opening an existing WEB / DIRECT record exposed an ISO-date rendering defect in its normal work form. Corrected the Date conversion and added a regression test; production recheck passed: saved due date populated, Save work rendered, and no page error remained. No work update was submitted.
 - Removed the old import footer directing daily work to SMS Operations. Population switches now discard the previous detail only after the unsaved-change guard and clear its URL identity.
 
 No customer messages or customer outcome edits were made. The hosted empty district lists cannot certify a live enrolled SIGNAL/CONTROL journey.
@@ -63,14 +63,14 @@ No customer messages or customer outcome edits were made. The hosted empty distr
 | Canonical navigation / clutter reduction | PASS WITH LIMITATION | Four primary areas observed; timed effort reduction not measured |
 | SIGNAL membership | PASS WITH LIMITATION | Source-backed classification and exact linkage tested; live list empty |
 | CONTROL isolation | PASS WITH LIMITATION | Backend and presentation tests; live list empty |
-| WEB / DIRECT | PASS WITH LIMITATION | Four live records and zero pilot enrollment observed; date-form fix requires recheck |
+| WEB / DIRECT | PASS WITH LIMITATION | Four live records and zero pilot enrollment observed; corrected detail/work form observed |
 | OTHER | PASS WITH LIMITATION | Two live records counted; explicit classification tested |
 | Embedded Decision 2 / suggested reply | PASS WITH LIMITATION | Canonical engine and panel tested; no live enrolled record |
 | Approve/send safety | BLOCKED for live certification | Edit/no-send, revision, suppression, duplicate, CONTROL guards tested; internal approved provider canary outstanding |
 | Manual AZ recommendation / acknowledgement | PASS WITH LIMITATION | Canonical action tested; no AZ API or automatic stage writes |
 | Same-detail effort/outcome capture | PASS WITH LIMITATION | Existing validation/atomic saves tested; batch reconciliation and timed burden gate remain |
 | Analytics / Tools separation | PASS | Hosted navigation and pilot report observed |
-| Legacy / deep links | PASS WITH LIMITATION | Original shell and dependencies retained; source/asset checks; full historical advisory journeys not replayed |
+| Legacy / deep links | PASS WITH LIMITATION | Original shell and dependencies retained; source/asset checks plus hosted old inbox URL redirect/return link; full historical advisory journeys not replayed |
 | Cloudflare | PASS boundary | No changes; migration 0019 remains user-verified, not rerun |
 | District launch | BLOCKED | Provider canary, batch reconciliation and measured administrative burden remain P0 |
 
@@ -80,3 +80,22 @@ CoverageFit pre-workspace-production-20260925 → 1fc2fe436e96466ba1aa0f404381c7
 CoverageFit pre-signal-production-20260924 → 961d242a2fbdfc27f634a9836e66dfb3f2c60ef1.
 408FARMERS pre-signal-production-20260924 → fd4c6849a871649dd9840ff61eaa5a9407a515d0.
 All retained. No force push, branch deletion, schema migration or data reset.
+
+
+## Final hosted follow-up
+
+Code fix publication: 4980eebf6d7a44e7ee80271c5d2be2c39f57a89c. Production served producer-workspace.mjs?v=2.0.1. Verified WEB / DIRECT form, valid saved Pacific due time and Save work; no render error. Switching to CONTROL removed the old detail and opportunity_id; Import links Work → SIGNAL. Old /agent/workspace/?view=inbox reached the retained historical inbox with Return to Work. SMS Operations explicitly reported: “Preview only: live signal processing is not enabled.” SMS Signal remains OFF.
+
+No new Cloudflare checkpoint is needed for this UI release. Keep the current SMS flag unchanged until pilot gates and an authorized internal provider canary are ready. Do not rerun user-verified migration 0019.
+
+Workspace release: **PASS WITH LIMITATION**. District pilot: **BLOCKED / NO-GO** pending batch reconciliation, measured incremental administration, and internal review-first provider certification. Neither a narrow-device browser run nor a human time trial was performed. Existing live records were read, not edited. No SMS was sent.
+
+Next bounded engineering task: finish the authoritative batch outcome/effort reconciliation from the manual-work audit so silent/unqualified inventory requires no per-lead pilot visit; then run the timed CONTROL/SIGNAL rehearsal. Preserve unknown values and cohort isolation. Do not compensate with a second tracking spreadsheet.
+
+## Changed-file groups
+
+Primary shell: agent/workspace/index.html; agent/workspace/legacy.html; assets/css/producer-workspace.css.
+Frontend: producer-workspace.mjs; producer-sms.mjs; producer-work-wrap.mjs; legacy-workspace-navigation.js; district-pilot.mjs; agencyzoom-import.mjs under assets/js.
+Backend: producer-workspace.mjs; solo-desk-api.mjs; sms-signal-api.mjs; agencyzoom-import.mjs; district-pilot.mjs under server.
+Tests: tests/producer-workspace.test.mjs.
+Documentation: this readiness matrix, PRODUCER-SURFACE-INVENTORY-2.0.md, PRODUCER-WORKSPACE-2.0-GUIDE.md and updated historical framing in SIGNAL-PILOT-MANUAL-WORK-AUDIT.md.

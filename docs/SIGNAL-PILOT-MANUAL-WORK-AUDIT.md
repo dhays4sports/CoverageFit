@@ -4,7 +4,7 @@ September 25, 2026. Supersedes the per-lead administration requirements in the i
 
 ## Decision
 
-**Current production workflow fails the administrative-burden gate.** It requires individual enrollment plus a 13-category/six-date review, separate effort saves and completion confirmations. The CONTROL phone upload is only an exclusion registry, so it does not remove enrollment work. A blank scorecard loading is not evidence of a usable experiment.
+**Initial audit finding (before RAW intake 1.2 and Workspace 2.0):** production required individual enrollment plus a 13-category/six-date review, separate effort saves and completion confirmations. The CONTROL phone upload was only an exclusion registry. RAW batch intake and same-detail compact work are now published; see PRODUCER-WORKSPACE-2.0-READINESS.md. **The administrative-burden gate still fails certification** until batch reconciliation and the timed producer trial pass. A blank scorecard loading is not evidence of a usable experiment.
 
 Release target: at most 30–60 seconds of incremental pilot administration per worked opportunity, counting repeated visits and amortized batch work. Silent/unworked leads require no individual pilot opening, classification or completion check. Unqualified leads use their ordinary CRM disposition; do not add a pilot questionnaire. Calls to silent leads still consume time: silence does not imply zero effort.
 
