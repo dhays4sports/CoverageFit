@@ -18,6 +18,7 @@ export function soloRepository(db,scope){
   const sql=(query,...values)=>db.prepare(query).bind(...values);
   const rows=async(query,...values)=>(await sql(query,...values).all()).results||[];
   const own=async id=>{const op=await sql('SELECT * FROM cf_solo_opportunities WHERE workspace_id=? AND id=?',workspace,id).first();if(!op)fail(404,'opportunity','This opportunity is unavailable.');return op;};
+  const control=async id=>!!await sql("SELECT 1 FROM cf_solo_sources WHERE workspace_id=? AND opportunity_id=? AND kind='district_pilot_v1' AND json_extract(summary_json,'$.cohort')='CONTROL'",workspace,id).first();
   const replay=async(requestId,fingerprint)=>{
     const event=await sql('SELECT * FROM cf_solo_activity WHERE workspace_id=? AND request_id=?',workspace,requestId).first();
     if(event&&event.fingerprint!==fingerprint)fail(409,'request_reused','That save request was already used. Reopen the account before making a different change.');
@@ -58,19 +59,20 @@ export function soloRepository(db,scope){
         for(const source of projected){const delivery=deliveries.find(d=>d.source_id===source.source_id);if(source.kind==='response')source.summary.notificationState=delivery?.state||'unknown';}
       }
       const opportunity=publicOpportunity(op),profile=await universalCustomerProfile(this).detail(id);
-      const possessionQuality=await persistFiv(id,derivePossessionQuality({opportunity,sources:projected,customerProfile:profile}));
-      const opportunityPriority=await persistPriority(id,deriveOpportunityPriority({opportunity,tasks,sources:projected,customerProfile:profile,possessionQuality}));
-      const nextBestAction=deriveNextBestAction({opportunity,tasks,sources:projected,possessionQuality,opportunityPriority});
+      const isControl=await control(id);
+      const possessionQuality=isControl?null:await persistFiv(id,derivePossessionQuality({opportunity,sources:projected,customerProfile:profile}));
+      const opportunityPriority=isControl?null:await persistPriority(id,deriveOpportunityPriority({opportunity,tasks,sources:projected,customerProfile:profile,possessionQuality}));
+      const nextBestAction=isControl?null:deriveNextBestAction({opportunity,tasks,sources:projected,possessionQuality,opportunityPriority});
       const effortSummary=await opportunityEffortSummary(this,id);
       return {opportunity,tasks,sources:projected,customerProfile:profile,possessionQuality,opportunityPriority,nextBestAction,effortSummary,...timeline};
     },
     async profile(id){return universalCustomerProfile(this).detail(id);},
     async ensureProfile(id){const ucp=universalCustomerProfile(this);return await ucp.available()?ucp.ensure(id):null;},
-    async possessionQuality(id){return readFiv(id);},
-    async opportunityPriority(id){return readPriority(id);},
-    async refreshPossessionQuality(id){const op=await own(id),sources=(await rows('SELECT kind,source_id,summary_json,updated_at FROM cf_solo_sources WHERE workspace_id=? AND opportunity_id=? ORDER BY kind,source_id',workspace,id)).map(v=>({...v,summary:parse(v.summary_json),summary_json:undefined})),profile=await universalCustomerProfile(this).detail(id),projection=derivePossessionQuality({opportunity:publicOpportunity(op),sources,customerProfile:profile});return persistFiv(id,projection);},
-    async refreshOpportunityPriority(id){const op=await own(id),tasks=await rows("SELECT * FROM cf_solo_tasks WHERE workspace_id=? AND opportunity_id=? AND state NOT IN ('completed','cancelled') ORDER BY priority DESC,due_at,id",workspace,id),sources=(await rows('SELECT kind,source_id,summary_json,updated_at FROM cf_solo_sources WHERE workspace_id=? AND opportunity_id=? ORDER BY kind,source_id',workspace,id)).map(v=>({...v,summary:parse(v.summary_json),summary_json:undefined})),profile=await universalCustomerProfile(this).detail(id),possessionQuality=await this.refreshPossessionQuality(id),projection=deriveOpportunityPriority({opportunity:publicOpportunity(op),tasks,sources,customerProfile:profile,possessionQuality});return persistPriority(id,projection);},
-    async backfillOpportunityPriority(limit=40){if(!await priorityAvailable())return {processed:0,hasMore:false,setupRequired:true};const size=Math.max(1,Math.min(100,Number(limit)||40)),found=await rows(`SELECT o.id FROM cf_solo_opportunities o LEFT JOIN cf_opportunity_priority_projections p ON p.workspace_id=o.workspace_id AND p.opportunity_id=o.id WHERE o.workspace_id=? AND (p.opportunity_id IS NULL OR p.engine<>?) ORDER BY o.updated_at DESC,o.id DESC LIMIT ?`,workspace,PRIORITY_BUILD,size+1),page=found.slice(0,size);for(const item of page)await this.refreshOpportunityPriority(item.id);return {processed:page.length,hasMore:found.length>size,engine:PRIORITY_BUILD};},
+    async possessionQuality(id){return await control(id)?null:readFiv(id);},
+    async opportunityPriority(id){return await control(id)?null:readPriority(id);},
+    async refreshPossessionQuality(id){if(await control(id))return null;const op=await own(id),sources=(await rows('SELECT kind,source_id,summary_json,updated_at FROM cf_solo_sources WHERE workspace_id=? AND opportunity_id=? ORDER BY kind,source_id',workspace,id)).map(v=>({...v,summary:parse(v.summary_json),summary_json:undefined})),profile=await universalCustomerProfile(this).detail(id),projection=derivePossessionQuality({opportunity:publicOpportunity(op),sources,customerProfile:profile});return persistFiv(id,projection);},
+    async refreshOpportunityPriority(id){if(await control(id))return null;const op=await own(id),tasks=await rows("SELECT * FROM cf_solo_tasks WHERE workspace_id=? AND opportunity_id=? AND state NOT IN ('completed','cancelled') ORDER BY priority DESC,due_at,id",workspace,id),sources=(await rows('SELECT kind,source_id,summary_json,updated_at FROM cf_solo_sources WHERE workspace_id=? AND opportunity_id=? ORDER BY kind,source_id',workspace,id)).map(v=>({...v,summary:parse(v.summary_json),summary_json:undefined})),profile=await universalCustomerProfile(this).detail(id),possessionQuality=await this.refreshPossessionQuality(id),projection=deriveOpportunityPriority({opportunity:publicOpportunity(op),tasks,sources,customerProfile:profile,possessionQuality});return persistPriority(id,projection);},
+    async backfillOpportunityPriority(limit=40){if(!await priorityAvailable())return {processed:0,hasMore:false,setupRequired:true};const size=Math.max(1,Math.min(100,Number(limit)||40)),found=await rows(`SELECT o.id FROM cf_solo_opportunities o LEFT JOIN cf_opportunity_priority_projections p ON p.workspace_id=o.workspace_id AND p.opportunity_id=o.id WHERE o.workspace_id=? AND NOT EXISTS (SELECT 1 FROM cf_solo_sources c WHERE c.workspace_id=o.workspace_id AND c.opportunity_id=o.id AND c.kind='district_pilot_v1' AND json_extract(c.summary_json,'$.cohort')='CONTROL') AND (p.opportunity_id IS NULL OR p.engine<>?) ORDER BY o.updated_at DESC,o.id DESC LIMIT ?`,workspace,PRIORITY_BUILD,size+1),page=found.slice(0,size);for(const item of page)await this.refreshOpportunityPriority(item.id);return {processed:page.length,hasMore:found.length>size,engine:PRIORITY_BUILD};},
     async linkProfile(sourceOpportunityId,targetOpportunityId,requestId){return universalCustomerProfile(this).linkOpportunity(sourceOpportunityId,targetOpportunityId,requestId);},
     async splitProfile(id,requestId){return universalCustomerProfile(this).splitOpportunity(id,requestId);},
     async list(params,now=new Date()){
@@ -81,7 +83,7 @@ export function soloRepository(db,scope){
       const hasFiv=await fivAvailable(),hasPriority=await priorityAvailable();
       const priorityRank=hasPriority?"CASE p.queue WHEN 'shoot_now' THEN 5 WHEN 'quick_play' THEN 4 WHEN 'develop' THEN 3 WHEN 'nurture' THEN 2 WHEN 'low_priority' THEN 1 ELSE 0 END":"0";
       const priorityScore=hasPriority?"COALESCE(p.score,-1)":"-1";
-      let where='o.workspace_id=?';
+      let where="o.workspace_id=? AND NOT EXISTS(SELECT 1 FROM cf_solo_sources cp WHERE cp.workspace_id=o.workspace_id AND cp.opportunity_id=o.id AND cp.kind='district_pilot_v1' AND json_extract(cp.summary_json,'$.cohort')='CONTROL')";
       if(routeQueue&&hasPriority){where+=routeQueue==='unclassified'?" AND COALESCE(p.queue,'unclassified')=?":" AND p.queue=?";args.push(routeQueue);}
       else if(routeQueue&&hasFiv){where+=' AND f.queue=?';args.push(routeQueue);}
       else if(routeQueue){return {records:[],nextCursor:null,view:mode,timeZone:'America/Los_Angeles',prioritySetupRequired:true};}

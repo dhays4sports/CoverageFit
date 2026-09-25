@@ -1,3 +1,4 @@
+import {rawImporter} from './agencyzoom-import.mjs';
 import {districtPilot} from './district-pilot.mjs';
 import {authorizeProducer} from './consultation-inbox-core.mjs';
 import {resolveProducerEnvironment} from './cloudflare-pages-handlers.mjs';
@@ -12,10 +13,11 @@ import {shotsBoard} from './shots-board.mjs';
 import {economicsService} from './economics-core.mjs';
 const json=(body,status=200)=>Response.json(body,{status,headers:{'Cache-Control':'private, no-store','Referrer-Policy':'no-referrer','X-Content-Type-Options':'nosniff','Content-Security-Policy':"default-src 'none'; frame-ancestors 'none'"}});
 async function body(request){
+  const limit=/\/raw-(preview|import)\/?$/.test(new URL(request.url).pathname)?320000:16000;
   if(!request.headers.get('content-type')?.includes('application/json'))fail(415,'content_type','A JSON request is required.');
-  if(Number(request.headers.get('content-length')||0)>16000)fail(413,'size','Keep this update under 16 KB.');
+  if(Number(request.headers.get('content-length')||0)>limit)fail(413,'size','Request exceeds the endpoint size limit.');
   const reader=request.body?.getReader();let text='',size=0;const decoder=new TextDecoder();
-  if(reader)while(true){const {done,value}=await reader.read();if(done)break;size+=value.byteLength;if(size>16000){await reader.cancel();fail(413,'size','Keep this update under 16 KB.');}text+=decoder.decode(value,{stream:true});}
+  if(reader)while(true){const {done,value}=await reader.read();if(done)break;size+=value.byteLength;if(size>limit){await reader.cancel();fail(413,'size','Request exceeds the endpoint size limit.');}text+=decoder.decode(value,{stream:true});}
   let value;try{value=JSON.parse(text+decoder.decode());}catch{fail(400,'json','The update could not be read.');}
   if(!value||typeof value!=='object'||Array.isArray(value))fail(400,'json','The update must be an object.');return value;
 }
@@ -49,6 +51,8 @@ export async function handleSoloDesk(context){
     if(request.method!=='POST')fail(405,'method','Use GET or POST for this desk.');
     if(request.headers.get('origin')!==url.origin)fail(403,'origin','Use the CoverageFit workspace to save this update.');
     const value=await body(request);
+    if(route==='raw-preview')return json({ok:true,...await rawImporter(repo,env).preview(value)});
+    if(route==='raw-import')return json({ok:true,...await rawImporter(repo,env).commit(value)});
     if(route==='sync')return json({ok:true,...await sourceSync(repo).sync(value.stream)});
     if(route==='priority-backfill'){const result=await repo.backfillOpportunityPriority(value.limit||60);return json({ok:true,...result});}
     if(!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(value.requestId||''))fail(422,'request_id','Reload the form before saving.');

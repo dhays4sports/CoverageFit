@@ -14,11 +14,11 @@ Normal selling already includes reading the original request/history, contacting
 
 | Extra action in the current design | CONTROL | SIGNAL | Required treatment |
 |---|---|---|---|
-| Export new lead roster / prepare IDs and columns | Yes | Yes | One batch, shared import mapping; do not hand-format each lead. P0 gap: combined intake not built. |
+| Export new lead roster / prepare IDs and columns | Yes | Yes | One batch, shared import mapping; do not hand-format each lead. Implemented on the 1.2 candidate: multi-file individual RAW preview/import; real-world timing remains unverified. |
 | Recreate an opportunity solely for measurement | Yes | Yes | Eliminate as a producer task. Batch matching must reuse an existing record; unresolved identities go to a small exception queue. Do not silently merge by phone. |
 | Open CoverageFit, find opportunity, expand pilot panel | Yes | Yes | No per-silent-lead visits. Worked lead review should live at an existing work boundary; opening a second screen is included in time budget. |
 | Click Load pilot record | Yes | Yes | Eliminated in prepared patch: opens automatically on expansion. |
-| Type original stable lead key | Yes | Yes | Derive from roster once; immutable assignment. Current individual enrollment remains a P0 burden gap. |
+| Type original stable lead key | Yes | Yes | Derive from roster once; immutable assignment. RAW batch intake derives this automatically; individual enrollment is fallback only. |
 | Type received timestamp | Yes | Yes | Read actual source timestamp from batch, never import time as receipt time. |
 | Confirm eligibility for every lead | Yes | Yes | Confirm inclusion rules for a batch; inspect exceptions only. Do not remove eligibility protection. |
 | Assign/check CONTROL versus SIGNAL | Yes | Yes | Deterministic allocation before response review; persist once. Do not choose by reply quality or change keys. |
@@ -28,10 +28,10 @@ Normal selling already includes reading the original request/history, contacting
 | Manually tag each response or copy it into a tracker | Would contaminate | Yes | Defer manual rich tags. Existing Signal evidence may be reused for treatment; do not run treatment classification on CONTROL just for analytics. |
 | Review/edit/approve a Signal draft | No | Yes | Keep as communications safeguard. It replaces manual composition where useful. Count net time honestly; do not add a second approval solely for the pilot. |
 | Copy known line/carrier/timing into another form | Yes | Yes | Eliminate duplicate entry. Reuse governed source/context; no inferred intent from static fields. |
-| Enter each of 13 yes/no/unknown outcome flags | Yes | Yes | Removed from routine prepared UI. Retain only quote/bind verification and final disposition; keep old metadata readable. |
+| Enter each of 13 yes/no/unknown outcome flags | Yes | Yes | Removed from routine prepared UI. Retain useful-conversation, quote/bind verification and final disposition; keep old metadata readable. |
 | Enter six timestamps | Yes | Yes | Removed from routine UI. Record review time automatically; do not invent quote/bind occurrence timestamps. Future date/month only when needed. |
 | Enter producer minutes | Yes | Yes | Keep one measured-time input at wrap/end of work; reuse existing effort entries. Include unsuccessful work and pilot admin. Never time every text. |
-| Choose effort category | Yes | Yes | Removed from compact review; pilot captures total attention. Existing detailed categories may remain for normal workflow. |
+| Choose effort category | Yes | Yes | Defaults to Other sales; optional existing categories and minute presets are retained. Existing detailed categories may remain for normal workflow. |
 | Save effort separately from outcome | Yes | Yes | Eliminated in prepared patch: one atomic, idempotent save. |
 | Check effort-complete and zero-work boxes per lead | Yes | Yes | Compact save confirms reviewed effort once. Silent/no-work completeness must be a batch reconciliation, not individual zero clicks. P0 gap. |
 | Re-enter quote/bind evidence notes | Yes | Yes | No typed duplicate note in compact review: authenticated confirmation of an actual quote/bind. Prefer authoritative existing records or a later batch export. No outcome inferred from a score/draft. |
@@ -59,9 +59,9 @@ Normal selling already includes reading the original request/history, contacting
 | Future Bind | Real later opportunity plus existing follow-up date or month; preserve precision |
 | Final disposition | OPEN / FUTURE_BIND / CLOSED / STOP / WON; retain normal CRM truth and audit provenance |
 
-Keep source/provenance, stable identifiers, suppression and assignment metadata internally. Do not make Dylan re-enter them. Rich signal dimensions, useful-conversation labels, sales-positive labels, quote-ready labels, price/premium, detailed effort categories and stage-by-stage timestamps are optional observational data, not launch chores. CONTROL must not receive Signal analysis merely to fill these columns.
+Keep source/provenance, stable identifiers, suppression and assignment metadata internally. Do not make Dylan re-enter them. Useful-conversation confirmation remains necessary for the primary metric. Rich signal dimensions, sales-positive labels, quote-ready labels, price/premium and stage-by-stage timestamps are optional observational data, not universal launch chores. CONTROL must not receive Signal analysis merely to fill these columns.
 
-Before the first enrollment, amend the primary metric to **total producer minutes / actual quotes prepared**, with binds, quote/bind output per enrolled lead and Future Bind preservation as safeguards. This removes the need for Dylan to judge “useful conversation” for every control interaction. The earlier minutes/useful-conversation primary is superseded for the proposed lean protocol, subject to district prelaunch approval. No outcome-driven goalpost change is allowed after enrollment.
+**The 1.2 mandate freezes Producer Minutes / Useful Conversation as the primary metric.** The earlier audit suggestion to switch to minutes/quote is withdrawn. Quote/bind output per enrolled lead remains a safeguard. Use one yes/no/unknown useful-conversation confirmation at a worked-record boundary; do not run Signal classification on CONTROL. No outcome-driven goalpost change is allowed.
 
 All measured work, including failed contact and incremental pilot administration, belongs in the numerator. If full-cohort effort is incomplete, no headline efficiency claim. A worked-only subset can be labeled descriptive but cannot establish that Signal saves time on the incoming inventory.
 
@@ -73,7 +73,7 @@ SIGNAL: read current context, review/edit/approve the reply or call as appropria
 
 Silent/unworked: no individual pilot action. Enrollment and end-of-period status come from the roster/reconciliation batch. If an unsuccessful call was attempted, include its effort in the normal work block. Never classify silence as rejection, or assume no time merely because no reply exists.
 
-Unqualified/closed: record the normal agency disposition once. No extra signal taxonomy, narrative or pilot close form. Carry that disposition into the measurement batch. Useful negatives need not receive an extra “useful” label.
+Unqualified/closed: record the normal agency disposition once. No extra signal taxonomy, narrative or pilot close form. Carry that disposition into the measurement batch. A negative that materially changes the next action is useful but not sales-positive; capture that once at the same worked-record boundary.
 
 ## Time budget — acceptance target, not a measured result
 

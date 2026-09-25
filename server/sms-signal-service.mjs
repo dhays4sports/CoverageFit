@@ -1,4 +1,4 @@
-import {districtSmsCohort} from './district-pilot-sms.mjs';
+import {districtSmsCohort,districtSmsRecord} from './district-pilot-sms.mjs';
 import {resolveSmsInboundRoute} from './sms-orchestrator-core.mjs';
 import { SIGNAL_PREFIX, DEFAULT_TEMPLATES, enabled, observeOutbound, decideSignal, compliance, extractFacts, matchTemplate } from './sms-signal-core.mjs';
 import { listRingCentralMessageHistory, normalizeE164 } from './ringcentral-client.mjs';
@@ -22,7 +22,8 @@ export async function recordSignalEvent(store,c,event,options={}) {
 }
 export async function signalOutbound(c,event,options={}) {
  if(!enabled(options.env))return {conversation:c,matched:false};
- if(await districtSmsCohort(c,options.env,options.store)==='CONTROL')return {conversation:c,matched:false};
+ const cohort=await districtSmsCohort(c,options.env,options.store);
+ if(cohort==='CONTROL'||(String(options.env?.CF_SMS_SIGNAL_PILOT_ONLY)==='1'&&!cohort))return {conversation:c,matched:false};
  const out=observeOutbound(c,event,await templatesFor(options.store));
  if(out.matched){out.conversation.transcript=[...(c.transcript||[]),{id:`rc-${event.messageId}`,direction:'outbound',body:event.body,occurredAt:event.occurredAt,kind:'inferred_agencyzoom'}].slice(-60);out.conversation.lastOutboundAt=event.occurredAt;out.conversation.updatedAt=event.occurredAt;out.conversation.outboundCount=(c.outboundCount||0)+1;await recordSignalEvent(options.store,out.conversation,event,options);}
  return out;
@@ -45,17 +46,24 @@ async function historyContext(c,event,options) {
 }
 export async function signalInbound(c,event,options={}) {
  if(!enabled(options.env))return null;
- if(!compliance(event.body,c)&&await districtSmsCohort(c,options.env,options.store)==='CONTROL'){
-  const out=structuredClone(c);out.signal={...(out.signal||{}),managed:false,pilot_cohort:'CONTROL',reply:'',draft_status:'none',decision_2:null,useful:false,sales_positive:false,human_required:true,automation_lock:true,reason:'CONTROL: use the existing AgencyZoom workflow and manual RingCentral response.'};
+ const complianceKind=compliance(event.body,c);const pilot=complianceKind?null:await districtSmsRecord(c,options.env,options.store);
+ if(!complianceKind&&(pilot?.cohort==='CONTROL'||(String(options.env?.CF_SMS_SIGNAL_PILOT_ONLY)==='1'&&!pilot))){
+  const out=structuredClone(c);out.signal={...(out.signal||{}),managed:false,pilot_cohort:pilot?.cohort||'UNENROLLED',reply:'',draft_status:'none',decision_2:null,useful:false,sales_positive:false,human_required:true,automation_lock:true,reason:pilot?.cohort==='CONTROL'?'CONTROL: use the existing AgencyZoom workflow and manual RingCentral response.':'Not enrolled: hold Signal treatment until cohort identity is confirmed.'};
   await writeOpsAudit(options.store,'pilot_control_inbound',{conversationId:c.id,detail:'Signal interpretation and conversational draft withheld for CONTROL.'},options);return out;
+ }
+ if(pilot?.cohort==='SIGNAL'&&pilot.raw_facts){
+  c=structuredClone(c);const raw={...pilot.raw_facts};
+  for(const k of ['renewal_date','closing_date'])if(raw[k]&&raw[k]<event.occurredAt.slice(0,10)){if(c.signal?.facts?.[k]===raw[k]){delete c.signal.facts[k];delete c.signal.facts.timing;}delete raw[k];}
+  delete raw.stated_need;delete raw.shopping_intent;delete raw.insured_since;
+  c.signal={...(c.signal||{}),facts:{...raw,...(c.signal?.facts||{})},fact_provenance:{...pilot.raw_provenance,...(c.signal?.fact_provenance||{})},pilot_cohort:'SIGNAL'};
  }
  if(c.signal?.inbound_message_id===event.messageId)return c;
  // Preserve existing first-party intake and booked appointment workflows unless enrolled.
  const firstParty=c.orchestration?.workflow?.type;
- if(!compliance(event.body,c)&&!c.signal?.managed&&(firstParty?.startsWith('coveragefit_')||(firstParty&&firstParty!=='unknown'&&firstParty!=='none'&&c.outboundContext?.origin&&!['crm','campaign','external_unknown'].includes(c.outboundContext.origin))))return null;
+ if(pilot?.cohort!=='SIGNAL'&&!compliance(event.body,c)&&!c.signal?.managed&&(firstParty?.startsWith('coveragefit_')||(firstParty&&firstParty!=='unknown'&&firstParty!=='none'&&c.outboundContext?.origin&&!['crm','campaign','external_unknown'].includes(c.outboundContext.origin))))return null;
  if(!compliance(event.body,c))c=await historyContext(c,event,options);
  // Preserve explicit first-party entry commands after checking for campaign context.
- if(!compliance(event.body,c)&&!c.signal?.managed&&!c.signal?.context_error&&['explicit_entry_keyword','explicit_coveragefit_command','explicit_restart','explicit_producer_request','partner_attributed_entry'].includes(resolveSmsInboundRoute(c,event.body,{occurredAt:event.occurredAt,partnerRegistry:options.partnerRegistry}).reason))return null;
+ if(pilot?.cohort!=='SIGNAL'&&!compliance(event.body,c)&&!c.signal?.managed&&!c.signal?.context_error&&['explicit_entry_keyword','explicit_coveragefit_command','explicit_restart','explicit_producer_request','partner_attributed_entry'].includes(resolveSmsInboundRoute(c,event.body,{occurredAt:event.occurredAt,partnerRegistry:options.partnerRegistry}).reason))return null;
  const templates=await templatesFor(options.store);
  // Backfill only explicit facts from preceding paired messages, then let structured memory win.
  let historyFacts={},previous='',goal='';
@@ -72,6 +80,7 @@ export async function signalInbound(c,event,options={}) {
  const paused=smsAutomationPaused(c)||c.signal?.human_active;
  const wasLocked=c.signal?.automation_lock;
  let next=decideSignal(c,event.body,{templates:await templatesFor(options.store),now:event.occurredAt,messageId:event.messageId});
+ if(pilot?.cohort==='SIGNAL'){next.signal.fact_provenance={...next.signal.fact_provenance,...Object.fromEntries(Object.keys(next.signal.new_facts||{}).map(k=>[k,{source:'inbound_sms',observed_at:event.occurredAt,message_id:event.messageId}]))};}
  if(compliance(event.body,c)==='automatic_response'){next.signal={...(next.signal||{}),reply:'',draft_status:'none'};}
  else {
   next.signal.draft_status=next.signal.reply?'pending':'none';

@@ -308,7 +308,7 @@ export function deriveOpportunityPriority({opportunity=null,tasks=[],sources=[],
   const {lead,context,attribution,consent}=contextFromSources(sources),track=productTrack(opportunity,context),override=routeOverride(opportunity,tasks,sources);
   const dimensions=Object.freeze({
     need:dimension('need',needCandidates(track,opportunity,context,lead)),
-    intent:dimension('intent',intentCandidates(opportunity,tasks,sources,context,lead,now,{allowStructuredEngagement:evidenceMode!=='signal'})),
+    intent:dimension('intent',intentCandidates(opportunity,tasks,sources,context,lead,now,{allowStructuredEngagement:evidenceMode!=='signal'&&context.evidenceOrigin!=='agencyzoom_raw'})),
     timing:dimension('timing',timingCandidates(opportunity,context,lead,now)),
     fit:dimension('fit',fitCandidates(track,opportunity,context,lead,possessionQuality))
   });
