@@ -1,6 +1,6 @@
-import {mountWorkWrap} from './producer-work-wrap.mjs?v=2.0';
-import {mountRawImport} from './agencyzoom-import.mjs?v=AZ-RAW-1.0';
-import {mountPilotRecord,mountPilotReport} from './district-pilot.mjs?v=WORKSPACE-2.0';
+import {mountWorkWrap} from './producer-work-wrap.mjs?v=2.0.1';
+import {mountRawImport} from './agencyzoom-import.mjs?v=WORKSPACE-2.0.1';
+import {mountPilotRecord,mountPilotReport} from './district-pilot.mjs?v=WORKSPACE-2.0.1';
 import {mountSms} from './producer-sms.mjs?v=2.0';
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const labels={DISTRICT_SIGNAL:'SIGNAL',DISTRICT_CONTROL:'CONTROL',WEB_DIRECT:'WEB / DIRECT',OTHER:'OTHER'},key='coveragefit.producerInbox.token';
@@ -21,7 +21,7 @@ function mountConversation(d){mountSms($('embedded-sms'),d,b=>http('/api/sms/sig
 $('detail').addEventListener('input',e=>{if(e.target.closest('#embedded-sms'))draftDirty=true;else effortDirty=true;dirty=draftDirty||effortDirty;});
 $('detail').addEventListener('pilot-saved',()=>{effortDirty=false;dirty=draftDirty;});
 $('work-list').onclick=e=>{const b=e.target.closest('[data-id]');if(b)open(b.dataset.id);};$('more').onclick=()=>load(true);
-$('populations').onclick=e=>{const b=e.target.closest('[data-pop]');if(!b)return;population=b.dataset.pop;$('search').value='';document.querySelectorAll('[data-pop]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));load();};
+$('populations').onclick=e=>{const b=e.target.closest('[data-pop]');if(!b||!leave())return;++detailRequest;selected=null;dirty=false;draftDirty=false;effortDirty=false;$('detail').innerHTML='<p class="muted">Select an opportunity to see its context and next action.</p>';const u=new URL(location.href);u.searchParams.delete('opportunity_id');history.replaceState(null,'',u);population=b.dataset.pop;$('search').value='';document.querySelectorAll('[data-pop]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));load();};
 document.querySelectorAll('[data-area]').forEach(b=>b.onclick=()=>area(b.dataset.area));$('search-form').onsubmit=e=>{e.preventDefault();load();};$('work-status').onchange=()=>load();$('refresh').onclick=()=>load();
 $('connect-form').onsubmit=e=>{e.preventDefault();sessionStorage.setItem(key,$('access-key').value.trim());$('access-key').value='';$('connect-details').open=false;area('work');load().then(syncSources);};$('disconnect').onclick=()=>{sessionStorage.removeItem(key);location.reload();};
 async function syncSources(){const b=$('sync');if(b.disabled||!token())return;b.disabled=true;try{let more=false;for(const stream of ['leads','consultations','recommendations','responses','closings','bookings','journeys']){const r=await api('sync',{stream});more=more||!!r.hasMore;}$('sync-status').textContent=more?'More source records remain. Refresh again to continue the bounded sync.':'Existing sources synced.';await load();}catch(e){$('sync-status').textContent=e.message;}finally{b.disabled=false;}}

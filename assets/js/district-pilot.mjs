@@ -1,5 +1,5 @@
 import {EFFORT_CATEGORIES} from './solo-desk-model.mjs';
-import {mountRawImport} from './agencyzoom-import.mjs?v=AZ-RAW-1.0';
+import {mountRawImport} from './agencyzoom-import.mjs?v=WORKSPACE-2.0.1';
 // Operator-only experiment controls. No provider send or CRM write.
 const flags=['fresh_response','useful_conversation','sales_positive','current_intent','future_intent','negative_disposition','quote_ready','quote','quote_sent','bind','stop','wrong_number','confusion'];
 const dates=['fresh_response_at','qualified_at','contact_at','quote_at','bind_at','future_bind_date'];

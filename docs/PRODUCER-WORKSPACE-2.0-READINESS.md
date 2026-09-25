@@ -23,7 +23,7 @@ This release extends the pilot candidate. It does not activate customer-facing S
 
 ## Local evidence
 
-168 tests passed, 0 failed, 0 skipped before hosted verification. Nine new tests cover explicit population classification, durable persistence, counts, global search, detail isolation, attention precedence, escaped and suppressed presentation, authenticated API, exact linked opportunity, editing without send, stale revision rejection, one approved send maximum and manual AZ acknowledgement. Existing RAW, effort/outcome, SMS safety and measurement suites remain passing.
+169 tests passed, 0 failed, 0 skipped before hosted verification. Ten new tests cover explicit population classification, durable persistence, counts, global search, detail isolation, attention precedence, escaped and suppressed presentation, authenticated API, exact linked opportunity, editing without send, stale revision rejection, one approved send maximum and manual AZ acknowledgement. A hosted catch added regression coverage for rendering existing ISO due dates in normal web work wrap. Existing RAW, effort/outcome, SMS safety and measurement suites remain passing.
 
 403 JavaScript/module files passed syntax validation. HTML checks found no duplicate IDs or missing referenced assets in either workspace shell. Local browser preview was blocked by the browser client; this is not evidence of a site failure. Hosted verification must be recorded below after deployment. No local test is labeled a live provider canary.
 
@@ -43,4 +43,40 @@ Retain the pre-workspace production main reference created for this release and 
 
 ## Hosted evidence
 
-Pending at initial commit. See final handoff / subsequent verification entry for actual deployment observation. No Cloudflare setting has been changed by the assistant.
+Initial workspace publication: 6581f60ea317519bf1a3e1c331f1e0511570caa8. GitHub main was safely advanced from 1fc2fe4 after rollback creation. The hosted UI was observed on 2026-09-25 at https://coveragefit.com/agent/workspace/?area=work. Cloudflare's deployment SHA was not independently exposed; the new rendered code was observed. No Cloudflare setting was changed.
+
+Observed with an existing authenticated producer connection:
+- Work / Import / Analytics / Tools loads; default daily work has no analytics tables, diagnostic panels or setup forms.
+- Population counts: SIGNAL 0, CONTROL 0, WEB / DIRECT 4, OTHER 2. These are existing production records, not synthetic enrollments created by this release.
+- Import renders the multi-file selection/preview flow; actual import was not performed during this UI check.
+- Analytics returns 0 enrolled in both cohorts despite six non-pilot work records; effort remains Not measured, not fabricated zero.
+- Tools contains the retained specialist/connection paths.
+- Opening an existing WEB / DIRECT record exposed an ISO-date rendering defect in its normal work form. Corrected the Date conversion and added a regression test; production recheck must confirm the corrected form.
+- Removed the old import footer directing daily work to SMS Operations. Population switches now discard the previous detail only after the unsaved-change guard and clear its URL identity.
+
+No customer messages or customer outcome edits were made. The hosted empty district lists cannot certify a live enrolled SIGNAL/CONTROL journey.
+
+## Readiness matrix
+
+| Requirement | Status | Evidence / limit |
+|---|---|---|
+| Canonical navigation / clutter reduction | PASS WITH LIMITATION | Four primary areas observed; timed effort reduction not measured |
+| SIGNAL membership | PASS WITH LIMITATION | Source-backed classification and exact linkage tested; live list empty |
+| CONTROL isolation | PASS WITH LIMITATION | Backend and presentation tests; live list empty |
+| WEB / DIRECT | PASS WITH LIMITATION | Four live records and zero pilot enrollment observed; date-form fix requires recheck |
+| OTHER | PASS WITH LIMITATION | Two live records counted; explicit classification tested |
+| Embedded Decision 2 / suggested reply | PASS WITH LIMITATION | Canonical engine and panel tested; no live enrolled record |
+| Approve/send safety | BLOCKED for live certification | Edit/no-send, revision, suppression, duplicate, CONTROL guards tested; internal approved provider canary outstanding |
+| Manual AZ recommendation / acknowledgement | PASS WITH LIMITATION | Canonical action tested; no AZ API or automatic stage writes |
+| Same-detail effort/outcome capture | PASS WITH LIMITATION | Existing validation/atomic saves tested; batch reconciliation and timed burden gate remain |
+| Analytics / Tools separation | PASS | Hosted navigation and pilot report observed |
+| Legacy / deep links | PASS WITH LIMITATION | Original shell and dependencies retained; source/asset checks; full historical advisory journeys not replayed |
+| Cloudflare | PASS boundary | No changes; migration 0019 remains user-verified, not rerun |
+| District launch | BLOCKED | Provider canary, batch reconciliation and measured administrative burden remain P0 |
+
+## Production rollback references
+
+CoverageFit pre-workspace-production-20260925 → 1fc2fe436e96466ba1aa0f404381c752ee1632eb.
+CoverageFit pre-signal-production-20260924 → 961d242a2fbdfc27f634a9836e66dfb3f2c60ef1.
+408FARMERS pre-signal-production-20260924 → fd4c6849a871649dd9840ff61eaa5a9407a515d0.
+All retained. No force push, branch deletion, schema migration or data reset.
