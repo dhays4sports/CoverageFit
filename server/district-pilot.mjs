@@ -14,10 +14,12 @@ export async function pilotAssignment(leadKey){const key=trim(leadKey,180).toLow
 export function validateObservation(input,receivedAt,now=new Date().toISOString()){
  const o={};for(const k of PILOT_FLAGS){const v=input[k];if(v!==null&&v!==true&&v!==false)fail(422,'pilot_flag',`Record ${k} as yes, no as of review, or unknown.`);o[k]=v;}
  for(const k of PILOT_DATES){o[k]=iso(input[k]);if(o[k]&&k!=='future_bind_date'&&(o[k]<receivedAt||o[k]>now))fail(422,'pilot_date','Observed outcomes must fall between lead receipt and now.');}
- for(const [flag,date] of [['fresh_response','fresh_response_at'],['quote_ready','qualified_at'],['quote','quote_at'],['bind','bind_at']])if(o[flag]===true&&!o[date]||o[flag]!==true&&o[date])fail(422,'pilot_evidence',`${flag}: match the recorded outcome and its timestamp.`);
+ for(const [flag,date] of [['fresh_response','fresh_response_at'],['quote_ready','qualified_at'],['quote','quote_at'],['bind','bind_at']])if(o[flag]!==true&&o[date])fail(422,'pilot_evidence',`${flag}: match the recorded outcome and its timestamp.`);
  if(o.quote_sent===true&&o.quote!==true)fail(422,'pilot_evidence','Quote sent requires a prepared quote.');
  if(o.sales_positive===true&&o.useful_conversation!==true)fail(422,'pilot_evidence','A sales-positive signal must also be recorded as useful.');
- if(o.future_intent===true&&!o.future_bind_date)fail(422,'pilot_evidence','Record the future follow-up date before marking Future Bind.');
+ o.future_bind_month=input.future_bind_month||null;if(o.future_bind_month&&!/^\d{4}-(0[1-9]|1[0-2])$/.test(o.future_bind_month))fail(422,'pilot_date','Use YYYY-MM for a follow-up month.');
+ if(o.future_bind_date&&o.future_bind_month&&o.future_bind_date.slice(0,7)!==o.future_bind_month)fail(422,'pilot_date','Follow-up date and month must agree.');
+ if(o.future_intent===true&&!o.future_bind_date&&!o.future_bind_month)fail(422,'pilot_evidence','Record the future follow-up date before marking Future Bind.');
  o.outcome_evidence=trim(input.outcome_evidence,240);
  if((o.quote===true||o.bind===true)&&!o.outcome_evidence)fail(422,'pilot_evidence','Quote or bind needs a non-sensitive CRM/reference note.');
  const premium=input.bound_premium;if(premium===null||premium===''||premium===undefined)o.bound_premium=null;else{const n=Number(premium);if(o.bind!==true||!Number.isFinite(n)||n<=0||n>1e7)fail(422,'pilot_premium','Record a verified term premium only for a recorded bind.');o.bound_premium=Math.round(n*100)/100;}
@@ -26,7 +28,7 @@ export function validateObservation(input,receivedAt,now=new Date().toISOString(
  if(o.final_status==='WON'&&o.bind!==true||o.final_status==='FUTURE_BIND'&&o.future_intent!==true)fail(422,'pilot_status','Final status must match verified outcome evidence.');
  o.effort_complete=input.effort_complete===true;o.zero_effort_confirmed=input.zero_effort_confirmed===true;o.reviewed_at=now;return o;
 }
-export const PILOT_EXPORT_COLUMNS=['pilot_id','pilot_phase','cohort','opportunity_id','lead_key_hash','source_family','source_key','campaign_id','producer','sms_linked','received_at','enrollment_date',...PILOT_FLAGS,...PILOT_DATES,'bound_premium','producer_minutes','effort_complete','reviewed_at','final_status'];
+export const PILOT_EXPORT_COLUMNS=['pilot_id','pilot_phase','cohort','opportunity_id','lead_key_hash','source_family','source_key','campaign_id','producer','sms_linked','received_at','enrollment_date',...PILOT_FLAGS,...PILOT_DATES,'bound_premium','producer_minutes','effort_complete','reviewed_at','final_status','future_bind_month'];
 export function pilotCSV(records){const cell=v=>{let s=v===null||v===undefined?'':String(v);if(/^[\s]*[=+@-]/.test(s))s="'"+s;return '"'+s.replaceAll('"','""')+'"'};return [PILOT_EXPORT_COLUMNS,...records.map(r=>PILOT_EXPORT_COLUMNS.map(k=>r[k]))].map(r=>r.map(cell).join(',')).join('\r\n')+'\r\n';}
 export function pilotSummary(records){return ['CONTROL','SIGNAL'].map(cohort=>{const rows=records.filter(r=>r.cohort===cohort),n=rows.length;const g={cohort,enrolled:n};for(const k of PILOT_FLAGS){g[k]=rows.filter(r=>r[k]===true).length;g[`${k}_known`]=rows.filter(r=>r[k]!==null&&r[k]!==undefined).length;}
  g.effort_complete=rows.filter(r=>r.effort_complete&&r.producer_minutes!==null).length;
@@ -56,7 +58,32 @@ export function districtPilot(repo,env={}){const w=repo.scope.workspace;
   async observe(v,rid){const old=await get(v.id);if(!old)fail(422,'pilot_enrollment','Enroll this opportunity first.');const fp=await digest(JSON.stringify(['observe',v.id,v.version,v.observation]));if(await prior(rid,fp))return (await get(v.id)).data;if(v.version!==old.data.version)fail(409,'pilot_conflict','A newer pilot update exists. Reload before saving.');const at=new Date().toISOString(),o=validateObservation(v.observation,old.data.received_at,at);const next={...old.data,version:old.data.version+1,observation:o};
    const result=await repo.db.batch([repo.sql('UPDATE cf_solo_sources SET summary_json=?,updated_at=? WHERE workspace_id=? AND kind=? AND source_id=? AND summary_json=?',JSON.stringify(next),at,w,PILOT_KIND,old.row.source_id,old.row.summary_json),event(v.id,rid,fp,{action:'observed',...o},at)]).catch(async e=>{if(await prior(rid,fp))return null;throw e});if(result&&result[0].meta?.changes!==1)fail(409,'pilot_conflict','A newer pilot update exists. Reload before saving.');return (await get(v.id)).data;
   },
-  async report(){const found=await repo.rows(`SELECT s.summary_json,SUM(e.minutes) effort_minutes,MAX(e.created_at) effort_last_at FROM cf_solo_sources s LEFT JOIN cf_opportunity_effort e ON e.workspace_id=s.workspace_id AND e.opportunity_id=s.opportunity_id AND e.occurred_at>=json_extract(s.summary_json,'$.received_at') WHERE s.workspace_id=? AND s.kind=? GROUP BY s.source_id ORDER BY s.updated_at,s.source_id LIMIT 10001`,w,PILOT_KIND);if(found.length>10000)fail(422,'pilot_size','Pilot export exceeds 10,000 records; narrow the approved pilot before continuing.');const records=[];for(const row of found){const p=parse(row.summary_json),o=p.observation||{},eff={minutes:row.effort_minutes,last_at:row.effort_last_at};const minutes=eff?.minutes??(o.effort_complete&&o.zero_effort_confirmed?0:null);records.push({...p,sms_linked:!!p.conversation_id,...Object.fromEntries(PILOT_FLAGS.map(k=>[k,o[k]??null])),...Object.fromEntries(PILOT_DATES.map(k=>[k,o[k]??null])),bound_premium:o.bound_premium??null,producer_minutes:minutes,effort_complete:!!(o.effort_complete&&minutes!==null&&(!eff?.last_at||eff.last_at<=o.reviewed_at)),reviewed_at:o.reviewed_at||null,final_status:o.final_status||'OPEN'});}
+  async quickReview(v,rid){
+   const old=await get(v.id);if(!old)fail(422,'pilot_enrollment','Enroll this opportunity first.');
+   const fp=await digest(JSON.stringify(['quick-review',v]));if(await prior(rid,fp))return (await get(v.id)).data;
+   if(v.version!==old.data.version)fail(409,'pilot_conflict','A newer pilot update exists. Reload before saving.');
+   if(v.confirmed!==true)fail(422,'pilot_confirm','Confirm actual outcomes and complete recorded effort through this review.');
+   const blank=v.minutes===null||v.minutes===undefined||v.minutes==='';const minutes=blank?null:Number(v.minutes);
+   if(minutes!==null&&(!Number.isInteger(minutes)||minutes<1||minutes>480))fail(422,'effort_minutes','Enter 1–480 additional minutes, or leave blank if already recorded.');
+   const at=new Date().toISOString(),previous=old.data.observation||{};
+   const o={...Object.fromEntries(PILOT_FLAGS.map(k=>[k,previous[k]??null])),...previous};
+   for(const k of ['quote','bind']){if(![true,false,null].includes(v[k]))fail(422,'pilot_flag','Confirm quote and bind or leave unknown.');o[k]=v[k];if(v[k]!==true)o[k+'_at']=null;}
+   o.final_status=v.final_status;
+   if(v.final_status==='WON'&&v.bind!==true)fail(422,'pilot_status','WON requires a verified bind.');
+   // A suppression observation may not be cleared through the compact form.
+   if(previous.stop===true&&v.final_status!=='STOP')fail(409,'pilot_stop','STOP cannot be cleared in quick review.');
+   o.stop=v.final_status==='STOP'?true:previous.stop??null;
+   if(v.final_status==='FUTURE_BIND'){o.future_intent=true;o.future_bind_date=v.future_bind_date||null;o.future_bind_month=v.future_bind_month||null;}
+   o.outcome_evidence=(v.quote===true||v.bind===true)?'Authenticated producer confirmed actual quote/bind in quick review':previous.outcome_evidence||'';
+   o.effort_complete=true;o.zero_effort_confirmed=previous.zero_effort_confirmed===true;
+   const observation=validateObservation(o,old.data.received_at,at),next={...old.data,version:old.data.version+1,observation};
+   const batch=[repo.sql('UPDATE cf_solo_sources SET summary_json=?,updated_at=? WHERE workspace_id=? AND kind=? AND source_id=? AND summary_json=?',JSON.stringify(next),at,w,PILOT_KIND,old.row.source_id,old.row.summary_json),event(v.id,rid,fp,{action:'quick_review',...observation,additional_minutes:minutes},at)];
+   if(minutes!==null)batch.push(repo.sql("INSERT INTO cf_opportunity_effort(id,workspace_id,opportunity_id,actor_id,category,minutes,note,request_id,occurred_at,created_at) SELECT ?,?,?,?,'other_sales',?,'Pilot quick review: actual additional work, including pilot administration',?,?,? WHERE EXISTS(SELECT 1 FROM cf_solo_activity WHERE workspace_id=? AND request_id=? AND fingerprint=?)",'effort_'+rid,w,v.id,repo.scope.actor,minutes,rid,at,at,w,rid,fp));
+   const result=await repo.db.batch(batch).catch(async e=>{if(await prior(rid,fp))return null;throw e;});
+   if(result&&result[0].meta?.changes!==1)fail(409,'pilot_conflict','A newer pilot update exists. Reload before saving.');
+   return (await get(v.id)).data;
+  },
+  async report(){const found=await repo.rows(`SELECT s.summary_json,SUM(e.minutes) effort_minutes,MAX(e.created_at) effort_last_at FROM cf_solo_sources s LEFT JOIN cf_opportunity_effort e ON e.workspace_id=s.workspace_id AND e.opportunity_id=s.opportunity_id AND e.occurred_at>=json_extract(s.summary_json,'$.received_at') WHERE s.workspace_id=? AND s.kind=? GROUP BY s.source_id ORDER BY s.updated_at,s.source_id LIMIT 10001`,w,PILOT_KIND);if(found.length>10000)fail(422,'pilot_size','Pilot export exceeds 10,000 records; narrow the approved pilot before continuing.');const records=[];for(const row of found){const p=parse(row.summary_json),o=p.observation||{},eff={minutes:row.effort_minutes,last_at:row.effort_last_at};const minutes=eff?.minutes??(o.effort_complete&&o.zero_effort_confirmed?0:null);records.push({...p,sms_linked:!!p.conversation_id,...Object.fromEntries(PILOT_FLAGS.map(k=>[k,o[k]??null])),...Object.fromEntries(PILOT_DATES.map(k=>[k,o[k]??null])),bound_premium:o.bound_premium??null,producer_minutes:minutes,effort_complete:!!(o.effort_complete&&minutes!==null&&(!eff?.last_at||eff.last_at<=o.reviewed_at)),reviewed_at:o.reviewed_at||null,final_status:o.final_status||'OPEN',future_bind_month:o.future_bind_month||null});}
    return {pilot_id:PILOT_ID,as_of:new Date().toISOString(),records,summary:pilotSummary(records),csv:pilotCSV(records),basis:'Cumulative enrollment cohort; explicit operator observations; missing is unknown. No statistical significance claim.'};}
  };
 }

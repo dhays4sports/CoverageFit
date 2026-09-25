@@ -53,6 +53,7 @@ export async function handleSoloDesk(context){
     if(route==='priority-backfill'){const result=await repo.backfillOpportunityPriority(value.limit||60);return json({ok:true,...result});}
     if(!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(value.requestId||''))fail(422,'request_id','Reload the form before saving.');
     if(route==='pilot-enroll')return json({ok:true,pilot:await districtPilot(repo,env).enroll(value,value.requestId)},201);
+    if(route==='pilot-quick-review')return json({ok:true,pilot:await districtPilot(repo,env).quickReview(value,value.requestId)});
     if(route==='pilot-observe')return json({ok:true,pilot:await districtPilot(repo,env).observe(value,value.requestId)});
     if(route==='pilot-effort'){if(!await districtPilot(repo,env).get(value.id))fail(422,'pilot_enrollment','Enroll this opportunity first.');return json({ok:true,effort:await recordEffortEvidence(repo,value.id,{minutes:value.minutes,category:value.category},value.requestId)},201);}
     if(route==='acquisition-campaign'){const acq=acquisitionMeasurement(repo,env);try{await acq.ready();}catch{fail(503,'acquisition_setup_required','Acquisition measurement needs its database update before it can save campaigns.');}return json({ok:true,campaign:await acq.campaign(value,value.requestId)},201);}

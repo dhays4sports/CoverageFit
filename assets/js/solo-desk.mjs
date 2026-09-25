@@ -1,4 +1,4 @@
-import {mountPilotRecord,mountPilotReport} from './district-pilot.mjs';
+import {mountPilotRecord,mountPilotReport} from './district-pilot.mjs?v=ADMIN-AUDIT-1.0';
 import {WORK_TYPES,STAGES,SOURCES,CALL_OUTCOMES,CLOSE_REASONS,EFFORT_CATEGORIES,pacificDay,pacificInput,pacificInputToISO} from './solo-desk-model.mjs';
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const token=()=>{try{return sessionStorage.getItem('coveragefit.producerInbox.token')||'';}catch{return '';}};
