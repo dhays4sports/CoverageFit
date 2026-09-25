@@ -69,6 +69,7 @@ export function districtPilot(repo,env={}){const w=repo.scope.workspace;
    const category=v.effort_category||'other_sales';if(!EFFORT_CATEGORIES.includes(category))fail(422,'effort_category','Select a supported work category.');
    const at=new Date().toISOString(),previous=old.data.observation||{};
    const o={...Object.fromEntries(PILOT_FLAGS.map(k=>[k,previous[k]??null])),...previous};
+   if(v.extra_flags){for(const [k,value] of Object.entries(v.extra_flags)){if(!['fresh_response','sales_positive','quote_ready','quote_sent','wrong_number'].includes(k)||![true,false,null].includes(value))fail(422,'pilot_flag','Unsupported optional outcome');o[k]=value;}}
    if(v.useful_conversation!==undefined){if(![true,false,null].includes(v.useful_conversation))fail(422,'pilot_flag','Use yes/no/unknown for useful conversation');o.useful_conversation=v.useful_conversation;}
    for(const k of ['quote','bind']){if(![true,false,null].includes(v[k]))fail(422,'pilot_flag','Confirm quote and bind or leave unknown.');o[k]=v[k];if(v[k]!==true)o[k+'_at']=null;}
    o.final_status=v.final_status;

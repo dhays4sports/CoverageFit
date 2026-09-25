@@ -1,3 +1,4 @@
+import {producerWorkspace} from './producer-workspace.mjs';
 import {rawImporter} from './agencyzoom-import.mjs';
 import {districtPilot} from './district-pilot.mjs';
 import {authorizeProducer} from './consultation-inbox-core.mjs';
@@ -42,6 +43,8 @@ export async function handleSoloDesk(context){
       if(route==='acquisition-campaigns'){const acq=acquisitionMeasurement(repo,env);try{await acq.ready();}catch{fail(503,'acquisition_setup_required','Acquisition measurement needs its database update before it can manage campaigns.');}return json({ok:true,build:'CF-ACQ-MEASURE-1.0',campaigns:await acq.campaigns()});}
       if(route==='fiv-calibration'){const acq=acquisitionMeasurement(repo,env),cal=fivCalibration(repo);try{await acq.ready();await cal.ready();}catch{fail(503,'fiv_calibration_setup_required','FIV calibration needs migration 0015 before it can compare queue performance.');}await acq.reconcile(300);return json({ok:true,...await cal.summary(url.searchParams)});}
       if(route==='priority-calibration'){const acq=acquisitionMeasurement(repo,env),cal=opportunityPriorityCalibration(repo);try{await acq.ready();await cal.ready();}catch{fail(503,'priority_calibration_setup_required','Opportunity priority calibration needs migration 0019 before it can compare score-band performance.');}await acq.reconcile(300);return json({ok:true,...await cal.summary(url.searchParams)});}
+      if(route==='producer-work')return json({ok:true,...await producerWorkspace(repo,env).list(url.searchParams)});
+      if(route==='producer-detail')return json({ok:true,...await producerWorkspace(repo,env).detail(url.searchParams.get('id'))});
       if(route==='district-pilot')return json({ok:true,...await districtPilot(repo,env).report()});
       if(route==='pilot-record')return json({ok:true,pilot:await districtPilot(repo,env).get(url.searchParams.get('id'))});
       if(route==='activity')return json({ok:true,...await repo.activity(url.searchParams.get('id'),url.searchParams.get('cursor'))});

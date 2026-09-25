@@ -1,3 +1,4 @@
+import {identity,parse} from './solo-desk-repository.mjs';
 import {prepareControlRoster,saveControlRoster} from './district-control-roster.mjs';
 import {districtSmsCohort} from './district-pilot-sms.mjs';
 import {SIGNAL_SCENARIOS,simulateScenario} from './sms-signal-scenarios.mjs';
@@ -17,7 +18,8 @@ export async function handleSmsSignal(request,options={}) {
  if(request.method==='GET'){
   const [cl,el]=await Promise.all([store.list({prefix:'sms-live-conversations/',limit:500}),store.list({prefix:SIGNAL_PREFIX+'events/',limit:1000})]);
   const all=(await Promise.all((cl.blobs||[]).map(x=>store.get(x.key)))).filter(Boolean),events=(await Promise.all((el.blobs||[]).map(x=>store.get(x.key)))).filter(Boolean);
-  const conversations=all.filter(c=>c.signal?.managed).map(c=>({id:c.id,phone:c.contactPhone,name:c.answers?.firstName||c.answers?.name||'',signal:c.signal}));
+  const visible=await Promise.all(all.filter(c=>c.signal?.managed).map(async c=>{const cohort=await districtSmsCohort(c,options.env,store);return cohort==='CONTROL'||(String(options.env?.CF_SMS_SIGNAL_PILOT_ONLY)==='1'&&cohort!=='SIGNAL')?null:c;}));
+  const conversations=visible.filter(Boolean).map(c=>({id:c.id,phone:c.contactPhone,name:c.answers?.firstName||c.answers?.name||'',signal:c.signal}));
   return json({ok:true,enabled:enabled(options.env),build:SIGNAL_BUILD,send_policy:'review_first',scenarios:SIGNAL_SCENARIOS,conversations,templates:await templatesFor(store),metrics:signalMetrics(events,all),truncated:(cl.blobs||[]).length>=500||events.length>=1000});
  }
  if(request.method!=='POST')return fail('GET or POST required',405);
@@ -45,6 +47,11 @@ export async function handleSmsSignal(request,options={}) {
  }
  if(!enabled(options.env))return fail('Signal pilot is not enabled. Simulator remains available.',409);
  if(!/^sms-live-[a-f0-9]{32,64}$/.test(b.conversation_id||''))return fail('Invalid conversation identifier');
+ if(b.opportunity_id){
+  if(!options.env?.COVERAGEFIT_DB)return fail('Opportunity storage unavailable',503);
+  const linked=await options.env.COVERAGEFIT_DB.prepare("SELECT summary_json FROM cf_solo_sources WHERE workspace_id=? AND opportunity_id=? AND kind='district_pilot_v1'").bind(identity(options.env).workspace,b.opportunity_id).first();
+  const pilot=parse(linked?.summary_json);if(pilot.cohort!=='SIGNAL'||pilot.pilot_phase!=='NEW_LEAD'||pilot.conversation_id!==b.conversation_id)return fail('This opportunity is not linked to this SIGNAL conversation.',409);
+ }
  const key='sms-live-conversations/'+b.conversation_id,lock=SIGNAL_PREFIX+'locks/'+b.conversation_id;
  // Shared with webhook processing. A stale crash lock fails closed until explicitly cleared.
  if(b.action==='clear_stale_lock'){
