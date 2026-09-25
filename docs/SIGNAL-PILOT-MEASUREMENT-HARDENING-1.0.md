@@ -50,7 +50,7 @@ Selected Work details poll the canonical linked decision every 15 seconds while 
 
 ## Local verification
 
-Full Node suite: 191 passed, 0 failed, 0 skipped (final run to be recorded at publication). 407 JavaScript/module syntax checks. Local Wrangler build could not run because wrangler 3.114.17 is not cached in this environment; no build-pass claim. Production render/API verification is recorded separately after publication.
+Full Node suite: 192 passed, 0 failed, 0 skipped. 407 JavaScript/module syntax checks. Local Wrangler build could not run because wrangler 3.114.17 is not cached in this environment; no build-pass claim. Production render/API verification is recorded separately after publication.
 
 Synthetic machine rehearsal: 10 CONTROL + 10 SIGNAL worked opportunities and 10 silent records through RAW preview/import, idempotent actual-call evidence, batch reconciliation and export. Stored fixtures use fictional identities and reserved test numbers in an in-memory database. The test proved 20 attempts, 100 explicitly supplied minutes, complete cohort measurement and verified test premium without real sends. These are test assertions, not projected business results.
 
@@ -89,7 +89,7 @@ No other Cloudflare settings, migration 0019 repeat, secret rotation or new bind
 | Call attribution / duration | PASS WITH LIMITATION | Exact opportunity and source; completeness review required; RingCentral duration unavailable |
 | Primary efficiency | PASS | Original metric retained with complete numerator/denominator requirements |
 | Calls/useful conversation, calls/quote | PASS | Complete-only ratios tested; unavailable when attribution incomplete |
-| Quote preservation / premium | PASS WITH LIMITATION | Gated observed differences, policy counts, verified term premium; production UI check pending |
+| Quote preservation / premium | PASS WITH LIMITATION | Gated observed differences, policy counts, verified term premium; production empty-cohort UI verified; actual outcome canary pending |
 | Historical context separation | PASS | User-supplied reference only; no denominator/scoring use |
 | Multi-turn / ceiling / interruption / zero-repeat | PASS WITH LIMITATION | Local full-handler/fake-send tests, not a live provider certification |
 | Edit/no-send / approve-once / STOP | PASS WITH LIMITATION | Local contracts pass; live provider gate pending |
@@ -104,3 +104,11 @@ Backend: server/pilot-efficiency.mjs, server/pilot-reconciliation.mjs, server/di
 UI: assets/js/pilot-analytics.mjs, assets/js/district-pilot.mjs, assets/js/producer-workspace.mjs, assets/js/producer-sms.mjs, agent/workspace/index.html.
 Tests: tests/pilot-measurement.test.mjs, tests/agencyzoom-raw.test.mjs, tests/producer-workspace.test.mjs, tests/sms-signal.test.mjs.
 Docs: this report and updated current workspace/burden gate notes.
+
+## Publication and follow-up
+
+Initial source release: 80e5e0ed47028b56225c4aa3af7a4225cd8a6e7a. Production served the MEASURE-1.0 workspace module on 2026-09-25; existing producer connection remained usable. Follow-up regression preserves previously complete quick-review effort when a batch changes only outcomes, while newly recorded calls invalidate previous completion. All 192 tests pass.
+
+Rollback added: pre-measurement-production-20260925 → d566567cafaa90be02a71a4edce105b3c9f32db0. Older rollback refs retained. No force push. Git integration deployed code; Cloudflare configuration remains untouched.
+
+Hosted Analytics verification: all five sections rendered; quote-preservation guardrail visible; historical target/minimum/folio context separate. API-backed report showed 0 CONTROL and 0 SIGNAL enrolled. Primary efficiency, call and premium ratios were Not measured with completeness counts, not fabricated zero. Batch preview controls rendered; no production batch was applied to customer data. Deployment provider SHA was not independently exposed; hosted module and rendered behavior were observed. No live SEND, synthetic production import, measured producer time trial or SMS enablement is claimed.

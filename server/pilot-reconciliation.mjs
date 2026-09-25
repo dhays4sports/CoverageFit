@@ -5,14 +5,14 @@ const number=(v,max)=>{if(v===null||v===''||v===undefined)return null;if(!Number
 export async function measurementLedger(repo,id,received){
  const effort=await repo.rows('SELECT id,minutes,created_at FROM cf_opportunity_effort WHERE workspace_id=? AND opportunity_id=? AND occurred_at>=? ORDER BY id',repo.scope.workspace,id,received);
  const calls=await repo.rows("SELECT id,payload_json,created_at FROM cf_solo_activity WHERE workspace_id=? AND opportunity_id=? AND kind='pilot_call_attempt' AND created_at>=? ORDER BY id",repo.scope.workspace,id,received);
- return {fingerprint:await digest(JSON.stringify([effort,calls])),minutes:effort.length?effort.reduce((s,e)=>s+e.minutes,0):null,calls:calls.length,call_sources:calls.length?['producer confirmed']:[]};
+ return {fingerprint:await digest(JSON.stringify([effort,calls])),minutes:effort.length?effort.reduce((s,e)=>s+e.minutes,0):null,calls:calls.length,call_sources:calls.length?['producer confirmed']:[],last_effort_at:effort.reduce((a,e)=>e.created_at>a?e.created_at:a,''),last_call_at:calls.reduce((a,e)=>e.created_at>a?e.created_at:a,'')};
 }
 export async function measurementLedgers(repo,records){
  const w=repo.scope.workspace;
  const effort=await repo.rows("SELECT e.opportunity_id,e.id,e.minutes,e.created_at FROM cf_opportunity_effort e JOIN cf_solo_sources s ON s.workspace_id=e.workspace_id AND s.opportunity_id=e.opportunity_id AND s.kind=? WHERE e.workspace_id=? AND e.occurred_at>=json_extract(s.summary_json,'$.received_at') ORDER BY e.id",PILOT_KIND,w);
  const calls=await repo.rows("SELECT a.opportunity_id,a.id,a.payload_json,a.created_at FROM cf_solo_activity a JOIN cf_solo_sources s ON s.workspace_id=a.workspace_id AND s.opportunity_id=a.opportunity_id AND s.kind=? WHERE a.workspace_id=? AND a.kind='pilot_call_attempt' AND a.created_at>=json_extract(s.summary_json,'$.received_at') ORDER BY a.id",PILOT_KIND,w);
  const es=new Map(),cs=new Map();for(const [list,map] of [[effort,es],[calls,cs]])for(const {opportunity_id,...row} of list){if(!map.has(opportunity_id))map.set(opportunity_id,[]);map.get(opportunity_id).push(row);}
- const result=new Map();for(const p of records){const e=es.get(p.opportunity_id)||[],c=cs.get(p.opportunity_id)||[];result.set(p.opportunity_id,{fingerprint:await digest(JSON.stringify([e,c])),minutes:e.length?e.reduce((s,r)=>s+r.minutes,0):null,calls:c.length,call_sources:c.length?['producer confirmed']:[]});}return result;
+ const result=new Map();for(const p of records){const e=es.get(p.opportunity_id)||[],c=cs.get(p.opportunity_id)||[];result.set(p.opportunity_id,{fingerprint:await digest(JSON.stringify([e,c])),minutes:e.length?e.reduce((s,r)=>s+r.minutes,0):null,calls:c.length,call_sources:c.length?['producer confirmed']:[],last_effort_at:e.reduce((a,x)=>x.created_at>a?x.created_at:a,''),last_call_at:c.reduce((a,x)=>x.created_at>a?x.created_at:a,'')});}return result;
 }
 export function pilotReconciliation(repo){const w=repo.scope.workspace;
  const get=async id=>{await repo.own(id);const row=await repo.sql('SELECT * FROM cf_solo_sources WHERE workspace_id=? AND opportunity_id=? AND kind=?',w,id,PILOT_KIND).first();if(!row)fail(422,'enrollment','Only enrolled pilot records can be reconciled.');const p=parse(row.summary_json);if(!['NEW_LEAD','TEST'].includes(p.pilot_phase))fail(422,'phase','Unsupported pilot phase');return {row,p};};
@@ -33,7 +33,8 @@ export function pilotReconciliation(repo){const w=repo.scope.workspace;
  if(farmers!==null&&(!Number.isInteger(farmers)||valid.bind!==true))fail(422,'policy_count','Farmers policy count requires an actual bind; use an integer or unknown.');valid.farmers_policy_count=farmers;
  const measure=input.measure||{},allowedMeasures=['effort_mode','producer_minutes','calls_mode','call_attempts'];if(Object.keys(measure).some(k=>!allowedMeasures.includes(k)))fail(422,'measurement','Unsupported measurement field');
  const previous=p.reconciliation,stillCurrent=previous?.ledger_fingerprint===ledger.fingerprint;
- let minutes=stillCurrent?previous.producer_minutes:null,calls=stillCurrent?previous.call_attempts:null;
+ const priorEffortValid=!previous&&old.effort_complete&&old.reviewed_at&&ledger.last_effort_at<=old.reviewed_at&&ledger.last_call_at<=old.reviewed_at;
+ let minutes=stillCurrent?previous.producer_minutes:priorEffortValid?(ledger.minutes??(old.zero_effort_confirmed?0:null)):null,calls=stillCurrent?previous.call_attempts:null;
  const modes=['preserve','recorded','zero','total','unknown'];for(const k of ['effort_mode','calls_mode'])if(measure[k]&&!modes.includes(measure[k]))fail(422,'measurement','Unsupported reconciliation mode');
  if(measure.effort_mode==='recorded')minutes=ledger.minutes===null&&previous?.producer_minutes==null?null:(ledger.minutes||0)+Math.max(0,(previous?.producer_minutes||0)-(previous?.ledger_minutes||0));
  if(measure.effort_mode==='zero'){if(ledger.minutes!==null||ledger.calls)fail(409,'zero_conflict','Work evidence exists. Zero effort cannot be assumed.');minutes=0;}
