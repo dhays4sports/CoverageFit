@@ -1,3 +1,5 @@
+import {prepareControlRoster,saveControlRoster} from './district-control-roster.mjs';
+import {districtSmsCohort} from './district-pilot-sms.mjs';
 import {SIGNAL_SCENARIOS,simulateScenario} from './sms-signal-scenarios.mjs';
 import {smsAutomationPaused} from './sms-safety-core.mjs';
 import {authorizeProducer} from './consultation-inbox-core.mjs';
@@ -29,6 +31,15 @@ export async function handleSmsSignal(request,options={}) {
   const c={transcript:[{direction:'outbound',body:String(b.previous_outbound||'').slice(0,2000)}],signal:b.signal&&typeof b.signal==='object'?b.signal:{}};
   return json({ok:true,simulation:true,conversation:decideSignal(c,String(b.inbound||'').slice(0,2000),{templates:await templatesFor(store),now:at,messageId:'simulation'})});
  }
+ if(['preview_control_roster','import_control_roster'].includes(b.action)){
+  try{const prepared=await prepareControlRoster(b.csv,options);
+   // Refuse any existing SIGNAL assignment before changing exclusion state.
+   for(const item of prepared.items)if(await districtSmsCohort({id:item.conversation_id},options.env)==='SIGNAL')return fail('A listed thread is already enrolled as SIGNAL. Resolve the cohort conflict before import.',409);
+   if(b.action==='preview_control_roster')return json({ok:true,fingerprint:prepared.fingerprint,count:prepared.items.length,rows:prepared.items.map((r,i)=>({row:i+2,phone_last4:r.phone_last4}))});
+   if(b.confirmed!==true||b.fingerprint!==prepared.fingerprint)return fail('Preview this exact file and confirm its predetermined CONTROL assignment first.',409);
+   return json({ok:true,...await saveControlRoster(prepared,options)});
+  }catch(e){return fail(e.message,422);}
+ }
  if(b.action==='save_templates'){
   try {const templates=validateTemplates(b.templates).map(x=>({...x,updated_at:at}));await store.setJSON(SIGNAL_PREFIX+'templates',{templates,updated_at:at});await writeOpsAudit(store,'signal_templates_updated',{detail:'Producer updated literal template patterns.'},options);return json({ok:true});}catch(e){return fail(e.message);}
  }
@@ -44,6 +55,7 @@ export async function handleSmsSignal(request,options={}) {
  try{
   let c=await store.get(key);if(!c?.signal)return fail('Signal conversation not found',404);
   let s=c.signal;
+  if(['approve_send','edit','unlock'].includes(b.action)&&await districtSmsCohort(c,options.env,options.store)==='CONTROL')return fail('CONTROL replies use the normal manual workflow; Signal drafts cannot be sent.',409);
   if(b.revision!==s.revision)return fail('Conversation changed. Refresh before acting.',409);
   if(b.action==='mark_az_updated'){
    if(b.stage!==s.az_recommended_stage||!AZ_STAGES.includes(b.stage))return fail('Confirm the currently recommended stage.',409);

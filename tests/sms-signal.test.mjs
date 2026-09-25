@@ -102,3 +102,22 @@ test('secure handoff token issuance and expiry remain intact',async()=>{const {c
 test('old quote-ready status cannot survive STOP, close or future routing',()=>{for(const body of ['STOP','Not interested','Call me in December']){const s=decide(body,probe,{quote_ready:true});assert.equal(s.quote_ready,false);}});
 test('wrong-number suppression persists on subsequent positive reply',()=>{const old=decide('Wrong number');const s=decide('Yes',probe,old);assert.equal(s.decision_2,'CLOSE');assert.equal(s.contact_suppressed,true);assert.equal(s.reply,'');});
 test('manual follow-up rejects impossible dates and preserves month precision',async()=>{const st=store();await hook(st,'Outbound',probe,'o');await hook(st,'Inbound','Yes','i');const c=conversation(st);const b={action:'decide',conversation_id:c.id,revision:c.signal.revision,decision_2:'LATER'};assert.equal((await api(st,{...b,followup_date:'2026-02-31'})).status,422);assert.equal((await api(st,{...b,followup_date:'2026-12'})).status,200);const s=conversation(st).signal;assert.equal(s.future_opportunity.future_month,'2026-12');assert.equal(s.future_date,null);});
+
+test('CONTROL CSV preview and confirmed import are idempotent, suppress Signal drafts, retain STOP',async()=>{
+ const st=store(),csv='phone,lead_id\n(202) 555-0101,synthetic-control-1\n';
+ const preview=await (await api(st,{action:'preview_control_roster',csv})).json();assert.equal(preview.count,1);assert.equal(preview.rows[0].phone_last4,'0101');assert.equal([...st.rows.keys()].filter(k=>k.includes('district-control')).length,0);
+ assert.equal((await api(st,{action:'import_control_roster',csv,confirmed:true,fingerprint:'different'})).status,409);
+ const body={action:'import_control_roster',csv,confirmed:true,fingerprint:preview.fingerprint};assert.equal((await (await api(st,body)).json()).added,1);assert.equal((await (await api(st,body)).json()).existing,1);
+ await hook(st,'Outbound',fresh,'control-out');await hook(st,'Inbound','Auto','control-in');const c=conversation(st);assert.equal(c.signal.pilot_cohort,'CONTROL');assert.equal(c.signal.reply,'');assert.equal(c.signal.decision_2,null);
+ assert.equal((await api(st,{action:'approve_send',conversation_id:c.id,revision:c.signal.revision})).status,409);
+ const stopped=await (await hook(st,'Inbound','STOP','control-stop')).json();assert.equal(stopped.replied,false);assert.equal(stopped.routeReason,'global_stop_command');assert.equal(conversation(st).smsConsent.status,'opted_out');
+});
+test('CONTROL roster rejects bad rows and duplicate normalized numbers before writes',async()=>{
+ const st=store();for(const csv of ['phone\nnot-a-number','phone\n2025550101\n+12025550101','phone,name\n2025550101,person','phone\n"2025550101'])assert.equal((await api(st,{action:'preview_control_roster',csv})).status,422);assert.equal([...st.rows.keys()].filter(k=>k.includes('district-control')).length,0);
+});
+
+test('STOP bypasses unavailable pilot cohort lookup',async()=>{
+ const {signalInbound}=await import('../server/sms-signal-service.mjs');const st=store();const badDB={prepare(){throw Error('cohort database unavailable')}};
+ const result=await signalInbound({id:'sms-live-'+ 'a'.repeat(64),transcript:[]},{body:'STOP',messageId:'stop-db-outage',occurredAt:at},{env:{...env,COVERAGEFIT_DB:badDB},store:st});
+ assert.equal(result.signal.decision_2,'STOP');assert.equal(result.signal.reply,'');assert.equal(result.smsConsent.status,'opted_out');
+});

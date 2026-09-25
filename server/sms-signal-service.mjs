@@ -1,3 +1,4 @@
+import {districtSmsCohort} from './district-pilot-sms.mjs';
 import {resolveSmsInboundRoute} from './sms-orchestrator-core.mjs';
 import { SIGNAL_PREFIX, DEFAULT_TEMPLATES, enabled, observeOutbound, decideSignal, compliance, extractFacts, matchTemplate } from './sms-signal-core.mjs';
 import { listRingCentralMessageHistory, normalizeE164 } from './ringcentral-client.mjs';
@@ -21,6 +22,7 @@ export async function recordSignalEvent(store,c,event,options={}) {
 }
 export async function signalOutbound(c,event,options={}) {
  if(!enabled(options.env))return {conversation:c,matched:false};
+ if(await districtSmsCohort(c,options.env,options.store)==='CONTROL')return {conversation:c,matched:false};
  const out=observeOutbound(c,event,await templatesFor(options.store));
  if(out.matched){out.conversation.transcript=[...(c.transcript||[]),{id:`rc-${event.messageId}`,direction:'outbound',body:event.body,occurredAt:event.occurredAt,kind:'inferred_agencyzoom'}].slice(-60);out.conversation.lastOutboundAt=event.occurredAt;out.conversation.updatedAt=event.occurredAt;out.conversation.outboundCount=(c.outboundCount||0)+1;await recordSignalEvent(options.store,out.conversation,event,options);}
  return out;
@@ -43,6 +45,10 @@ async function historyContext(c,event,options) {
 }
 export async function signalInbound(c,event,options={}) {
  if(!enabled(options.env))return null;
+ if(!compliance(event.body,c)&&await districtSmsCohort(c,options.env,options.store)==='CONTROL'){
+  const out=structuredClone(c);out.signal={...(out.signal||{}),managed:false,pilot_cohort:'CONTROL',reply:'',draft_status:'none',decision_2:null,useful:false,sales_positive:false,human_required:true,automation_lock:true,reason:'CONTROL: use the existing AgencyZoom workflow and manual RingCentral response.'};
+  await writeOpsAudit(options.store,'pilot_control_inbound',{conversationId:c.id,detail:'Signal interpretation and conversational draft withheld for CONTROL.'},options);return out;
+ }
  if(c.signal?.inbound_message_id===event.messageId)return c;
  // Preserve existing first-party intake and booked appointment workflows unless enrolled.
  const firstParty=c.orchestration?.workflow?.type;

@@ -1,3 +1,4 @@
+import {districtPilot} from './district-pilot.mjs';
 import {authorizeProducer} from './consultation-inbox-core.mjs';
 import {resolveProducerEnvironment} from './cloudflare-pages-handlers.mjs';
 import {BUILD,fail,manualInput,wrapInput,validId} from '../assets/js/solo-desk-model.mjs';
@@ -39,6 +40,8 @@ export async function handleSoloDesk(context){
       if(route==='acquisition-campaigns'){const acq=acquisitionMeasurement(repo,env);try{await acq.ready();}catch{fail(503,'acquisition_setup_required','Acquisition measurement needs its database update before it can manage campaigns.');}return json({ok:true,build:'CF-ACQ-MEASURE-1.0',campaigns:await acq.campaigns()});}
       if(route==='fiv-calibration'){const acq=acquisitionMeasurement(repo,env),cal=fivCalibration(repo);try{await acq.ready();await cal.ready();}catch{fail(503,'fiv_calibration_setup_required','FIV calibration needs migration 0015 before it can compare queue performance.');}await acq.reconcile(300);return json({ok:true,...await cal.summary(url.searchParams)});}
       if(route==='priority-calibration'){const acq=acquisitionMeasurement(repo,env),cal=opportunityPriorityCalibration(repo);try{await acq.ready();await cal.ready();}catch{fail(503,'priority_calibration_setup_required','Opportunity priority calibration needs migration 0019 before it can compare score-band performance.');}await acq.reconcile(300);return json({ok:true,...await cal.summary(url.searchParams)});}
+      if(route==='district-pilot')return json({ok:true,...await districtPilot(repo,env).report()});
+      if(route==='pilot-record')return json({ok:true,pilot:await districtPilot(repo,env).get(url.searchParams.get('id'))});
       if(route==='activity')return json({ok:true,...await repo.activity(url.searchParams.get('id'),url.searchParams.get('cursor'))});
       if(route==='sync-status')return json({ok:true,streams:STREAMS,states:await repo.rows('SELECT stream,cursor_json FROM cf_solo_sync WHERE workspace_id=?',repo.scope.workspace)});
       fail(404,'route','This desk page is unavailable.');
@@ -49,6 +52,9 @@ export async function handleSoloDesk(context){
     if(route==='sync')return json({ok:true,...await sourceSync(repo).sync(value.stream)});
     if(route==='priority-backfill'){const result=await repo.backfillOpportunityPriority(value.limit||60);return json({ok:true,...result});}
     if(!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(value.requestId||''))fail(422,'request_id','Reload the form before saving.');
+    if(route==='pilot-enroll')return json({ok:true,pilot:await districtPilot(repo,env).enroll(value,value.requestId)},201);
+    if(route==='pilot-observe')return json({ok:true,pilot:await districtPilot(repo,env).observe(value,value.requestId)});
+    if(route==='pilot-effort'){if(!await districtPilot(repo,env).get(value.id))fail(422,'pilot_enrollment','Enroll this opportunity first.');return json({ok:true,effort:await recordEffortEvidence(repo,value.id,{minutes:value.minutes,category:value.category},value.requestId)},201);}
     if(route==='acquisition-campaign'){const acq=acquisitionMeasurement(repo,env);try{await acq.ready();}catch{fail(503,'acquisition_setup_required','Acquisition measurement needs its database update before it can save campaigns.');}return json({ok:true,campaign:await acq.campaign(value,value.requestId)},201);}
     if(route==='acquisition-spend'){const acq=acquisitionMeasurement(repo,env);try{await acq.ready();}catch{fail(503,'acquisition_setup_required','Acquisition measurement needs its database update before it can save acquisition spend.');}return json({ok:true,spend:await acq.spend(value,value.requestId)},201);}
     if(route==='acquisition-exposure'){const acq=acquisitionMeasurement(repo,env);try{await acq.ready();return json({ok:true,exposure:await acq.exposure(value,value.requestId)},201);}catch(error){if(/no such table/i.test(String(error?.message||'')))fail(503,'exposure_setup_required','Exposure measurement needs migration 0019 before it can save denominator counts.');throw error;}}
