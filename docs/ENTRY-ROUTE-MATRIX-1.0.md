@@ -11,8 +11,8 @@ Classes: A CONTEXTUAL_408; B COVERAGEFIT_DIRECT; C SIGNAL_CONTINUE; D SPECIALIZE
 | 408 `/home/legacy.html` | E/G | Preserve original review/appointment page | Existing forms and campaigns |
 | 408 `/buyer/` | A/G | Active canonical buyer-aware presentation; original page preserved as legacy | Hosted Back/save/reload verified |
 | 408 `/buyer/continue[.html]` | A/F | Earlier unlinked candidate now uses immediate-question presentation | No public promotion before certification |
-| 408 `/condo/` | A/G | Active canonical contextual presentation; original form preserved as legacy | Condo producer source/evidence comparison pending |
-| 408 `/tech/` | A/G | Existing public page retained; separate Tech branch staged | Activate only after Condo gate; no profession scoring |
+| 408 `/condo/` | A/G | Active canonical contextual presentation; original form preserved as legacy | Condo fresh source/evidence verified in authenticated Work |
+| 408 `/tech/` | A/G | Tech canonical entry promoted; original page retained as legacy | Condo gate passed; Tech hosted certification next; no profession scoring |
 | 408 `/teachers/`, `/healthcare/`, `/engineers/` | A/G | Existing pages retained | After Tech certification |
 | 408 `/auto-bundle/` | A/G | Existing flow retained | Bundle transfer/appointment compatibility |
 | 408 `/auto` | H/F | No assumed new public canonical route | Existing registry/preview only |

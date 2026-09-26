@@ -17,7 +17,7 @@ export function entryInput(url,now=new Date()){
 export function renderEntry(handoff,state=distributionPresentation(handoff)){
   const contextual=handoff.presentation==='408_contextual',base=contextual?'https://coveragefit.com':'',brand=contextual?'408FARMERS':'CoverageFit';
   const api=contextual?'/api/entry':'/api/distribution';
-  const compatibility=['home','buyer','condo'].includes(handoff.entry)?'/'+handoff.entry+'/legacy.html':'/'+handoff.entry+'/';
+  const compatibility=['home','buyer','condo','tech'].includes(handoff.entry)?'/'+handoff.entry+'/legacy.html':'/'+handoff.entry+'/';
   const question=state.question;
   const qhtml=question?`<fieldset><legend tabindex="-1">${esc(question.prompt)}</legend>${question.options.map(o=>`<button type="button" data-answer="${esc(o.code)}">${esc(o.label)}</button>`).join('')}</fieldset>`:`<h2 tabindex="-1">${esc(state.message||'Your answers are saved')}</h2>`;
   const data=JSON.stringify({handoff,state,api}).replace(/</g,'\\u003c');

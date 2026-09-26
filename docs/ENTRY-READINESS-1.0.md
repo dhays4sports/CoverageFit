@@ -1,10 +1,10 @@
 # ENTRY-ARCHITECTURE-1.0 — current readiness
 
-Reconciled 2026-09-26 against canonical mains. This replaces obsolete transport and activation checkpoints. **Overall: BLOCKED at Condo hosted producer-evidence certification. Not complete; not pilot launch approval.**
+Reconciled 2026-09-26 against canonical mains. This replaces obsolete transport and activation checkpoints. **Overall: BLOCKED at Tech hosted certification. Not complete; not pilot launch approval.**
 
 CoverageFit implementation baseline: `b130948bd68d34f48dc0d7c0ea147ed6a0929be9` (tree `bd1e87c910df3ff164e14d893eecabee3b260ac2`). 408finneas main: `d7041f5e4565252c5b212dd38648de419b1bd21b`. This documentation commit follows that CoverageFit baseline; no runtime change.
 
-Home, Buyer and Condo are active. Tech remains a separate staged branch, not main. Later affinity routes and QR interception remain inactive. Transport failure is resolved; no further Cloudflare diagnostic/configuration request is outstanding for it. Historical first-party URLs and specialized Life/commercial flows are preserved.
+Home, Buyer and Condo are active. Tech is now promoted after Condo hosted certification. Later affinity routes and QR interception remain inactive. Transport failure is resolved; no further Cloudflare diagnostic/configuration request is outstanding for it. Historical first-party URLs and specialized Life/commercial flows are preserved.
 
 ## Condo gate
 
@@ -15,10 +15,10 @@ Home, Buyer and Condo are active. Tech remains a separate staged branch, not mai
 | Consumer condo context | PASS | Hosted heading Condo insurance review with Dylan, Insurance Producer/agency/license, no property-type repeat |
 | Legacy compatibility | PASS WITH LIMITATION | Original form previously rendered hosted; compatibility URL still present; no real form submission by agent |
 | Producer receipt | PASS WITH LIMITATION | User submitted an internal test and confirmed arrival in Work; Pacific timestamps also explicitly confirmed |
-| Source attribution and submitted evidence on that record | BLOCKED | Local projection/evidence tests pass; connected Workspace shows the recent test originated at Home; a fresh Condo source/evidence record is still required |
-| Gate to activate Tech | BLOCKED | Do not activate Tech until the preceding source/evidence comparison is certified |
+| Source attribution and submitted evidence on that record | PASS | Fresh Condo record inspected in authenticated Work; exact route/audience and submitted answers retained |
+| Gate to activate Tech | PASS | Condo source/evidence verified; Tech promoted, its hosted certification remains next |
 
-No request to repeat already confirmed fresh-entry or timestamp checks. Next authenticated check: open the existing internal Condo record in Work → WEB / DIRECT, compare acquisition route/audience and saved web answers with that test, and confirm one opportunity. No customer-only certification, no access key in chat.
+No request to repeat already confirmed fresh-entry or timestamp checks. Condo authenticated check completed. Next: fresh Tech answer/resume and producer receipt. No customer-only certification, no access key in chat.
 
 ## Section 52 — complete readiness report
 
@@ -27,8 +27,8 @@ No request to repeat already confirmed fresh-entry or timestamp checks. Next aut
 | 1 | CoverageFit SHA | PASS | Implementation baseline b130948bd68d34f48dc0d7c0ea147ed6a0929be9; documentation commit reported separately |
 | 2 | 408FARMERS SHA | PASS | d7041f5e4565252c5b212dd38648de419b1bd21b; unchanged |
 | 3 | Routes audited | PASS WITH LIMITATION | ENTRY-ROUTE-MATRIX and DISTRIBUTION-ROUTE-INVENTORY cover requested routes, API/state/handoff components; external campaigns and traffic not fully observable |
-| 4 | Routes changed | PASS | Active contextual /home, /buyer, /condo; legacy aliases retained; /buyer/continue diagnostic, CF /begin and distribution APIs; Tech staged only |
-| 5 | Contextual 408 mode | PASS WITH LIMITATION | Canonical SSR question/transport working on first three routes; Condo producer context comparison pending |
+| 4 | Routes changed | PASS | Active contextual /home, /buyer, /condo; legacy aliases retained; /buyer/continue diagnostic, CF /begin and distribution APIs; Tech promoted after Condo gate |
+| 5 | Contextual 408 mode | PASS WITH LIMITATION | Canonical SSR question/transport working on first three routes; Condo producer context verified; Tech hosted pending |
 | 6 | Signal Continue mode | PASS WITH LIMITATION | Existing eligibility/review-first and exact WEB_DIRECT relationship bridge tested; hosted same-opportunity/provider canary pending |
 | 7 | Paid/direct mode | PASS WITH LIMITATION | Hosted /begin immediate question and resume previously observed; complete Meta attribution-to-producer canary pending |
 | 8 | No-empty-click | PASS WITH LIMITATION | Active entries/direct template show useful question immediately; retained affinity routes not yet migrated; Continue trust gate not removed blindly |
@@ -43,13 +43,13 @@ No request to repeat already confirmed fresh-entry or timestamp checks. Next aut
 | 17 | Workspace source display | PASS WITH LIMITATION | Acquisition context and submitted web-answer provenance implemented; user confirms receipt/time, exact hosted evidence comparison pending |
 | 18 | District pilot regression | PASS WITH LIMITATION | Latest full local suite includes SIGNAL/CONTROL/WEB_DIRECT/OTHER safeguards; no live district provider certification in this pass |
 | 19 | SMS ownership | PASS WITH LIMITATION | CONTROL, suppression, unknown ownership, takeover and review-first regressions pass; live internal provider canary outstanding |
-| 20 | Tests | PASS | Latest recorded CF 307 passed / 0 failed / 0 skipped; 408 main 35 passed / 0 failed / 0 skipped (Tech branch 36, not main). Full suite rerun after Condo receipt regression and hosted-discovered economics null correction |
+| 20 | Tests | PASS | Latest recorded CF 308 passed / 0 failed / 0 skipped; 408 main 36 passed / 0 failed / 0 skipped (Tech branch 36, not main). Full suite rerun after Condo receipt regression and hosted-discovered economics null correction |
 | 21 | Mobile/accessibility | BLOCKED | Semantics/focus/status and desktop keyboard checks exist; actual 320/375/390/430px and screen-reader checks outstanding; available browser advertises no viewport control |
 | 22 | Performance | PASS WITH LIMITATION | SSR trust/question, small shared client, no producer bundle; no measured slow-mobile benchmark |
 | 23 | Hosted canaries | PASS WITH LIMITATION | Home/Buyer hosted checks, user fresh Condo/receipt/time and agent resume; Tech onward gated; full provider/cross-channel/Analytics pending |
 | 24 | Migrations/manual checkpoints | PASS | No new schema, migration0019 reapply, data reset, variable/binding or SMS enablement. Authenticated evidence access is next checkpoint |
-| 25 | Unresolved risks | BLOCKED | Condo attribution/evidence receipt, route gates, mobile, hosted cross-channel/provider and Analytics verification; external dependencies not fully known |
-| 26 | Recommended next phase | BLOCKED | Certify existing Condo record → Tech → remaining affinity → QR → direct paid → mobile/accessibility → remaining producer/Continue → Analytics. Keep each later activation gated |
+| 25 | Unresolved risks | BLOCKED | Tech and later route gates, mobile, hosted cross-channel/provider and Analytics verification; external dependencies not fully known |
+| 26 | Recommended next phase | BLOCKED | Certify Tech → remaining affinity → QR → direct paid → mobile/accessibility → remaining producer/Continue → Analytics. Keep each later activation gated |
 
 ## Section 53 — every PASS criterion
 
@@ -80,4 +80,10 @@ No route activations. A hosted-discovered economics correction preserves unknown
 
 ## Latest repository and hosted increment
 
-307 local tests pass (0 fail/skip). Condo integration now verifies immediate answer/resume, idempotent producer receipt, WEB_DIRECT, exact condo route/audience/campaign and submitted-answer provenance, with no SMS conversation. Hosted producer connection succeeded; Home evidence and source are verified. Hosted Analytics source/unknown-ratio behavior inspected; missing hours displayed as zero triggered the narrow economics fix. Full runtime deployment verification of that fix remains pending. Cloudflare is an operator-only configuration checkpoint, not a repository blocker. No new Cloudflare action required. Tech activation remains gated by fresh Condo receipt.
+307 local tests pass (0 fail/skip). Condo integration now verifies immediate answer/resume, idempotent producer receipt, WEB_DIRECT, exact condo route/audience/campaign and submitted-answer provenance, with no SMS conversation. Hosted producer connection succeeded; Home evidence and source are verified. Hosted Analytics source/unknown-ratio behavior inspected; missing hours displayed as zero triggered the narrow economics fix. Full runtime deployment verification of that fix remains pending. Cloudflare is an operator-only configuration checkpoint, not a repository blocker. No new Cloudflare action required. Condo receipt is now certified; Tech hosted gate remains.
+
+## Condo gate closed; Tech rollout — 2026-09-26
+
+Authenticated hosted Work inspected the new internal Condo submission at 1:57PM PDT. Exactly one newly listed Condo opportunity, WEB_DIRECT, source web_408_condo, route /condo/, audience condo, variant immediate_question_v1. Submitted shopping-price/open-to-review/within14 answers are visible with provenance, explicit contact request and one canonical next action. No record was relabeled and no SMS sent. Together with prior fresh question/resume and legacy checks, Condo is PASS for progression. Earlier Condo-blocked table entries above are superseded by this checkpoint; whole-mandate mobile/cross-channel limitations remain.
+
+Tech promotion reuses the existing canonical engine. First question is signal_product; technology context stays attribution, no profession gate/score. Original Tech form remains /tech/legacy.html with both aliases. 308 CoverageFit tests and 36 408 tests pass, no failures/skips. Remaining affinity/QR activation stays gated on Tech hosted fresh-answer/resume/producer receipt. Rollback: remove tech from 408 ACTIVE_ENTRY_ROUTES; preserve original index, legacy routes, canonical endpoint and data. No Cloudflare configuration/migration/SMS flag change required.
