@@ -134,3 +134,5 @@ test('resumed measurement retains original acquisition instead of a new landing 
     assert.equal((await distributionEvent(req('events',{type:'abandon',handoff:input()}),f)).status,422);
   }finally{f.sql.close();}
 });
+
+test('direct entry is included in Pages function routing',()=>{const routes=JSON.parse(readFileSync(new URL('../_routes.json',import.meta.url),'utf8'));for(const path of ['/begin','/begin/'])assert.ok(routes.include.includes(path));assert.ok(routes.include.includes('/api/*'));});
