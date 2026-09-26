@@ -101,3 +101,9 @@ Exact operator check: in a fresh session at https://408farmers.com/tech/ expect 
 2026-09-26 2:10PM PDT: authenticated Work shows one new Tech canary with original web_408_tech, /tech/, tech audience, immediate_question_v1 and submitted home/renewal-change/shopping-intent answers. No SMS sent; the synthetic contact is not a provider-send canary. Tech gate PASS for progression, together with user fresh-flow check and hosted resume/legacy checks.
 
 Teachers alone advances from staging. The first question remains canonical insurance product, with no profession gate or affinity score. Original Teachers form preserved under legacy aliases. Healthcare/Engineers/QR remain inactive. Rollback removes teachers from ACTIVE_ENTRY_ROUTES while preserving legacy assets and records. No Cloudflare configuration required. Whole mandate remains incomplete pending later hosted/mobile/cross-channel gates.
+
+## Teachers hosted checkpoint — 2026-09-26 2:35PM PDT
+
+Teachers canonical presentation now observed live with 408 branding and Producer identity. Existing-session Back, answer/save and completion reload pass. /teachers/legacy.html renders the preserved original form. Authenticated Work contains the eight previously observed WEB_DIRECT records and no new Teachers submission. Fresh first-question/source/producer-receipt certification remains pending; do not treat the reused Home session as Teachers acquisition. Healthcare/Engineers remain staged and QR inactive. No Cloudflare action or configuration required. Runtime/test baseline unchanged: 309 CoverageFit and 37 408 tests passed, zero fail/skip.
+
+Next operator check: fresh session at https://408farmers.com/teachers/; expect insurance-product question without Start or profession gate; answer then reload; submit own controlled test identity (Dylan Teachers QA). Verify web_408_teachers, /teachers/, teachers audience and submitted answers in Work before Healthcare activation.
