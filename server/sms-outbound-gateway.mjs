@@ -291,7 +291,7 @@ async function writeProviderRegistration(store, fingerprintRecord, providerMessa
   return { key, record };
 }
 
-function baseConversation(conversationId, descriptor, businessPhone, occurredAt) {
+export function baseConversation(conversationId, descriptor, businessPhone, occurredAt) {
   const base = {
     schemaVersion: '1.6',
     engineBuild: SMS_OUTBOUND_GATEWAY_BUILD,

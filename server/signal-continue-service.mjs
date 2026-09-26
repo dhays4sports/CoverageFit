@@ -6,7 +6,7 @@ import {parse} from './solo-desk-repository.mjs';
 import {classifyPopulation} from './producer-workspace.mjs';
 import {resolveSmsOwnership} from './sms-ownership.mjs';
 import {templatesFor} from './sms-template-registry.mjs';
-import {sendSmsThroughGateway} from './sms-outbound-gateway.mjs';
+import {sendSmsThroughGateway,smsLiveConversationId,baseConversation} from './sms-outbound-gateway.mjs';
 import {applySmsConsentCommand} from './sms-consent-core.mjs';
 import {CONTINUE_KIND,CONTINUE_TTL,newContinueToken,continueKey,continueUrl,validContinueSession,continueEligibility,continueSignals,continueStep,applyContinueChoice,continueCompletion} from './signal-continue-core.mjs';
 const fail=(message,status=409)=>{throw Object.assign(new Error(message),{status,code:'continue_unavailable'});};
@@ -19,7 +19,8 @@ export function signalContinue(repo,env,options={}){
   const population=classifyPopulation(sources).population;
   const cid=pilot?.conversation_id;
   // V1 requires an exact existing relationship. No phone-based auto-linking.
-  const c=cid?await store.get('sms-live-conversations/'+cid):null;
+  let c=cid?await store.get('sms-live-conversations/'+cid):null;let initializeConversation=false;
+  if(!c&&cid&&pilot?.cohort==='SIGNAL'&&pilot.pilot_phase==='NEW_LEAD'){const contact=parse(op.contact_json);try{const verified=await smsLiveConversationId(contact.mobile,env.RINGCENTRAL_FROM_NUMBER,env.RINGCENTRAL_CONVERSATION_HASH_SECRET);if(verified===cid){c=baseConversation(cid,{to:contact.mobile},env.RINGCENTRAL_FROM_NUMBER,now().toISOString());initializeConversation=true;}}catch{/* Missing relationship configuration remains ineligible. */}}
   const owner=c?await resolveSmsOwnership(c,{}, {env,store,templates:await templatesFor(store)}):{owner:'UNKNOWN'};
   let historyFacts={},previous='',goal='';for(const item of c?.transcript||[]){if(item.direction==='outbound'){previous=item.body;goal=item.signalGoal||matchTemplate(previous)?.default_reply_goal||'';}else if(previous&&item.occurredAt&&now().getTime()-Date.parse(item.occurredAt)<=30*86400000)historyFacts=extractFacts(item.body,previous,historyFacts,item.occurredAt,goal).facts;}
   const facts={...pilot?.raw_facts,...c?.signal?.facts,...historyFacts};
@@ -32,7 +33,7 @@ export function signalContinue(repo,env,options={}){
    for(const field of ['shoppingIntent','reviewReason','autoNeed','statedTrigger','decisionTiming'])if(source.summary.context?.[field])fresh[field]=source.summary.context[field];
   }
   if(c?.signal?.response_timestamp&&now().getTime()-Date.parse(c.signal.response_timestamp)>30*86400000)delete facts.shopping_reason;
-  return {op,sources,pilot,population,c,owner,facts,saved,fresh};
+  return {op,sources,pilot,population,c,owner,facts,saved,fresh,initializeConversation};
  }
  function eligibility(x,selection){return continueEligibility({population:x.population,cohort:x.pilot?.cohort,owner:x.owner.owner,facts:x.facts,signal:{...x.c?.signal,contact_suppressed:x.owner.compliance||x.c?.smsConsent?.status==='opted_out'},status:x.op.status,activeFirstParty:x.population==='WEB_DIRECT',...selection});}
  async function locked(cid,fn){const key='sms-signal/locks/'+cid;try{await store.setJSON(key,{at:now().toISOString()},{onlyIfNew:true});}catch{fail('Conversation is processing. Refresh and retry.');}try{return await fn();}finally{await store.delete(key);}}
@@ -46,6 +47,7 @@ export function signalContinue(repo,env,options={}){
   async preview(id){const x=await context(id);const e=eligibility(x,{trigger:'busy',interestConfirmed:true,producerChosen:true});return {eligibility:e,known:x.facts,step:e.eligible?continueStep(continueSignals(x.facts,x.fresh,now()),0,now()):null,session:x.saved||null};},
   async create(v){const x=await context(v.id),selection={trigger:v.trigger,interestConfirmed:v.interestConfirmed===true,producerChosen:v.producerChosen===true};const e=eligibility(x,selection);if(!e.eligible)fail(e.reason);
    return locked(x.c.id,async()=>{const current=await context(v.id);const recheck=eligibility(current,selection);if(!recheck.eligible)fail(recheck.reason);if(current.saved?.key){const old=await tokens.get(current.saved.key);if(validContinueSession(old,now().getTime())&&!['completed','revoked'].includes(old.status))fail('An existing check-in is available. Use or revoke that draft first.');}
+    if(current.initializeConversation)await store.setJSON('sms-live-conversations/'+current.c.id,current.c,{onlyIfNew:true});
     const priorityBefore=await repo.opportunityPriority(v.id);
     const at=now().toISOString(),token=newContinueToken(),key=await continueKey(token),signals=continueSignals(current.facts,current.fresh,now()),step=continueStep(signals,0,now());if(step.done)fail('The next action is already clear. Preserve it instead of sending a check-in.');
     const s={priority_before:priorityBefore?{score:priorityBefore.score,scoreMin:priorityBefore.scoreMin,scoreMax:priorityBefore.scoreMax,engine:priorityBefore.engine}:null,scope:CONTINUE_KIND,workspace:w,opportunity:v.id,conversation:current.c.id,selection,created_at:at,expires_at:new Date(now().getTime()+CONTINUE_TTL).toISOString(),revision:1,status:'draft',signals,submitted:{},answers:[],step,draft:`Thanks for your time. Here’s the quick link I mentioned — it should only take a minute or two, and I’ll pick up from what you already told me: ${continueUrl(token)}`,events:[{type:'offered',at}],base_revision:current.c.signal?.revision||0};

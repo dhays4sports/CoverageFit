@@ -69,6 +69,8 @@ Missing evidence → cheapest appropriate channel → new evidence → recalcula
 
 Starting production main: `7b3049cad05b5c6073d450c27cfaf5bbd3d69153`. 408FARMERS remains `78660e8b5614ba4252af3ba55f35a543ccae21a1`, unchanged. Implementation branch: `signal-continue-1.0`.
 
-Local full suite: 256 passed, 0 failed, 0 skipped, including 25 dedicated continuation tests. Syntax: 425 JS/module/CommonJS files clean. No local Wrangler Functions build has been certified in this environment. Runtime hosted checks and provider delivery remain separate gates.
+Local full suite: 258 passed, 0 failed, 0 skipped, including 27 dedicated continuation tests. Syntax: 425 JS/module/CommonJS files clean. No local Wrangler Functions build has been certified in this environment. Runtime hosted checks and provider delivery remain separate gates.
 
 Readiness: PASS locally for token/evidence/CONTROL and review-first mocked behavior; PASS WITH LIMITATION for exact-linked personal-lines district scope and descriptive measurement; BLOCKED for hosted full canary, broader first-party continuation, and measured producer administration. District pilot GO is not granted by this release.
+
+First hosted check served the new shell, but exposed a Pages canonical-HTML redirect that discarded the token path. The proxy target was changed to the extensionless static route. The same pass added verified-enrollment initialization for a first answered voice call before an SMS row exists; no send occurs during initialization. Wrong/missing relationship configuration remains closed.
