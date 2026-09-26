@@ -1,3 +1,5 @@
+> Historical dependency inventory. Updated route classifications and activation decisions are in ENTRY-ROUTE-MATRIX-1.0.md; do not use the old brand-transition recommendations below as current rollout instructions.
+
 # Distribution route inventory — 2026-09-26
 
 Source audit against CoverageFit main `04e47ef80ae2efa4730b2d0d7a1c32ba3e86d960` and 408finneas main `78660e8b5614ba4252af3ba55f35a543ccae21a1`. Repository references are dependency evidence, not traffic. External campaign/email/SMS/QR use remains unverified; preserve all existing URLs.

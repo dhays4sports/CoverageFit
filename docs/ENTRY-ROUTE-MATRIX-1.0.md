@@ -7,7 +7,7 @@ Classes: A CONTEXTUAL_408; B COVERAGEFIT_DIRECT; C SIGNAL_CONTINUE; D SPECIALIZE
 | Domain / route or component | Class | Current implementation / decision | Gate / dependency |
 |---|---|---|---|
 | 408 `/` | A/G | Preserve local hub and current links | Existing acquisition forms |
-| 408 `/home`, `/home/` | A/G | Immediate canonical question through thin presentation adapter | Home hosted canary first |
+| 408 `/home`, `/home/` | A/G | Adapter implemented; public activation rolled back after upstream failure | Existing Home restored; Cloudflare runtime evidence required |
 | 408 `/home/legacy.html` | E/G | Preserve original review/appointment page | Existing forms and campaigns |
 | 408 `/buyer/` | A/G | Existing page retained; canonical buyer-aware question implemented | Home certification before conversion |
 | 408 `/buyer/continue[.html]` | A/F | Earlier unlinked candidate now uses immediate-question presentation | No public promotion before certification |
