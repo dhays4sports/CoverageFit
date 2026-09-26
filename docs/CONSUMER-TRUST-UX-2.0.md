@@ -104,3 +104,56 @@ Full CoverageFit suite after cache regression: **266 pass, 0 fail, 0 skip**. Ded
 The available cloud-browser controls did not expose a viewport resize capability. Required 320/375/390/430px render checks, throttled-network check and screen-reader session remain explicitly unverified. A valid internal continuation link cannot be certified from the current unauthenticated producer session; no customer or ungoverned fake pilot record was created to bypass that gate.
 
 Rollback ref: `pre-consumer-trust-20260926` → `6654018cdbc4a8911f11ab10b193bc74713ffcad`. Existing rollback references retained. 408 repository unchanged. No new manual Cloudflare setting or migration required.
+
+## Final observed release and readiness
+
+Implementation release: `ef26a3cb73c77309e9478bb13a9bae9704cde7fc`. Production served `signal-continue.mjs?v=TRUST-2.0` and the matching stylesheet. An invalid synthetic link then showed the new bounded unavailable/expired message, no retry button, contact recovery, full identity, and focus on the status element. Token path stayed opaque; no customer identity or opportunity was submitted. Desktop root and error page visually inspected. Cloudflare injected an analytics script tag into HTML; source CSP restricts script-src to self. Network-level confirmation of beacon containment is not claimed from a DOM-only inspection.
+
+| Required final report item | Classification | Result |
+|---|---|---|
+| CoverageFit | PASS | Release above on main; documentation follow-up may have a later SHA |
+| 408FARMERS SHA | PASS | Unchanged `78660e8b5614ba4252af3ba55f35a543ccae21a1` |
+| Routes audited | PASS WITH LIMITATION | Tracked HTML inventory; hosted root/Home/About/legal/Continue/transition and 408 root/Home/Buyer/Condo; not every interactive path executed |
+| Files changed | PASS | List below; no decision engine change |
+| Homepage positioning | PASS | Review tool, human relationship, no automatic policy action, existing review entrances |
+| Dylan trust component | PASS | Static identity and canonical Insurance Producer title; placeholder flash prevented |
+| Agency/Farmers clarity | PASS WITH LIMITATION | Official agency listing linked, agency/tool hierarchy; no new corporate/brand legal assertion |
+| Privacy trust | PASS WITH LIMITATION | Accurate continuation recipient/context and policy links; no blanket no-sharing promise |
+| Continue landing | PASS | Hosted full identity and personalized continuity observed |
+| Continue payoff | PASS WITH LIMITATION | Short no-repeat framing; 1–2 minutes remains estimate |
+| Completion/error/expiry | PASS WITH LIMITATION | Hosted invalid-token error, local expiry/completion/pause tests; genuine valid hosted session pending |
+| Mobile QA | BLOCKED | Narrow CSS reviewed; four exact viewport widths not rendered in available controls |
+| Accessibility QA | PASS WITH LIMITATION | Native controls/status/focus tests and hosted focus; no full screen-reader/WCAG certification |
+| Performance | PASS WITH LIMITATION | Approximately 8.2KB Continue source payload; no network benchmark or web-vitals certification |
+| Route cleanup | PASS | No routes deleted; known dependencies preserved; unknown paths retained |
+| Coming Soon cleanup | PASS | Removed promotional cards/footer copy from five public pages |
+| 408 transition | PASS WITH LIMITATION | Source continuity copy and production route inspected; real handoff canary not repeated |
+| Wording needing approval | PASS WITH LIMITATION | No newly published claim awaiting approval; broader no-sale and corporate disclaimer wording deliberately withheld |
+| Hosted production checks | PASS WITH LIMITATION | New root, About, Continue/error served; legal/Home/408 pages rendered; no authenticated record canary |
+| Unresolved risks | BLOCKED certification gates | Mobile widths, real internal valid-link/provider receipt, screen reader and telemetry limitations |
+| Overall consumer trust readiness | PASS WITH LIMITATION | Bounded improvements deployed; full mandate acceptance not yet certified |
+
+Next concrete verification is a governed internal personalized link opened on a phone, followed through the same-opportunity producer receipt. Do not use a real customer solely for certification. No new Cloudflare action is required for this UX release.
+
+### Changed files
+
+- `404.html`
+- `_headers`
+- `about/index.html`
+- `assets/css/consumer-trust.css`
+- `assets/js/producer-branding.js`
+- `assets/js/signal-continue.mjs`
+- `assets/signal-continue.css`
+- `business/index.html`
+- `docs/CONSUMER-ROUTE-INVENTORY-2.0.md`
+- `docs/CONSUMER-TRUST-UX-2.0.md`
+- `home/index.html`
+- `how-it-works/index.html`
+- `index.html`
+- `landlord/index.html`
+- `privacy/index.html`
+- `signal-continue.html`
+- `support/index.html`
+- `terms/index.html`
+- `tests/consumer-trust.test.mjs`
+- `transition/index.html`

@@ -6,7 +6,7 @@ Source inventory; traffic logs were not available. Link counts are repository re
 
 | Route | Purpose / title | Class | Decision | Reference evidence | Indexing |
 |---|---|---|---|---|---|
-| /404.html | Page Not Found — CoverageFit | H | KEEP pending dependency/traffic review | 0 exact quoted references | No page meta; check headers |
+| /404.html | Page Not Found — CoverageFit | B | POLISH; human recovery preserved | 0 exact quoted references | No page meta; check headers |
 | /about/ | Why CoverageFit Exists — About Dylan Haysbert | B | POLISH | 12 exact quoted references | No page meta; check headers |
 | /agent/consultation/ | Consultation Document — CoverageFit | F | KEEP, internal/noindex | 7 exact quoted references | noindex, nofollow |
 | /agent/displacement-outreach.html | Displacement Outreach — CoverageFit | F | KEEP, internal/noindex | 2 exact quoted references | noindex,nofollow |
