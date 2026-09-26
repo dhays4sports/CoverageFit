@@ -71,3 +71,12 @@ The architecture document includes acquisition/presentation contracts, no-empty-
 ## Resume increment
 
 See ENTRY-CONTINUITY-1.0.md for the new exact-relationship web continuation adapter, source hydration, first-touch preservation and 12 added regressions. The hosted 408 candidate still renders its safe upstream-failure fallback; no route was newly activated in this increment. Cloudflare runtime evidence remains the next transport checkpoint.
+
+## Latest staged rollout update
+Dylan confirmed fresh private-browser Home answer/reload. Buyer public activation
+78cd720 is live; hosted Back, answer save and result reload verified, with original
+Buyer form reachable. Condo conversion follows: same canonical question engine,
+condo acquisition context retained without intent boost, original form preserved.
+297 CoverageFit / 35 408 tests pass. Condo hosted verification pending deployment;
+Tech and all subsequent routes remain inactive. Hosted producer receipt and
+mobile-width certification remain outstanding; this is not full mandate PASS.

@@ -168,3 +168,14 @@ test('Buyer entry keeps the preserved appointment destination separate from cano
  assert.match(html,/href="\/buyer\/legacy.html">Existing review or appointment/);
  assert.match(html,/What would be most useful for your home purchase/);
 });
+
+test('Condo context survives entry without asking property type or adding intent',()=>{
+ const handoff={...input(),entry:'condo',evidence:{},presentation:'408_contextual'};
+ const normalized=normalizeDistribution(handoff,new Date(now));
+ assert.equal(normalized.audience,'condo');assert.equal(normalized.route,'/condo/');
+ assert.deepEqual(normalized.evidence,{product:'home'});
+ const state=distributionPresentation(handoff,new Date(now));assert.equal(state.question.id,'home_trigger');
+ assert.doesNotMatch(state.question.prompt,/property type|own or rent/i);
+ const html=renderEntry(handoff,state);assert.match(html,/Condo insurance review with Dylan/);
+ assert.match(html,/href="\/condo\/legacy.html">Existing review or appointment/);
+});
