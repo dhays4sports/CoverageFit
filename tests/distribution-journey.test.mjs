@@ -136,3 +136,28 @@ test('resumed measurement retains original acquisition instead of a new landing 
 });
 
 test('direct entry is included in Pages function routing',()=>{const routes=JSON.parse(readFileSync(new URL('../_routes.json',import.meta.url),'utf8'));for(const path of ['/begin','/begin/'])assert.ok(routes.include.includes(path));assert.ok(routes.include.includes('/api/*'));});
+
+test('real canonical buyer handoff continues on the same opportunity with original source and no repeated first answer',async()=>{
+  const f=fixture();try{
+    f.env={COVERAGEFIT_DB:f.db,COVERAGEFIT_SOLO_WORKSPACE_ID:'qa',RINGCENTRAL_FROM_NUMBER:'+12025550198',RINGCENTRAL_CONVERSATION_HASH_SECRET:'synthetic-cross-channel-key-123456'};
+    const handoff={...input(),evidence:{},knownContext:{housing:'buyer'}};
+    const first=distributionPresentation(handoff,new Date(now));assert.equal(first.question.id,'buyer_need');
+    const response=await distributionInteract(req('interact',{action:'start',handoff,questionId:first.question.id,code:'closing_coverage'}),f);
+    assert.equal(response.status,200);const state=await response.json(),cookie=response.headers.get('set-cookie').split(';')[0];
+    assert.equal(state.question.id,'home_shopping_intent');
+    const contact=await distributionJourney(req('journey',{action:'contact',revision:state.revision,name:'Synthetic Entry Canary',phone:'2025550199',mode:'call',permission:true},cookie),f);assert.equal(contact.status,200,await contact.clone().text());
+    const opportunity=f.sql.prepare('SELECT id FROM cf_solo_opportunities').get().id;
+    const original=JSON.parse(f.sql.prepare("SELECT summary_json FROM cf_solo_sources WHERE kind='lead'").get().summary_json);assert.ok(original.context.distribution.conversation_id);assert.equal(original.context.distribution.phase,'producer_handoff');
+    const {soloRepository}=await import('../server/solo-desk-repository.mjs'),{signalContinue}=await import('../server/signal-continue-service.mjs');
+    const repo=soloRepository(f.db,{workspace:'qa',actor:'qa'});let sent=0;const service=signalContinue(repo,f.env,{now,send:async()=>{sent++;return {providerMessageId:'fake-provider'};}});
+    const draft=await service.create({id:opportunity,trigger:'busy',interestConfirmed:true,producerChosen:true});assert.equal(sent,0);
+    assert.equal((await service.preview(opportunity)).step.question.id,'home_shopping_intent');
+    await service.producer({id:opportunity,revision:draft.revision,action:'approve_send'});assert.equal(sent,1);
+    const token=draft.draft.match(/\/s\/([A-Za-z0-9_-]+)/)[1],resumed=await service.resume(token);assert.equal(resumed.question.id,'home_shopping_intent');
+    const done=await service.answer(token,{revision:resumed.revision,action:'later',future_date:'2027-02-01'});assert.equal(done.done,true);assert.equal(f.sql.prepare('SELECT count(*) n FROM cf_solo_opportunities').get().n,1);
+    const preserved=JSON.parse(f.sql.prepare("SELECT summary_json FROM cf_solo_sources WHERE source_id NOT LIKE 'signal_continue_v1:%' AND kind='lead'").get().summary_json);assert.deepEqual(preserved,original);
+    const summary=JSON.parse(f.sql.prepare("SELECT summary_json FROM cf_solo_sources WHERE kind='signal_continue_v1'").get().summary_json);assert.equal(summary.first_touch.landingPage,'/buyer/');assert.equal(summary.first_touch.campaignId,'buyer_fall');assert.equal(summary.current_channel,'signal_continue');assert.equal(summary.decision_2,'LATER');assert.equal(summary.future_date,'2027-02-01');assert.equal(sent,1);
+    const {producerWorkspace}=await import('../server/producer-workspace.mjs');const detail=await producerWorkspace(repo,f.env).detail(opportunity);assert.equal(detail.continuation.decision_2,'LATER');assert.equal(detail.continuation.future_date,'2027-02-01');assert.equal(detail.sms,null);
+    const {continueAnalytics}=await import('../server/signal-continue-analytics.mjs');assert.equal((await continueAnalytics(repo,f.env,new Date(now))).links_offered,0,'web continuation cannot contaminate district SIGNAL analytics');
+  }finally{f.sql.close();}
+});

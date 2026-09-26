@@ -4,6 +4,7 @@ import {createPvxWebResumeToken,pvxWebJourneyKey} from './pvx-web-journey-core.m
 import {normalizeLeadPayload,upsertLeadJourney} from './lead-operations-core.mjs';
 import {projectSoloDeskEvent} from './solo-desk-event-projection.mjs';
 import {sha256Hex} from './runtime-crypto.mjs';
+import {smsLiveConversationId} from './sms-outbound-gateway.mjs';
 
 // Same PVX record primitive, with a distinct cookie so legacy PVX update APIs
 // cannot mutate this execution. No separate lead exists before permission.
@@ -92,6 +93,10 @@ async function deliver(loaded,options){
   v.context.distribution={version:r.distribution.version,journeyId:r.journeyId,evidenceSource:'consumer_answer',answers:r.answers,initialEvidence:r.distribution.evidence};
   v.context.housing=r.distribution.knownContext.housing||'';
   v.context.distribution.knownContext=r.distribution.knownContext;
+  v.context.distribution.phase='producer_handoff';
+  // Exact relationship capability derived server-side, not an inbound field.
+  // Missing provider configuration leaves continuation unavailable. No SMS is sent.
+  try{v.context.distribution.conversation_id=await smsLiveConversationId(c.phone,options.env?.RINGCENTRAL_FROM_NUMBER,options.env?.RINGCENTRAL_CONVERSATION_HASH_SECRET);}catch{}
   v.context.distribution.firstTouch=r.firstTouch;v.context.distribution.currentChannel=r.currentChannel;v.context.distribution.lastTouchChannel=r.lastTouchChannel;
   v.context.reviewContext=(r.distribution.presentation==='paid_agency'?'CoverageFit ':'408FARMERS ')+a.landingPage+' — requested '+c.mode;
   v.consent.agencyContact.callPermitted=c.mode==='call';v.consent.agencyContact.personalTextPermitted=c.mode==='text';

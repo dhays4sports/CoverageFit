@@ -1,6 +1,7 @@
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function mountContinue(root,d,api,refresh){
- if(d.population.population!=='DISTRICT_SIGNAL'||d.contactSafety?.suppressed){root.replaceChildren();return;}
+ const canonicalWeb=d.population.population==='WEB_DIRECT'&&(d.sources||[]).some(s=>s.kind==='lead'&&s.summary?.context?.distribution?.phase==='producer_handoff'&&s.summary.context.distribution.conversation_id);
+ if((d.population.population!=='DISTRICT_SIGNAL'&&!canonicalWeb)||d.contactSafety?.suppressed){root.replaceChildren();return;}
  root.innerHTML='<details><summary>Continue async</summary><p>Use after an interrupted discovery call: interest exists, useful evidence is missing, and answering asynchronously suits the prospect. Keep any clear callback or Future Bind action.</p><button type="button" data-preview>Review check-in option</button><div data-content></div><p data-status role="status"></p></details>';
  const box=root.querySelector('[data-content]'),say=v=>root.querySelector('[data-status]').textContent=v;let draft=null;
  async function preview(){try{const p=await api('continue-preview?id='+encodeURIComponent(d.opportunity.id));draft=p.draft;

@@ -2,7 +2,7 @@ import {resolveSmsOwnership,ownershipLabel} from './sms-ownership.mjs';
 import {templatesFor} from './sms-template-registry.mjs';
 import {parse} from './solo-desk-repository.mjs';
 import {createSmsConversationStore} from './d1-json-store.mjs';
-import {districtSmsCohort} from './district-pilot-sms.mjs';
+import {districtSmsCohort,districtSmsRecord} from './district-pilot-sms.mjs';
 import {enabled} from './sms-signal-core.mjs';
 import {fail} from '../assets/js/solo-desk-model.mjs';
 export const POPULATIONS=['DISTRICT_SIGNAL','DISTRICT_CONTROL','WEB_DIRECT','OTHER'];
@@ -43,6 +43,17 @@ export function producerWorkspace(repo,env){
   if(!c.signal?.managed)return null;
   return {conversation_id:c.id,...c.signal,contact_suppressed:!!(c.signal.contact_suppressed||c.smsConsent?.status==='opted_out'),transcript:(c.transcript||[]).slice(-12).map(t=>({direction:t.direction,body:t.body,occurredAt:t.occurredAt}))};
  }
+ async function continuation(id,ss,pop){
+  if(pop!=='WEB_DIRECT')return null;
+  const source=ss.find(s=>s.kind==='signal_continue_v1')?.summary;
+  if(!source?.conversation_id)return null;
+  const c=await store.get('sms-live-conversations/'+source.conversation_id);
+  if(!c||c.firstPartyOpportunityId!==id||c.firstPartyWorkspace!==w)return null;
+  try{if(await districtSmsRecord(c,env,store))return null;}catch{return null;}
+  if(!c.signal?.managed||!c.signal.continue_key)return null;
+  const suppressed=c.smsConsent?.status==='opted_out'||c.signal.contact_suppressed;
+  return {decision_2:suppressed?'STOP':c.signal.decision_2,priority:c.signal.priority,reason:c.signal.reason,future_date:c.signal.future_date||null,completed_at:source.completed_at||null};
+ }
  return {
   async pendingSms(){
    const page=await store.list({prefix:'sms-live-conversations/',limit:500}),templates=await templatesFor(store),records=[];
@@ -57,8 +68,9 @@ export function producerWorkspace(repo,env){
   async detail(id){await repo.own(id);const ss=await sources(id),pop=await population(id,ss),pilot=ss.find(s=>s.kind==='district_pilot_v1')?.summary||null;
    const data=await repo.detail(id),state=await sms(pilot,pop.population);
    if(['DISTRICT_CONTROL','OTHER'].includes(pop.population)){data.opportunityPriority=null;data.possessionQuality=null;data.nextBestAction=null;}
-   const linked=pilot?.conversation_id?await store.get('sms-live-conversations/'+pilot.conversation_id):null;const contactSafety={suppressed:!!(linked?.smsConsent?.status==='opted_out'||linked?.signal?.contact_suppressed||linked?.signal?.decision_2==='STOP')};
-   return {...data,contactSafety,population:pop,pilot:['DISTRICT_SIGNAL','DISTRICT_CONTROL'].includes(pop.population)?pilot:null,sms:state,sms_enabled:enabled(env)};
+   const webCid=pop.population==='WEB_DIRECT'?ss.find(s=>s.kind==='lead'&&s.summary?.context?.distribution?.phase==='producer_handoff')?.summary.context.distribution.conversation_id:null;
+   const linkedCid=pilot?.conversation_id||webCid;const linked=linkedCid?await store.get('sms-live-conversations/'+linkedCid):null;const contactSafety={suppressed:!!(linked?.smsConsent?.status==='opted_out'||linked?.signal?.contact_suppressed||linked?.signal?.decision_2==='STOP')};
+   return {...data,contactSafety,continuation:await continuation(id,ss,pop.population),population:pop,pilot:['DISTRICT_SIGNAL','DISTRICT_CONTROL'].includes(pop.population)?pilot:null,sms:state,sms_enabled:enabled(env)};
   },
   async list(params){
    const selected=params.get('population')||'DISTRICT_SIGNAL';if(![...POPULATIONS,'ALL'].includes(selected))fail(422,'population','Select a work population.');
@@ -70,7 +82,7 @@ export function producerWorkspace(repo,env){
    for(const op of all){const ss=by.get(op.id)||[],pop=await population(op.id,ss),contact=parse(op.contact_json);if(status!=='all'&&(status==='closed'?op.status!=='closed':op.status==='closed'))continue;counts[pop.population]++;
     if((selected!=='ALL'&&!q&&pop.population!==selected)||(q&&![contact.name,contact.firstName,contact.lastName,contact.mobile,contact.email,op.products,op.source].join(' ').toLowerCase().includes(q)))continue;
     const pilot=ss.find(s=>s.kind==='district_pilot_v1')?.summary,sm=await sms(pilot,pop.population);
-    records.push({id:op.id,name:contact.name||[contact.firstName,contact.lastName].filter(Boolean).join(' ')||'Unnamed opportunity',phone:contact.mobile||'',products:op.products,source:op.source,status:op.status,population:pop.population,updated_at:op.updated_at,deadline:op.deadline,priority:pop.population==='DISTRICT_SIGNAL'?priority.get(op.id)||null:null,sms:sm?{decision_2:sm.decision_2,priority:sm.priority,latest_inbound:sm.latest_inbound,draft_status:sm.draft_status,human_required:sm.human_required,quote_ready:sm.quote_ready,az_sync_status:sm.az_sync_status,contact_suppressed:sm.contact_suppressed}:null});
+    records.push({id:op.id,name:contact.name||[contact.firstName,contact.lastName].filter(Boolean).join(' ')||'Unnamed opportunity',phone:contact.mobile||'',products:op.products,source:op.source,status:op.status,population:pop.population,updated_at:op.updated_at,deadline:op.deadline,continuation:await continuation(op.id,ss,pop.population),priority:pop.population==='DISTRICT_SIGNAL'?priority.get(op.id)||null:null,sms:sm?{decision_2:sm.decision_2,priority:sm.priority,latest_inbound:sm.latest_inbound,draft_status:sm.draft_status,human_required:sm.human_required,quote_ready:sm.quote_ready,az_sync_status:sm.az_sync_status,contact_suppressed:sm.contact_suppressed}:null});
    }
    records.sort((a,b)=>(a.population==='DISTRICT_SIGNAL'&&b.population==='DISTRICT_SIGNAL'?attentionRank(b)-attentionRank(a):0)||b.updated_at.localeCompare(a.updated_at)||a.id.localeCompare(b.id));
    const offset=Number(params.get('offset')||0);if(!Number.isInteger(offset)||offset<0)fail(422,'offset','Invalid page');

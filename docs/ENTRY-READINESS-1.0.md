@@ -6,31 +6,31 @@ The direct CoverageFit entry works in hosted browser testing. The 408 worker cou
 
 | Required item | Classification | Evidence / limitation |
 |---|---|---|
-| CoverageFit code | PASS WITH LIMITATION | Runtime e038372d75cdbbb0f24bdc91b4170884215441f2; subsequent documentation-only commit may follow |
-| 408FARMERS code | PASS WITH LIMITATION | Recovery 2a6813190c3f7e95f1b0cedbf463266c5eb68d68; safe diagnostic addition follows |
+| CoverageFit code | PASS WITH LIMITATION | Base checkpoint 61845a4c93c315f66de0bfd2ad0d38f665debdf5; cross-channel continuation update follows (latest commit reported in delivery) |
+| 408FARMERS code | PASS WITH LIMITATION | 36242f57a29e4796eb88159f45f0162616df2661; safe diagnostic installed; public activation paused |
 | Routes audited | PASS WITH LIMITATION | Both repository route inventories, current source contracts, worker dispatch and known dependencies; external campaign traffic not fully observable |
 | Routes changed | PASS WITH LIMITATION | CF /begin and distribution APIs; 408 candidate /buyer/continue; Home adapter paused after canary failure; original Home retained |
 | Contextual 408 | BLOCKED | Thin adapter implemented/local tests pass; hosted upstream presentation fails |
-| Signal Continue | PASS WITH LIMITATION | Existing human-warm eligibility/review-first untouched; WEB_DIRECT extension remains unresolved |
+| Signal Continue | PASS WITH LIMITATION | Existing eligibility/review-first preserved; exact canonical WEB_DIRECT relationship now supported and locally tested; hosted provider canary pending |
 | Paid/direct mode | PASS WITH LIMITATION | /begin renders directly with Producer/agency/license, no 408 hop; contact-to-producer hosted receipt not tested |
 | No empty click | PASS WITH LIMITATION | Immediate question on hosted direct entry; same implementation ready for contextual route, not activated |
 | Acquisition contract | PASS WITH LIMITATION | Normalized bounded metadata, source/campaign/variant/UTM/partner/referral/market/contact/evidence; no guessed consent |
 | Source vs intent | PASS | Buyer framing gives no priority increment; audience and QR market remain attribution; local regression |
-| ZERO-REPEAT | PASS WITH LIMITATION | Known evidence/Back/resume locally; hosted first answer survives navigation; end-to-end cross-channel not certified |
+| ZERO-REPEAT | PASS WITH LIMITATION | Known evidence/Back/resume locally; hosted first answer survives navigation; local end-to-end web → Continue certified; hosted cross-channel not certified |
 | Same opportunity | PASS WITH LIMITATION | SQLite retry/contact projection uses one checkpoint/opportunity; independent anonymous channels not guessed/merged |
-| First-touch | PASS WITH LIMITATION | Immutable original attribution; resumed event uses it; later Continue current-channel update outstanding |
+| First-touch | PASS WITH LIMITATION | Immutable original attribution; resumed event uses it; Continue current channel recorded after approved send; original source unchanged |
 | Affinity governance | PASS | No profession input from new entry contract and no source-derived scoring; old affinity routes retained |
 | QR | PASS WITH LIMITATION | Strict parser/contract tested; no public QR activation |
 | Paid framework | PASS WITH LIMITATION | Canonical direct template and Meta attribution; no paid campaigns launched or outcomes claimed |
 | Producer source display | PASS WITH LIMITATION | Separate acquisition context panel deployed; authenticated hosted receipt not certified |
 | District pilot | PASS | Full local regression suite; no assignment, weights, action-set or population changes |
 | SMS ownership | PASS WITH LIMITATION | Existing ownership/CONTROL/STOP regressions pass; no live provider SMS test in this pass |
-| Tests | PASS | CoverageFit 283 passed / 0 failed / 0 skipped; 408 29 top-level passed / 0 failed / 0 skipped |
+| Tests | PASS | CoverageFit 295 passed / 0 failed / 0 skipped; 408 29 top-level passed / 0 failed / 0 skipped |
 | Mobile/accessibility | PASS WITH LIMITATION | Semantic fieldsets, 46px controls, focus/status; hosted keyboard completion; 320/375/390/430px and screen-reader testing outstanding |
 | Performance | PASS WITH LIMITATION | Small shared renderer, SSR question, no producer bundle; no measured mobile performance score; upstream reliability blocks contextual rollout |
 | Hosted canaries | PASS WITH LIMITATION | Direct question → save → resume → second answer → early completion; 408 upstream failure and successful Home rollback; no customer data/SMS used |
 | Migrations/manual checkpoints | PASS WITH LIMITATION | No migration, data reset, secret or flag change. Runtime log inspection required; project is the Cloudflare Pages project serving 408farmers.com; exact dashboard project name not independently verified |
-| Unresolved risks | BLOCKED | Hosted upstream transport, real producer receipt, WEB_DIRECT → Continue exact ownership bridge, mobile certification, source-outcome analytics, external dependency evidence |
+| Unresolved risks | BLOCKED | Hosted upstream transport, real producer receipt, hosted WEB_DIRECT → Continue provider certification, mobile certification, source-outcome analytics, external dependency evidence |
 | Next phase | BLOCKED | Diagnose upstream with runtime evidence; certify Home end-to-end; then Buyer → Condo → Tech → other affinity → QR → direct paid validation |
 
 ## Exact operator checkpoint
@@ -50,3 +50,7 @@ CoverageFit: server/{distribution-contract,distribution-journey,entry-presentati
 408finneas: _worker.js; _routes.json; server/entry-presentation-proxy.mjs; home/legacy.html; tests/entry-presentation.test.mjs; docs/ENTRY-ARCHITECTURE-1.0.md.
 
 The architecture document includes acquisition/presentation contracts, no-empty-click and source-vs-intent doctrines, QR/direct specifications, ZERO-REPEAT boundaries, measurement limitations, migration/rollback and production QA. Route matrix covers classification/dependency/deprecation decisions. No routes or repositories deleted.
+
+## Resume increment
+
+See ENTRY-CONTINUITY-1.0.md for the new exact-relationship web continuation adapter, source hydration, first-touch preservation and 12 added regressions. The hosted 408 candidate still renders its safe upstream-failure fallback; no route was newly activated in this increment. Cloudflare runtime evidence remains the next transport checkpoint.

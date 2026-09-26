@@ -39,3 +39,47 @@ test('RAW historical intent never becomes fresh continuation intent',async()=>{c
 test('first answered voice call can start Continue before SMS exists, only with exact enrolled relationship',async()=>{const {smsLiveConversationId}=await import('../server/sms-outbound-gateway.mjs');const f=await setup();try{f.env.RINGCENTRAL_FROM_NUMBER='+12025550198';f.env.RINGCENTRAL_CONVERSATION_HASH_SECRET='synthetic-relationship-key-123456';const cid=await smsLiveConversationId('+12025550199',f.env.RINGCENTRAL_FROM_NUMBER,f.env.RINGCENTRAL_CONVERSATION_HASH_SECRET);f.pilot.conversation_id=cid;f.sql.prepare("UPDATE cf_solo_sources SET summary_json=? WHERE kind='district_pilot_v1'").run(JSON.stringify(f.pilot));f.sql.prepare("UPDATE cf_solo_opportunities SET contact_json=? WHERE id='one'").run(JSON.stringify({mobile:'+12025550199'}));const draft=await f.service.create(selection);assert.ok(draft.draft.includes('https://coveragefit.com/s/'));assert.equal(f.sent,0);assert.equal((await f.store.get('sms-live-conversations/'+cid)).contactPhone,'+12025550199');}finally{f.sql.close();}});
 test('mismatched phone cannot initialize the enrolled relationship',async()=>{const f=await setup();try{await f.store.delete('sms-live-conversations/thread');f.env.RINGCENTRAL_FROM_NUMBER='+12025550198';f.env.RINGCENTRAL_CONVERSATION_HASH_SECRET='synthetic-relationship-key-123456';f.sql.prepare("UPDATE cf_solo_opportunities SET contact_json=? WHERE id='one'").run(JSON.stringify({mobile:'+12025550199'}));await assert.rejects(f.service.create(selection),/ownership/);assert.equal(await f.store.get('sms-live-conversations/thread'),null);}finally{f.sql.close();}});
 test('producer-owned SIGNAL can explicitly offer Continue without releasing takeover',async()=>{const f=await setup();try{const c=await f.store.get('sms-live-conversations/thread');c.signal.human_active=true;c.signal.human_required=true;c.signal.classification='potential_interest';await f.store.setJSON('sms-live-conversations/thread',c);await assert.rejects(f.service.create({...selection,producerChosen:false}),/explicitly choose/);assert.ok((await f.service.create(selection)).draft);assert.equal((await f.store.get('sms-live-conversations/thread')).signal.human_active,true);assert.equal(f.sent,0);}finally{f.sql.close();}});
+
+async function setupWeb(){
+ const f=await setup();f.sql.prepare("DELETE FROM cf_solo_sources WHERE kind='district_pilot_v1'").run();await f.store.delete('sms-live-conversations/thread');
+ f.env.RINGCENTRAL_FROM_NUMBER='+12025550198';f.env.RINGCENTRAL_CONVERSATION_HASH_SECRET='synthetic-web-relationship-key-123456';
+ const {smsLiveConversationId}=await import('../server/sms-outbound-gateway.mjs');f.webCid=await smsLiveConversationId('+12025550199',f.env.RINGCENTRAL_FROM_NUMBER,f.env.RINGCENTRAL_CONVERSATION_HASH_SECRET);
+ f.sql.prepare("UPDATE cf_solo_opportunities SET contact_json=?,source=? WHERE id='one'").run(JSON.stringify({mobile:'+12025550199'}),'web_408_buyer');
+ f.web={contactRequested:true,permission:{basis:'requested_review_call',callPermitted:true},attribution:{sourceKey:'web_408_buyer',landingPage:'/buyer/',campaignId:'realtor_a'},context:{reviewTrack:'home',reviewReason:'buying_home',distribution:{version:'coveragefit-distribution-v1',phase:'producer_handoff',journeyId:'pvxj_test',conversation_id:f.webCid,firstTouch:{sourceKey:'web_408_buyer',landingPage:'/buyer/',campaignId:'realtor_a'},currentChannel:'408_contextual'}}};
+ f.sql.prepare('INSERT INTO cf_solo_sources(workspace_id,kind,source_id,opportunity_id,summary_json,updated_at) VALUES(?,?,?,?,?,?)').run('qa','lead','web-entry','one',JSON.stringify(f.web),at);
+ return f;
+}
+test('canonical web handoff uses the same opportunity, source and first answer in producer-chosen Continue',async()=>{
+ const f=await setupWeb();try{
+  const preview=await f.service.preview('one');assert.equal(preview.eligibility.eligible,true);assert.equal(preview.step.question.id,'home_shopping_intent');
+  assert.equal(await f.store.get('sms-live-conversations/'+f.webCid),null,'preview must not create or claim a conversation');
+  await assert.rejects(f.service.create({...selection,producerChosen:false}),/explicitly choose/);
+  const {token,state}=await start(f);assert.equal(state.question.id,'home_shopping_intent');
+  const c=await f.store.get('sms-live-conversations/'+f.webCid);assert.equal(c.firstPartyOpportunityId,'one');assert.equal(c.orchestration.ownership.owner,'producer');assert.equal(c.orchestration.automationMode,'human_only');
+  const next=await f.service.answer(token,{revision:state.revision,question_id:state.question.id,code:'ready_now'});assert.equal(next.question.id,'home_decision_timing');
+  await f.service.answer(token,{revision:next.revision,question_id:next.question.id,code:'within_14'});
+  assert.equal(f.sql.prepare('SELECT count(*) n FROM cf_solo_opportunities').get().n,2);assert.equal(f.sent,1);
+  const original=JSON.parse(f.sql.prepare("SELECT summary_json FROM cf_solo_sources WHERE source_id='web-entry'").get().summary_json);assert.deepEqual(original,f.web);
+  const summary=JSON.parse(f.sql.prepare("SELECT summary_json FROM cf_solo_sources WHERE kind='signal_continue_v1'").get().summary_json);assert.equal(summary.first_touch.landingPage,'/buyer/');assert.equal(summary.current_channel,'signal_continue');assert.equal(summary.decision_2,'CALL');
+  const {producerWorkspace}=await import('../server/producer-workspace.mjs');const detail=await producerWorkspace(f.repo,f.env).detail('one');assert.equal(detail.population.population,'WEB_DIRECT');assert.equal(detail.pilot,null);assert.equal(detail.sms,null,'no district SMS UI treatment');
+ }finally{f.sql.close();}
+});
+for(const kind of ['unknown_thread','other_opportunity','wrong_contact','active_web','control_relationship','suppressed','active_guided'])test('web continuation fails closed for '+kind,async()=>{
+ const f=await setupWeb();try{
+  if(kind==='unknown_thread')await f.store.setJSON('sms-live-conversations/'+f.webCid,{id:f.webCid,contactPhone:'+12025550199'});
+  if(kind==='other_opportunity')await f.store.setJSON('sms-live-conversations/'+f.webCid,{id:f.webCid,firstPartyOpportunityId:'two',firstPartyWorkspace:'qa'});
+  if(kind==='wrong_contact')f.sql.prepare("UPDATE cf_solo_opportunities SET contact_json=? WHERE id='one'").run(JSON.stringify({mobile:'+12025550197'}));
+  if(kind==='active_web'){f.web.context.distribution.phase='active';f.sql.prepare("UPDATE cf_solo_sources SET summary_json=? WHERE source_id='web-entry'").run(JSON.stringify(f.web));}
+  if(kind==='control_relationship')f.sql.prepare('INSERT INTO cf_solo_sources(workspace_id,kind,source_id,opportunity_id,summary_json,updated_at) VALUES(?,?,?,?,?,?)').run('qa','district_pilot_v1','control','two',JSON.stringify({...f.pilot,cohort:'CONTROL',conversation_id:f.webCid}),at);
+  if(kind==='active_guided')await f.store.setJSON('sms-live-conversations/'+f.webCid,{id:f.webCid,firstPartyOpportunityId:'one',firstPartyWorkspace:'qa',orchestration:{ownership:{owner:'coveragefit'},workflow:{status:'active'}}});
+  if(kind==='suppressed')await f.store.setJSON('sms-live-conversations/'+f.webCid,{id:f.webCid,firstPartyOpportunityId:'one',firstPartyWorkspace:'qa',smsConsent:{status:'opted_out'}});
+  await assert.rejects(f.service.create(selection));assert.equal(f.sent,0);assert.equal(f.sql.prepare('SELECT count(*) n FROM sms_handoffs').get().n,0);
+ }finally{f.sql.close();}
+});
+test('later CONTROL enrollment invalidates an existing web continuation even with producer takeover',async()=>{
+ const f=await setupWeb();try{const {token}=await start(f);f.sql.prepare('INSERT INTO cf_solo_sources(workspace_id,kind,source_id,opportunity_id,summary_json,updated_at) VALUES(?,?,?,?,?,?)').run('qa','district_pilot_v1','control','two',JSON.stringify({...f.pilot,cohort:'CONTROL',conversation_id:f.webCid}),at);await assert.rejects(f.service.resume(token),/no longer available/);assert.equal(await f.service.draft('one'),null);}finally{f.sql.close();}
+});
+
+test('already clear web action creates neither token nor conversation',async()=>{const f=await setupWeb();try{f.web.context.reviewReason='nonrenewal_notice';f.sql.prepare("UPDATE cf_solo_sources SET summary_json=? WHERE source_id='web-entry'").run(JSON.stringify(f.web));await assert.rejects(f.service.create(selection),/already clear/);assert.equal(await f.store.get('sms-live-conversations/'+f.webCid),null);assert.equal(f.sql.prepare('SELECT count(*) n FROM sms_handoffs').get().n,0);}finally{f.sql.close();}});
+
+test('known canonical web timing survives channel change and is not requested again',async()=>{const f=await setupWeb();try{f.web.context.distribution.initialEvidence={product:'home',renewalTiming:'within_30'};f.sql.prepare("UPDATE cf_solo_sources SET summary_json=? WHERE source_id='web-entry'").run(JSON.stringify(f.web));const {token,state}=await start(f);assert.equal(state.question.id,'home_shopping_intent');const next=await f.service.answer(token,{revision:state.revision,question_id:state.question.id,code:'ready_now'});assert.equal(next.done,true);assert.equal(next.question,null);}finally{f.sql.close();}});

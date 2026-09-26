@@ -29,7 +29,7 @@ Classes: A CONTEXTUAL_408; B COVERAGEFIT_DIRECT; C SIGNAL_CONTINUE; D SPECIALIZE
 | CoverageFit `/begin/` | B | New direct paid presentation, immediate question | Hosted paid canary; unlinked candidate |
 | CoverageFit `/home/`, report/result/PVX/review/transition routes | B/G | Preserve existing active review/report compatibility | Avoid destructive consolidation |
 | CoverageFit `/business/*`, `/landlord/` | D/G | Specialized retained | Evidence/application distinctions |
-| CoverageFit `/s/<token>`, `/signal-continue.html` | C/G | Existing human-warm continuation unchanged | WEB_DIRECT support remains denied/unresolved |
+| CoverageFit `/s/<token>`, `/signal-continue.html` | C/G | Human-warm continuation plus exact canonical WEB_DIRECT handoff adapter | Local cross-channel certification passed; hosted internal send pending |
 | CoverageFit `/sms/continue/`, `/pvx/appointment/` | D/G | Existing callback/booking flows retained | Do not replace clear callback with questionnaire |
 | CoverageFit `/api/signal/decision` | B/G | Canonical engine; buyer question framing only | No weight/action changes |
 | CoverageFit `/api/signal/home-handoff` | B/G | Existing signed handoff retained | Historical callers |

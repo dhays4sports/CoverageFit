@@ -20,7 +20,7 @@ No empty clicks: first answer saves evidence and begins the interaction. Contact
 
 Server-derived: source/source family/source key/route/audience/product context/market context. Supported campaign inputs: campaign ID, variant, partner ID, UTM source/medium/campaign/content/term and creative. Public query values are bounded campaign codes, not names/phone/email; other query fields are not forwarded by the presentation adapter. Do not put customer data in campaign codes. Permission requires a separate explicit contact submission; arrival and answers are not marketing consent.
 
-First-touch source, route, campaign and timestamp are stored separately from current/last-touch channel. Current channel is presently the initiating acquisition presentation; later Signal Continue channel updates are not yet integrated. Resumed measurement uses the saved origin rather than replacing it with a later campaign. Events are idempotent per journey/type, not raw repeat page-view counts.
+First-touch source, route, campaign and timestamp are stored separately from current/last-touch channel. Current channel starts with the initiating acquisition presentation. Preparing a Continue draft preserves it; approved sending changes the continuation source to signal_continue. Original acquisition records remain unchanged. Resumed measurement uses the saved origin rather than replacing it with a later campaign. Events are idempotent per journey/type, not raw repeat page-view counts.
 
 ## Source is not intent
 
@@ -30,7 +30,7 @@ Route context is level 0. A meaningful answer is explicit engagement. Need, timi
 
 CoverageFit selects questions from imported permitted evidence plus saved answers. Back reconstructs state from imported evidence and retained answers. Refresh resumes the same private capability. Contact retry reuses the same lead checkpoint and producer projection. No opportunity is created merely for a landing or anonymous answer.
 
-Identity is not guessed across independent anonymous browsers. A fresh visit in another browser is not silently joined by route, audience or weak phone history. Existing stable projection primitives are reused; exact same-journey retries are tested. Cross-channel buyer → producer discovery → Signal Continue is NOT certified: the existing service still denies WEB_DIRECT continuation. This must be resolved with an explicit same-opportunity ownership adapter, not by broadly enabling all web or unknown SMS threads.
+Identity is not guessed across independent anonymous browsers. A fresh visit in another browser is not silently joined by route, audience or weak phone history. Existing stable projection primitives are reused; exact same-journey retries are tested. Cross-channel buyer → producer discovery → Signal Continue now passes local SQLite integration through an exact same-opportunity ownership adapter. Only canonical completed contact handoffs with a server-derived relationship can qualify. Existing unknown threads, another opportunity/workspace, any enrolled district relationship, active guided intake, and suppression fail closed. New conversation creation happens only after the producer explicitly chooses Continue and a missing question is confirmed. The conversation is producer-owned, with automation paused. A hosted internal provider send remains uncertified.
 
 ## QR specification
 
@@ -54,7 +54,7 @@ Same-origin proxy requires exact browser Origin, a fixed operation allowlist and
 
 ## QA and rollout gate
 
-Local suite: CoverageFit 283 passed, 0 failed, 0 skipped; 408FARMERS 29 top-level passed, 0 failed, 0 skipped. Existing district, ownership, Continue, review-first and STOP regressions are included. SQLite tests prove durable first-answer state, retry identity, imported evidence reuse, producer projection, source isolation, expiry and unknown-field rejection. Hosted direct entry saved the first answer, resumed the second question after navigation/reload, and completed via keyboard after two answers. At 1363px, no horizontal overflow and 46px button heights were observed. Mobile widths, hosted producer receipt and cross-channel Continue remain uncertified.
+Local suite: CoverageFit 295 passed, 0 failed, 0 skipped; 408FARMERS 29 top-level passed, 0 failed, 0 skipped. Existing district, ownership, Continue, review-first and STOP regressions are included. SQLite tests prove durable first-answer state, retry identity, imported evidence reuse, producer projection, source isolation, expiry and unknown-field rejection. Hosted direct entry saved the first answer, resumed the second question after navigation/reload, and completed via keyboard after two answers. At 1363px, no horizontal overflow and 46px button heights were observed. Mobile widths, hosted producer receipt and cross-channel Continue remain uncertified.
 
 Order: Home hosted first-answer → reload/resume → next answer → explicit safe internal handoff and producer receipt. Only then Buyer, Condo, Tech, remaining affinity, QR, direct paid. Do not mass-enable the registry. Verify keyboard focus, 320/375/390/430px layout, no overflow, privacy/contact links, absence of producer data, no automatic SMS and old appointment compatibility. No timing/performance score is claimed without measurement.
 

@@ -1,10 +1,12 @@
 import {extractFacts,matchTemplate} from './sms-signal-core.mjs';
-import {SIGNAL_QUESTION_LIBRARY} from './signal-decision-core.mjs';
+import {SIGNAL_QUESTION_LIBRARY,normalizeSignalDecisionInput} from './signal-decision-core.mjs';
 import {createSmsHandoffStore,createSmsConversationStore} from './d1-json-store.mjs';
 import {sha256Hex} from './runtime-crypto.mjs';
 import {parse} from './solo-desk-repository.mjs';
 import {classifyPopulation} from './producer-workspace.mjs';
 import {resolveSmsOwnership} from './sms-ownership.mjs';
+import {districtSmsRecord} from './district-pilot-sms.mjs';
+import {takeProducerOwnership} from './sms-orchestrator-core.mjs';
 import {templatesFor} from './sms-template-registry.mjs';
 import {sendSmsThroughGateway,smsLiveConversationId,baseConversation} from './sms-outbound-gateway.mjs';
 import {applySmsConsentCommand} from './sms-consent-core.mjs';
@@ -17,41 +19,64 @@ export function signalContinue(repo,env,options={}){
   const op=await repo.own(id),sources=(await repo.rows('SELECT * FROM cf_solo_sources WHERE workspace_id=? AND opportunity_id=?',w,id)).map(s=>({...s,summary:parse(s.summary_json)}));
   const pilot=sources.find(s=>s.kind==='district_pilot_v1')?.summary;
   const population=classifyPopulation(sources).population;
-  const cid=pilot?.conversation_id;
+  const web=sources.find(s=>s.kind==='lead'&&s.summary?.contactRequested===true&&s.summary?.context?.distribution?.version==='coveragefit-distribution-v1'&&s.summary.context.distribution.phase==='producer_handoff');
+  const distribution=web?.summary.context.distribution;
+  const cid=pilot?.conversation_id||(population==='WEB_DIRECT'?distribution?.conversation_id:null);
   // V1 requires an exact existing relationship. No phone-based auto-linking.
   let c=cid?await store.get('sms-live-conversations/'+cid):null;let initializeConversation=false;
   if(!c&&cid&&pilot?.cohort==='SIGNAL'&&pilot.pilot_phase==='NEW_LEAD'){const contact=parse(op.contact_json);try{const verified=await smsLiveConversationId(contact.mobile,env.RINGCENTRAL_FROM_NUMBER,env.RINGCENTRAL_CONVERSATION_HASH_SECRET);if(verified===cid){c=baseConversation(cid,{to:contact.mobile},env.RINGCENTRAL_FROM_NUMBER,now().toISOString());initializeConversation=true;}}catch{/* Missing relationship configuration remains ineligible. */}}
+  let webEligible=false;
+  if(population==='WEB_DIRECT'&&!pilot&&cid&&distribution){
+   try{
+    const contact=parse(op.contact_json),verified=await smsLiveConversationId(contact.mobile,env.RINGCENTRAL_FROM_NUMBER,env.RINGCENTRAL_CONVERSATION_HASH_SECRET);
+    const enrolled=await districtSmsRecord({id:cid},env,store);
+    const activeGuided=c?.orchestration?.ownership?.owner==='coveragefit'&&c?.orchestration?.workflow?.status==='active';
+    if(verified===cid&&!enrolled&&!activeGuided&&(!c||(c.firstPartyOpportunityId===id&&c.firstPartyWorkspace===w))){
+     if(!c){c=baseConversation(cid,{to:contact.mobile},env.RINGCENTRAL_FROM_NUMBER,now().toISOString());c.firstPartyOpportunityId=id;c.firstPartyWorkspace=w;c.smsOwnership={owner:'FIRST_PARTY_408',basis:'explicit_first_party_workflow'};c.orchestration=takeProducerOwnership(c,{occurredAt:now().toISOString(),reason:'producer_took_ownership:signal_continue'});initializeConversation=true;}
+     webEligible=true;
+    }
+   }catch{/* Ambiguous identity, enrollment lookup or missing configuration fails closed. */}
+  }
   const owner=c?await resolveSmsOwnership(c,{}, {env,store,templates:await templatesFor(store)}):{owner:'UNKNOWN'};
   let historyFacts={},previous='',goal='';for(const item of c?.transcript||[]){if(item.direction==='outbound'){previous=item.body;goal=item.signalGoal||matchTemplate(previous)?.default_reply_goal||'';}else if(previous&&item.occurredAt&&now().getTime()-Date.parse(item.occurredAt)<=30*86400000)historyFacts=extractFacts(item.body,previous,historyFacts,item.occurredAt,goal).facts;}
-  const facts={...pilot?.raw_facts,...c?.signal?.facts,...historyFacts};
+  const webContext=webEligible?web.summary.context:{};
+  const webFacts={...(webContext.reviewTrack?{line:webContext.reviewTrack==='auto'?'AUTO':webContext.reviewTrack==='home'?'HOME':null}:{}),...(webContext.currentCarrier?{current_carrier:webContext.currentCarrier}:{}),...(webContext.closingDate?{closing_date:webContext.closingDate}:{})};
+  const facts={...webFacts,...pilot?.raw_facts,...c?.signal?.facts,...historyFacts};
   delete facts.stated_need;delete facts.shopping_intent;delete facts.insured_since;
   for(const field of ['renewal_date','closing_date'])if(facts[field]&&facts[field]<now().toISOString().slice(0,10))delete facts[field];
   if(facts.timing?.date&&facts.timing.date<now().toISOString().slice(0,10))delete facts.timing;
   const saved=sources.find(s=>s.kind===CONTINUE_KIND)?.summary;
-  const fresh={};for(const source of sources.filter(s=>s.kind==='lead'&&s.summary?.context?.evidenceOrigin!=='agencyzoom_raw').sort((a,b)=>a.updated_at.localeCompare(b.updated_at))){
+  const fresh={};
+  if(webEligible&&now().getTime()-Date.parse(web.updated_at)<=30*86400000){
+   const known=Object.assign({},distribution.initialEvidence||{},...(distribution.answers||[]).map(a=>a.signals||{}));
+   delete known.professionalProgram;
+   if(known.closingDate&&known.closingDate<now().toISOString().slice(0,10))delete known.closingDate;
+   try{const validated=normalizeSignalDecisionInput({signalSessionId:'web_continue_hydration',flowId:'signal_continue',canonicalSignals:known}).canonicalSignals;if(validated.product==='unknown')delete validated.product;Object.assign(fresh,validated);}catch{/* Invalid legacy fields remain unknown. */}
+  }
+  for(const source of sources.filter(s=>s.kind==='lead'&&s.summary?.context?.evidenceOrigin!=='agencyzoom_raw').sort((a,b)=>a.updated_at.localeCompare(b.updated_at))){
    if(now().getTime()-Date.parse(source.updated_at)>30*86400000)continue;
    for(const field of ['shoppingIntent','reviewReason','autoNeed','statedTrigger','decisionTiming'])if(source.summary.context?.[field])fresh[field]=source.summary.context[field];
   }
   if(c?.signal?.response_timestamp&&now().getTime()-Date.parse(c.signal.response_timestamp)>30*86400000)delete facts.shopping_reason;
-  return {op,sources,pilot,population,c,owner,facts,saved,fresh,initializeConversation};
+  return {op,sources,pilot,population,c,owner,facts,saved,fresh,initializeConversation,webEligible,distribution};
  }
- function eligibility(x,selection){return continueEligibility({population:x.population,cohort:x.pilot?.cohort,owner:x.owner.owner,facts:x.facts,signal:{...x.c?.signal,contact_suppressed:x.owner.compliance||x.c?.smsConsent?.status==='opted_out'},status:x.op.status,activeFirstParty:x.population==='WEB_DIRECT',...selection});}
+ function eligibility(x,selection){return continueEligibility({population:x.population,cohort:x.pilot?.cohort,owner:x.owner.owner,facts:x.facts,signal:{...x.c?.signal,contact_suppressed:x.owner.compliance||x.c?.smsConsent?.status==='opted_out'},status:x.op.status,activeFirstParty:x.population==='WEB_DIRECT'&&!x.webEligible,...selection});}
  async function locked(cid,fn){const key='sms-signal/locks/'+cid;try{await store.setJSON(key,{at:now().toISOString()},{onlyIfNew:true});}catch{fail('Conversation is processing. Refresh and retry.');}try{return await fn();}finally{await store.delete(key);}}
  const sourceStatement=(id,summary,at)=>repo.sql('INSERT INTO cf_solo_sources(workspace_id,kind,source_id,opportunity_id,summary_json,updated_at) VALUES(?,?,?,?,?,?) ON CONFLICT(workspace_id,kind,source_id) DO UPDATE SET summary_json=excluded.summary_json,updated_at=excluded.updated_at',w,CONTINUE_KIND,id,id,JSON.stringify(summary),at);
  const sessionStatement=(key,s)=>repo.sql('UPDATE sms_handoffs SET data_json=?,updated_at=? WHERE record_key=?',JSON.stringify(s),now().toISOString(),key);
  async function save(key,s){await tokens.setJSON(key,s,{metadata:{expiresAt:s.expires_at}});}
  function view(s){return {revision:s.revision,status:s.status,expires_at:s.expires_at,saved_answers:s.answers.map(a=>({question:SIGNAL_QUESTION_LIBRARY[a.question_id]?.prompt,answer:SIGNAL_QUESTION_LIBRARY[a.question_id]?.options.find(o=>o.code===a.code)?.label})),question:s.step?.question?{id:s.step.question.id,prompt:s.step.question.prompt,options:s.step.question.options.map(o=>({code:o.code,label:o.label}))}:null,done:!!s.step?.done,message:s.step?.done?continueCompletion(s.step.decision_2):null};}
  async function load(token){const key=await continueKey(token),s=key?await tokens.get(key):null;if(!validContinueSession(s,now().getTime())||s.workspace!==w)fail('This check-in is unavailable or has expired.',404);return {key,s};}
- async function available(s){if(!validContinueSession(s,now().getTime()))fail('This check-in has expired.',404);const x=await context(s.opportunity);if(!x.c||x.c.id!==s.conversation||x.pilot?.cohort!=='SIGNAL'||x.owner.compliance||!['DISTRICT_SIGNAL','PRODUCER_OWNED'].includes(x.owner.owner)||x.op.status==='closed')fail('This check-in is no longer available.',404);return x;}
+ async function available(s){if(!validContinueSession(s,now().getTime()))fail('This check-in has expired.',404);const x=await context(s.opportunity);if(!x.c||x.c.id!==s.conversation||!(x.pilot?.cohort==='SIGNAL'||x.webEligible)||x.owner.compliance||!['DISTRICT_SIGNAL','FIRST_PARTY_408','PRODUCER_OWNED'].includes(x.owner.owner)||x.op.status==='closed')fail('This check-in is no longer available.',404);return x;}
  return {
   async preview(id){const x=await context(id);const e=eligibility(x,{trigger:'busy',interestConfirmed:true,producerChosen:true});return {eligibility:e,known:x.facts,step:e.eligible?continueStep(continueSignals(x.facts,x.fresh,now()),0,now()):null,session:x.saved||null};},
   async create(v){const x=await context(v.id),selection={trigger:v.trigger,interestConfirmed:v.interestConfirmed===true,producerChosen:v.producerChosen===true};const e=eligibility(x,selection);if(!e.eligible)fail(e.reason);
    return locked(x.c.id,async()=>{const current=await context(v.id);const recheck=eligibility(current,selection);if(!recheck.eligible)fail(recheck.reason);if(current.saved?.key){const old=await tokens.get(current.saved.key);if(validContinueSession(old,now().getTime())&&!['completed','revoked'].includes(old.status))fail('An existing check-in is available. Use or revoke that draft first.');}
-    if(current.initializeConversation)await store.setJSON('sms-live-conversations/'+current.c.id,current.c,{onlyIfNew:true});
     const priorityBefore=await repo.opportunityPriority(v.id);
     const at=now().toISOString(),token=newContinueToken(),key=await continueKey(token),signals=continueSignals(current.facts,current.fresh,now()),step=continueStep(signals,0,now());if(step.done)fail('The next action is already clear. Preserve it instead of sending a check-in.');
+    if(current.initializeConversation)await store.setJSON('sms-live-conversations/'+current.c.id,current.c,{onlyIfNew:true});
     const s={priority_before:priorityBefore?{score:priorityBefore.score,scoreMin:priorityBefore.scoreMin,scoreMax:priorityBefore.scoreMax,engine:priorityBefore.engine}:null,scope:CONTINUE_KIND,workspace:w,opportunity:v.id,conversation:current.c.id,selection,created_at:at,expires_at:new Date(now().getTime()+CONTINUE_TTL).toISOString(),revision:1,status:'draft',signals,submitted:{},answers:[],step,draft:`Thanks for your time. Here’s the quick link I mentioned — it should only take a minute or two, and I’ll pick up from what you already told me: ${continueUrl(token)}`,events:[{type:'offered',at}],base_revision:current.c.signal?.revision||0};
-    await tokens.setJSON(key,s,{onlyIfNew:true,metadata:{expiresAt:s.expires_at}});await sourceStatement(v.id,{key,status:'draft',offered_at:at,revision:1},at).run();return {revision:1,draft:s.draft,known:current.facts,first_question:step.question.prompt};
+    await tokens.setJSON(key,s,{onlyIfNew:true,metadata:{expiresAt:s.expires_at}});await sourceStatement(v.id,{key,status:'draft',offered_at:at,revision:1,conversation_id:current.c.id,first_touch:current.distribution?.firstTouch||null,current_channel:current.distribution?.currentChannel||'producer',last_touch_channel:current.distribution?.currentChannel||'producer'},at).run();return {revision:1,draft:s.draft,known:current.facts,first_question:step.question.prompt};
    });
   },
   async producer(v){const x=await context(v.id),key=x.saved?.key,s=key?await tokens.get(key):null;if(!validContinueSession(s,now().getTime())||s.workspace!==w||s.opportunity!==v.id)fail('No valid check-in draft.');
@@ -65,7 +90,7 @@ export function signalContinue(repo,env,options={}){
       catch{live.status='delivery_review';live.revision++;await save(key,live);fail('Delivery is uncertain. Check RingCentral; do not resend blindly.',502);}
      }else fail('Unsupported check-in action.');
     }
-    live.revision++;await save(key,live);await sourceStatement(v.id,{...x.saved,status:live.status,revision:live.revision,sent_at:live.sent_at||null},now().toISOString()).run();return {revision:live.revision,status:live.status,draft:live.status==='draft'?live.draft:null};
+    live.revision++;await save(key,live);await sourceStatement(v.id,{...x.saved,status:live.status,revision:live.revision,sent_at:live.sent_at||null,...(live.sent_at?{current_channel:'signal_continue',last_touch_channel:'signal_continue'}:{})},now().toISOString()).run();return {revision:live.revision,status:live.status,draft:live.status==='draft'?live.draft:null};
    });
   },
   async resume(token){const {key,s}=await load(token);return locked(s.conversation,async()=>{const live=await tokens.get(key);const x=await available(live);if(!['sent','active','completed'].includes(live.status))fail('This check-in is not available yet.',404);if(live.status!=='completed'){
@@ -84,7 +109,7 @@ export function signalContinue(repo,env,options={}){
     if(v.action){if(!interrupts[v.action])fail('Unsupported choice.');const [decision_2,priority]=interrupts[v.action];step={done:true,decision_2,priority,recommended_az_stage:{CALL:'ENGAGED',LATER:'FUTURE_BIND',CLOSE:'CLOSED',STOP:'STOP'}[decision_2]};if(v.action==='later'&&v.future_date){if(!/^\d{4}-\d{2}-\d{2}$/.test(v.future_date)||!Number.isFinite(Date.parse(v.future_date))||v.future_date<at.slice(0,10))fail('Choose a current or future date.');live.future_date=v.future_date;}}
     else {const latest=continueStep(continueSignals(x.facts,{...x.fresh,...live.submitted},now()),live.answers.length,now());if(latest.done||latest.question.id!==v.question_id||live.step.question?.id!==v.question_id)fail('Known evidence changed. Resume to get the next useful question.');const previous=live.signals;live.signals=applyContinueChoice(latest.question?continueSignals(x.facts,{...x.fresh,...live.submitted},now()):live.signals,latest.question,v.code);for(const [field,value] of Object.entries(live.signals))if(value!==previous[field]){live.submitted[field]=value;live.provenance||={};live.provenance[field]={source:'signal_continue',observed_at:at};}live.answers.push({question_id:v.question_id,code:v.code,at});step=continueStep(live.signals,live.answers.length,now());}
     live.started_at||=at;live.step=step;live.revision++;live.status=step.done?'completed':'active';if(step.done)live.completed_at=at;
-    const summary={key,status:live.status,revision:live.revision,offered_at:live.created_at,sent_at:live.sent_at,opened_at:live.opened_at,started_at:live.started_at,completed_at:live.completed_at||null,answers:live.answers,signals:live.submitted,provenance:live.provenance||{},decision_2:step.decision_2,priority:step.priority||'MEDIUM',recommended_az_stage:step.recommended_az_stage||'ENGAGED',future_date:live.future_date||null};
+    const summary={...x.saved,key,status:live.status,revision:live.revision,offered_at:live.created_at,sent_at:live.sent_at,opened_at:live.opened_at,started_at:live.started_at,completed_at:live.completed_at||null,answers:live.answers,signals:live.submitted,provenance:live.provenance||{},decision_2:step.decision_2,priority:step.priority||'MEDIUM',recommended_az_stage:step.recommended_az_stage||'ENGAGED',future_date:live.future_date||null};
     let c=x.c;if(v.action==='stop')c=applySmsConsentCommand(c,'STOP',{occurredAt:at});
     c.signal={...c.signal,managed:true,...(step.done?{automation_lock:true,human_required:step.decision_2==='CALL'}:{}),revision:(c.signal?.revision||0)+1,reply:'',draft_status:'none',continue_active:!step.done,continue_expires_at:live.expires_at,continue_key:key,decision_2:step.decision_2,priority:step.priority||'MEDIUM',reason:step.done?'Signal Continue updated the next action.':'Prospect is continuing asynchronously.',az_recommended_stage:summary.recommended_az_stage,az_sync_status:'pending',...(live.future_date?{future_date:live.future_date}:{}),...(v.action==='stop'?{contact_suppressed:true}:{})};
     const learned={};if(live.submitted.autoNeed)learned.shopping_reason=live.submitted.autoNeed;if(live.submitted.reviewReason)learned.shopping_reason=live.submitted.reviewReason;if(live.submitted.shoppingIntent)learned.shopping_intent=live.submitted.shoppingIntent;
@@ -98,6 +123,6 @@ export function signalContinue(repo,env,options={}){
     statements.push(repo.sql('INSERT INTO cf_solo_activity(id,workspace_id,opportunity_id,actor_id,kind,request_id,fingerprint,payload_json,created_at) VALUES(?,?,?,?,?,?,?,?,?)',eventId,w,s.opportunity,'prospect','signal_continue_answer',eventId,eventId,JSON.stringify({question_id:v.question_id||null,action:v.action||null,decision_2:step.decision_2,fields:Object.keys(live.submitted),completed:step.done}),at));
     await repo.db.batch(statements);const priority=await repo.refreshOpportunityPriority(s.opportunity);live.priority_after=priority?{score:priority.score,scoreMin:priority.scoreMin,scoreMax:priority.scoreMax,engine:priority.engine}:null;await save(key,live);return view(live);
    });},
-  async draft(id){const x=await context(id);if(x.population!=='DISTRICT_SIGNAL'||x.owner.compliance)return null;const s=x.saved?.key?await tokens.get(x.saved.key):null;return s&&validContinueSession(s,now().getTime())?{revision:s.revision,status:s.status,draft:s.status==='draft'?s.draft:null}:null;}
+  async draft(id){const x=await context(id);if(!(x.population==='DISTRICT_SIGNAL'||x.webEligible)||x.owner.compliance||x.pilot?.cohort==='CONTROL')return null;const s=x.saved?.key?await tokens.get(x.saved.key):null;return s&&validContinueSession(s,now().getTime())?{revision:s.revision,status:s.status,draft:s.status==='draft'?s.draft:null}:null;}
  };
 }
