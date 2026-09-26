@@ -55,3 +55,29 @@ test('calibration freezes first-ready baseline, warns on small samples and never
  const report=await opportunityPriorityCalibration(f.repo).summary();assert.equal(report.observationalOnly,true);assert.equal(report.autoRecalibration,false);assert.equal(report.bands[0].evidenceStatus,'early');assert.ok(report.warnings.some(w=>w.includes('small samples')));
  }finally{f.db.close()}
 });
+
+test('later channel cannot reassign original campaign outcome reporting',async()=>{
+ const f=fixture();try{
+ await projectOpportunityAttribution(f.repo,'op',{sourceKey:'web_408_buyer',campaignId:'buyer_original',landingPage:'/buyer/'});
+ await projectOpportunityAttribution(f.repo,'op',{sourceKey:'sms_continue',campaignId:'later_channel',landingPage:'/s/'});
+ let row=f.db.prepare('SELECT * FROM cf_acq_opportunity_attribution').get();
+ assert.equal(row.campaign_id,'buyer_original');assert.equal(JSON.parse(row.latest_touch_json).campaignId,'later_channel');
+ // Historical projections may have latest-touch columns; reports still use persisted first touch.
+ f.db.prepare("UPDATE cf_acq_opportunity_attribution SET campaign_id='later_channel'").run();
+ await refreshOpportunityMeasurement(f.repo,'op');
+ const report=await acquisitionMeasurement(f.repo).summary();
+ assert.equal(report.groups.find(g=>g.opportunities).campaignId,'buyer_original');
+ }finally{f.db.close();}
+});
+test('partial effort coverage does not produce misleading efficiency ratios',async()=>{
+ const f=fixture();try{
+ await projectOpportunityAttribution(f.repo,'op',{sourceKey:'web_408_condo'});await refreshOpportunityMeasurement(f.repo,'op');
+ f.insert('cf_solo_opportunities',{id:'second',workspace_id:'qa',owner_id:'qa',contact_json:'{}',source:'synthetic',last_mutation_id:'qa2',created_at:f.at,updated_at:f.at});
+ await projectOpportunityAttribution(f.repo,'second',{sourceKey:'web_408_condo'});await refreshOpportunityMeasurement(f.repo,'second');
+ f.db.prepare('UPDATE cf_acq_opportunity_measurements SET producer_minutes=10,bound_at=?,written_premium_cents=120000 WHERE opportunity_id=?').run(f.at,'op');
+ const report=await acquisitionMeasurement(f.repo).summary();
+ assert.equal(report.totals.effortCoveragePct,50);
+ assert.equal(report.totals.producerMinutesPerBind,null);assert.equal(report.totals.premiumPerProducerHourCents,null);
+ assert.ok(report.warnings.some(w=>w.includes('incomplete')));
+ }finally{f.db.close();}
+});
