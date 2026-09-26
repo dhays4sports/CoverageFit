@@ -38,3 +38,12 @@
 
 /docs/agent-api/*
   Cache-Control: public, max-age=300, must-revalidate
+
+/agent/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/signal-continue.html
+  Cache-Control: no-store
+  Referrer-Policy: no-referrer
+  X-Robots-Tag: noindex, nofollow, noarchive
+  Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'

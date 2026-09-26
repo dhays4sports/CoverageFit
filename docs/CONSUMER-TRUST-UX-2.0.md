@@ -1,0 +1,94 @@
+# CoverageFit consumer trust audit and UX guide
+
+September 26, 2026. Source baseline CoverageFit `6654018cdbc4a8911f11ab10b193bc74713ffcad`; 408FARMERS `78660e8b5614ba4252af3ba55f35a543ccae21a1`.
+
+## Identity and copy decisions
+
+Dylan explicitly confirmed **Insurance Producer** as the canonical public title. `producer.json` remains unchanged. Name, California license #4528400, agency and business phone match repository configuration and the public 408FARMERS disclosure. This is source/public-disclosure verification, not a fresh state-license database certification. No awards or additional credentials were added.
+
+Farmers' official agency listing, inspected September 26: https://agents.farmers.com/ca/fremont/virginia-tam/ confirms Virginia Tam Insurance Agency, Inc., Fremont, agency license 0D79616. The About page links to that listing. No Farmers logo was redrawn, added or repositioned. Existing 408 agency assets remain unchanged. CoverageFit is presented as Dylan's review tool, without claiming corporate ownership or servicing authority.
+
+| Claim / copy | Classification | Decision and evidence |
+|---|---|---|
+| Insurance Producer | FACTUAL / user confirmed | Retain canonical title; no Insurance Advisor credential |
+| Answers return to Dylan in the existing review | FACTUAL for Continue | Existing scoped opportunity source and producer detail; no duplicate lead |
+| No account required | FACTUAL for Continue | Opaque bearer link, no prospect account workflow |
+| About 1–2 minutes | ESTIMATE | Existing bounded adaptive flow; not a measured guarantee |
+| Skip known answers | FACTUAL with limitation | RAW/SMS hydration and current evidence tests; valid hosted canary pending |
+| No automatic policy change or binding | FACTUAL | Continuation stores evidence; no binding/payment execution |
+| “We do not sell/share any data” | NEEDS SOURCE / too broad | Not published; code cannot establish all operator/vendor practices |
+| “Not a lead marketplace” | AMBIGUOUS as broad policy | Use specific continuation recipient/context instead; no claim covering every deployment |
+| “CoverageFit is not Farmers corporate” | Brand review wording | No new categorical legal wording published. Tool/producer/agency hierarchy and official agency link used instead |
+| 10–15 minutes saved | NEEDS MEASUREMENT | Not published as a performance promise |
+| Auto/Life Coming Soon | OUTDATED public promotion | Hide cards/footer labels, retain existing paths elsewhere |
+| Home “Most homeowners don’t need another quote” | TOO STRONG | Replace generalization with invitation to understand before comparing |
+| “AI”, FIV, priority/cohort vocabulary | INTERNAL | Not added to consumer screens |
+
+## Findings and bounded changes
+
+The old root offered product selection but did not visibly identify Dylan or link privacy/terms. It advertised two unfinished products. Continue used only “With Dylan,” had no agency/license, and surfaced raw API error text with a retry even on expired links. Home could temporarily overwrite its real identity with demo defaults while `/producer.json` loaded.
+
+Root now identifies Dylan and agency in initial HTML, explains a focused insurance conversation, distinguishes a new review from a personalized text link, adds privacy/contact navigation and keeps active Home/Business/Landlord entry points. About supplies a modest agency verification link. Existing review/report architecture remains intact.
+
+Continue presents identity, short payoff, personalized/no-account/no-obligation context, a concise expandable explanation, privacy/terms/about, and a business-phone recovery path. It adds no third-party assets or producer scripts. Failed responses map to bounded consumer copy; server error details are not rendered. Expired/invalid links do not disclose which record exists. Uncertain submissions offer resume to inspect saved answers rather than asserting successful saving. Sales controls hide on error. Questions/completion move keyboard focus; native date input is labeled and sized; pause can resume immediately.
+
+Shared trust CSS supplements the existing navy/green style. No unapproved headshot or Farmers mark added. No route deleted. No canonical scoring, consent, cohort, ownership, SMS sending, or database changes.
+
+## Public UX guide
+
+- Lead with purpose and a named human. Title: Insurance Producer.
+- New public review and personalized continuation are different entrances. Never tell an existing recipient to restart on the generic homepage.
+- Use plain language: review, useful details, timing, questions, Dylan. Keep allocation scores and cohort labels internal.
+- State recipient/context narrowly; link full privacy instead of inventing privacy assurances.
+- Contact, privacy and terms remain reachable on small screens even when desktop navigation contracts.
+- Preserve compatibility: no route removal without references, traffic and owner review.
+- Root is a verification destination, not a promise of quotes, savings or carrier acceptance.
+
+## Signal Continue consumer specification
+
+Initial page: CoverageFit → Continue with Dylan → quick check-in/payoff → identity → duration/account/obligation → single start control. Static text renders before API access. Initial page does not display customer name, phone, carrier, opportunity ID, score or cohort.
+
+Each question uses existing server selection and allowable choices. Known RAW/SMS facts are hydrated server-side; no new local decision engine. Existing six-answer ceiling and early exits remain. Saved submitted answers can be reviewed; this pass does not introduce retroactive answer editing or a new evidence-conflict model. Future timing is optional and labeled. CALL/urgent/quote/later/negative/STOP controls retain existing semantics.
+
+Completion uses the existing outcome-specific server message beside persistent identity/contact. Pause preserves submitted evidence; resume recalculates from current state. No reminders. No autonomous link sends.
+
+Security: seven-day scoped bearer tokens, hash lookup, revocation/current eligibility, exact-origin POST, no-referrer, no-store and noindex remain. Direct `.html` alias now receives the same defensive headers. Producer API authentication is unchanged. The URL contains an opaque capability; recipients should keep it private. Noindex is not access control.
+
+## Privacy and measurement audit
+
+Continue writes to existing opportunity evidence/activity and exposes results through authenticated Work. The only provider send is explicit producer approval through the existing gateway. No marketplace distribution or AgencyZoom write occurs in this path. Privacy policy retains service-provider disclosures and adds factual continuation context; no new legal retention promise.
+
+Existing offered/sent/opened/started/completed timestamps, answers/provenance and descriptive analytics remain. “Opened” currently means explicit Start/resume, not passive page view. Incomplete started sessions can be described observationally; abandonment is not intent. Dedicated expired-hit counts, questions-shown events, client-error telemetry and measured first-interaction latency are **not implemented/certified** in this bounded copy pass. No invasive tracking added.
+
+## Performance and accessibility
+
+Continue HTML/CSS/JS total approximately 8.2 KB uncompressed after polish, no image/font dependency, no producer bundle. Root retains existing 139 KB logo and established stylesheet stack. Static trust content is immediate; no numerical mobile-network speed, Core Web Vitals or Lighthouse result is claimed.
+
+Native buttons, details/summary, labels, status region, focus management, wrapping contact links, 48px continuation buttons and 18px date input are source-verified. CSS addresses narrow navigation and 320px content constraints. Browser widths 320/375/390/430, screen-reader announcement quality, contrast across all legacy routes and slow-network behavior require actual rendering/device checks; do not equate source review with full WCAG certification.
+
+## Dependency and legacy decisions
+
+See CONSUMER-ROUTE-INVENTORY-2.0.md for all tracked HTML surfaces and repository reference counts. No traffic logs available. Existing PVX, review, assessment, booking, SMS and transition surfaces have active dependencies and remain. 408 preview/lab routes remain explicitly certification-only, noindex and outside public navigation; public route activation is not part of this change. The 408→CoverageFit transition now explains Dylan's continuity without changing token transfer.
+
+## Production QA and scenario checklist
+
+| Scenario | Evidence / gate |
+|---|---|
+| Root skeptical/direct visitor | Initial hosted old UI observed; new deployment check required |
+| Home skeptic / existing Farmers visitor | Hosted Home and 408 identity reviewed; new copy and official agency link check required |
+| Busy Auto personalized link | Local same-opportunity adaptive tests; valid hosted internal identity still required |
+| Future Bind / urgent / negative | Existing local Continue suite; no routing changes |
+| Expired or invalid link | Safe synthetic invalid production link; new error UX check required; real TTL tested locally |
+| Halfway abandonment / resume | Local persistence tests plus client pause/resume regression |
+| Two-question completion | Existing local canonical test; not yet certified with provider/mobile |
+| Keyboard / screen reader | Focus/status regression; real screen-reader test pending |
+| Slow mobile | Payload reviewed; throttled device test pending |
+| 408→CoverageFit | Source endpoint and transition references preserved; no real intake submitted |
+| Legal links | Public Privacy and Terms rendered before changes; recheck after deploy |
+| Producer separation | No consumer nav to producer tools; `/agent/*` noindex added; auth unchanged |
+
+## Readiness and limits
+
+Consumer trust release: **PASS WITH LIMITATION locally**. Full end-to-end consumer trust certification remains **BLOCKED** on a valid governed internal link, mobile widths and real screen-reader/device checks. No claim that every consumer route is fully polished: unknown/historical dependencies were retained deliberately.
+
+No migration, no Cloudflare change, no provider message sent. Dylan already confirmed `SIGNAL_CONTINUE_ENABLED=1` and redeployed before this task; active invalid-token rejection was observed. Earlier disabled-state notes are historical. Current broad SMS activation is not inferred from Continue activation. Existing pilot GO gates remain unchanged.

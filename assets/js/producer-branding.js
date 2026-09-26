@@ -1,5 +1,6 @@
 (() => {
   const applyBranding = () => {
+    if (window.COVERAGEFIT_PRODUCER?.id === "coveragefit-demo") return;
     const p = window.COVERAGEFIT_PRODUCER || {};
     const setText = (selector, value) => document.querySelectorAll(selector).forEach(el => { if (value !== undefined && value !== null && value !== "") el.textContent = value; });
     const setHref = (selector, value) => document.querySelectorAll(selector).forEach(el => { if (value) el.href = value; });
