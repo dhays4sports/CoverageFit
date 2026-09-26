@@ -30,3 +30,8 @@ test('consumer title stays canonical and personalized page contains identity, di
  const p=JSON.parse(await readFile(new URL('../producer.json',import.meta.url),'utf8'));assert.equal(p.title,'Insurance Producer');
  const html=await readFile(new URL('../signal-continue.html',import.meta.url),'utf8');assert.match(html,/4528400/);assert.match(html,/Virginia Tam Insurance Agency, Inc./);assert.match(html,/no-referrer/);assert.match(html,/noindex/);assert.match(html,/href="\/privacy\/"/);assert.match(html,/href="\/terms\/"/);assert.doesNotMatch(html,/(?:src|href)="https?:/);assert.doesNotMatch(html,/Opportunity Priority|cohort|CONTROL|FIV/);
 });
+
+test('cached continuation assets have explicit release versions on the HTML entry',async()=>{
+ const html=await readFile(new URL('../signal-continue.html',import.meta.url),'utf8');
+ assert.match(html,/signal-continue\.mjs\?v=[A-Za-z0-9.-]+/);assert.match(html,/signal-continue\.css\?v=[A-Za-z0-9.-]+/);
+});

@@ -92,3 +92,15 @@ See CONSUMER-ROUTE-INVENTORY-2.0.md for all tracked HTML surfaces and repository
 Consumer trust release: **PASS WITH LIMITATION locally**. Full end-to-end consumer trust certification remains **BLOCKED** on a valid governed internal link, mobile widths and real screen-reader/device checks. No claim that every consumer route is fully polished: unknown/historical dependencies were retained deliberately.
 
 No migration, no Cloudflare change, no provider message sent. Dylan already confirmed `SIGNAL_CONTINUE_ENABLED=1` and redeployed before this task; active invalid-token rejection was observed. Earlier disabled-state notes are historical. Current broad SMS activation is not inferred from Continue activation. Existing pilot GO gates remain unchanged.
+
+## Hosted QA update — September 26
+
+Release `5f7f05e23379c66aef5aa9c6e2b623fa929540e0` reached public production. Root rendered the new headline, full identity, legal/contact links and no Coming Soon cards. About rendered the agency block. Home, Privacy and Terms rendered; tested desktop pages had no horizontal overflow or broken images. 408 root/Home/Buyer/Condo rendered their existing identity and functioning entry controls. Direct CoverageFit transition rendered, but a real submitted 408 handoff was not exercised.
+
+One real hosted defect was found: an existing browser retained the old Continue script despite new HTML because `/assets/*` is cached for one day. Follow-up adds explicit `TRUST-2.0` versions to changed consumer script/style references. This must be verified before claiming new error behavior is live. The 404 and support paths also receive plain human recovery copy; no routes removed.
+
+Full CoverageFit suite after cache regression: **266 pass, 0 fail, 0 skip**. Dedicated post-fix Continue/trust suite: **34 pass, 0 fail, 0 skip**. Syntax: **426 files clean**. No runtime/scoring engine changes. Browser console sample contained extension-origin metadata errors, not a demonstrated site application failure; this is not a comprehensive zero-console-error claim.
+
+The available cloud-browser controls did not expose a viewport resize capability. Required 320/375/390/430px render checks, throttled-network check and screen-reader session remain explicitly unverified. A valid internal continuation link cannot be certified from the current unauthenticated producer session; no customer or ungoverned fake pilot record was created to bypass that gate.
+
+Rollback ref: `pre-consumer-trust-20260926` → `6654018cdbc4a8911f11ab10b193bc74713ffcad`. Existing rollback references retained. 408 repository unchanged. No new manual Cloudflare setting or migration required.
