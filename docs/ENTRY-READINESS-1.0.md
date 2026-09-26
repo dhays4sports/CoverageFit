@@ -15,7 +15,7 @@ Home, Buyer and Condo are active. Tech remains a separate staged branch, not mai
 | Consumer condo context | PASS | Hosted heading Condo insurance review with Dylan, Insurance Producer/agency/license, no property-type repeat |
 | Legacy compatibility | PASS WITH LIMITATION | Original form previously rendered hosted; compatibility URL still present; no real form submission by agent |
 | Producer receipt | PASS WITH LIMITATION | User submitted an internal test and confirmed arrival in Work; Pacific timestamps also explicitly confirmed |
-| Source attribution and submitted evidence on that record | BLOCKED | Local projection/evidence tests pass; authenticated hosted source, condo audience and exact submitted-answer comparison outstanding |
+| Source attribution and submitted evidence on that record | BLOCKED | Local projection/evidence tests pass; connected Workspace shows the recent test originated at Home; a fresh Condo source/evidence record is still required |
 | Gate to activate Tech | BLOCKED | Do not activate Tech until the preceding source/evidence comparison is certified |
 
 No request to repeat already confirmed fresh-entry or timestamp checks. Next authenticated check: open the existing internal Condo record in Work → WEB / DIRECT, compare acquisition route/audience and saved web answers with that test, and confirm one opportunity. No customer-only certification, no access key in chat.
@@ -36,14 +36,14 @@ No request to repeat already confirmed fresh-entry or timestamp checks. Next aut
 | 10 | Source versus intent | PASS | Local regressions isolate source, buyer framing, affinity and market from scoring; no weights/actions changed |
 | 11 | ZERO-REPEAT | PASS WITH LIMITATION | Known evidence, Back/resume and web-to-Continue local regressions; hosted cross-channel certification pending |
 | 12 | Same opportunity | PASS WITH LIMITATION | Canonical checkpoint/contact retry and exact identity link tested; no fuzzy merging of unrelated anonymous visitors; hosted cross-channel pending |
-| 13 | First touch | PASS WITH LIMITATION | Immutable origin, separate later channel; latest measurement fix reports historical rows by first touch; authenticated Analytics pending |
+| 13 | First touch | PASS WITH LIMITATION | Immutable origin, separate later channel; latest measurement fix reports historical rows by first touch; hosted source row and missing-denominator behavior observed; outcome/cross-channel comparison pending |
 | 14 | Affinity/profession | PASS WITH LIMITATION | New contract rejects profession authority/scoring inputs; old affinity presentations retained until their route gates |
 | 15 | QR framework | BLOCKED | Strict home/condo-market-campaign parser and contract tested, public activation gated after affinity certification |
 | 16 | Paid acquisition framework | PASS WITH LIMITATION | Reusable direct template/Meta context exists; no campaign launch or source-outcome result claimed |
 | 17 | Workspace source display | PASS WITH LIMITATION | Acquisition context and submitted web-answer provenance implemented; user confirms receipt/time, exact hosted evidence comparison pending |
 | 18 | District pilot regression | PASS WITH LIMITATION | Latest full local suite includes SIGNAL/CONTROL/WEB_DIRECT/OTHER safeguards; no live district provider certification in this pass |
 | 19 | SMS ownership | PASS WITH LIMITATION | CONTROL, suppression, unknown ownership, takeover and review-first regressions pass; live internal provider canary outstanding |
-| 20 | Tests | PASS | Latest recorded CF 304 passed / 0 failed / 0 skipped; 408 main 35 passed / 0 failed / 0 skipped (Tech branch 36, not main). Documentation-only reconciliation does not rerun unchanged suites |
+| 20 | Tests | PASS | Latest recorded CF 307 passed / 0 failed / 0 skipped; 408 main 35 passed / 0 failed / 0 skipped (Tech branch 36, not main). Full suite rerun after Condo receipt regression and hosted-discovered economics null correction |
 | 21 | Mobile/accessibility | BLOCKED | Semantics/focus/status and desktop keyboard checks exist; actual 320/375/390/430px and screen-reader checks outstanding; available browser advertises no viewport control |
 | 22 | Performance | PASS WITH LIMITATION | SSR trust/question, small shared client, no producer bundle; no measured slow-mobile benchmark |
 | 23 | Hosted canaries | PASS WITH LIMITATION | Home/Buyer hosted checks, user fresh Condo/receipt/time and agent resume; Tech onward gated; full provider/cross-channel/Analytics pending |
@@ -74,6 +74,10 @@ No request to repeat already confirmed fresh-entry or timestamp checks. Next aut
 
 ## Verification and rollback boundaries
 
-Producer Workspace in the available browser says Not connected. A secure supported connection or operator evidence is needed for the existing internal record; user confirmation of receipt alone is not proof of exact source/evidence. Do not solicit secrets in chat. A reused anonymous browser session is not evidence of a fresh session or cross-channel identity.
+Producer Workspace is now securely connected. The recent internal record was inspected and has Home first-touch source, Home audience and submitted answers. This certifies Home producer evidence, not fresh Condo attribution. See ENTRY-HOSTED-CHECKLIST-1.0 for the exact fresh Condo gate. Do not solicit secrets in chat. A reused anonymous browser session is not evidence of a fresh session or cross-channel identity.
 
-No runtime edits or activations in this reconciliation. If later activation fails, revert only that route's active-set change, preserve original index/legacy routes and records, and retain canonical APIs needed by prior active routes. Do not revert unrelated pilot work. No autonomous SMS, CRM writes, fabricated outcomes, scoring changes or route deletion are authorized by this report.
+No route activations. A hosted-discovered economics correction preserves unknown producer hours/labor and gates commission/hour by complete evidence. If later activation fails, revert only that route's active-set change, preserve original index/legacy routes and records, and retain canonical APIs needed by prior active routes. Do not revert unrelated pilot work. No autonomous SMS, CRM writes, fabricated outcomes, scoring changes or route deletion are authorized by this report.
+
+## Latest repository and hosted increment
+
+307 local tests pass (0 fail/skip). Condo integration now verifies immediate answer/resume, idempotent producer receipt, WEB_DIRECT, exact condo route/audience/campaign and submitted-answer provenance, with no SMS conversation. Hosted producer connection succeeded; Home evidence and source are verified. Hosted Analytics source/unknown-ratio behavior inspected; missing hours displayed as zero triggered the narrow economics fix. Full runtime deployment verification of that fix remains pending. Cloudflare is an operator-only configuration checkpoint, not a repository blocker. No new Cloudflare action required. Tech activation remains gated by fresh Condo receipt.

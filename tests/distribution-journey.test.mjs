@@ -179,3 +179,33 @@ test('Condo context survives entry without asking property type or adding intent
  const html=renderEntry(handoff,state);assert.match(html,/Condo insurance review with Dylan/);
  assert.match(html,/href="\/condo\/legacy.html">Existing review or appointment/);
 });
+
+test('Condo answer resumes and reaches one WEB_DIRECT record with source and evidence',async()=>{
+ const f=fixture();try{
+  f.env={COVERAGEFIT_DB:f.db,COVERAGEFIT_SOLO_WORKSPACE_ID:'qa'};
+  const handoff={...input(),entry:'condo',evidence:{},knownContext:{},contactChoice:'',attribution:{campaignId:'condo_internal_canary',campaignVariant:'immediate_question'}};
+  const first=distributionPresentation(handoff,new Date(now));assert.equal(first.question.id,'home_trigger');
+  const response=await distributionInteract(req('interact',{action:'start',handoff,questionId:first.question.id,code:'renewal_change'}),f);
+  assert.equal(response.status,200);const cookie=response.headers.get('set-cookie').split(';')[0];
+  const post=body=>distributionJourney(req('journey',body,cookie),f);
+  const state=await response.json(),resumed=await (await post({action:'load'})).json();
+  assert.equal(state.question.id,'home_shopping_intent');assert.equal(resumed.question.id,state.question.id);
+  const contact={action:'contact',revision:resumed.revision,name:'Synthetic Condo Canary',phone:'2025550197',mode:'call',permission:true};
+  assert.equal((await post(contact)).status,200);assert.equal((await post(contact)).status,200);
+  assert.equal(f.sql.prepare('SELECT count(*) n FROM cf_solo_opportunities').get().n,1);
+  const id=f.sql.prepare('SELECT id FROM cf_solo_opportunities').get().id;
+  const {soloRepository}=await import('../server/solo-desk-repository.mjs');
+  const {producerWorkspace}=await import('../server/producer-workspace.mjs');
+  const {webEvidence}=await import('../assets/js/work-web-evidence.mjs');
+  const detail=await producerWorkspace(soloRepository(f.db,{workspace:'qa',actor:'qa'}),f.env).detail(id);
+  assert.equal(detail.population.population,'WEB_DIRECT');assert.equal(detail.sms,null);
+  const source=detail.sources.find(s=>s.kind==='lead').summary;
+  assert.equal(source.attribution.sourceKey,'web_408_condo');assert.equal(source.attribution.landingPage,'/condo/');
+  assert.equal(source.attribution.audience,'condo');assert.equal(source.attribution.campaignId,'condo_internal_canary');
+  assert.equal(source.attribution.campaignVariant,'immediate_question');
+  const facts=webEvidence(source.context.distribution);
+  assert.ok(facts.some(([key,value,origin])=>key==='reviewReason'&&value==='renewal change'&&origin==='Submitted web answer'));
+  assert.ok(facts.some(([key,value])=>key==='product'&&value==='home'));
+  assert.equal(f.sql.prepare('SELECT count(*) n FROM sms_conversations').get().n,0);
+ }finally{f.sql.close();}
+});

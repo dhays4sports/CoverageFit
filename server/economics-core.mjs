@@ -24,11 +24,11 @@ function attentionStatus(group={}){
 function economicsRow(group={},settings={}){
   const attentionRate=settings.attentionRateCentsPerHour;
   const commissionRate=settings.commissionRate;
-  const minutes=Number(group.producerMinutes||0);
+  const minutes=numeric(group.producerMinutes);
   const spend=Number(group.spendCents||0);
   const premium=Number(group.boundPremiumCents||0);
   const bound=Number(group.bound||0);
-  const labor=attentionRate==null?null:rounded((minutes/60)*attentionRate);
+  const labor=attentionRate==null||minutes==null?null:rounded((minutes/60)*attentionRate);
   const observedCost=labor==null?null:spend+labor;
   const attention=attentionStatus(group);
   const complete=attentionRate!=null&&attention==='complete';
@@ -38,7 +38,7 @@ function economicsRow(group={},settings={}){
     ...group,
     sampleStatus:sampleStatus(group.qualified),
     attentionStatus:attention,
-    producerHours:Math.round((minutes/60)*100)/100,
+    producerHours:minutes==null?null:Math.round((minutes/60)*100)/100,
     attentionRateCentsPerHour:attentionRate,
     recordedAttentionCostCents:labor,
     observedAcquisitionCostCents:observedCost,
@@ -49,7 +49,7 @@ function economicsRow(group={},settings={}){
     premiumPerObservedAcquisitionDollar:observedCost?ratio(premium,observedCost):null,
     premiumPerTrueAcquisitionDollar:trueCost?ratio(premium,trueCost):null,
     firstYearCommissionCents:firstYearCommission,
-    firstYearCommissionPerProducerHourCents:firstYearCommission!=null&&minutes?rounded((firstYearCommission*60)/minutes):null,
+    firstYearCommissionPerProducerHourCents:attention==='complete'&&!group.premiumEvidenceGaps&&firstYearCommission!=null&&minutes?rounded((firstYearCommission*60)/minutes):null,
     firstYearCommissionPerObservedAcquisitionDollar:firstYearCommission!=null&&observedCost?ratio(firstYearCommission,observedCost):null,
     firstYearCommissionPerTrueAcquisitionDollar:firstYearCommission!=null&&trueCost?ratio(firstYearCommission,trueCost):null,
     firstYearCommissionLessObservedAcquisitionCostCents:firstYearCommission!=null&&observedCost!=null?firstYearCommission-observedCost:null,
