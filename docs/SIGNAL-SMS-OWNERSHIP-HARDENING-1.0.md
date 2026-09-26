@@ -89,7 +89,7 @@ No Cloudflare changes are required to deploy ownership protection. Keep current 
 | Live A–F provider canaries | BLOCKED; not run |
 | District launch | NO-GO pending live review-first/send certification and measured human admin trial |
 
-Pre-release CoverageFit main: `57b166037bfd34e8f82dc9e12bb9ccfbe68a45e6`. 408 main remains `78660e8b5614ba4252af3ba55f35a543ccae21a1`. Local syntax verification: 418 JavaScript/module/CommonJS files clean. Source publication and hosted observation are separate from live provider certification. Existing rollback refs remain intact; a pre-ownership production reference will preserve this starting SHA.
+Pre-release CoverageFit main: `57b166037bfd34e8f82dc9e12bb9ccfbe68a45e6`. 408 main remains `78660e8b5614ba4252af3ba55f35a543ccae21a1`. Local syntax verification: 418 JavaScript/module/CommonJS files clean. Source publication and hosted observation are separate from live provider certification. Existing rollback refs remain intact; `pre-sms-ownership-20260925-57b1660` preserves this starting SHA.
 
 ## Files changed
 
@@ -112,3 +112,11 @@ Pre-release CoverageFit main: `57b166037bfd34e8f82dc9e12bb9ccfbe68a45e6`. 408 ma
 - `tests/producer-workspace.test.mjs`
 - `tests/sms-ownership.test.mjs`
 - `tests/sms-signal.test.mjs`
+
+## Hosted observation
+
+Implementation release `f48a6c68ecb1eea6a183e890d8989a9ab2fb7abc` was fast-forwarded to main, with matching locally tested Git tree. On 2026-09-25 Pacific, production served `/agent/workspace/` with `producer-workspace.mjs?v=OWNERSHIP-1.0`. Existing producer access connected, Work loaded, and the new authenticated pending-SMS section loaded successfully (zero unclassified threads in the reviewed window). No customer transcript was printed or modified.
+
+The production SMS Operations status remained “Preview only: live signal processing is not enabled.” Thus SMS Signal is OFF by observed application status. No Cloudflare configuration was changed; no migration or new secret is required. These hosted checks establish deployed UI/API behavior, not a live webhook/send canary. No Cloudflare deployment SHA was independently available. A small follow-up removes now-unreachable pre-ownership first-party fallback checks, so the canonical resolver remains the single authority and context is not fetched twice.
+
+Next gate: agree an internal/user-controlled recipient and approve the exact outbound/inbound canary texts. Canary A can verify the AgencyZoom hold while Signal stays OFF. Do not enable Signal broadly for this protection release. District pilot GO remains blocked on the separate live provider/review-first gates and the actual producer administrative-burden timing trial.

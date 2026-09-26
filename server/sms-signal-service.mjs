@@ -1,6 +1,5 @@
-import {districtSmsCohort,districtSmsRecord} from './district-pilot-sms.mjs';
-import {resolveSmsInboundRoute} from './sms-orchestrator-core.mjs';
-import { SIGNAL_PREFIX, DEFAULT_TEMPLATES, enabled, observeOutbound, decideSignal, compliance, extractFacts, matchTemplate } from './sms-signal-core.mjs';
+import {districtSmsRecord} from './district-pilot-sms.mjs';
+import { SIGNAL_PREFIX, enabled, observeOutbound, decideSignal, compliance, extractFacts, matchTemplate } from './sms-signal-core.mjs';
 import { listRingCentralMessageHistory, normalizeE164 } from './ringcentral-client.mjs';
 import { smsAutomationPaused } from './sms-safety-core.mjs';
 import { applySmsConsentCommand } from './sms-consent-core.mjs';
@@ -66,7 +65,7 @@ export async function signalInbound(c,event,options={}) {
  if(!enabled(options.env))return null;
  const complianceKind=compliance(event.body,c);
  if(!complianceKind){
-  c=await prepareSmsOwnership(c,event,options);
+  if(!options.ownershipPrepared)c=await prepareSmsOwnership(c,event,options);
   if(c.smsOwnership.owner==='FIRST_PARTY_408'&&!c.smsOwnership.hold)return null;
   if(c.smsOwnership.owner!=='DISTRICT_SIGNAL'||c.smsOwnership.hold)return holdOwnedConversation(c);
  }
@@ -78,12 +77,6 @@ export async function signalInbound(c,event,options={}) {
   c.signal={...(c.signal||{}),facts:{...raw,...(c.signal?.facts||{})},fact_provenance:{...pilot.raw_provenance,...(c.signal?.fact_provenance||{})},pilot_cohort:'SIGNAL'};
  }
  if(c.signal?.inbound_message_id===event.messageId)return c;
- // Preserve existing first-party intake and booked appointment workflows unless enrolled.
- const firstParty=c.orchestration?.workflow?.type;
- if(pilot?.cohort!=='SIGNAL'&&!compliance(event.body,c)&&!c.signal?.managed&&(firstParty?.startsWith('coveragefit_')||(firstParty&&firstParty!=='unknown'&&firstParty!=='none'&&c.outboundContext?.origin&&!['crm','campaign','external_unknown'].includes(c.outboundContext.origin))))return null;
- if(!compliance(event.body,c))c=await historyContext(c,event,options);
- // Preserve explicit first-party entry commands after checking for campaign context.
- if(pilot?.cohort!=='SIGNAL'&&!compliance(event.body,c)&&!c.signal?.managed&&!c.signal?.context_error&&['explicit_entry_keyword','explicit_coveragefit_command','explicit_restart','explicit_producer_request','partner_attributed_entry'].includes(resolveSmsInboundRoute(c,event.body,{occurredAt:event.occurredAt,partnerRegistry:options.partnerRegistry}).reason))return null;
  const templates=await templatesFor(options.store);
  // Backfill only explicit facts from preceding paired messages, then let structured memory win.
  let historyFacts={},previous='',goal='';

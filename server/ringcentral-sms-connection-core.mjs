@@ -595,7 +595,7 @@ export async function handleRingCentralWebhook(request, options = {}) {
       await updateWebhookHealth(store,{success:true},options);
       return json({ok:true,replied:false,routeReason,owner:ownership.owner});
     }
-    const signalResult=await signalInbound(conversation,{...event,occurredAt},{...options,env,store});
+    const signalResult=await signalInbound(conversation,{...event,occurredAt},{...options,env,store,ownershipPrepared:true});
     if(signalResult){
       conversation=signalResult;
       if(signalCompliance(event.body)!=='automatic_response')await markCallbackSequenceReplied(conversation,event.body,{...options,env,store,now:occurredAt});
