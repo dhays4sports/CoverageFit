@@ -25,7 +25,7 @@ export function continueEligibility({population,owner,cohort,facts={},signal={},
  if(facts.callback_date||facts.future_date_type==='requested_callback'||facts.explicit_call_request||facts.explicit_quote_request||signal.quote_ready||['HIGH','URGENT'].includes(signal.priority)||signal.decision_2==='CALL')return no('Preserve the producer call, callback, or quote action.');
  if(signal.decision_2==='LATER'||facts.future_date||signal.future_date||signal.future_month)return no('Preserve the established Future Bind timing.');
  if(signal.context_error)return no('Resolve missing conversation context first.');
- if(signal.human_required&&signal.classification!=='review')return no('Licensed producer review comes first.');
+ if(signal.human_required&&!['review','potential_interest',undefined].includes(signal.classification))return no('Licensed producer review comes first.');
  if(!['AUTO','HOME','HOME_AUTO'].includes(facts.line))return no('V1 requires a known personal-lines product.');
  if(!['busy','limited_time','async_requested','send_something','interested_not_ready'].includes(trigger)||!interestConfirmed||!producerChosen)return no('Confirm interest, missing evidence, and the prospect’s preference to continue asynchronously.');
  return {eligible:true,reason:'Producer-selected bridge for unfinished discovery.'};

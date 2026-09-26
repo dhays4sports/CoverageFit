@@ -69,8 +69,43 @@ Missing evidence → cheapest appropriate channel → new evidence → recalcula
 
 Starting production main: `7b3049cad05b5c6073d450c27cfaf5bbd3d69153`. 408FARMERS remains `78660e8b5614ba4252af3ba55f35a543ccae21a1`, unchanged. Implementation branch: `signal-continue-1.0`.
 
-Local full suite: 258 passed, 0 failed, 0 skipped, including 27 dedicated continuation tests. Syntax: 425 JS/module/CommonJS files clean. No local Wrangler Functions build has been certified in this environment. Runtime hosted checks and provider delivery remain separate gates.
+Local full suite: 259 passed, 0 failed, 0 skipped, including 28 dedicated continuation tests. Syntax: 425 JS/module/CommonJS files clean. No local Wrangler Functions build has been certified in this environment. Runtime hosted checks and provider delivery remain separate gates.
 
 Readiness: PASS locally for token/evidence/CONTROL and review-first mocked behavior; PASS WITH LIMITATION for exact-linked personal-lines district scope and descriptive measurement; BLOCKED for hosted full canary, broader first-party continuation, and measured producer administration. District pilot GO is not granted by this release.
 
 First hosted check served the new shell, but exposed a Pages canonical-HTML redirect that discarded the token path. The proxy target was changed to the extensionless static route. The same pass added verified-enrollment initialization for a first answered voice call before an SMS row exists; no send occurs during initialization. Wrong/missing relationship configuration remains closed.
+
+## Hosted observation and final readiness matrix
+
+On September 26, the production Workspace served `producer-workspace.mjs?v=CONTINUE-1.0`. Implementation follow-up `a6edbd2cc12309187254a51a370b4c7a85c714aa` preserved `/s/<opaque-token>` through the hosted static rewrite, and the check-in title and Start or resume control rendered. The reviewed desktop viewport had no horizontal overflow. Only an invalid synthetic token was opened; no customer record was accessed, no producer credential entered, and no SMS was sent. This does not certify an active session or mobile/provider end-to-end behavior.
+
+| Required report item | Status | Evidence / limit |
+|---|---|---|
+| CoverageFit release | PASS | Implementation `a6edbd2cc12309187254a51a370b4c7a85c714aa`; retained branch `signal-continue-1.0` |
+| 408FARMERS | PASS | Unchanged `78660e8b5614ba4252af3ba55f35a543ccae21a1` |
+| Files changed | PASS | Core/service/analytics, secure API and static route, prospect assets, Work widget, shared gateway constructor export, SMS hold/send guards, tests and this guide |
+| Token/session architecture and TTL | PASS locally | 256-bit token, scoped hash lookup, 7 days, revoke/expiry/current eligibility |
+| Producer eligibility | PASS locally | Interrupted call, explicit interest/preference and verified enrolled relationship; supports no prior SMS row |
+| CONTROL isolation | PASS locally | No UI entry, preview question, creation, or public access |
+| WEB / DIRECT compatibility | PASS WITH LIMITATION | Existing first-party journeys preserved; new continuation creation withheld |
+| ZERO-REPEAT | PASS locally | RAW/SMS known facts hydrated; carrier, renewal, line and vehicle not recollected |
+| Adaptive logic | PASS locally | Existing canonical selector; six-answer ceiling |
+| Question counts | PASS WITH LIMITATION | Main complete test uses two answers and stops; ceiling six; no real-traffic average claimed |
+| Early exits | PASS locally | CALL/urgent/quote, LATER, CLOSE, STOP; no extra qualification |
+| Provenance | PASS locally | Submitted fields and timestamps plus same-opportunity activity |
+| Priority | PASS locally | Existing canonical projection refreshed; weights unchanged |
+| Producer Work | PASS WITH LIMITATION | Existing detail, completion notice and current action; authenticated live journey not yet run |
+| Review-first send | PASS locally / BLOCKED live | Draft/edit send zero; mocked approval sends once; uncertain delivery held |
+| Abandon/resume | PASS locally | Submitted evidence retained; no reminders; current revision checked |
+| Analytics | PASS WITH LIMITATION | Descriptive path counts, date-linked outcomes, null-aware effort; no causal claim or verified delivery |
+| Local tests | PASS | 259 passed, 0 failed, 0 skipped; 425 syntax files clean |
+| Hosted canary | PASS WITH LIMITATION | Deployed shell and preserved token path observed; full internal journey remains outstanding |
+| Migrations | PASS | None; 0019 untouched |
+| Manual activation | BLOCKED | Operator must set the new flag; no Cloudflare mutation performed |
+| Unresolved risks | BLOCKED gates | Internal provider/mobile receipt, valid governed test relationship, first-party expansion, human timing |
+| Producer burden | NOT MEASURED | Under-20-second target is not a measured claim |
+| Pilot readiness impact | NO-GO unchanged | New optional treatment channel does not waive existing pilot safety or measurement gates |
+
+Rollback: `pre-signal-continue-20260926` preserves production SHA `7b3049cad05b5c6073d450c27cfaf5bbd3d69153`. All earlier rollback references remain intact. Feature rollback is `SIGNAL_CONTINUE_ENABLED=0` or unset; no deletion or database reset.
+
+The disabled-state UI returned “This check-in is not available.” after Start or resume, confirming the feature gate remains off by observed application behavior. A dedicated producer-takeover regression verifies that explicit continuation selection does not release existing human ownership.
