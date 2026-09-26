@@ -219,3 +219,14 @@ test('Tech presentation starts with insurance evidence, not a profession gate',(
  assert.doesNotMatch(html,/What kind of work|professional_role|income|salary/i);
  assert.throws(()=>normalizeDistribution({...handoff,evidence:{professionalProgram:'tech'}},new Date(now)));
 });
+
+test('remaining affinity presentations reuse canonical questions without profession evidence',()=>{
+ for(const entry of ['teachers','healthcare','engineers']){
+  const handoff={...input(),entry,evidence:{},knownContext:{},presentation:'408_contextual'};
+  const normalized=normalizeDistribution(handoff,new Date(now));
+  assert.equal(normalized.audience,entry);assert.deepEqual(normalized.evidence,{product:'unknown'});
+  const state=distributionPresentation(handoff,new Date(now));assert.equal(state.question.id,'signal_product');
+  const html=renderEntry(handoff,state);assert.ok(html.includes('href="/'+entry+'/legacy.html"'));
+  assert.doesNotMatch(html,/What kind of work|professional_role|income|salary/i);
+ }
+});
