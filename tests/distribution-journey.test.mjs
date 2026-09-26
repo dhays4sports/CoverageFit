@@ -179,3 +179,13 @@ test('Condo context survives entry without asking property type or adding intent
  const html=renderEntry(handoff,state);assert.match(html,/Condo insurance review with Dylan/);
  assert.match(html,/href="\/condo\/legacy.html">Existing review or appointment/);
 });
+
+test('Tech presentation starts with insurance evidence, not a profession gate',()=>{
+ const handoff={...input(),entry:'tech',evidence:{},presentation:'408_contextual'};
+ const normalized=normalizeDistribution(handoff,new Date(now));assert.equal(normalized.audience,'tech');
+ assert.deepEqual(normalized.evidence,{product:'unknown'});
+ const state=distributionPresentation(handoff,new Date(now));assert.equal(state.question.id,'signal_product');
+ const html=renderEntry(handoff,state);assert.match(html,/href="\/tech\/legacy.html">Existing review or appointment/);
+ assert.doesNotMatch(html,/What kind of work|professional_role|income|salary/i);
+ assert.throws(()=>normalizeDistribution({...handoff,evidence:{professionalProgram:'tech'}},new Date(now)));
+});

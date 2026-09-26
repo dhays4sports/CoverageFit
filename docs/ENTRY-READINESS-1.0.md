@@ -80,3 +80,14 @@ condo acquisition context retained without intent boost, original form preserved
 297 CoverageFit / 35 408 tests pass. Condo hosted verification pending deployment;
 Tech and all subsequent routes remain inactive. Hosted producer receipt and
 mobile-width certification remain outstanding; this is not full mandate PASS.
+
+## Tech preparation — not activated
+Condo hosted branding and existing-session resume render correctly; original
+Condo form remains reachable. Fresh Condo entry and hosted producer receipt are
+not certified. Tech replacement reuses canonical product-first question and
+rejects professionalProgram input; existing Tech page remains active while its
+compatibility copy is prepared. 298 CoverageFit and 36 408 tests pass. This
+preparation is saved on entry-architecture-1.0, not published to main.
+Next manual evidence: private-browser Condo answer/reload plus a designated
+internal/user-controlled identity for a hosted producer-record canary. Do not use
+customer details or infer live identity authorization from old test memories.
