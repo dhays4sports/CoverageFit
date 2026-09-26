@@ -161,3 +161,10 @@ test('real canonical buyer handoff continues on the same opportunity with origin
     const {continueAnalytics}=await import('../server/signal-continue-analytics.mjs');assert.equal((await continueAnalytics(repo,f.env,new Date(now))).links_offered,0,'web continuation cannot contaminate district SIGNAL analytics');
   }finally{f.sql.close();}
 });
+
+test('Buyer entry keeps the preserved appointment destination separate from canonical intake',()=>{
+ const handoff={...input(),entry:'buyer',evidence:{},presentation:'408_contextual'};
+ const html=renderEntry(handoff,distributionPresentation(handoff,new Date(now)));
+ assert.match(html,/href="\/buyer\/legacy.html">Existing review or appointment/);
+ assert.match(html,/What would be most useful for your home purchase/);
+});

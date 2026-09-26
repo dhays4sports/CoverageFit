@@ -1,3 +1,20 @@
+# Current entry readiness — 2026-09-26
+
+**PASS WITH LIMITATION for implemented transport/resume; full mandate remains incomplete.**
+
+- Cloudflare transport resolved using manual redirect rejection; user and hosted browser confirmed working candidate.
+- Home is live. Hosted existing session: next answer saved, early researching completion, reload retained completion.
+- Home compatibility appointment page now opens and advances to step 2. Prior asset normalization defect resolved.
+- Fresh visitor Home first-answer hosted certification remains pending: available browser has an existing secure review cookie and no supported isolated-context capability. Do not treat resume as fresh-entry evidence.
+- Buyer compatibility copy and canonical link prepared; Buyer public activation remains off pending Home gate.
+- CoverageFit 296 tests pass; 408FARMERS 34 tests pass; zero fail/skip.
+- Local fresh Home session/attribution and buyer-to-Continue tests pass. Hosted producer receipt, provider send, cross-channel identity, mobile widths and fresh-entry checks remain unverified.
+- No configuration, schema, cohort, scoring, CRM or autonomous SMS change.
+
+Next exact check: open https://408farmers.com/home/ in a private browser, verify an immediate Home shopping-reason question, choose an answer, then reload and verify the next question remains. No contact details or SMS needed. This addresses fresh-session certification only; producer receipt remains separate.
+
+## Historical checkpoint (superseded by the current status above)
+
 # Entry Architecture 1.0 — readiness checkpoint
 
 2026-09-26. **BLOCKED — partial implementation, not launch approval.**
