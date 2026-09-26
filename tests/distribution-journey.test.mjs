@@ -219,3 +219,13 @@ test('Tech presentation starts with insurance evidence, not a profession gate',(
  assert.doesNotMatch(html,/What kind of work|professional_role|income|salary/i);
  assert.throws(()=>normalizeDistribution({...handoff,evidence:{professionalProgram:'tech'}},new Date(now)));
 });
+
+test('Teachers presentation starts with insurance evidence, not a profession gate',()=>{
+ const handoff={...input(),entry:'teachers',evidence:{},presentation:'408_contextual'};
+ const normalized=normalizeDistribution(handoff,new Date(now));assert.equal(normalized.audience,'teachers');
+ assert.deepEqual(normalized.evidence,{product:'unknown'});
+ const state=distributionPresentation(handoff,new Date(now));assert.equal(state.question.id,'signal_product');
+ const html=renderEntry(handoff,state);assert.match(html,/href="\/teachers\/legacy.html">Existing review or appointment/);
+ assert.doesNotMatch(html,/What kind of work|professional_role|income|salary/i);
+ assert.throws(()=>normalizeDistribution({...handoff,evidence:{professionalProgram:'teachers'}},new Date(now)));
+});

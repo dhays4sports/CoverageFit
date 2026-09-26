@@ -1,6 +1,6 @@
 # ENTRY-ARCHITECTURE-1.0 — current readiness
 
-Reconciled 2026-09-26 against canonical mains. This replaces obsolete transport and activation checkpoints. **Overall: BLOCKED at Tech hosted certification. Not complete; not pilot launch approval.**
+Reconciled 2026-09-26 against canonical mains. This replaces obsolete transport and activation checkpoints. **Overall: BLOCKED at Teachers hosted certification. Not complete; not pilot launch approval.**
 
 CoverageFit implementation baseline: `b130948bd68d34f48dc0d7c0ea147ed6a0929be9` (tree `bd1e87c910df3ff164e14d893eecabee3b260ac2`). 408finneas main: `d7041f5e4565252c5b212dd38648de419b1bd21b`. This documentation commit follows that CoverageFit baseline; no runtime change.
 
@@ -95,3 +95,9 @@ Tech deployment is now observed live: 408 branding, Producer/agency/license, Bac
 Remaining affinity compatibility is independently prepared on entry-affinity-stage in both repositories, without adding any route to the active set. Staged tests: 309 CoverageFit and 37 408, all pass, no fail/skip; canonical main suites remain 308/36. Staging retains original forms and exact aliases; profession never becomes priority. QR and later activation remain gated.
 
 Exact operator check: in a fresh session at https://408farmers.com/tech/ expect the insurance-product question immediately (not a profession question). Choose the relevant line, answer one question, reload to verify resume, then submit only your own controlled test identity. The connected producer Workspace must show original /tech/, web_408_tech and tech audience with submitted answers. Do not reuse the Condo session for fresh-source certification. No access key or secret is needed in chat.
+
+## Tech receipt certified; Teachers promotion
+
+2026-09-26 2:10PM PDT: authenticated Work shows one new Tech canary with original web_408_tech, /tech/, tech audience, immediate_question_v1 and submitted home/renewal-change/shopping-intent answers. No SMS sent; the synthetic contact is not a provider-send canary. Tech gate PASS for progression, together with user fresh-flow check and hosted resume/legacy checks.
+
+Teachers alone advances from staging. The first question remains canonical insurance product, with no profession gate or affinity score. Original Teachers form preserved under legacy aliases. Healthcare/Engineers/QR remain inactive. Rollback removes teachers from ACTIVE_ENTRY_ROUTES while preserving legacy assets and records. No Cloudflare configuration required. Whole mandate remains incomplete pending later hosted/mobile/cross-channel gates.
