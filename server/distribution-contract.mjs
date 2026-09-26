@@ -17,10 +17,18 @@ export const DISTRIBUTION_ROUTES = Object.freeze({
 const fail=()=>{throw new TypeError('Invalid distribution handoff');};
 export function normalizeDistribution(input, now=new Date()) {
   if(!input || input.version!==DISTRIBUTION_VERSION) fail();
-  if(Object.keys(input).some(k=>!['version','entry','bootstrapId','attribution','occurredAt','evidence','knownContext','contactChoice','referralContext'].includes(k))) fail();
+  if(Object.keys(input).some(k=>!['version','entry','bootstrapId','attribution','occurredAt','evidence','knownContext','contactChoice','referralContext','presentation','qr'].includes(k))) fail();
   if(!/^pvxb_[A-Za-z0-9_-]{24,80}$/.test(input.bootstrapId||'')) fail();
   const route=DISTRIBUTION_ROUTES[input.entry];
   if(!route) fail();
+  const presentation=input.presentation||'408_contextual';
+  if(!['408_contextual','paid_agency'].includes(presentation))fail();
+  let qr=null;
+  if(input.qr){
+    if(presentation!=='408_contextual'||!['home','condo'].includes(input.entry)||Object.keys(input.qr).some(k=>!['market','campaign'].includes(k)))fail();
+    if(!/^\d{5}$/.test(input.qr.market)||!['rate','review','fit'].includes(input.qr.campaign))fail();
+    qr={market:input.qr.market,campaign:input.qr.campaign};
+  }
   const at=new Date(input.occurredAt);
   if(!Number.isFinite(at.getTime()) || at>new Date(now.getTime()+60000) || now-at>7*86400000) fail();
   const evidence=input.evidence||{};
@@ -37,11 +45,13 @@ export function normalizeDistribution(input, now=new Date()) {
   if(!context || typeof context!=='object' || Array.isArray(context)) fail();
   const choices={housing:['owner','buyer','renter','landlord','unsure'],bundleInterest:['yes','no','unsure'],occupancy:['primary','secondary','rental','unsure']};
   for(const [key,value] of Object.entries(context))if(!choices[key]?.includes(value))fail();
-  const sourceKey='web_408_'+input.entry.replaceAll('-','_');
-  const sourceFamily=deriveSourceFamily({...normalized.attribution,sourceKey});
-  return {version:DISTRIBUTION_VERSION,bootstrapId:input.bootstrapId,entry:input.entry,audience:route.audience,route:route.route,knownContext:context,
+  const operationalSourceKey=presentation==='paid_agency'?'web_coveragefit_home':input.entry==='auto-bundle'?'web_408_home_auto':'web_408_'+input.entry.replaceAll('-','_');
+  const sourceKey=presentation==='paid_agency'&&['meta','facebook','instagram'].includes(normalized.attribution.utmSource)?'meta':operationalSourceKey;
+  const sourceFamily=qr?'qr':deriveSourceFamily({...normalized.attribution,sourceKey});
+  const landingPage=qr?`/${input.entry}/qr/${qr.market}/${qr.campaign}`:presentation==='paid_agency'?'/begin/':route.route;
+  return {version:DISTRIBUTION_VERSION,bootstrapId:input.bootstrapId,entry:input.entry,presentation,operationalSourceKey,audience:route.audience,productContext:route.product,marketContext:qr?.market||'',route:landingPage,knownContext:context,
     occurredAt:at.toISOString(),receivedAt:now.toISOString(),contactChoice:choice,referralContext:referral,
-    attribution:{...normalized.attribution,source:'408farmers',sourceFamily,sourceKey,landingPage:route.route},
-    // Product is selected by an explicitly labelled CTA. Other facts require answers.
+    attribution:{...normalized.attribution,...(qr?{campaignId:normalized.attribution.campaignId||`${input.entry}_qr_${qr.market}_${qr.campaign}`,campaignVariant:normalized.attribution.campaignVariant||qr.campaign,utmMedium:'qr'}:{}),source:presentation==='paid_agency'?'coveragefit':'408farmers',sourceFamily,sourceKey,landingPage},
+    // The deliberate route supplies product context. Need and intent still require answers.
     evidence:{...normalized.canonicalSignals,product:normalized.canonicalSignals.product==='unknown'?route.product:normalized.canonicalSignals.product}};
 }

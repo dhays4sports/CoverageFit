@@ -121,7 +121,7 @@ function normalizeAttribution(raw={}){
 export function normalizeSignalDecisionInput(raw={}){
   if(!isObject(raw))fail(400,'json','The Signal Decision request must be an object.');
   scanProhibitedKeys(raw);
-  const allowedFields=new Set(['schemaVersion','signalSessionId','flowId','flowVersion','canonicalSignals','attribution']);
+  const allowedFields=new Set(['schemaVersion','signalSessionId','flowId','flowVersion','canonicalSignals','attribution','presentationContext']);
   if(Object.keys(raw).some(key=>!allowedFields.has(key)))fail(422,'request_field','Unsupported Signal Decision request field.');
   const schemaVersion=clean(raw.schemaVersion||SIGNAL_DECISION_SCHEMA,20);
   if(schemaVersion!==SIGNAL_DECISION_SCHEMA)fail(422,'schema_version','Unsupported Signal Decision schema version.');
@@ -133,12 +133,23 @@ export function normalizeSignalDecisionInput(raw={}){
   if(!VERSION_RE.test(flowVersion))fail(422,'flow_version','flowVersion is invalid.');
   const canonicalSignals=normalizeSignals(raw.canonicalSignals||{});
   const attribution=normalizeAttribution(raw.attribution||{});
-  return Object.freeze({schemaVersion,signalSessionId,flowId,flowVersion,canonicalSignals,attribution});
+  const presentationContext=raw.presentationContext||'';
+  if(!['','homebuyer','condo'].includes(presentationContext))fail(422,'presentation_context','Unsupported presentation context.');
+  return Object.freeze({schemaVersion,signalSessionId,flowId,flowVersion,canonicalSignals,attribution,presentationContext});
 }
 
 const option=(code,label,signals={})=>Object.freeze({code,label,signals:Object.freeze(signals)});
 
 const QUESTIONS=Object.freeze({
+  buyer_need:Object.freeze({
+    id:'buyer_need',dimension:'need',prompt:'What would be most useful for your home purchase?',canonicalField:'reviewReason',
+    options:Object.freeze([
+      option('closing_coverage','Coverage for an upcoming closing',{reviewReason:'buying_home'}),
+      option('compare_purchase','Compare options for the new home',{reviewReason:'comparison'}),
+      option('understand_coverage','Understand the coverage I may need',{reviewReason:'coverage_review'}),
+      option('planning','I am planning ahead',{statedTrigger:'just_researching'})
+    ])
+  }),
   signal_product:Object.freeze({
     id:'signal_product',dimension:'product',prompt:'What are you looking for help with?',canonicalField:'product',
     options:Object.freeze([
@@ -427,6 +438,8 @@ export function deriveSignalDecision(raw={},now=new Date()){
     decision='CONTINUE_LATER';state='signal_only';
   }
 
+  // Presentation context changes wording/question choice, never the priority input.
+  if(question?.id==='home_trigger'&&input.presentationContext==='homebuyer')question=QUESTIONS.buyer_need;
   const publicResult=Object.freeze({
     ok:true,
     schemaVersion:SIGNAL_DECISION_SCHEMA,

@@ -5,7 +5,7 @@ export const ACQ_BUILD='CF-CLOSE-1.0';
 export const SOURCE_FAMILIES=Object.freeze([
   'district_lead','purchased_lead','paid_search','paid_social','direct_mail',
   'referral_partner','local_partner','organic_web','outbound','existing_relationship',
-  'event_or_affinity','other'
+  'event_or_affinity','qr','other'
 ]);
 const SOURCE_FAMILY_SET=new Set(SOURCE_FAMILIES);
 const STAGE_RANK=Object.freeze({inquiry:1,discovery:2,quote_preparation:3,recommendation:4,decision:5,onboarding:6,issuance_onboarding:6});
@@ -34,6 +34,7 @@ export function deriveSourceFamily(input={}){
   const explicit=sourceText(input.sourceFamily||input.source_family);
   if(SOURCE_FAMILY_SET.has(explicit))return explicit;
   const sourceKey=sourceText(input.sourceKey||input.source_key),utmSource=sourceText(input.utmSource||input.utm_source),utmMedium=sourceText(input.utmMedium||input.utm_medium),source=sourceText(input.source||input.sourceLabel);
+  if(utmMedium==='qr')return 'qr';
   if(/district/.test(sourceKey)||/district/.test(source))return 'district_lead';
   if(['lead','leads','purchased_lead','internet_lead','aggregator'].includes(utmMedium)||/lead|hometown|quotewizard|everquote|apex/.test(utmSource))return 'purchased_lead';
   if(/cpc|ppc|paid_search|search_paid/.test(utmMedium)||((/google|bing|microsoft/.test(utmSource))&&utmMedium))return 'paid_search';

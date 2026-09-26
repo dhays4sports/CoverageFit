@@ -1,3 +1,5 @@
+> Historical rollout record. The updated ENTRY-ARCHITECTURE-1.0.md supersedes transition-button and buyer-first recommendations.
+
 # 408FARMERS distribution consolidation
 
 408FARMERS attracts, contextualizes, attributes, establishes trust and routes. CoverageFit remembers, asks, interprets, prioritizes, continues, hands off and measures. AgencyZoom remains CRM; RingCentral remains transport. Dylan’s public title remains Insurance Producer.

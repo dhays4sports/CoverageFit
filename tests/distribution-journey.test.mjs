@@ -2,8 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {DatabaseSync} from 'node:sqlite';
 import {readFileSync,readdirSync} from 'node:fs';
+import {deriveSignalDecision} from '../server/signal-decision-core.mjs';
+import {entryInput,renderEntry} from '../server/entry-presentation.mjs';
 import {normalizeDistribution} from '../server/distribution-contract.mjs';
-import {distributionEntry,distributionJourney} from '../server/distribution-journey.mjs';
+import {distributionEntry,distributionJourney,distributionInteract,distributionEvent,distributionPresentation} from '../server/distribution-journey.mjs';
 import {createPVXRecordStore} from '../server/d1-json-store.mjs';
 const now='2026-09-26T16:00:00.000Z';
 const input=()=>({version:'coveragefit-distribution-v1',entry:'buyer',bootstrapId:'pvxb_abcdefghijklmnopqrstuvwx',occurredAt:now,attribution:{campaignId:'buyer_fall',campaignVariant:'a',partnerId:'partner_alpha'},evidence:{product:'home',reviewReason:'buying_home'},knownContext:{housing:'buyer',bundleInterest:'yes'},contactChoice:'text'});
@@ -80,4 +82,55 @@ test('a changed handoff under the same key cannot silently overwrite attribution
 });
 test('research answers exit without implying buying intent; route audience does not change the decision',async()=>{
   const f=fixture();try{const s=await start(f,{...input(),evidence:{product:'home',statedTrigger:'just_researching',shoppingIntent:'researching'}});assert.equal(s.state.question,null);assert.match(s.state.message,/learn first/);assert.equal(f.sql.prepare('SELECT count(*) n FROM cf_solo_opportunities').get().n,0);}finally{f.sql.close();}
+});
+test('Home shows a canonical question before a session; first answer is the session boundary',async()=>{
+  const f=fixture();try{
+    const handoff={...input(),entry:'home',evidence:{},knownContext:{},presentation:'408_contextual'};
+    const first=distributionPresentation(handoff,new Date(now));assert.equal(first.question.id,'home_trigger');
+    assert.equal(f.sql.prepare('SELECT count(*) n FROM pvx_records').get().n,0);
+    const response=await distributionInteract(req('interact',{action:'start',handoff,questionId:first.question.id,code:'renewal_change'}),f);
+    assert.equal(response.status,200,await response.clone().text());const value=await response.json();assert.equal(value.question.id,'home_shopping_intent');
+    assert.match(response.headers.get('set-cookie'),/HttpOnly/);
+    assert.equal(f.sql.prepare("SELECT count(*) n FROM pvx_records WHERE record_key LIKE 'pvx/web-journey/%'").get().n,1);
+    assert.equal(f.sql.prepare('SELECT count(*) n FROM cf_solo_opportunities').get().n,0);
+    const retry=await distributionInteract(req('interact',{action:'start',handoff,questionId:first.question.id,code:'renewal_change'}),f);assert.equal((await retry.json()).question.id,'home_shopping_intent');
+  }finally{f.sql.close();}
+});
+test('buyer presentation asks the next useful purchase question without granting intent or priority',()=>{
+  const handoff={...input(),evidence:{},knownContext:{}};const state=distributionPresentation(handoff,new Date(now));assert.equal(state.question.id,'buyer_need');assert.doesNotMatch(state.question.prompt,/Are you buying/);
+  const common={signalSessionId:'synthetic_context_123',canonicalSignals:{product:'home'}};
+  const generic=deriveSignalDecision(common,new Date(now));const buyer=deriveSignalDecision({...common,presentationContext:'homebuyer'},new Date(now));
+  assert.deepEqual(generic.internal.priority,buyer.internal.priority);assert.equal(buyer.public.nextQuestionId,'buyer_need');assert.equal(buyer.internal.input.canonicalSignals.shoppingIntent,undefined);
+});
+test('QR market and affinity audience are attribution, never quality evidence',()=>{
+  const qr=normalizeDistribution({...input(),entry:'home',evidence:{},qr:{market:'95118',campaign:'rate'}},new Date(now));
+  assert.equal(qr.attribution.sourceFamily,'qr');assert.equal(qr.route,'/home/qr/95118/rate');assert.equal(qr.marketContext,'95118');assert.deepEqual(qr.evidence,{product:'home'});
+  for(const entry of ['tech','teachers','healthcare','engineers']){const value=normalizeDistribution({...input(),entry,evidence:{}},new Date(now));assert.deepEqual(value.evidence,{product:'unknown'});assert.equal(value.audience,entry);}
+  assert.throws(()=>normalizeDistribution({...input(),entry:'home',qr:{market:'person@example.com',campaign:'rate'}},new Date(now)));
+});
+test('Meta has a direct agency-contextualized presentation and preserved paid source',()=>{
+  const handoff=entryInput(new URL('https://coveragefit.com/begin/?entry=home&presentation=paid_agency&utm_source=meta&utm_medium=paid_social&campaign_id=home_review_a'),new Date(now));
+  const n=normalizeDistribution(handoff,new Date(now));assert.equal(n.attribution.sourceKey,'meta');assert.equal(n.attribution.sourceFamily,'paid_social');assert.equal(n.route,'/begin/');
+  const html=renderEntry(handoff,distributionPresentation(handoff,new Date(now)));assert.match(html,/<fieldset><legend/);assert.match(html,/Insurance Producer/);assert.doesNotMatch(html,/Start your|Get Started|Find a time|408farmers.com/);
+});
+test('presentation contains immediate semantic options and no transition-only gate',()=>{
+  const handoff={...input(),entry:'home',evidence:{},presentation:'408_contextual'};const html=renderEntry(handoff,distributionPresentation(handoff,new Date(now)));
+  assert.match(html,/408FARMERS/);assert.match(html,/<fieldset><legend/);assert.match(html,/data-answer="renewal_change"/);assert.doesNotMatch(html,/Start your homebuyer review|Continue in CoverageFit/);assert.match(html,/entry-status" role="status"/);
+});
+test('observed view events are idempotent and do not establish buying intent or a session',async()=>{
+  const f=fixture();try{
+    for(let i=0;i<2;i++)assert.equal((await distributionEvent(req('events',{type:'landing_view',handoff:input()}),f)).status,200);
+    assert.equal(f.sql.prepare("SELECT count(*) n FROM pvx_records WHERE record_key LIKE 'pvx/acquisition-event/%'").get().n,1);
+    assert.equal(f.sql.prepare("SELECT count(*) n FROM pvx_records WHERE record_key LIKE 'pvx/web-journey/%'").get().n,0);
+    assert.equal((await distributionEvent(req('events',{type:'producer_handoff',handoff:input()}),f)).status,422);
+  }finally{f.sql.close();}
+});
+test('resumed measurement retains original acquisition instead of a new landing campaign',async()=>{
+  const f=fixture();try{const s=await start(f);await s.post({action:'answer',revision:0,questionId:s.state.question.id,code:'ready_now'});
+    const response=await distributionEvent(req('events',{type:'landing_view',handoff:{...input(),bootstrapId:'pvxb_differentlandingabcdefghijkl',attribution:{campaignId:'later_campaign'}}},s.cookie),f);
+    assert.equal(response.status,200);
+    const events=f.sql.prepare("SELECT data_json FROM pvx_records WHERE record_key LIKE 'pvx/acquisition-event/%'").all().map(r=>JSON.parse(r.data_json));
+    assert.equal(events.find(e=>e.type==='landing_view').firstTouch.campaignId,'buyer_fall');
+    assert.equal((await distributionEvent(req('events',{type:'abandon',handoff:input()}),f)).status,422);
+  }finally{f.sql.close();}
 });

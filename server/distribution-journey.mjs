@@ -16,7 +16,8 @@ const date=options=>new Date(options.now||Date.now());
 const problem=(status)=>{const e=new Error('Review unavailable');e.status=status;throw e;};
 const strict=(value,keys)=>{if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).some(k=>!keys.includes(k)))problem(422);};
 function decide(record,now){return deriveSignalDecision({signalSessionId:record.journeyId,flowId:'distribution_'+record.distribution.entry,
-  canonicalSignals:record.signals,attribution:record.distribution.attribution},now).public;}
+  canonicalSignals:record.signals,attribution:record.distribution.attribution,
+  presentationContext:record.distribution.audience==='homebuyer'?'homebuyer':record.distribution.audience==='condo'?'condo':''},now).public;}
 function publicState(record,now){
   if(record.contact) return {ok:true,revision:record.revision,complete:true,contactSubmitted:true,message:record.contact.delivered?'Thanks — your request reached Dylan’s workspace. He can pick up from what you shared.':'Your request is saved. Please retry delivery or contact Dylan directly.',deliveryPending:!record.contact.delivered};
   const d=decide(record,now);
@@ -43,8 +44,8 @@ export async function distributionEntry(request,options={}){
     const raw=await request.text();if(raw.length>8192)problem(413);
     const input=request.headers.get('content-type')?.includes('application/json')?JSON.parse(raw):JSON.parse(new URLSearchParams(raw).get('handoff')||'null');
     const now=date(options),distribution=normalizeDistribution(input,now);
-    // Buyer is the only candidate. Other routes remain dependency-gated.
-    if(distribution.entry!=='buyer'||distribution.evidence.product!=='home'||distribution.contactChoice==='callback')problem(422);
+    // Preserve the old buyer handoff; immediate entry uses the shared route contract.
+    if((!options.immediate&&distribution.entry!=='buyer')||distribution.contactChoice==='callback')problem(422);
     if(!options.store||!options.db)problem(503);
     const aliasKey='pvx/web-bootstrap/distribution/'+await sha256Hex(distribution.bootstrapId);
     const fingerprint=await sha256Hex(JSON.stringify({...distribution,receivedAt:undefined}));
@@ -57,6 +58,7 @@ export async function distributionEntry(request,options={}){
     const token=createPvxWebResumeToken(),key=await pvxWebJourneyKey(token),at=now.toISOString();
     const record={recordType:'pvx_web_journey',schemaVersion:'1.0',journeyId:'pvxj_'+crypto.randomUUID().replaceAll('-',''),
       seed:{journey:{experience:'canonical_signal'}},distribution,signals:distribution.evidence,answers:[],revision:0,
+      firstTouch:{...distribution.attribution,occurredAt:distribution.occurredAt},currentChannel:distribution.presentation,lastTouchChannel:distribution.presentation,
       createdAt:at,updatedAt:at,expiresAt:new Date(now.getTime()+TTL).toISOString()};
     await options.store.setJSON(key,record,{onlyIfNew:true,metadata:{recordType:record.recordType,createdAt:at,expiresAt:record.expiresAt}});
     try{await options.store.setJSON(aliasKey,{token,fingerprint,expiresAt:record.expiresAt},{onlyIfNew:true,metadata:{expiresAt:record.expiresAt}});}
@@ -80,17 +82,18 @@ async function deliver(loaded,options){
   const r=loaded.record,c=r.contact,at=c.at,s=r.signals,a=r.distribution.attribution;
   const normalized=normalizeLeadPayload({lead_checkpoint_id:'408d_'+r.journeyId,lead_stage:'contact_requested',first_name:c.name,phone:c.phone,
     contact_consent:true,consent_version:'distribution-contact-v1',consent_at:at,automated_marketing_sms_consent:false,
-    source_key:a.sourceKey,route_path:a.landingPage,campaign_id:a.campaignId,campaign_variant:a.campaignVariant,
+    source_key:r.distribution.operationalSourceKey||a.sourceKey,route_path:a.landingPage,campaign_id:a.campaignId,campaign_variant:a.campaignVariant,
     partner_id:a.partnerId,creative:a.creative,utm_source:a.utmSource,utm_medium:a.utmMedium,utm_campaign:a.utmCampaign,utm_content:a.utmContent,utm_term:a.utmTerm,
     review_track:s.product,review_reason:s.reviewReason,shopping_intent:s.shoppingIntent,decision_timing:s.decisionTiming,
     stated_trigger:s.statedTrigger,closing_date:s.closingDate,property_type:s.propertyType,renewal_timing:s.renewalTiming});
   if(!normalized.valid)problem(422);
   const v=normalized.value;
-  v.attribution={...v.attribution,sourceFamily:a.sourceFamily,audience:r.distribution.audience,occurredAt:r.distribution.occurredAt,referralContext:r.distribution.referralContext};
+  v.attribution={...v.attribution,sourceKey:a.sourceKey,sourceFamily:a.sourceFamily,audience:r.distribution.audience,marketContext:r.distribution.marketContext,occurredAt:r.distribution.occurredAt,referralContext:r.distribution.referralContext};
   v.context.distribution={version:r.distribution.version,journeyId:r.journeyId,evidenceSource:'consumer_answer',answers:r.answers,initialEvidence:r.distribution.evidence};
   v.context.housing=r.distribution.knownContext.housing||'';
   v.context.distribution.knownContext=r.distribution.knownContext;
-  v.context.reviewContext='408FARMERS '+a.landingPage+' — requested '+c.mode;
+  v.context.distribution.firstTouch=r.firstTouch;v.context.distribution.currentChannel=r.currentChannel;v.context.distribution.lastTouchChannel=r.lastTouchChannel;
+  v.context.reviewContext=(r.distribution.presentation==='paid_agency'?'CoverageFit ':'408FARMERS ')+a.landingPage+' — requested '+c.mode;
   v.consent.agencyContact.callPermitted=c.mode==='call';v.consent.agencyContact.personalTextPermitted=c.mode==='text';
   v.consent.agencyContact.scope='requested_review_'+c.mode;
   // Explicit first-party provenance is recorded; this does not create an SMS
@@ -101,6 +104,7 @@ async function deliver(loaded,options){
   if(!projected.ok)return json({...publicState(r,date(options)),ok:false},503);
   const next={...r,contact:{...c,delivered:true},revision:r.revision+1,updatedAt:date(options).toISOString()};
   await save(loaded,next,options);
+  await event(next.distribution,'producer_handoff',options).catch(()=>{});
   return json(publicState(next,date(options)));
 }
 export async function distributionJourney(request,options={}){
@@ -131,6 +135,60 @@ export async function distributionJourney(request,options={}){
       next.contact={name,phone,mode:body.mode,at:now.toISOString(),delivered:false};
     }else problem(422);
     await save(loaded,next,options);
+    if(body.action==='answer'){
+      if(next.answers.length===1){await event(next.distribution,'first_answer',options).catch(()=>{});await event(next.distribution,'signal_session_started',options).catch(()=>{});}
+      if(next.answers.length===2)await event(next.distribution,'second_answer',options).catch(()=>{});
+      if(!decide(next,now).nextQuestion)await event(next.distribution,'signal_session_completed',options).catch(()=>{});
+    }
+    if(next.contact)await event(next.distribution,'contact_requested',options).catch(()=>{});
     return next.contact?await deliver({...loaded,record:next},options):json(publicState(next,now));
   }catch(e){return json({ok:false,message:e.status===409?'Your review changed. Reload to continue with the saved answers.':'This review is unavailable. Please retry or contact Dylan directly.'},e.status||503);}
+}
+
+async function event(distribution,type,options){
+  const key='pvx/acquisition-event/'+await sha256Hex(distribution.bootstrapId+'|'+type),at=date(options).toISOString();
+  if(await options.store.get(key))return;
+  const value={recordType:'acquisition_event',version:'entry-1.0',type,at,firstTouch:distribution.attribution,route:distribution.route,
+    presentation:distribution.presentation,marketContext:distribution.marketContext,visit:await sha256Hex(distribution.bootstrapId)};
+  try{await options.store.setJSON(key,value,{onlyIfNew:true,metadata:{recordType:value.recordType,createdAt:at,expiresAt:new Date(date(options).getTime()+90*86400000).toISOString()}});}catch(e){if(!await options.store.get(key))throw e;}
+}
+export function distributionPresentation(input,now=new Date()){
+  const distribution=normalizeDistribution(input,now);
+  return publicState({journeyId:'entry_presentation',distribution,signals:distribution.evidence,answers:[],revision:0},now);
+}
+export async function distributionInteract(request,options={}){
+  if(request.method!=='POST')return json({ok:false},405);
+  if(request.headers.get('origin')!==new URL(request.url).origin)return json({ok:false},403);
+  try{
+    const raw=await request.text();if(raw.length>8192)problem(413);const body=JSON.parse(raw);
+    if(body.action!=='start')return distributionJourney(new Request(request.url,{method:'POST',headers:request.headers,body:raw}),options);
+    strict(body,['action','handoff','questionId','code']);
+    const distribution=normalizeDistribution(body.handoff,date(options)),state=distributionPresentation(body.handoff,date(options));
+    if(state.question?.id!==body.questionId||!state.question.options.some(o=>o.code===body.code))problem(422);
+    const start=await distributionEntry(new Request(request.url,{method:'POST',headers:{Origin:new URL(request.url).origin,'Content-Type':'application/json'},body:JSON.stringify(body.handoff)}),{...options,immediate:true});
+    if(start.status!==303)return start;
+    const cookie=start.headers.get('set-cookie'),cookieHeader=cookie?.split(';')[0];
+    if(!cookieHeader)problem(503);
+    const h={Origin:new URL(request.url).origin,'Content-Type':'application/json',Cookie:cookieHeader};
+    const loaded=await load(new Request(request.url,{headers:h}),options);
+    let response;
+    if(loaded.record.answers.length){
+      if(loaded.record.answers[0].questionId!==body.questionId||loaded.record.answers[0].optionCode!==body.code)problem(409);
+      response=json(publicState(loaded.record,date(options)));
+    }else response=await distributionJourney(new Request(request.url,{method:'POST',headers:h,body:JSON.stringify({action:'answer',revision:loaded.record.revision,questionId:body.questionId,code:body.code})}),options);
+    const out=new Headers(response.headers);out.set('Set-Cookie',cookie);
+    return new Response(response.body,{status:response.status,headers:out});
+  }catch(e){return json({ok:false,message:'We couldn’t save that answer. Please retry or contact Dylan.'},e.status||503);}
+}
+export async function distributionEvent(request,options={}){
+  if(request.method!=='POST'||request.headers.get('origin')!==new URL(request.url).origin)return json({ok:false},403);
+  try{
+    const raw=await request.text();if(raw.length>8192)problem(413);const body=JSON.parse(raw);strict(body,['type','handoff']);
+    if(!['landing_view','first_question_view','abandon'].includes(body.type))problem(422);
+    const existing=await load(request,options);
+    const distribution=existing?.record.distribution||normalizeDistribution(body.handoff,date(options));
+    if(body.type==='abandon'&&(!existing?.record.answers.length||existing.record.contact||!decide(existing.record,date(options)).nextQuestion))problem(422);
+    await event(distribution,body.type,options);
+    return json({ok:true});
+  }catch(e){return json({ok:false},e.status||422);}
 }
