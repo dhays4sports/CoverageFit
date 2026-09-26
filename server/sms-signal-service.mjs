@@ -5,13 +5,9 @@ import { listRingCentralMessageHistory, normalizeE164 } from './ringcentral-clie
 import { smsAutomationPaused } from './sms-safety-core.mjs';
 import { applySmsConsentCommand } from './sms-consent-core.mjs';
 import { writeOpsAudit } from './sms-operations-core.mjs';
-export const templatesFor=async store=>{
- const saved=(await store.get(SIGNAL_PREFIX+'templates'))?.templates;
- if(!saved)return DEFAULT_TEMPLATES;
- // Add newly introduced defaults without replacing customized or disabled entries.
- const ids=new Set(saved.map(t=>t.template_id));
- return [...saved,...DEFAULT_TEMPLATES.filter(t=>!ids.has(t.template_id))];
-};
+export {templatesFor} from './sms-template-registry.mjs';
+import {templatesFor} from './sms-template-registry.mjs';
+import {resolveSmsOwnership,firstPartyEvidence} from './sms-ownership.mjs';
 export async function recordSignalEvent(store,c,event,options={}) {
  const s=c.signal||{},ignored=compliance(event.body,c)==='automatic_response';
  const transition_types=event.direction==='outbound'?['sms_outbound_detected','template_matched',...(s.stage_mismatch?['stage_mismatch_detected']:[])]:['sms_inbound_received',...(ignored?[]:['reply_classified','decision_2_selected',...(Object.keys(s.new_facts||{}).length?['facts_extracted']:[]),...(s.reply?['reply_generated']:[]),...(s.human_required?['human_review_required']:[]),...(s.automation_lock?['conversation_locked']:[]),...(s.az_recommended_stage?['az_stage_recommended']:[]),...(s.decision_2==='LATER'?['future_bind_created']:s.decision_2==='CLOSE'?['lead_closed']:s.decision_2==='STOP'?['lead_stopped']:[])])];
@@ -21,14 +17,23 @@ export async function recordSignalEvent(store,c,event,options={}) {
  await writeOpsAudit(store,event.direction==='outbound'?(s.stage_mismatch?'stage_mismatch_detected':'template_matched'):'decision_2_selected',{conversationId:c.id,detail:`${record.classification||'outbound'}; ${record.decision_2||'no action'}; ${s.reason||'template attribution inferred'}`},options);
 }
 export async function signalOutbound(c,event,options={}) {
- if(!enabled(options.env))return {conversation:c,matched:false};
- const cohort=await districtSmsCohort(c,options.env,options.store);
- if(cohort==='CONTROL'||(String(options.env?.CF_SMS_SIGNAL_PILOT_ONLY)==='1'&&!cohort))return {conversation:c,matched:false};
+ const templates=await templatesFor(options.store), template=matchTemplate(event.body,templates);
+ if(!template)return {conversation:c,matched:false};
+ const owner=await resolveSmsOwnership(c,{...event,body:''},{...options,templates});
+ if(owner.owner!=='DISTRICT_SIGNAL'||!enabled(options.env)){
+  const out=structuredClone(c);
+  out.transcript=[...(out.transcript||[]),{id:`rc-${event.messageId}`,direction:'outbound',body:event.body,occurredAt:event.occurredAt,kind:'inferred_agencyzoom'}].slice(-60);
+  out.smsOwnership={...owner,agencyzoom_context:template.template_id};
+  if(owner.owner==='UNKNOWN')Object.assign(out.smsOwnership,{basis:'agencyzoom_pending_enrollment',hold:true});
+  out.lastOutboundAt=event.occurredAt;out.updatedAt=event.occurredAt;out.outboundCount=(c.outboundCount||0)+1;
+  if(out.signal)Object.assign(out.signal,{reply:'',draft_status:'none',revision:(out.signal.revision||0)+1});
+  return {conversation:out,matched:true,template};
+ }
  const out=observeOutbound(c,event,await templatesFor(options.store));
  if(out.matched){out.conversation.transcript=[...(c.transcript||[]),{id:`rc-${event.messageId}`,direction:'outbound',body:event.body,occurredAt:event.occurredAt,kind:'inferred_agencyzoom'}].slice(-60);out.conversation.lastOutboundAt=event.occurredAt;out.conversation.updatedAt=event.occurredAt;out.conversation.outboundCount=(c.outboundCount||0)+1;await recordSignalEvent(options.store,out.conversation,event,options);}
  return out;
 }
-async function historyContext(c,event,options) {
+export async function historyContext(c,event,options) {
  if((c.transcript||[]).some(x=>x.direction==='outbound'))return c;
  const out=structuredClone(c);
  try {
@@ -44,13 +49,28 @@ async function historyContext(c,event,options) {
  } catch {out.signal={...(out.signal||{}),context_error:true};}
  return out;
 }
+export async function prepareSmsOwnership(c,event,options={}) {
+ const templates=await templatesFor(options.store);
+ // Recover provider context only when no outbound context is available. A failed
+ // recovery holds unknown threads; it never falls through to generic intake.
+ if(!compliance(event.body,c)&&c.smsConsent?.status!=='opted_out'&&!c.signal?.contact_suppressed&&c.state!=='opted_out'&&!c.signal?.human_active&&!firstPartyEvidence(c)&&!(c.transcript||[]).some(x=>x.direction==='outbound')&&!smsAutomationPaused(c))c=await historyContext(c,event,options);
+ c.smsOwnership=await resolveSmsOwnership(c,event,{...options,templates});
+ return c;
+}
+export function holdOwnedConversation(c,ownership=c.smsOwnership) {
+ const out=structuredClone(c);out.smsOwnership=ownership;
+ out.signal={...(out.signal||{}),managed:false,pilot_cohort:ownership.owner==='DISTRICT_CONTROL'?'CONTROL':'UNENROLLED',reply:'',draft_status:'none',decision_2:null,useful:false,sales_positive:false,human_required:true,revision:(out.signal?.revision||0)+1};
+ return out;
+}
 export async function signalInbound(c,event,options={}) {
  if(!enabled(options.env))return null;
- const complianceKind=compliance(event.body,c);const pilot=complianceKind?null:await districtSmsRecord(c,options.env,options.store);
- if(!complianceKind&&(pilot?.cohort==='CONTROL'||(String(options.env?.CF_SMS_SIGNAL_PILOT_ONLY)==='1'&&!pilot))){
-  const out=structuredClone(c);out.signal={...(out.signal||{}),managed:false,pilot_cohort:pilot?.cohort||'UNENROLLED',reply:'',draft_status:'none',decision_2:null,useful:false,sales_positive:false,human_required:true,automation_lock:true,reason:pilot?.cohort==='CONTROL'?'CONTROL: use the existing AgencyZoom workflow and manual RingCentral response.':'Not enrolled: hold Signal treatment until cohort identity is confirmed.'};
-  await writeOpsAudit(options.store,'pilot_control_inbound',{conversationId:c.id,detail:'Signal interpretation and conversational draft withheld for CONTROL.'},options);return out;
+ const complianceKind=compliance(event.body,c);
+ if(!complianceKind){
+  c=await prepareSmsOwnership(c,event,options);
+  if(c.smsOwnership.owner==='FIRST_PARTY_408'&&!c.smsOwnership.hold)return null;
+  if(c.smsOwnership.owner!=='DISTRICT_SIGNAL'||c.smsOwnership.hold)return holdOwnedConversation(c);
  }
+ const pilot=complianceKind?null:await districtSmsRecord(c,options.env,options.store);
  if(pilot?.cohort==='SIGNAL'&&pilot.raw_facts){
   c=structuredClone(c);const raw={...pilot.raw_facts};
   for(const k of ['renewal_date','closing_date'])if(raw[k]&&raw[k]<event.occurredAt.slice(0,10)){if(c.signal?.facts?.[k]===raw[k]){delete c.signal.facts[k];delete c.signal.facts.timing;}delete raw[k];}

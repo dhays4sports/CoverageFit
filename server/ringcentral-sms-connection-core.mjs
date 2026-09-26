@@ -1,5 +1,5 @@
 import {enabled as signalEnabled, compliance as signalCompliance, SIGNAL_PREFIX} from './sms-signal-core.mjs';
-import {signalOutbound, signalInbound, recordSignalEvent} from './sms-signal-service.mjs';
+import {signalOutbound, signalInbound, recordSignalEvent, prepareSmsOwnership, holdOwnedConversation} from './sms-signal-service.mjs';
 import {smsAutomationPaused} from './sms-safety-core.mjs';
 import { authorizeProducer } from './consultation-inbox-core.mjs';
 import { timingSafeTextEqual } from './runtime-crypto.mjs';
@@ -190,6 +190,7 @@ function normalizeLiveConversation(value) {
   if (!contactPhone || !businessPhone) return null;
   const state = text(value.state).toLowerCase();
   return {
+    smsOwnership: value.smsOwnership ? structuredClone(value.smsOwnership) : null,
     agedLead: value.agedLead && typeof value.agedLead === 'object' ? structuredClone(value.agedLead) : null,
     signal: value.signal && typeof value.signal === 'object' ? structuredClone(value.signal) : null,
     schemaVersion: '1.6',
@@ -416,7 +417,7 @@ export async function handleRingCentralWebhook(request, options = {}) {
   if (!locked || await store.get(eventKey).then(value => value?.status !== 'processing')) return json({ ok: true, deduped: true });
 
   const signalConversationId = await smsLiveConversationId(event.prospectNumber, event.businessNumber, config.conversationHashSecret);
-  const signalLock = signalEnabled(env) ? SIGNAL_PREFIX+'locks/'+signalConversationId : null;
+  const signalLock = SIGNAL_PREFIX+'locks/'+signalConversationId; // Ownership is serialized even when Signal is off.
   if (signalLock) {
     try { await store.setJSON(signalLock,{at:nowIso(options)},{onlyIfNew:true}); }
     catch { await store.delete(eventKey); return error(503,'signal_thread_busy','Conversation processing; retry this event.'); }
@@ -552,6 +553,7 @@ export async function handleRingCentralWebhook(request, options = {}) {
     if (globalConsentCommand === 'stop' || globalConsentCommand === 'start') {
       await markCallbackSequenceReplied(conversation, event.body, { ...options, env, store, now: occurredAt });
       conversation = applySmsConsentCommand(conversation, globalConsentCommand, { occurredAt });
+      if(globalConsentCommand==='stop'&&conversation.signal)Object.assign(conversation.signal,{reply:'',draft_status:'none',revision:(conversation.signal.revision||0)+1});
       if(signalEnabled(env)&&globalConsentCommand==='stop'){
         const signalResult=await signalInbound(conversation,{...event,occurredAt},{...options,env,store});
         if(signalResult)conversation=signalResult;
@@ -577,6 +579,22 @@ export async function handleRingCentralWebhook(request, options = {}) {
       });
     }
 
+    conversation=await prepareSmsOwnership(conversation,{...event,occurredAt},{...options,env,store});
+    const ownership=conversation.smsOwnership;
+    if(ownership.hold || (ownership.owner==='DISTRICT_SIGNAL'&&!signalEnabled(env))){
+      const safety=ownership.compliance;
+      if(safety==='wrong_number'||safety==='spam'){
+        conversation.signal={...(conversation.signal||{}),contact_suppressed:true};
+      }
+      conversation=safety&&signalEnabled(env)?(await signalInbound(conversation,{...event,occurredAt},{...options,env,store})||holdOwnedConversation(conversation)):holdOwnedConversation(conversation);
+      conversation.producerSummary=buildSmsProducerSummary(conversation);
+      await store.setJSON(conversationKey,conversation,{metadata:metadata(conversation)});
+      const routeReason=ownership.owner==='PRODUCER_OWNED'?'automation_paused':ownership.basis;
+      await store.setJSON(eventKey,{status:'processed',direction:'inbound',replied:false,conversationId,routeReason,owner:ownership.owner,occurredAt,processedAt:nowIso(options)});
+      await writeOpsAudit(store,'sms_ownership_held',{conversationId,detail:`${ownership.owner}; ${ownership.basis}; ${ownership.agencyzoom_context||''}`},options);
+      await updateWebhookHealth(store,{success:true},options);
+      return json({ok:true,replied:false,routeReason,owner:ownership.owner});
+    }
     const signalResult=await signalInbound(conversation,{...event,occurredAt},{...options,env,store});
     if(signalResult){
       conversation=signalResult;

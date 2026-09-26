@@ -25,8 +25,11 @@ export function validateTemplates(rows) {
   ids.add(t.template_id);return {...t,active:t.active===true};
  });
 }
+export function matchingTemplates(body,templates=DEFAULT_TEMPLATES) {
+ const text=norm(body);return templates.filter(t=>t.active&&t.message_pattern.every(p=>text.includes(norm(p))));
+}
 export function matchTemplate(body,templates=DEFAULT_TEMPLATES) {
- const text=norm(body);const matches=templates.filter(t=>t.active&&t.message_pattern.every(p=>text.includes(norm(p))));
+ const matches=matchingTemplates(body,templates);
  return matches.length===1?matches[0]:null; // Ambiguous registry matches fail closed.
 }
 export function compliance(body,context={}) {

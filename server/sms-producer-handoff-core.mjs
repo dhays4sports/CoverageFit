@@ -348,6 +348,11 @@ export async function handleSmsProducerHandoff(request, options = {}) {
       return error(422, 'invalid_action', 'Unsupported producer SMS action.');
     }
 
+    // Explicit release clears stale Signal takeover flags, never consent or
+    // enrollment. The next inbound still passes canonical ownership precedence.
+    if(['return_to_coveragefit','resume_workflow','start_workflow','transfer_ownership','release_ownership'].includes(canonicalAction)&&conversation.orchestration?.ownership?.owner==='coveragefit'&&conversation.signal){
+      Object.assign(conversation.signal,{human_active:false,automation_lock:false,reply:'',draft_status:'none',revision:(conversation.signal.revision||0)+1});
+    }
     const disposition = action === 'not_proceeding' ? 'not_proceeding' : action === 'complete' ? 'completed' : text(conversation.producerDisposition);
     if (action === 'not_proceeding' || action === 'complete') conversation.producerDisposition = disposition;
     conversation.transcript = [...conversation.transcript, transcriptItem(note, occurredAt, before, conversation.state)].slice(-80);

@@ -1,3 +1,4 @@
+import {resolveSmsOwnership} from './sms-ownership.mjs';
 import {identity,parse} from './solo-desk-repository.mjs';
 import {prepareControlRoster,saveControlRoster} from './district-control-roster.mjs';
 import {districtSmsCohort} from './district-pilot-sms.mjs';
@@ -18,7 +19,8 @@ export async function handleSmsSignal(request,options={}) {
  if(request.method==='GET'){
   const [cl,el]=await Promise.all([store.list({prefix:'sms-live-conversations/',limit:500}),store.list({prefix:SIGNAL_PREFIX+'events/',limit:1000})]);
   const all=(await Promise.all((cl.blobs||[]).map(x=>store.get(x.key)))).filter(Boolean),events=(await Promise.all((el.blobs||[]).map(x=>store.get(x.key)))).filter(Boolean);
-  const visible=await Promise.all(all.filter(c=>c.signal?.managed).map(async c=>{const cohort=await districtSmsCohort(c,options.env,store);return cohort==='CONTROL'||(String(options.env?.CF_SMS_SIGNAL_PILOT_ONLY)==='1'&&cohort!=='SIGNAL')?null:c;}));
+  const templates=await templatesFor(store);
+  const visible=await Promise.all(all.filter(c=>c.signal?.managed).map(async c=>{const owner=await resolveSmsOwnership(c,{}, {...options,templates});return owner.owner==='DISTRICT_SIGNAL'?c:null;}));
   const conversations=visible.filter(Boolean).map(c=>({id:c.id,phone:c.contactPhone,name:c.answers?.firstName||c.answers?.name||'',signal:c.signal}));
   return json({ok:true,enabled:enabled(options.env),build:SIGNAL_BUILD,send_policy:'review_first',scenarios:SIGNAL_SCENARIOS,conversations,templates:await templatesFor(store),metrics:signalMetrics(events,all),truncated:(cl.blobs||[]).length>=500||events.length>=1000});
  }
@@ -62,6 +64,7 @@ export async function handleSmsSignal(request,options={}) {
  try{
   let c=await store.get(key);if(!c?.signal)return fail('Signal conversation not found',404);
   let s=c.signal;
+  if(['approve_send','edit','unlock'].includes(b.action)){const owner=await resolveSmsOwnership(c,{occurredAt:at},{...options,templates:await templatesFor(store)});if(owner.owner!=='DISTRICT_SIGNAL'||owner.hold)return fail('This thread is not owned by enrolled Signal. Use manual producer handling.',409);}
   if(['approve_send','edit','unlock'].includes(b.action)&&await districtSmsCohort(c,options.env,options.store)==='CONTROL')return fail('CONTROL replies use the normal manual workflow; Signal drafts cannot be sent.',409);
   if(b.revision!==s.revision)return fail('Conversation changed. Refresh before acting.',409);
   if(b.action==='mark_az_updated'){

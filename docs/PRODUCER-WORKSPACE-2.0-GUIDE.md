@@ -52,3 +52,18 @@ After an actual call, use **+ Record call attempt** once if no reliable existing
 Use **Analytics → weekly scorecard → Refresh → Batch reconciliation** for silent/unqualified inventory and shared observed outcomes. Select a group sharing the same verified update, preview, confirm once. Unknown stays unknown; never confirm zero merely because someone did not reply. Confirm existing recorded effort/calls only if they cover ALL work, including unsuccessful attempts and administration. Missing external totals can be reconciled on a worked record; totals include already-recorded activity and must not also be entered as additional minutes.
 
 Record verified term premium and Farmers policy count in the optional observed outcomes after an actual bind. No annualization or estimated commission. Analytics separates historical district reference from enrolled cohort evidence.
+
+## SMS ownership — before and after district upload
+
+Upload **all eligible district leads participating in the pilot**, including CONTROL. Import creates stable identity, immutable cohort, exact SMS linkage and measurement. A reply before upload never determines the cohort.
+
+- Before upload: AgencyZoom-template replies wait safely for enrollment. They do not enter legacy guided intake. Respond manually in RingCentral if needed.
+- SIGNAL: CoverageFit Decision 2; every conversational draft requires approval.
+- CONTROL: normal AgencyZoom/manual workflow; no Signal or legacy treatment.
+- WEB / DIRECT: verified first-party workflow may continue guided intake.
+- UNKNOWN: manual review; no automatic sales intake.
+- Producer takeover and suppression remain authoritative.
+
+Work → **SMS awaiting classification** shows pending/unclassified threads. These are conversations, not newly created opportunities or pilot enrollments. Their history is retained when you import later. Do not re-send an already handled reply just because enrollment finished.
+
+A bare HOME/AUTO keyword does not prove where a lead came from. The shared phone number is transport. An old thread without positive workflow/source provenance may need manual handling.

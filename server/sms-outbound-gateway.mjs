@@ -1,3 +1,5 @@
+import {resolveSmsOwnership} from './sms-ownership.mjs';
+import {templatesFor} from './sms-template-registry.mjs';
 import {smsAutomationPaused, automaticSmsOrigin} from './sms-safety-core.mjs';
 import { authorizeProducer } from './consultation-inbox-core.mjs';
 import { sha256Hex } from './runtime-crypto.mjs';
@@ -320,7 +322,11 @@ function baseConversation(conversationId, descriptor, businessPhone, occurredAt)
   return base;
 }
 
-function channelPermission(conversation, descriptor, options = {}) {
+async function channelPermission(conversation, descriptor, options = {}) {
+  if(automaticSmsOrigin(descriptor.origin)){
+    const owner=await resolveSmsOwnership(conversation,{occurredAt:options.occurredAt},{...options,templates:await templatesFor(options.store)});
+    if(owner.owner==='DISTRICT_CONTROL'||owner.owner==='DISTRICT_SIGNAL'||owner.basis==='agencyzoom_pending_enrollment'||owner.basis==='enrollment_lookup_failed'||(conversation.lastInboundAt&&owner.owner==='UNKNOWN'))throw new SmsGatewayError('Conversation ownership requires manual handling.',{status:409,code:'sms_automation_paused'});
+  }
   if (conversation.signal?.contact_suppressed) throw new SmsGatewayError('Contact suppressed as wrong number/spam.', {status:409,code:'sms_channel_suppressed'});
   if (options.env?.CF_SMS_SIGNAL_ENABLED === '1' && conversation.signal?.managed && automaticSmsOrigin(descriptor.origin)) throw new SmsGatewayError('Signal pilot requires producer approval; AgencyZoom owns campaign timing.', {status:409,code:'sms_automation_paused'});
   if (automaticSmsOrigin(descriptor.origin) && smsAutomationPaused(conversation)) throw new SmsGatewayError('Automation is paused for producer follow-up.', {status: 409, code: 'sms_automation_paused'});
@@ -492,7 +498,7 @@ export async function registerExternalOutbound(input = {}, options = {}) {
   if (!config.fromNumber || text(config.conversationHashSecret).length < 16) throw new SmsGatewayError('The RingCentral sender relationship is not fully configured.', { status: 503, code: 'ringcentral_sender_unavailable' });
   const conversationId = await smsLiveConversationId(descriptor.to, config.fromNumber, config.conversationHashSecret);
   const existingConversation = await store.get(`${SMS_LIVE_CONVERSATION_PREFIX}${conversationId}`);
-  if (existingConversation && typeof existingConversation === 'object') channelPermission(existingConversation, descriptor, options);
+  if (existingConversation && typeof existingConversation === 'object') await channelPermission(existingConversation, descriptor, options);
   const registeredAt = nowDate(options).toISOString();
   const registrationId = crypto.randomUUID();
   const fingerprint = await writeFingerprintRegistration(store, descriptor, { businessPhone: config.fromNumber, registeredAt, registrationId, status: 'registered' });
@@ -522,7 +528,7 @@ export async function sendSmsThroughGateway(input = {}, options = {}) {
   const snapshot = options.conversationSnapshot && typeof options.conversationSnapshot === 'object' ? options.conversationSnapshot : null;
   let conversation = snapshot && text(snapshot.id) === conversationId ? clone(snapshot) : await store.get(conversationKey);
   if (!conversation || typeof conversation !== 'object') conversation = baseConversation(conversationId, descriptor, config.fromNumber, occurredAt);
-  const orchestration = channelPermission(conversation, descriptor, options);
+  const orchestration = await channelPermission(conversation, descriptor, options);
   conversation.orchestration = orchestration;
 
   const idemKey = await idempotencyKey(config.fromNumber, descriptor.to, idempotency);
@@ -551,8 +557,8 @@ export async function sendSmsThroughGateway(input = {}, options = {}) {
   try {
     // Reload persisted consent/ownership; a snapshot can predate a manual reply or STOP.
     const latest = await store.get(conversationKey);
-    if (latest) channelPermission(latest, descriptor, { ...options, occurredAt: nowDate(options).toISOString() });
-    channelPermission(conversation, descriptor, { ...options, occurredAt: nowDate(options).toISOString() });
+    if (latest) await channelPermission(latest, descriptor, { ...options, occurredAt: nowDate(options).toISOString() });
+    await channelPermission(conversation, descriptor, { ...options, occurredAt: nowDate(options).toISOString() });
     sent = await sendRingCentralSms({ to: descriptor.to, textBody: descriptor.message }, env, options);
   } catch (cause) {
     const failedAt = nowDate(options).toISOString();

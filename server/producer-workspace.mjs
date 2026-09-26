@@ -1,3 +1,5 @@
+import {resolveSmsOwnership,ownershipLabel} from './sms-ownership.mjs';
+import {templatesFor} from './sms-template-registry.mjs';
 import {parse} from './solo-desk-repository.mjs';
 import {createSmsConversationStore} from './d1-json-store.mjs';
 import {districtSmsCohort} from './district-pilot-sms.mjs';
@@ -42,6 +44,16 @@ export function producerWorkspace(repo,env){
   return {conversation_id:c.id,...c.signal,contact_suppressed:!!(c.signal.contact_suppressed||c.smsConsent?.status==='opted_out'),transcript:(c.transcript||[]).slice(-12).map(t=>({direction:t.direction,body:t.body,occurredAt:t.occurredAt}))};
  }
  return {
+  async pendingSms(){
+   const page=await store.list({prefix:'sms-live-conversations/',limit:500}),templates=await templatesFor(store),records=[];
+   for(const entry of page.blobs||[]){const c=await store.get(entry.key);if(!c?.lastInboundAt)continue;
+    const owner=await resolveSmsOwnership(c,{}, {env,store,templates});
+    if(owner.owner!=='UNKNOWN'||owner.compliance)continue;
+    records.push({conversation_id:c.id,phone:c.contactPhone,label:ownershipLabel(owner),latest_inbound:[...(c.transcript||[])].reverse().find(x=>x.direction==='inbound')?.body||'',updated_at:c.lastInboundAt});
+   }
+   records.sort((a,b)=>b.updated_at.localeCompare(a.updated_at));
+   return {records:records.slice(0,50),truncated:(page.blobs||[]).length>=500||records.length>50};
+  },
   async detail(id){await repo.own(id);const ss=await sources(id),pop=await population(id,ss),pilot=ss.find(s=>s.kind==='district_pilot_v1')?.summary||null;
    const data=await repo.detail(id),state=await sms(pilot,pop.population);
    if(['DISTRICT_CONTROL','OTHER'].includes(pop.population)){data.opportunityPriority=null;data.possessionQuality=null;data.nextBestAction=null;}
