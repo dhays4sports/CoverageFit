@@ -1,6 +1,6 @@
 # ENTRY-ARCHITECTURE-1.0 — current readiness
 
-Reconciled 2026-09-26 against canonical mains. This replaces obsolete transport and activation checkpoints. **Overall: BLOCKED at Teachers hosted certification. Not complete; not pilot launch approval.**
+Reconciled 2026-09-26 against canonical mains. This replaces obsolete transport and activation checkpoints. **Overall: BLOCKED at Healthcare hosted certification. Not complete; not pilot launch approval.**
 
 CoverageFit implementation baseline: `b130948bd68d34f48dc0d7c0ea147ed6a0929be9` (tree `bd1e87c910df3ff164e14d893eecabee3b260ac2`). 408finneas main: `d7041f5e4565252c5b212dd38648de419b1bd21b`. This documentation commit follows that CoverageFit baseline; no runtime change.
 
@@ -107,3 +107,9 @@ Teachers alone advances from staging. The first question remains canonical insur
 Teachers canonical presentation now observed live with 408 branding and Producer identity. Existing-session Back, answer/save and completion reload pass. /teachers/legacy.html renders the preserved original form. Authenticated Work contains the eight previously observed WEB_DIRECT records and no new Teachers submission. Fresh first-question/source/producer-receipt certification remains pending; do not treat the reused Home session as Teachers acquisition. Healthcare/Engineers remain staged and QR inactive. No Cloudflare action or configuration required. Runtime/test baseline unchanged: 309 CoverageFit and 37 408 tests passed, zero fail/skip.
 
 Next operator check: fresh session at https://408farmers.com/teachers/; expect insurance-product question without Start or profession gate; answer then reload; submit own controlled test identity (Dylan Teachers QA). Verify web_408_teachers, /teachers/, teachers audience and submitted answers in Work before Healthcare activation.
+
+## Teachers receipt certified; Healthcare promotion
+
+2026-09-26 2:59PM PDT: authenticated Work shows one new Teachers canary, original web_408_teachers, /teachers/, teachers audience, immediate_question_v1. Submitted auto/need-now/ready-now/timing-now evidence and explicit contact permission are visible. Teachers gate PASS for progression with prior hosted resume/legacy and user fresh submission. Synthetic contact must not be used for provider SMS certification.
+
+Healthcare alone advances with canonical insurance-product first question, no profession gate or audience scoring. Original form retained at legacy aliases. Engineers and QR remain inactive. Full suites 310 CoverageFit / 38 408 pass, zero failures/skips. Rollback removes healthcare from ACTIVE_ENTRY_ROUTES and preserves old URLs/records. No Cloudflare configuration or migrations required. Healthcare fresh hosted receipt remains next; broader mobile/provider/cross-channel gates remain incomplete.

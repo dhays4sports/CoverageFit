@@ -13,7 +13,7 @@ Classes: A CONTEXTUAL_408; B COVERAGEFIT_DIRECT; C SIGNAL_CONTINUE; D SPECIALIZE
 | 408 `/buyer/continue[.html]` | A/F | Earlier unlinked candidate now uses immediate-question presentation | No public promotion before certification |
 | 408 `/condo/` | A/G | Active canonical contextual presentation; original form preserved as legacy | Condo fresh source/evidence verified in authenticated Work |
 | 408 `/tech/` | A/G | Tech canonical entry promoted; original page retained as legacy | Condo gate passed; Tech hosted receipt certified; no profession scoring |
-| 408 `/teachers/`, `/healthcare/`, `/engineers/` | A/G | Teachers promoted with legacy retained; Healthcare/Engineers staged | Teachers hosted gate before Healthcare |
+| 408 `/teachers/`, `/healthcare/`, `/engineers/` | A/G | Teachers certified; Healthcare promoted with legacy retained; Engineers staged | Healthcare hosted gate before Engineers |
 | 408 `/auto-bundle/` | A/G | Existing flow retained | Bundle transfer/appointment compatibility |
 | 408 `/auto` | H/F | No assumed new public canonical route | Existing registry/preview only |
 | 408 `/{home,condo}/qr/{market}/{campaign}` | A | Strict parser/contract implemented; interception inactive | Ordinary route certification first |
