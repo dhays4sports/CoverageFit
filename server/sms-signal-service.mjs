@@ -99,6 +99,10 @@ export async function signalInbound(c,event,options={}) {
   next.signal.draft_status=next.signal.reply?'pending':'none';
   if(next.signal.decision_2!=='STOP'&&(paused||wasLocked||next.signal.context_error)){next.signal.human_required=true;next.signal.automation_lock=true;next.signal.reply='';next.signal.draft_status='none';next.signal.reason=paused?'Producer takeover active; review only.':wasLocked?'Thread locked for human review.':'History could not be loaded; review only.';}
  }
+ if(c.signal?.continue_active&&Date.parse(c.signal.continue_expires_at)>Date.parse(event.occurredAt)){
+  if(['CALL','LATER','CLOSE','STOP'].includes(next.signal.decision_2))next.signal.continue_active=false;
+  else {next.signal.reply='';next.signal.draft_status='none';next.signal.reason='Signal Continue is active; avoid competing qualification SMS.';}
+ }
  if(next.signal?.decision_2==='STOP')next=applySmsConsentCommand(next,'stop',{occurredAt:event.occurredAt});
  next.updatedAt=event.occurredAt;
  await recordSignalEvent(options.store,next,event,options);

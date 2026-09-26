@@ -1,3 +1,5 @@
+import {continueAnalytics} from './signal-continue-analytics.mjs';
+import {signalContinue} from './signal-continue-service.mjs';
 import {pilotReconciliation} from './pilot-reconciliation.mjs';
 import {producerWorkspace} from './producer-workspace.mjs';
 import {rawImporter} from './agencyzoom-import.mjs';
@@ -33,6 +35,8 @@ export async function handleSoloDesk(context){
     try{await repo.ready();}catch{fail(503,'setup_required','Solo Desk needs its database update before it can save shared work. Continue in the existing Inbox until setup is complete.');}
     const url=new URL(request.url),route=url.pathname.replace(/^\/api\/solo-desk\/?/,'').replace(/\/$/,'');
     if(request.method==='GET'){
+      if(route==='continue-analytics')return json({ok:true,...await continueAnalytics(repo,env)});
+      if(route==='continue-preview'){if(env.SIGNAL_CONTINUE_ENABLED!=='1')fail(503,'continue_disabled','Signal Continue is not activated.');const svc=signalContinue(repo,env);return json({ok:true,...await svc.preview(url.searchParams.get('id')),draft:await svc.draft(url.searchParams.get('id'))});}
       if(!route)return json({ok:true,build:BUILD,operator:repo.scope.name,mode:'solo',...await repo.list(url.searchParams,context.now||new Date())});
       if(route==='record'){const id=url.searchParams.get('id');return json({ok:true,...await repo.detail(id),policybox:await policybox.view(id)});}
       if(route==='policybox-document'){const result=await policybox.document(url.searchParams.get('id'),url.searchParams.get('ref'));const name=String(result.doc.name||'policy-document').replace(/[^A-Za-z0-9._ -]/g,'_').slice(0,120);return new Response(result.object.body||await result.object.arrayBuffer(),{status:200,headers:{'Content-Type':result.doc.type||'application/octet-stream','Content-Disposition':`inline; filename="${name}"`,'Cache-Control':'private, no-store, max-age=0','X-Content-Type-Options':'nosniff','Content-Security-Policy':"default-src 'none'; frame-ancestors 'none'",'Referrer-Policy':'no-referrer'}});}
@@ -61,6 +65,7 @@ export async function handleSoloDesk(context){
     if(route==='sync')return json({ok:true,...await sourceSync(repo).sync(value.stream)});
     if(route==='priority-backfill'){const result=await repo.backfillOpportunityPriority(value.limit||60);return json({ok:true,...result});}
     if(!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(value.requestId||''))fail(422,'request_id','Reload the form before saving.');
+    if(route==='continue-create'||route==='continue-action'){if(env.SIGNAL_CONTINUE_ENABLED!=='1')fail(503,'continue_disabled','Signal Continue is not activated.');const svc=signalContinue(repo,env);return json({ok:true,...await (route==='continue-create'?svc.create(value):svc.producer(value))});}
     if(route==='pilot-call-attempt')return json({ok:true,attempt:await pilotReconciliation(repo).call(value,value.requestId)});
     if(route==='pilot-reconcile-preview'){const p=await pilotReconciliation(repo).preview(value);return json({ok:true,fingerprint:p.fingerprint,rows:p.rows.map(r=>({id:r.id,cohort:r.cohort,pilot_phase:r.pilot_phase,observation:r.next.observation,measurement:r.next.reconciliation}))});}
     if(route==='pilot-reconcile-apply')return json({ok:true,...await pilotReconciliation(repo).apply(value,value.requestId)});

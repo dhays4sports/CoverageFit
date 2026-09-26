@@ -94,6 +94,7 @@ export async function handleSmsSignal(request,options={}) {
    if(message.includes('?')&&(s.questions_sent||0)>=3)return fail('Question limit reached. Use producer follow-up.',409);
    s.reply=message;s.reply_goal=String(b.reply_goal||s.reply_goal||'HUMAN_HANDOFF');s.draft_status='pending';s.edited=true;
   }else if(b.action==='approve_send'){
+   if(s.continue_active&&Date.parse(s.continue_expires_at)>Date.parse(at))return fail('Signal Continue is active. Avoid competing qualification SMS.',409);
    if(!s.reply||s.draft_status!=='pending'||s.decision_2==='STOP'||s.contact_suppressed||c.smsConsent?.status==='opted_out')return fail('No eligible pending draft.',409);
    if(s.human_active||smsAutomationPaused(c))return fail('Human takeover active. Resolve ownership before sending.',409);
    const question=s.reply.includes('?');if(question&&(s.questions_sent||0)>=3)return fail('Question limit reached.',409);
