@@ -7,12 +7,12 @@ Classes: A CONTEXTUAL_408; B COVERAGEFIT_DIRECT; C SIGNAL_CONTINUE; D SPECIALIZE
 | Domain / route or component | Class | Current implementation / decision | Gate / dependency |
 |---|---|---|---|
 | 408 `/` | A/G | Preserve local hub and current links | Existing acquisition forms |
-| 408 `/home`, `/home/` | A/G | Adapter implemented; public activation rolled back after upstream failure | Existing Home restored; Cloudflare runtime evidence required |
+| 408 `/home`, `/home/` | A/G | Active canonical contextual adapter | Fresh Home confirmed; old appointment link preserved |
 | 408 `/home/legacy.html` | E/G | Preserve original review/appointment page | Existing forms and campaigns |
-| 408 `/buyer/` | A/G | Existing page retained; canonical buyer-aware question implemented | Home certification before conversion |
+| 408 `/buyer/` | A/G | Active canonical buyer-aware presentation; original page preserved as legacy | Hosted Back/save/reload verified |
 | 408 `/buyer/continue[.html]` | A/F | Earlier unlinked candidate now uses immediate-question presentation | No public promotion before certification |
-| 408 `/condo/` | A/G | Existing page retained | Condo-specific evidence and hosted canary |
-| 408 `/tech/` | A/G | Existing page retained | No profession scoring; canonical source context ready |
+| 408 `/condo/` | A/G | Active canonical contextual presentation; original form preserved as legacy | Condo producer source/evidence comparison pending |
+| 408 `/tech/` | A/G | Existing public page retained; separate Tech branch staged | Activate only after Condo gate; no profession scoring |
 | 408 `/teachers/`, `/healthcare/`, `/engineers/` | A/G | Existing pages retained | After Tech certification |
 | 408 `/auto-bundle/` | A/G | Existing flow retained | Bundle transfer/appointment compatibility |
 | 408 `/auto` | H/F | No assumed new public canonical route | Existing registry/preview only |

@@ -1,6 +1,6 @@
 # Canonical web → Signal Continue continuity
 
-2026-09-26. Local certification **PASS WITH LIMITATION**; overall entry rollout remains **BLOCKED** on the hosted 408 transport gate.
+2026-09-26. Local certification **PASS WITH LIMITATION**; current rollout gate is Condo hosted producer-evidence certification; see ENTRY-READINESS-1.0. The former transport gate is resolved.
 
 ## Eligibility and identity
 
@@ -47,4 +47,4 @@ Provider sends in new integration tests are explicitly stubbed. No real SMS was 
 
 After an interrupted producer call, open an eligible WEB / DIRECT opportunity, choose Continue async, confirm interest and async preference, prepare the draft, review, then approve. Keep a clear callback or Future Bind as its existing action. Completion appears on the same opportunity; no answer copying is required.
 
-No district cohort or priority weights changed. No autonomous link sending, reminders or AgencyZoom writes were added. The hosted 408 presentation failure is separate and still blocks public route activation; inspect the existing entry_presentation_upstream_failure runtime log before changing configuration.
+No district cohort or priority weights changed. No autonomous link sending, reminders or AgencyZoom writes were added. Home, Buyer and Condo are active after the transport fix. Hosted cross-channel/provider certification remains outstanding; do not request the superseded transport diagnostic.

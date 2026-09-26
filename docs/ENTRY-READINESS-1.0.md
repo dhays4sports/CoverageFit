@@ -1,82 +1,79 @@
-# Current entry readiness — 2026-09-26
+# ENTRY-ARCHITECTURE-1.0 — current readiness
 
-**PASS WITH LIMITATION for implemented transport/resume; full mandate remains incomplete.**
+Reconciled 2026-09-26 against canonical mains. This replaces obsolete transport and activation checkpoints. **Overall: BLOCKED at Condo hosted producer-evidence certification. Not complete; not pilot launch approval.**
 
-- Cloudflare transport resolved using manual redirect rejection; user and hosted browser confirmed working candidate.
-- Home is live. Hosted existing session: next answer saved, early researching completion, reload retained completion.
-- Home compatibility appointment page now opens and advances to step 2. Prior asset normalization defect resolved.
-- Fresh visitor Home first-answer hosted certification remains pending: available browser has an existing secure review cookie and no supported isolated-context capability. Do not treat resume as fresh-entry evidence.
-- Buyer compatibility copy and canonical link prepared; Buyer public activation remains off pending Home gate.
-- CoverageFit 296 tests pass; 408FARMERS 34 tests pass; zero fail/skip.
-- Local fresh Home session/attribution and buyer-to-Continue tests pass. Hosted producer receipt, provider send, cross-channel identity, mobile widths and fresh-entry checks remain unverified.
-- No configuration, schema, cohort, scoring, CRM or autonomous SMS change.
+CoverageFit implementation baseline: `b130948bd68d34f48dc0d7c0ea147ed6a0929be9` (tree `bd1e87c910df3ff164e14d893eecabee3b260ac2`). 408finneas main: `d7041f5e4565252c5b212dd38648de419b1bd21b`. This documentation commit follows that CoverageFit baseline; no runtime change.
 
-Next exact check: open https://408farmers.com/home/ in a private browser, verify an immediate Home shopping-reason question, choose an answer, then reload and verify the next question remains. No contact details or SMS needed. This addresses fresh-session certification only; producer receipt remains separate.
+Home, Buyer and Condo are active. Tech remains a separate staged branch, not main. Later affinity routes and QR interception remain inactive. Transport failure is resolved; no further Cloudflare diagnostic/configuration request is outstanding for it. Historical first-party URLs and specialized Life/commercial flows are preserved.
 
-## Historical checkpoint (superseded by the current status above)
+## Condo gate
 
-# Entry Architecture 1.0 — readiness checkpoint
-
-2026-09-26. **BLOCKED — partial implementation, not launch approval.**
-
-The direct CoverageFit entry works in hosted browser testing. The 408 worker could not retrieve its canonical presentation in production, despite the endpoint rendering directly. Its fallback appeared. Home activation was paused and the original Home consumer experience was verified restored. No claim of bot detection, binding failure, or configuration root cause is made. Other route conversions are gated by the requested Home-first certification sequence.
-
-| Required item | Classification | Evidence / limitation |
+| Check | Status | Evidence |
 |---|---|---|
-| CoverageFit code | PASS WITH LIMITATION | Base checkpoint 61845a4c93c315f66de0bfd2ad0d38f665debdf5; cross-channel continuation update follows (latest commit reported in delivery) |
-| 408FARMERS code | PASS WITH LIMITATION | 36242f57a29e4796eb88159f45f0162616df2661; safe diagnostic installed; public activation paused |
-| Routes audited | PASS WITH LIMITATION | Both repository route inventories, current source contracts, worker dispatch and known dependencies; external campaign traffic not fully observable |
-| Routes changed | PASS WITH LIMITATION | CF /begin and distribution APIs; 408 candidate /buyer/continue; Home adapter paused after canary failure; original Home retained |
-| Contextual 408 | BLOCKED | Thin adapter implemented/local tests pass; hosted upstream presentation fails |
-| Signal Continue | PASS WITH LIMITATION | Existing eligibility/review-first preserved; exact canonical WEB_DIRECT relationship now supported and locally tested; hosted provider canary pending |
-| Paid/direct mode | PASS WITH LIMITATION | /begin renders directly with Producer/agency/license, no 408 hop; contact-to-producer hosted receipt not tested |
-| No empty click | PASS WITH LIMITATION | Immediate question on hosted direct entry; same implementation ready for contextual route, not activated |
-| Acquisition contract | PASS WITH LIMITATION | Normalized bounded metadata, source/campaign/variant/UTM/partner/referral/market/contact/evidence; no guessed consent |
-| Source vs intent | PASS | Buyer framing gives no priority increment; audience and QR market remain attribution; local regression |
-| ZERO-REPEAT | PASS WITH LIMITATION | Known evidence/Back/resume locally; hosted first answer survives navigation; local end-to-end web → Continue certified; hosted cross-channel not certified |
-| Same opportunity | PASS WITH LIMITATION | SQLite retry/contact projection uses one checkpoint/opportunity; independent anonymous channels not guessed/merged |
-| First-touch | PASS WITH LIMITATION | Immutable original attribution; resumed event uses it; Continue current channel recorded after approved send; original source unchanged |
-| Affinity governance | PASS | No profession input from new entry contract and no source-derived scoring; old affinity routes retained |
-| QR | PASS WITH LIMITATION | Strict parser/contract tested; no public QR activation |
-| Paid framework | PASS WITH LIMITATION | Canonical direct template and Meta attribution; no paid campaigns launched or outcomes claimed |
-| Producer source display | PASS WITH LIMITATION | Separate acquisition context panel deployed; authenticated hosted receipt not certified |
-| District pilot | PASS | Full local regression suite; no assignment, weights, action-set or population changes |
-| SMS ownership | PASS WITH LIMITATION | Existing ownership/CONTROL/STOP regressions pass; no live provider SMS test in this pass |
-| Tests | PASS | CoverageFit 295 passed / 0 failed / 0 skipped; 408 29 top-level passed / 0 failed / 0 skipped |
-| Mobile/accessibility | PASS WITH LIMITATION | Semantic fieldsets, 46px controls, focus/status; hosted keyboard completion; 320/375/390/430px and screen-reader testing outstanding |
-| Performance | PASS WITH LIMITATION | Small shared renderer, SSR question, no producer bundle; no measured mobile performance score; upstream reliability blocks contextual rollout |
-| Hosted canaries | PASS WITH LIMITATION | Direct question → save → resume → second answer → early completion; 408 upstream failure and successful Home rollback; no customer data/SMS used |
-| Migrations/manual checkpoints | PASS WITH LIMITATION | No migration, data reset, secret or flag change. Runtime log inspection required; project is the Cloudflare Pages project serving 408farmers.com; exact dashboard project name not independently verified |
-| Unresolved risks | BLOCKED | Hosted upstream transport, real producer receipt, hosted WEB_DIRECT → Continue provider certification, mobile certification, source-outcome analytics, external dependency evidence |
-| Next phase | BLOCKED | Diagnose upstream with runtime evidence; certify Home end-to-end; then Buyer → Condo → Tech → other affinity → QR → direct paid validation |
+| Immediate fresh first question, no Start gate | PASS | User confirmed fresh/private Condo check in prior turn; existing-cookie browser is not represented as fresh |
+| Answer persistence and reload/resume | PASS | User confirmation plus hosted Back → Mostly researching → Saved → reload with completion retained, rechecked this reconciliation |
+| Consumer condo context | PASS | Hosted heading Condo insurance review with Dylan, Insurance Producer/agency/license, no property-type repeat |
+| Legacy compatibility | PASS WITH LIMITATION | Original form previously rendered hosted; compatibility URL still present; no real form submission by agent |
+| Producer receipt | PASS WITH LIMITATION | User submitted an internal test and confirmed arrival in Work; Pacific timestamps also explicitly confirmed |
+| Source attribution and submitted evidence on that record | BLOCKED | Local projection/evidence tests pass; authenticated hosted source, condo audience and exact submitted-answer comparison outstanding |
+| Gate to activate Tech | BLOCKED | Do not activate Tech until the preceding source/evidence comparison is certified |
 
-## Exact operator checkpoint
+No request to repeat already confirmed fresh-entry or timestamp checks. Next authenticated check: open the existing internal Condo record in Work → WEB / DIRECT, compare acquisition route/audience and saved web answers with that test, and confirm one opportunity. No customer-only certification, no access key in chat.
 
-Open the Cloudflare Pages project serving **408farmers.com**, enable its live function log view, and load the unlinked `/buyer/continue.html` candidate once. Capture only the `entry_presentation_upstream_failure` line (HTTP status and error type). Do not share tokens, cookies, request bodies or environment secrets. This diagnostic does not send SMS or create a lead. No variable or binding change is requested; there is no configuration rollback value because none was changed.
+## Section 52 — complete readiness report
 
-The current tools do not expose this external Cloudflare project's runtime logs. The entry adapter deliberately shows a safe consumer fallback instead of upstream details. Runtime evidence is needed before changing deployment configuration or the transport contract.
+| # | Item | Classification | Evidence / remaining work |
+|---|---|---|---|
+| 1 | CoverageFit SHA | PASS | Implementation baseline b130948bd68d34f48dc0d7c0ea147ed6a0929be9; documentation commit reported separately |
+| 2 | 408FARMERS SHA | PASS | d7041f5e4565252c5b212dd38648de419b1bd21b; unchanged |
+| 3 | Routes audited | PASS WITH LIMITATION | ENTRY-ROUTE-MATRIX and DISTRIBUTION-ROUTE-INVENTORY cover requested routes, API/state/handoff components; external campaigns and traffic not fully observable |
+| 4 | Routes changed | PASS | Active contextual /home, /buyer, /condo; legacy aliases retained; /buyer/continue diagnostic, CF /begin and distribution APIs; Tech staged only |
+| 5 | Contextual 408 mode | PASS WITH LIMITATION | Canonical SSR question/transport working on first three routes; Condo producer context comparison pending |
+| 6 | Signal Continue mode | PASS WITH LIMITATION | Existing eligibility/review-first and exact WEB_DIRECT relationship bridge tested; hosted same-opportunity/provider canary pending |
+| 7 | Paid/direct mode | PASS WITH LIMITATION | Hosted /begin immediate question and resume previously observed; complete Meta attribution-to-producer canary pending |
+| 8 | No-empty-click | PASS WITH LIMITATION | Active entries/direct template show useful question immediately; retained affinity routes not yet migrated; Continue trust gate not removed blindly |
+| 9 | Acquisition context | PASS WITH LIMITATION | Central bounded source/route/campaign/variant/UTM/partner/referral/audience/product/market/timestamp/contact/evidence contract; no invented consent; hosted receipt comparison pending |
+| 10 | Source versus intent | PASS | Local regressions isolate source, buyer framing, affinity and market from scoring; no weights/actions changed |
+| 11 | ZERO-REPEAT | PASS WITH LIMITATION | Known evidence, Back/resume and web-to-Continue local regressions; hosted cross-channel certification pending |
+| 12 | Same opportunity | PASS WITH LIMITATION | Canonical checkpoint/contact retry and exact identity link tested; no fuzzy merging of unrelated anonymous visitors; hosted cross-channel pending |
+| 13 | First touch | PASS WITH LIMITATION | Immutable origin, separate later channel; latest measurement fix reports historical rows by first touch; authenticated Analytics pending |
+| 14 | Affinity/profession | PASS WITH LIMITATION | New contract rejects profession authority/scoring inputs; old affinity presentations retained until their route gates |
+| 15 | QR framework | BLOCKED | Strict home/condo-market-campaign parser and contract tested, public activation gated after affinity certification |
+| 16 | Paid acquisition framework | PASS WITH LIMITATION | Reusable direct template/Meta context exists; no campaign launch or source-outcome result claimed |
+| 17 | Workspace source display | PASS WITH LIMITATION | Acquisition context and submitted web-answer provenance implemented; user confirms receipt/time, exact hosted evidence comparison pending |
+| 18 | District pilot regression | PASS WITH LIMITATION | Latest full local suite includes SIGNAL/CONTROL/WEB_DIRECT/OTHER safeguards; no live district provider certification in this pass |
+| 19 | SMS ownership | PASS WITH LIMITATION | CONTROL, suppression, unknown ownership, takeover and review-first regressions pass; live internal provider canary outstanding |
+| 20 | Tests | PASS | Latest recorded CF 304 passed / 0 failed / 0 skipped; 408 main 35 passed / 0 failed / 0 skipped (Tech branch 36, not main). Documentation-only reconciliation does not rerun unchanged suites |
+| 21 | Mobile/accessibility | BLOCKED | Semantics/focus/status and desktop keyboard checks exist; actual 320/375/390/430px and screen-reader checks outstanding; available browser advertises no viewport control |
+| 22 | Performance | PASS WITH LIMITATION | SSR trust/question, small shared client, no producer bundle; no measured slow-mobile benchmark |
+| 23 | Hosted canaries | PASS WITH LIMITATION | Home/Buyer hosted checks, user fresh Condo/receipt/time and agent resume; Tech onward gated; full provider/cross-channel/Analytics pending |
+| 24 | Migrations/manual checkpoints | PASS | No new schema, migration0019 reapply, data reset, variable/binding or SMS enablement. Authenticated evidence access is next checkpoint |
+| 25 | Unresolved risks | BLOCKED | Condo attribution/evidence receipt, route gates, mobile, hosted cross-channel/provider and Analytics verification; external dependencies not fully known |
+| 26 | Recommended next phase | BLOCKED | Certify existing Condo record → Tech → remaining affinity → QR → direct paid → mobile/accessibility → remaining producer/Continue → Analytics. Keep each later activation gated |
 
-## Rollback
+## Section 53 — every PASS criterion
 
-Both repositories retain `pre-entry-20260926`: CoverageFit 884476d01837d34facd6f1a35114bcddff9a8251; 408finneas 841977a5350312f2851318673642056dc78155ff. The Home activation has already been reverted through a forward commit. Further rollback should use normal revert commits, preserve records and old links, and stop adapter use before removing its canonical endpoints.
+| Criterion | Classification | Evidence / limitation |
+|---|---|---|
+| Contextual 408 begins with useful interaction | PASS WITH LIMITATION | Home/Buyer/Condo; remaining routes staged |
+| Unnecessary Start gates removed | PASS WITH LIMITATION | Converted entries/direct; not all retained affinity routes |
+| CoverageFit owns canonical decisioning | PASS | Converted adapter has transport/presentation only |
+| 408 does not duplicate Signal intelligence | PASS WITH LIMITATION | No duplicate engine in converted paths; legacy/lab dependencies remain documented, not mass-deleted |
+| Source context not high intent | PASS | Contract/engine regressions |
+| Affinity not propensity | PASS | New architecture keeps attribution separate, no scoring boost |
+| Route context reduces repeated questions | PASS WITH LIMITATION | Buyer/home/condo local and hosted flow evidence; cross-channel remaining |
+| Continue stays human-warm and separate | PASS WITH LIMITATION | Eligibility and review-first tested; hosted provider certification remaining |
+| Direct paid bypasses unnecessary408 hop | PASS | Hosted direct template works; full receipt is separately pending |
+| Original acquisition survives | PASS WITH LIMITATION | Local first-touch/Continue/measurement tests; hosted comparison pending |
+| No unnecessary duplicate opportunities | PASS WITH LIMITATION | Idempotent contact and exact identity local tests; hosted cross-channel remaining |
+| Cross-channel ZERO-REPEAT | PASS WITH LIMITATION | Local web/producer/Continue integration; hosted pending |
+| District pilot isolation | PASS WITH LIMITATION | Local regressions, no pilot doctrine changes; live certification not extended here |
+| No Farmers corporate confusion introduced | PASS WITH LIMITATION | Existing Producer/agency/license and tool framing retained; no new relationship claims or legal approval inferred |
+| Active links not broken | PASS WITH LIMITATION | Legacy compatibility preserved and representative hosted routes checked; exhaustive external links unavailable |
+| Mobile fast and usable | BLOCKED | Required viewport/slow-mobile verification outstanding |
 
-## Files / deliverables
+## Verification and rollback boundaries
 
-CoverageFit: server/{distribution-contract,distribution-journey,entry-presentation,signal-decision-core,acquisition-measurement}.mjs; functions/api/distribution/{events,interact,presentation}.js; functions/begin.js; _routes.json; assets/js/{entry-client.js,producer-workspace.mjs}; assets/css/distribution-check-in.css; agent/workspace/index.html; tests/distribution-journey.test.mjs; docs/ENTRY-ARCHITECTURE-1.0.md; docs/ENTRY-ROUTE-MATRIX-1.0.md; docs/ENTRY-READINESS-1.0.md; historical distribution documentation annotations.
+Producer Workspace in the available browser says Not connected. A secure supported connection or operator evidence is needed for the existing internal record; user confirmation of receipt alone is not proof of exact source/evidence. Do not solicit secrets in chat. A reused anonymous browser session is not evidence of a fresh session or cross-channel identity.
 
-408finneas: _worker.js; _routes.json; server/entry-presentation-proxy.mjs; home/legacy.html; tests/entry-presentation.test.mjs; docs/ENTRY-ARCHITECTURE-1.0.md.
-
-The architecture document includes acquisition/presentation contracts, no-empty-click and source-vs-intent doctrines, QR/direct specifications, ZERO-REPEAT boundaries, measurement limitations, migration/rollback and production QA. Route matrix covers classification/dependency/deprecation decisions. No routes or repositories deleted.
-
-## Resume increment
-
-See ENTRY-CONTINUITY-1.0.md for the new exact-relationship web continuation adapter, source hydration, first-touch preservation and 12 added regressions. The hosted 408 candidate still renders its safe upstream-failure fallback; no route was newly activated in this increment. Cloudflare runtime evidence remains the next transport checkpoint.
-
-## Latest staged rollout update
-Dylan confirmed fresh private-browser Home answer/reload. Buyer public activation
-78cd720 is live; hosted Back, answer save and result reload verified, with original
-Buyer form reachable. Condo conversion follows: same canonical question engine,
-condo acquisition context retained without intent boost, original form preserved.
-297 CoverageFit / 35 408 tests pass. Condo hosted verification pending deployment;
-Tech and all subsequent routes remain inactive. Hosted producer receipt and
-mobile-width certification remain outstanding; this is not full mandate PASS.
+No runtime edits or activations in this reconciliation. If later activation fails, revert only that route's active-set change, preserve original index/legacy routes and records, and retain canonical APIs needed by prior active routes. Do not revert unrelated pilot work. No autonomous SMS, CRM writes, fabricated outcomes, scoring changes or route deletion are authorized by this report.
