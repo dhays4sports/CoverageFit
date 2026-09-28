@@ -1,10 +1,12 @@
 # ENTRY-ARCHITECTURE-1.0 — current readiness
 
-Reconciled 2026-09-26 against canonical mains. This replaces obsolete transport and activation checkpoints. **Overall: BLOCKED at Healthcare hosted certification. Not complete; not pilot launch approval.**
+Reconciled 2026-09-28 against CoverageFit main `ff55d5453f69cbf33067ea1871bcfd0f696ddaca` and 408finneas main `8651cf15e30b91e30b48b58164c6bf566c655ccd`, before this QR increment. **Overall: PASS WITH LIMITATION for repository implementation; mandate remains incomplete.**
 
-CoverageFit implementation baseline: `b130948bd68d34f48dc0d7c0ea147ed6a0929be9` (tree `bd1e87c910df3ff164e14d893eecabee3b260ac2`). 408finneas main: `d7041f5e4565252c5b212dd38648de419b1bd21b`. This documentation commit follows that CoverageFit baseline; no runtime change.
+Home, Buyer, Condo, Tech and Teachers have hosted gate evidence recorded below. Healthcare is active; the operator explicitly waived further hosted testing to conserve credits. Its status is PASS WITH LIMITATION, not tested PASS. Engineers activation is explicitly deferred by the operator; preserve its existing route and keep the new adapter inactive. These scope changes supersede older sequential gate notes.
 
-Home, Buyer and Condo are active. Tech is now promoted after Condo hosted certification. Later affinity routes and QR interception remain inactive. Transport failure is resolved; no further Cloudflare diagnostic/configuration request is outstanding for it. Historical first-party URLs and specialized Life/commercial flows are preserved.
+This increment activates only validated Home/Condo QR presentations after the QR producer-receipt regression passes. Hosted QR and paid attribution/receipt, mobile widths, hosted cross-channel/provider and outcome verification remain outstanding. No Cloudflare configuration or migration is required. Historical notes below are chronology, not current activation instructions.
+
+See ENTRY-QR-1.0.md for the QR contract, SQL compatibility limitation and rollback.
 
 ## Condo gate
 
@@ -38,24 +40,24 @@ No request to repeat already confirmed fresh-entry or timestamp checks. Condo au
 | 12 | Same opportunity | PASS WITH LIMITATION | Canonical checkpoint/contact retry and exact identity link tested; no fuzzy merging of unrelated anonymous visitors; hosted cross-channel pending |
 | 13 | First touch | PASS WITH LIMITATION | Immutable origin, separate later channel; latest measurement fix reports historical rows by first touch; hosted source row and missing-denominator behavior observed; outcome/cross-channel comparison pending |
 | 14 | Affinity/profession | PASS WITH LIMITATION | New contract rejects profession authority/scoring inputs; old affinity presentations retained until their route gates |
-| 15 | QR framework | BLOCKED | Strict home/condo-market-campaign parser and contract tested, public activation gated after affinity certification |
+| 15 | QR framework | PASS WITH LIMITATION | Validated home/condo QR activation prepared; full local producer receipt passes. Hosted certification next; Engineers excluded by operator |
 | 16 | Paid acquisition framework | PASS WITH LIMITATION | Reusable direct template/Meta context exists; no campaign launch or source-outcome result claimed |
 | 17 | Workspace source display | PASS WITH LIMITATION | Acquisition context and submitted web-answer provenance implemented; user confirms receipt/time, exact hosted evidence comparison pending |
 | 18 | District pilot regression | PASS WITH LIMITATION | Latest full local suite includes SIGNAL/CONTROL/WEB_DIRECT/OTHER safeguards; no live district provider certification in this pass |
 | 19 | SMS ownership | PASS WITH LIMITATION | CONTROL, suppression, unknown ownership, takeover and review-first regressions pass; live internal provider canary outstanding |
-| 20 | Tests | PASS | Latest recorded CF 308 passed / 0 failed / 0 skipped; 408 main 36 passed / 0 failed / 0 skipped (Tech branch 36, not main). Full suite rerun after Condo receipt regression and hosted-discovered economics null correction |
+| 20 | Tests | PASS | CF 312 passed / 0 failed / 0 skipped; 408 39 passed / 0 failed / 0 skipped. Includes QR persisted producer attribution and existing SQL constraint regression |
 | 21 | Mobile/accessibility | BLOCKED | Semantics/focus/status and desktop keyboard checks exist; actual 320/375/390/430px and screen-reader checks outstanding; available browser advertises no viewport control |
 | 22 | Performance | PASS WITH LIMITATION | SSR trust/question, small shared client, no producer bundle; no measured slow-mobile benchmark |
-| 23 | Hosted canaries | PASS WITH LIMITATION | Home/Buyer hosted checks, user fresh Condo/receipt/time and agent resume; Tech onward gated; full provider/cross-channel/Analytics pending |
+| 23 | Hosted canaries | PASS WITH LIMITATION | Home/Buyer/Condo/Tech/Teachers evidence below; Healthcare hosted waived; QR/paid/provider/cross-channel/Analytics pending |
 | 24 | Migrations/manual checkpoints | PASS | No new schema, migration0019 reapply, data reset, variable/binding or SMS enablement. Authenticated evidence access is next checkpoint |
-| 25 | Unresolved risks | BLOCKED | Tech and later route gates, mobile, hosted cross-channel/provider and Analytics verification; external dependencies not fully known |
-| 26 | Recommended next phase | BLOCKED | Certify Tech → remaining affinity → QR → direct paid → mobile/accessibility → remaining producer/Continue → Analytics. Keep each later activation gated |
+| 25 | Unresolved risks | BLOCKED | QR/paid hosted gates, mobile, hosted cross-channel/provider and Analytics verification; external dependencies not fully known |
+| 26 | Recommended next phase | BLOCKED | QR hosted → direct paid hosted → mobile/accessibility → remaining producer/Continue → Analytics. Healthcare hosted waived; Engineers deferred |
 
 ## Section 53 — every PASS criterion
 
 | Criterion | Classification | Evidence / limitation |
 |---|---|---|
-| Contextual 408 begins with useful interaction | PASS WITH LIMITATION | Home/Buyer/Condo; remaining routes staged |
+| Contextual 408 begins with useful interaction | PASS WITH LIMITATION | Home/Buyer/Condo/Tech/Teachers certified; Healthcare hosted waived; Engineers adapter inactive |
 | Unnecessary Start gates removed | PASS WITH LIMITATION | Converted entries/direct; not all retained affinity routes |
 | CoverageFit owns canonical decisioning | PASS | Converted adapter has transport/presentation only |
 | 408 does not duplicate Signal intelligence | PASS WITH LIMITATION | No duplicate engine in converted paths; legacy/lab dependencies remain documented, not mass-deleted |

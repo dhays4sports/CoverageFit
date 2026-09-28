@@ -84,7 +84,9 @@ export async function projectOpportunityAttribution(repo,opportunityId,touchInpu
   await repo.sql(`INSERT INTO cf_acq_opportunity_attribution(workspace_id,opportunity_id,source_family,source_key,campaign_id,campaign_variant,partner_id,batch_id,first_touch_json,latest_touch_json,attribution_basis,updated_at)
     VALUES(?,?,?,?,?,?,?,?,?,?,?,?)
     ON CONFLICT(workspace_id,opportunity_id) DO UPDATE SET source_family=excluded.source_family,source_key=excluded.source_key,campaign_id=excluded.campaign_id,campaign_variant=excluded.campaign_variant,partner_id=excluded.partner_id,batch_id=excluded.batch_id,latest_touch_json=excluded.latest_touch_json,attribution_basis=excluded.attribution_basis,updated_at=excluded.updated_at`,
-    repo.scope.workspace,opportunityId,primary.sourceFamily,primary.sourceKey,primary.campaignId,primary.campaignVariant,primary.partnerId,primary.batchId,JSON.stringify(first),JSON.stringify(touch),first.basis||touch.basis,at).run();
+    // Existing SQL CHECK predates QR. Canonical first-touch JSON remains authoritative
+    // for reporting; only the compatibility index uses the existing other bucket.
+    repo.scope.workspace,opportunityId,primary.sourceFamily==='qr'?'other':primary.sourceFamily,primary.sourceKey,primary.campaignId,primary.campaignVariant,primary.partnerId,primary.batchId,JSON.stringify(first),JSON.stringify(touch),first.basis||touch.basis,at).run();
   return {firstTouch:first,latestTouch:touch,...primary};
 }
 

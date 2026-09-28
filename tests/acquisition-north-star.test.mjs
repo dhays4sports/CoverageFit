@@ -81,3 +81,11 @@ test('partial effort coverage does not produce misleading efficiency ratios',asy
  assert.ok(report.warnings.some(w=>w.includes('incomplete')));
  }finally{f.db.close();}
 });
+
+test('QR preserves canonical reporting while fitting the existing SQL family constraint',async()=>{
+ const f=fixture();try{
+  await projectOpportunityAttribution(f.repo,'op',{sourceFamily:'qr',sourceKey:'web_408_home',landingPage:'/home/qr/95118/rate',campaignId:'home_qr_95118_rate'});
+  const stored=f.db.prepare('SELECT * FROM cf_acq_opportunity_attribution').get();assert.equal(stored.source_family,'other');assert.equal(JSON.parse(stored.first_touch_json).sourceFamily,'qr');
+  const report=await acquisitionMeasurement(f.repo).summary();assert.equal(report.groups[0].sourceFamily,'qr');assert.equal(report.families[0].sourceFamily,'qr');
+ }finally{f.db.close();}
+});

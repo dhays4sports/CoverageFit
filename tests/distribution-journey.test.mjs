@@ -239,3 +239,18 @@ test('Healthcare presentation starts with insurance evidence, not a profession g
  assert.doesNotMatch(html,/What kind of work|professional_role|income|salary/i);
  assert.throws(()=>normalizeDistribution({...handoff,evidence:{professionalProgram:'healthcare'}},new Date(now)));
 });
+
+test('QR first answer persists original campaign and market through producer receipt',async()=>{
+ const f=fixture();try{
+  const handoff={...input(),entry:'home',attribution:{},evidence:{},knownContext:{},qr:{market:'95118',campaign:'rate'}};
+  const first=distributionPresentation(handoff,new Date(now));assert.equal(first.question.id,'home_trigger');
+  const response=await distributionInteract(req('interact',{action:'start',handoff,questionId:first.question.id,code:'renewal_change'}),f);assert.equal(response.status,200);
+  const state=await response.json(),cookie=response.headers.get('set-cookie').split(';')[0];
+  const resumed=await distributionJourney(req('journey',{action:'load'},cookie),f);assert.equal((await resumed.json()).question.id,state.question.id);
+  const contact=await distributionJourney(req('journey',{action:'contact',revision:state.revision,name:'Synthetic QR Canary',phone:'2025550194',mode:'call',permission:true},cookie),f);assert.equal(contact.status,200,await contact.clone().text());
+  const source=JSON.parse(f.sql.prepare("SELECT summary_json FROM cf_solo_sources WHERE kind='lead'").get().summary_json);
+  assert.equal(source.attribution.sourceFamily,'qr');assert.equal(source.attribution.landingPage,'/home/qr/95118/rate');assert.equal(source.attribution.campaignId,'home_qr_95118_rate');assert.equal(source.attribution.campaignVariant,'rate');
+  assert.equal(f.sql.prepare('SELECT count(*) n FROM cf_solo_opportunities').get().n,1);
+  const normalized=normalizeDistribution(handoff,new Date(now));assert.equal(normalized.marketContext,'95118');assert.deepEqual(normalized.evidence,{product:'home'});
+ }finally{f.sql.close();}
+});

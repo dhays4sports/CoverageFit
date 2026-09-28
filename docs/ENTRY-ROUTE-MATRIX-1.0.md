@@ -13,10 +13,10 @@ Classes: A CONTEXTUAL_408; B COVERAGEFIT_DIRECT; C SIGNAL_CONTINUE; D SPECIALIZE
 | 408 `/buyer/continue[.html]` | A/F | Earlier unlinked candidate now uses immediate-question presentation | No public promotion before certification |
 | 408 `/condo/` | A/G | Active canonical contextual presentation; original form preserved as legacy | Condo fresh source/evidence verified in authenticated Work |
 | 408 `/tech/` | A/G | Tech canonical entry promoted; original page retained as legacy | Condo gate passed; Tech hosted receipt certified; no profession scoring |
-| 408 `/teachers/`, `/healthcare/`, `/engineers/` | A/G | Teachers certified; Healthcare promoted with legacy retained; Engineers staged | Healthcare hosted gate before Engineers |
+| 408 `/teachers/`, `/healthcare/`, `/engineers/` | A/G | Teachers certified; Healthcare promoted with legacy retained; Engineers staged | Healthcare hosted test waived; Engineers activation explicitly deferred by operator |
 | 408 `/auto-bundle/` | A/G | Existing flow retained | Bundle transfer/appointment compatibility |
 | 408 `/auto` | H/F | No assumed new public canonical route | Existing registry/preview only |
-| 408 `/{home,condo}/qr/{market}/{campaign}` | A | Strict parser/contract implemented; interception inactive | Ordinary route certification first |
+| 408 `/{home,condo}/qr/{market}/{campaign}` | A | Strict parser/contract; validated Home/Condo QR interception activated in this increment | Hosted QR certification pending |
 | 408 `/life/`, `/life/thank-you.html` | D/G | Keep specialized application/consent/queue | No architectural collapse |
 | 408 business/commercial | D/H | Preview dependencies retained | No invented personal-lines conversion |
 | 408 thank-you pages | E/G | Keep compatibility | Existing form posts and old links |
