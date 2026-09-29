@@ -31,7 +31,7 @@ export function rawImporter(repo,env){const w=repo.scope.workspace,store=createS
   const fingerprint=await digest(JSON.stringify(eligible.map(x=>[x.row.source_id,x.row.opportunity_id,x.record.received_at,x.assignment.cohort,PILOT_ELIGIBILITY_DAYS])));
   return {fingerprint,eligible,skipped};
  }
- async function promote(v){
+ async function applyPromotions(v){
   if(v?.confirmed!==true)throw Error('Confirm promotion of currently eligible imported district leads');
   const p=await promotionCandidates();if(p.fingerprint!==v.fingerprint)throw Error('Refresh promotion preview before applying changes');
   const at=new Date().toISOString(),results=[];
@@ -92,7 +92,7 @@ export function rawImporter(repo,env){const w=repo.scope.workspace,store=createS
   return {fingerprint,rows};
  }
  return {async promotionPreview(){const p=await promotionCandidates();return {fingerprint:p.fingerprint,eligible:p.eligible.length,signal:p.eligible.filter(x=>x.assignment.cohort==='SIGNAL').length,control:p.eligible.filter(x=>x.assignment.cohort==='CONTROL').length,skipped:p.skipped.length,eligibility_days:PILOT_ELIGIBILITY_DAYS};},
- async promote(v){return promote(v);},
+ async promote(v){return applyPromotions(v);},
  async preview(v){const p=await prepare(v);return {...p,rows:p.rows.map(({facts,provenance,contact,conversation_id,lead_key_hash,...r})=>({...r,first_name:contact?.firstName||'',name:contact?.name||'',phone_status:/MALFORMED PHONE/.test(r.status)?'INVALID':contact?.mobile?'VALID':r.import_status==='NEEDS_REVIEW'?'NOT_EVALUATED':'MISSING'}))};},
  async commit(v){if(v.confirmed!==true||v.eligible!==true)throw Error('Confirm California personal-lines district inventory and original timestamp timezone once for this batch');const p=await prepare(v);if(p.fingerprint!==v.fingerprint)throw Error('Preview the exact files and corrections again before importing');const results=[];
   for(const r of p.rows){if(r.import_status!=='READY'){results.push({index:r.index,status:r.status,import_status:r.import_status,pilot_status:r.pilot_status,row_number:r.row_number,opportunity_id:r.opportunity_id||null});continue;}
