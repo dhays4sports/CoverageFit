@@ -1,5 +1,5 @@
 import {parseRawRows,RAW_VERSION,RAW_BATCH_LEADS} from './agencyzoom-raw.mjs';
-import {pilotAssignment,PILOT_ID,PILOT_KIND} from './district-pilot.mjs';
+import {pilotAssignment,PILOT_ID,PILOT_KIND,PILOT_ELIGIBILITY_DAYS,PILOT_ELIGIBILITY_MS} from './district-pilot.mjs';
 import {digest,parse} from './solo-desk-repository.mjs';
 import {smsLiveConversationId} from './sms-outbound-gateway.mjs';
 import {createSmsConversationStore} from './d1-json-store.mjs';
@@ -28,9 +28,9 @@ export function rawImporter(repo,env){const w=repo.scope.workspace,store=createS
     const age=Date.now()-Date.parse(lead.received_at);
     if(age<0){row.correction_fields=[];throw Error('FUTURE RECEIVED DATE: review source timestamp/timezone; do not replace it with today');}
     if(!['AUTO','HOME','HOME_AUTO'].includes(lead.line)){row.correction_fields=['line'];throw Error('UNSUPPORTED PRODUCT: California personal-lines Auto/Home/Bundle required');}
-    row.pilot_status=v.synthetic===true?'TEST':age>48*3600000?'INELIGIBLE_AGE':'ELIGIBLE_NEW_LEAD';
+    row.pilot_status=v.synthetic===true?'TEST':age>PILOT_ELIGIBILITY_MS?'INELIGIBLE_AGE':'ELIGIBLE_NEW_LEAD';
     row.cohort=row.pilot_status==='INELIGIBLE_AGE'?null:a.cohort;
-    if(row.pilot_status==='INELIGIBLE_AGE')row.status='READY — outside 48 hours; import outside NEW_LEAD pilot';
+    if(row.pilot_status==='INELIGIBLE_AGE')row.status=`READY — outside ${PILOT_ELIGIBILITY_DAYS} days; import outside NEW_LEAD pilot`;
     row.conversation_id=lead.contact.mobile?await smsLiveConversationId(lead.contact.mobile,env.RINGCENTRAL_FROM_NUMBER,env.RINGCENTRAL_CONVERSATION_HASH_SECRET):null;
     row.sms_link=row.conversation_id?'LINKABLE':lead.contact.mobile?'NOT_EVALUATED':'NOT_APPLICABLE';
     if(row.conversation_id){
