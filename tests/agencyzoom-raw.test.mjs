@@ -64,7 +64,7 @@ test('batch row isolation, 100-lead bound, Unicode byte limit, CSV quoted newlin
  }finally{f.sql.close()}
 });
 test('old leads import to OTHER, retain evidence, never enroll/project/send or become first-party',async()=>{
- const f=setup();try{const files=[awlFixture('auto-two')],p=await f.importer.preview({files});const row=p.rows[0];assert.equal(row.import_status,'READY');assert.equal(row.pilot_status,'INELIGIBLE_AGE');assert.equal(row.phone_status,'VALID');assert.equal(row.first_name,'Synthetic');assert.equal(row.cohort,null);assert.deepEqual(row.correction_fields,[]);
+ const f=setup();try{const old=awlFixture('auto-two');old.text=old.text.replace('2026-09-25 10:00:00','2020-01-01 10:00:00');const files=[old],p=await f.importer.preview({files});const row=p.rows[0];assert.equal(row.import_status,'READY');assert.equal(row.pilot_status,'INELIGIBLE_AGE');assert.equal(row.phone_status,'VALID');assert.equal(row.first_name,'Synthetic');assert.equal(row.cohort,null);assert.deepEqual(row.correction_fields,[]);
  const r=await f.importer.commit({files,fingerprint:p.fingerprint,confirmed:true,eligible:true});assert.equal(r.imported,1);assert.equal(r.outside_pilot,1);assert.equal(r.pilot_enrollments,0);assert.equal(r.sms_sent,0);assert.equal(f.refreshed.length,0);assert.equal((await f.pilot.report()).records.length,0);
  const id=r.results[0].opportunity_id,sources=f.sql.prepare('SELECT kind,summary_json FROM cf_solo_sources WHERE opportunity_id=?').all(id).map(x=>({kind:x.kind,summary:JSON.parse(x.summary_json)}));assert.equal(classifyPopulation(sources).population,'OTHER');const raw=sources.find(x=>x.kind==='district_raw_v2').summary;assert.equal(raw.cohort,null);assert.equal(raw.raw_facts.vehicle_count,2);
  const real=soloRepository(f.repo.db,f.repo.scope);assert.equal((await real.detail(id)).opportunityPriority,null);await real.backfillOpportunityPriority();assert.equal(await real.opportunityPriority(id),null);
@@ -95,11 +95,27 @@ test('legacy scalar RAW records remain unchanged on duplicate reimport',async()=
  }finally{f.sql.close()}
 });
 test('old district SMS hold preserves STOP and producer takeover precedence',async()=>{
- const f=setup();try{const files=[awlFixture('auto-one')],p=await f.importer.preview({files}),r=await f.importer.commit({files,fingerprint:p.fingerprint,confirmed:true,eligible:true});const record=JSON.parse(f.sql.prepare("SELECT summary_json FROM cf_solo_sources WHERE opportunity_id=? AND kind='district_raw_v2'").get(r.results[0].opportunity_id).summary_json),options={env:{...env,COVERAGEFIT_DB:f.repo.db,COVERAGEFIT_SOLO_WORKSPACE_ID:'qa'}},c={id:record.conversation_id};
+ const f=setup();try{const old=awlFixture('auto-one');old.text=old.text.replace('2026-09-25 10:00:00','2020-01-01 10:00:00');const files=[old],p=await f.importer.preview({files}),r=await f.importer.commit({files,fingerprint:p.fingerprint,confirmed:true,eligible:true});const record=JSON.parse(f.sql.prepare("SELECT summary_json FROM cf_solo_sources WHERE opportunity_id=? AND kind='district_raw_v2'").get(r.results[0].opportunity_id).summary_json),options={env:{...env,COVERAGEFIT_DB:f.repo.db,COVERAGEFIT_SOLO_WORKSPACE_ID:'qa'}},c={id:record.conversation_id};
  assert.equal((await resolveSmsOwnership(c,{body:'STOP'},options)).basis,'compliance');assert.equal((await resolveSmsOwnership({...c,orchestration:{ownership:{owner:'producer'}}},{},options)).owner,'PRODUCER_OWNED');
  }finally{f.sql.close()}
 });
 test('UI only offers actionable field corrections and clearly separates old inventory',async()=>{
- const f=setup();try{const rows=(await f.importer.preview({files:[awlFixture('home-shifted')]})).rows;const html=rawPreviewRowHTML(rows[0]);assert.match(html,/Outside NEW_LEAD/);assert.match(html,/VALID/);assert.ok(!html.includes('data-correction'));const bad=parseRawRows({name:'AWL-missing.csv',text:'Lead ID,Date,Lead Type,State\nmissing,unknown,Auto,CA'})[0];assert.deepEqual(bad.correction_fields,['received_at']);assert.match(rawPreviewRowHTML({index:0,row_number:2,...bad.lead,correction_fields:bad.correction_fields}),/Original received timestamp/);
+ const f=setup();try{const old=awlFixture('home-shifted');old.text=old.text.replace('2026-09-25 10:00:00','2020-01-01 10:00:00');const rows=(await f.importer.preview({files:[old]})).rows;const html=rawPreviewRowHTML(rows[0]);assert.match(html,/Outside NEW_LEAD/);assert.match(html,/VALID/);assert.ok(!html.includes('data-correction'));const bad=parseRawRows({name:'AWL-missing.csv',text:'Lead ID,Date,Lead Type,State\nmissing,unknown,Auto,CA'})[0];assert.deepEqual(bad.correction_fields,['received_at']);assert.match(rawPreviewRowHTML({index:0,row_number:2,...bad.lead,correction_fields:bad.correction_fields}),/Original received timestamp/);
+ }finally{f.sql.close()}
+});
+
+
+test('six-day district leads remain eligible for NEW_LEAD while eight-day leads stay outside',async()=>{
+ const f=setup();try{
+  const six=file('sixday','2025550177'),eight=file('eightday','2025550178');
+  const sixAt=new Date(Date.now()-6*24*3600000).toISOString(),eightAt=new Date(Date.now()-8*24*3600000).toISOString();
+  six.text=six.text.replace(/20\d\d-\d\d-\d\dT[^,]+/,sixAt);
+  eight.text=eight.text.replace(/20\d\d-\d\d-\d\dT[^,]+/,eightAt);
+  const p=await f.importer.preview({files:[six,eight]});
+  assert.equal(p.rows[0].pilot_status,'ELIGIBLE_NEW_LEAD');
+  assert.ok(['CONTROL','SIGNAL'].includes(p.rows[0].cohort));
+  assert.equal(p.rows[1].pilot_status,'INELIGIBLE_AGE');
+  assert.equal(p.rows[1].cohort,null);
+  assert.match(p.rows[1].status,/outside 7 days/i);
  }finally{f.sql.close()}
 });
