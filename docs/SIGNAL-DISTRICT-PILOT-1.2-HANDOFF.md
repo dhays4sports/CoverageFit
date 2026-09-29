@@ -78,3 +78,7 @@ The earlier manual-work audit's proposal to change the primary metric to minutes
 - Seven new RAW tests cover allowlist/prohibited fields, export quirks, ten-file import, independent file failure, deduplication, test denominators, phone conflicts, fingerprint confirmation, age boundary, actual priority projection, CONTROL exclusion and SMS zero-repeat/pilot-only hold.
 - Existing safety, compliance, idempotency, compact-review and rollback-on-effort-failure tests still pass.
 - No browser timing claim, no production deployment claim, no live provider-send claim.
+
+## AWL import update — 2026-09-28
+
+Use original RAW exports or supported same-schema batch CSVs (1–20 files, 100 leads total). `Import valid leads` separates ingestion from NEW_LEAD eligibility. Leads over 48 hours old keep their actual date, import outside the experiment, and appear in Work → OTHER. Do not relabel them synthetic or change timestamps. The mixed externally combined AWL schema requires source review; use originals. No SMS is sent by import. See COVERAGEFIT-AWL-IMPORT-HARDENING-1.0.md for supported defects, limits and safe rollback.

@@ -17,7 +17,8 @@ import {shotsBoard} from './shots-board.mjs';
 import {economicsService} from './economics-core.mjs';
 const json=(body,status=200)=>Response.json(body,{status,headers:{'Cache-Control':'private, no-store','Referrer-Policy':'no-referrer','X-Content-Type-Options':'nosniff','Content-Security-Policy':"default-src 'none'; frame-ancestors 'none'"}});
 async function body(request){
-  const limit=/\/(raw-(preview|import)|pilot-reconcile-(preview|apply))\/?$/.test(new URL(request.url).pathname)?320000:16000;
+  const pathname=new URL(request.url).pathname;
+  const limit=/\/raw-(preview|import)\/?$/.test(pathname)?2300000:/\/pilot-reconcile-(preview|apply)\/?$/.test(pathname)?320000:16000;
   if(!request.headers.get('content-type')?.includes('application/json'))fail(415,'content_type','A JSON request is required.');
   if(Number(request.headers.get('content-length')||0)>limit)fail(413,'size','Request exceeds the endpoint size limit.');
   const reader=request.body?.getReader();let text='',size=0;const decoder=new TextDecoder();

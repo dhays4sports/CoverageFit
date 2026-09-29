@@ -10,3 +10,11 @@ export async function districtSmsRecord(conversation,env={},store=null){
 }
 
 export async function districtSmsCohort(c,env={},store=null){return (await districtSmsRecord(c,env,store))?.cohort||null;}
+
+// Imported old inventory is linked for manual continuity, never a treatment enrollment.
+export async function districtRawRecord(conversation,env={}){
+ if(!env.COVERAGEFIT_DB||!conversation?.id)return null;
+ const r=await env.COVERAGEFIT_DB.prepare("SELECT summary_json FROM cf_solo_sources WHERE workspace_id=? AND kind='district_raw_v2' AND json_extract(summary_json,'$.conversation_id')=? LIMIT 2").bind(identity(env).workspace,conversation.id).all();
+ if((r.results||[]).length>1)throw Error('Conflicting imported SMS relationships');
+ return r.results?.length?parse(r.results[0].summary_json):null;
+}

@@ -34,3 +34,72 @@ test('synthetic system rehearsal: 10 CONTROL, 10 SIGNAL and silent batch through
   console.log('Synthetic machine rehearsal only: 20 worked + 10 silent; elapsed '+Math.round(performance.now()-start)+'ms. NOT a producer administrative-burden timing trial.');
  }finally{f.sql.close()}
 });
+
+import {parseRawRows,csvRows} from '../server/agencyzoom-raw.mjs';
+import {normalizeAwlText} from '../server/awl-normalization.mjs';
+import {resolveSmsOwnership} from '../server/sms-ownership.mjs';
+import {classifyPopulation} from '../server/producer-workspace.mjs';
+import {rawPreviewRowHTML} from '../assets/js/agencyzoom-import.mjs';
+const awlFixture=name=>({name:'AWL-'+name+'.csv',text:readFileSync(new URL('./fixtures/awl/'+name+'.csv',import.meta.url),'utf8')});
+const batchFile=files=>({name:'AWL-batch.csv',text:[files[0].text.split('\n')[0],...files.map(f=>f.text.split('\n').slice(1).join('\n'))].join('\n')});
+test('observed home placeholder and unlabeled padding align facts semantically, not just rectangularly',()=>{
+ const r=parseRaw(awlFixture('home-shifted'));assert.equal(r.facts.current_carrier,'Foremost');assert.equal(r.facts.renewal_date,'2027-04-01');assert.equal(r.line,'HOME');assert.equal(r.facts.property_type,'Single Family');assert.equal(r.facts.occupancy,'Owner');assert.equal(r.normalization_version,'AWL-NORM-1.0');assert.equal(r.schema,'AWL-HOME-64-1.0');assert.equal(r.provenance.current_carrier.source_fields[0].column,24);assert.ok(!JSON.stringify(r).includes('EXCLUDED_'));assert.ok(!JSON.stringify(r).includes('1990-01-01'));
+});
+for(const name of ['auto-one','auto-two'])test(`AWL repeated vehicle groups ${name} retain permitted evidence and zero-repeat count`,()=>{
+ const r=parseRaw(awlFixture(name)),n=name==='auto-one'?1:2;assert.equal(r.facts.vehicles.length,n);assert.equal(r.facts.vehicle_count,n);assert.equal(r.facts.vehicle,'2020 SYNTHETIC 1');assert.equal(r.facts.vehicles[0].liability_limits,'100/300');assert.equal(r.facts.current_carrier,'Foremost');assert.equal(r.facts.renewal_date,'2027-04-01');if(n===2)assert.equal(r.facts.vehicles[1].vehicle,'2020 SYNTHETIC 2');assert.ok(!JSON.stringify(r).includes('EXCLUDED_'));assert.ok(!JSON.stringify(r).includes('1990-01-01'));
+});
+test('numbered vehicle groups share the same collection contract',()=>{let f=awlFixture('auto-two'),n=0;f.text=f.text.replace(/Vehicle/g,x=>++n===2?'Vehicle (2)':x);assert.equal(parseRaw(f).facts.vehicle_count,2);});
+test('unproven home alignment and external union schema hold without repairing guesses',()=>{
+ const f=awlFixture('home-shifted');assert.match(parseRawRows({...f,text:f.text.replace('4/1/2027 12:00:00\u202fAM','Uncertain')})[0].error,/alignment unresolved/);
+ const union={name:'AWL-combined.csv',text:'Lead ID,Date,Lead Type,State,Cell Phone,Buyer Name,Buyerid,Renewal Date,Credit History\ncombined,2026-09-25 10:00:00,Home Insurance,CA,2025550187,,,Foremost,2027-04-01'};
+ const r=parseRawRows(union)[0];assert.match(r.error,/Combined AWL schema/);assert.equal(r.lead.lead_key,'awl:combined');assert.equal(r.lead.contact.mobile,'+12025550187');assert.equal(r.lead.facts,undefined);assert.deepEqual(r.correction_fields,[]);
+});
+test('unlabeled nonempty values are never mapped, and malformed quotes fail safely',()=>{
+ for(const text of ['Lead ID,Date,Lead Type,State,\nx,2026-09-25 10:00:00,Home,CA,unknown','Lead ID,Date\nx,"unclosed']){const r=parseRawRows({name:'AWL-test.csv',text})[0];assert.ok(r.error);assert.deepEqual(r.correction_fields,[]);}
+});
+test('batch row isolation, 100-lead bound, Unicode byte limit, CSV quoted newline',async()=>{
+ const f=setup();try{const good=file('batch1'),bad=file('batch2').text.replace(',CA,',',NV,'),files=[batchFile([good,{...good,text:bad},file('batch3','2025550188')])];const p=await f.importer.preview({files});assert.equal(p.rows.length,3);assert.equal(p.rows.filter(r=>r.import_status==='READY').length,2);assert.equal(p.rows[1].import_status,'NEEDS_REVIEW');assert.deepEqual(p.rows[1].correction_fields,['state']);const r=await f.importer.commit({files,fingerprint:p.fingerprint,confirmed:true,eligible:true});assert.equal(r.imported,2);assert.equal(r.needs_review,1);assert.equal(r.sms_sent,0);
+ const hundred=batchFile(Array.from({length:100},(_,i)=>file('limit'+i)));assert.equal(parseRawRows(hundred).length,100);assert.ok(parseRawRows(batchFile(Array.from({length:101},(_,i)=>file('limit'+i))))[0].error);
+ assert.match(parseRawRows({name:'x.csv',text:'é'.repeat(140000)})[0].error,/OVERSIZED/);assert.deepEqual(csvRows('a,b\n"one\ntwo","x,y"'),[['a','b'],['one\ntwo','x,y']]);
+ }finally{f.sql.close()}
+});
+test('old leads import to OTHER, retain evidence, never enroll/project/send or become first-party',async()=>{
+ const f=setup();try{const files=[awlFixture('auto-two')],p=await f.importer.preview({files});const row=p.rows[0];assert.equal(row.import_status,'READY');assert.equal(row.pilot_status,'INELIGIBLE_AGE');assert.equal(row.phone_status,'VALID');assert.equal(row.first_name,'Synthetic');assert.equal(row.cohort,null);assert.deepEqual(row.correction_fields,[]);
+ const r=await f.importer.commit({files,fingerprint:p.fingerprint,confirmed:true,eligible:true});assert.equal(r.imported,1);assert.equal(r.outside_pilot,1);assert.equal(r.pilot_enrollments,0);assert.equal(r.sms_sent,0);assert.equal(f.refreshed.length,0);assert.equal((await f.pilot.report()).records.length,0);
+ const id=r.results[0].opportunity_id,sources=f.sql.prepare('SELECT kind,summary_json FROM cf_solo_sources WHERE opportunity_id=?').all(id).map(x=>({kind:x.kind,summary:JSON.parse(x.summary_json)}));assert.equal(classifyPopulation(sources).population,'OTHER');const raw=sources.find(x=>x.kind==='district_raw_v2').summary;assert.equal(raw.cohort,null);assert.equal(raw.raw_facts.vehicle_count,2);
+ const real=soloRepository(f.repo.db,f.repo.scope);assert.equal((await real.detail(id)).opportunityPriority,null);await real.backfillOpportunityPriority();assert.equal(await real.opportunityPriority(id),null);
+ const owner=await resolveSmsOwnership({id:raw.conversation_id,outboundContext:{origin:'coveragefit',registrationId:'stale'}},{},{env:{...env,COVERAGEFIT_DB:f.repo.db,COVERAGEFIT_SOLO_WORKSPACE_ID:'qa'}});assert.equal(owner.basis,'district_inventory_outside_pilot');assert.equal(owner.hold,true);
+ const retry=await f.importer.commit({files,fingerprint:p.fingerprint,confirmed:true,eligible:true});assert.equal(retry.imported,0);assert.equal(retry.duplicates,1);
+ await assert.rejects(f.pilot.enroll({id,eligible:true,lead_key:raw.source_lead_key,received_at:f.received},'cannot-promote'),/outside the fresh-lead pilot/);
+ await assert.rejects(f.pilot.enroll({id:'one',eligible:true,lead_key:raw.source_lead_key,received_at:f.received},'cannot-rekey-opportunity'),/stable source was imported outside/);
+ const test=await f.importer.preview({files,synthetic:true});assert.match(test.rows[0].status,/PHASE CONFLICT/);
+ }finally{f.sql.close()}
+});
+test('future timestamps hold with retained identity and actionable correction; missing phone is not parser failure',async()=>{
+ const f=setup();try{const future=file('future');future.text=future.text.replace(/20\d\d-\d\d-\d\dT[^,]+/,new Date(Date.now()+86400000).toISOString());const p=await f.importer.preview({files:[future,{name:'broken.csv',text:'broken'}]});assert.match(p.rows[0].status,/FUTURE/);assert.equal(p.rows[0].lead_key,'awl:future');assert.equal(p.rows[0].phone_status,'VALID');assert.equal(p.rows[0].sms_link,'NOT_EVALUATED');assert.equal(p.rows[1].phone_status,'NOT_EVALUATED');assert.ok(!rawPreviewRowHTML(p.rows[1]).includes('MISSING'));assert.ok(!rawPreviewRowHTML(p.rows[1]).includes('Resolve this field'));const r=await f.importer.commit({files:[future,{name:'broken.csv',text:'broken'}],fingerprint:p.fingerprint,confirmed:true,eligible:true});assert.equal(r.imported,0);
+ }finally{f.sql.close()}
+});
+test('valid source identities and dates cannot be overridden to shop cohorts or eligibility',()=>{
+ const f=awlFixture('auto-one');assert.match(parseRawRows({...f,corrections:{lead_key:'awl:new'}})[0].error,/cannot be overridden/);assert.match(parseRawRows({...f,corrections:{received_at:new Date().toISOString()}})[0].error,/cannot be changed/);
+});
+test('optional date validation retains identity, phone and source instead of blanking preview',()=>{
+ const f=file('badrenewal');f.text=f.text.replace('2026-12-31','Not a date');const r=parseRawRows(f)[0];assert.match(r.error,/DATE/);assert.equal(r.lead.lead_key,'awl:badrenewal');assert.equal(r.lead.contact.mobile,'+12025550199');assert.deepEqual(r.correction_fields,[]);
+});
+test('same-key contradictory rows block both rather than silently choosing a cohort input',async()=>{
+ const f=setup();try{const files=[file('same','2025550181'),file('same','2025550182')];const p=await f.importer.preview({files});assert.ok(p.rows.every(r=>r.import_status==='NEEDS_REVIEW'));assert.equal((await f.importer.commit({files,fingerprint:p.fingerprint,confirmed:true,eligible:true})).imported,0);}finally{f.sql.close()}
+});
+test('legacy scalar RAW records remain unchanged on duplicate reimport',async()=>{
+ const f=setup();try{const files=[file('legacy')],p=await f.importer.preview({files}),r=await f.importer.commit({files,fingerprint:p.fingerprint,confirmed:true,eligible:true}),id=r.results[0].opportunity_id;
+ const before=f.sql.prepare("SELECT source_id,summary_json FROM cf_solo_sources WHERE opportunity_id=? AND kind='district_pilot_v1'").get(id),legacy=JSON.parse(before.summary_json);legacy.mapping_version='AZ-RAW-1.0';legacy.raw_facts.vehicle='2018 SYNTHETIC LEGACY';delete legacy.raw_facts.vehicles;legacy.received_at='2020-01-01T00:00:00Z';f.sql.prepare("UPDATE cf_solo_sources SET summary_json=? WHERE source_id=? AND kind='district_pilot_v1'").run(JSON.stringify(legacy),before.source_id);
+ const p2=await f.importer.preview({files});assert.equal(p2.rows[0].import_status,'DUPLICATE');assert.equal(p2.rows[0].pilot_status,'ALREADY_ENROLLED');assert.equal(p2.rows[0].cohort,legacy.cohort);assert.equal((await f.importer.commit({files,fingerprint:p2.fingerprint,confirmed:true,eligible:true})).imported,0);assert.deepEqual(JSON.parse(f.sql.prepare("SELECT summary_json FROM cf_solo_sources WHERE source_id=? AND kind='district_pilot_v1'").get(before.source_id).summary_json),legacy);
+ }finally{f.sql.close()}
+});
+test('old district SMS hold preserves STOP and producer takeover precedence',async()=>{
+ const f=setup();try{const files=[awlFixture('auto-one')],p=await f.importer.preview({files}),r=await f.importer.commit({files,fingerprint:p.fingerprint,confirmed:true,eligible:true});const record=JSON.parse(f.sql.prepare("SELECT summary_json FROM cf_solo_sources WHERE opportunity_id=? AND kind='district_raw_v2'").get(r.results[0].opportunity_id).summary_json),options={env:{...env,COVERAGEFIT_DB:f.repo.db,COVERAGEFIT_SOLO_WORKSPACE_ID:'qa'}},c={id:record.conversation_id};
+ assert.equal((await resolveSmsOwnership(c,{body:'STOP'},options)).basis,'compliance');assert.equal((await resolveSmsOwnership({...c,orchestration:{ownership:{owner:'producer'}}},{},options)).owner,'PRODUCER_OWNED');
+ }finally{f.sql.close()}
+});
+test('UI only offers actionable field corrections and clearly separates old inventory',async()=>{
+ const f=setup();try{const rows=(await f.importer.preview({files:[awlFixture('home-shifted')]})).rows;const html=rawPreviewRowHTML(rows[0]);assert.match(html,/Outside NEW_LEAD/);assert.match(html,/VALID/);assert.ok(!html.includes('data-correction'));const bad=parseRawRows({name:'AWL-missing.csv',text:'Lead ID,Date,Lead Type,State\nmissing,unknown,Auto,CA'})[0];assert.deepEqual(bad.correction_fields,['received_at']);assert.match(rawPreviewRowHTML({index:0,row_number:2,...bad.lead,correction_fields:bad.correction_fields}),/Original received timestamp/);
+ }finally{f.sql.close()}
+});

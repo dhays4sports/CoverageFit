@@ -1,5 +1,5 @@
 import {compliance,matchingTemplates,DEFAULT_TEMPLATES} from './sms-signal-core.mjs';
-import {districtSmsRecord} from './district-pilot-sms.mjs';
+import {districtSmsRecord,districtRawRecord} from './district-pilot-sms.mjs';
 import {smsAutomationPaused} from './sms-safety-core.mjs';
 
 // Relationship ownership is independent of feature activation, intent and consent.
@@ -22,6 +22,7 @@ export async function resolveSmsOwnership(c={},event={},options={}) {
  try{pilot=await districtSmsRecord(c,options.env,options.store);}catch{return result('UNKNOWN','enrollment_lookup_failed',{hold:true});}
  if(pilot?.cohort==='CONTROL')return result('DISTRICT_CONTROL','pilot_enrollment',{hold:true});
  if(pilot?.cohort==='SIGNAL'&&pilot.pilot_id==='SIGNAL_DISTRICT_PILOT_1'&&['NEW_LEAD','TEST'].includes(pilot.pilot_phase))return result('DISTRICT_SIGNAL','pilot_enrollment',{hold:false,pilot_phase:pilot.pilot_phase});
+ try{if(await districtRawRecord(c,options.env))return result('UNKNOWN','district_inventory_outside_pilot',{hold:true});}catch{return result('UNKNOWN','enrollment_lookup_failed',{hold:true});}
  const candidates=[...(c.transcript||[])].reverse().filter(x=>x.direction==='outbound'&&!['automation','automation_retry','appointment','service','life','commercial','system'].includes(x.kind)).map(x=>matchingTemplates(x.body,options.templates||DEFAULT_TEMPLATES)).find(x=>x.length);
  const agencyzoom_context=(candidates?.length===1?candidates[0].template_id:null)||c.smsOwnership?.agencyzoom_context;
  if(candidates?.length>1)return result('UNKNOWN','ambiguous_outbound_context',{hold:true});
@@ -31,6 +32,7 @@ export async function resolveSmsOwnership(c={},event={},options={}) {
  return result('UNKNOWN','no_positive_ownership_evidence',{hold:true});
 }
 export function ownershipLabel(o={}) {
+ if(o.basis==='district_inventory_outside_pilot')return 'District lead — outside pilot / manual handling';
  if(o.basis==='agencyzoom_pending_enrollment')return 'AgencyZoom lead — awaiting pilot enrollment';
  return ({DISTRICT_SIGNAL:'SIGNAL',DISTRICT_CONTROL:'CONTROL',FIRST_PARTY_408:'WEB / DIRECT',PRODUCER_OWNED:'Producer handling'})[o.owner]||'Unclassified SMS — manual review';
 }
