@@ -7,6 +7,52 @@ import {CONTROL_PREFIX} from './district-control-roster.mjs';
 export const RAW_KIND='district_raw_v2';
 const msg=e=>String(e.message||'Import failed').slice(0,240);
 export function rawImporter(repo,env){const w=repo.scope.workspace,store=createSmsConversationStore(repo.db);
+ async function promotionCandidates(){
+  const found=await repo.rows('SELECT source_id,opportunity_id,summary_json FROM cf_solo_sources WHERE workspace_id=? AND kind=? ORDER BY updated_at,source_id LIMIT 501',w,RAW_KIND);
+  if(found.length>500)throw Error('Promotion review exceeds 500 imported district leads; narrow the migration before continuing');
+  const now=Date.now(),eligible=[],skipped=[];
+  for(const row of found){
+   const record=parse(row.summary_json),received=Date.parse(record.received_at||'');
+   if(!Number.isFinite(received)){skipped.push({opportunity_id:row.opportunity_id,reason:'INVALID_RECEIVED_AT'});continue;}
+   const age=now-received;
+   if(age<0||age>PILOT_ELIGIBILITY_MS){skipped.push({opportunity_id:row.opportunity_id,reason:'OUTSIDE_CURRENT_WINDOW'});continue;}
+   if(record.pilot_status!=='INELIGIBLE_AGE'||!record.source_lead_key){skipped.push({opportunity_id:row.opportunity_id,reason:'NOT_LEGACY_AGE_HOLD'});continue;}
+   const a=await pilotAssignment(record.source_lead_key);
+   if(a.lead_key_hash!==row.source_id){skipped.push({opportunity_id:row.opportunity_id,reason:'IDENTITY_MISMATCH'});continue;}
+   const existing=await repo.sql('SELECT 1 FROM cf_solo_sources WHERE workspace_id=? AND kind=? AND (source_id=? OR opportunity_id=?)',w,PILOT_KIND,row.source_id,row.opportunity_id).first();
+   if(existing){skipped.push({opportunity_id:row.opportunity_id,reason:'ALREADY_ENROLLED'});continue;}
+   if(record.conversation_id){
+    const linked=await repo.sql("SELECT 1 FROM cf_solo_sources WHERE workspace_id=? AND kind=? AND json_extract(summary_json,'$.conversation_id')=? LIMIT 1",w,PILOT_KIND,record.conversation_id).first();
+    if(linked){skipped.push({opportunity_id:row.opportunity_id,reason:'SMS_RELATIONSHIP_CONFLICT'});continue;}
+    if(a.cohort==='SIGNAL'&&await store.get(CONTROL_PREFIX+record.conversation_id)){skipped.push({opportunity_id:row.opportunity_id,reason:'CONTROL_EXCLUSION_CONFLICT'});continue;}
+   }
+   eligible.push({row,record,assignment:a});
+  }
+  const fingerprint=await digest(JSON.stringify(eligible.map(x=>[x.row.source_id,x.row.opportunity_id,x.record.received_at,x.assignment.cohort,PILOT_ELIGIBILITY_DAYS])));
+  return {fingerprint,eligible,skipped};
+ }
+ async function promote(v){
+  if(v?.confirmed!==true)throw Error('Confirm promotion of currently eligible imported district leads');
+  const p=await promotionCandidates();if(p.fingerprint!==v.fingerprint)throw Error('Refresh promotion preview before applying changes');
+  const at=new Date().toISOString(),results=[];
+  for(const item of p.eligible){
+   const {row,record,assignment:a}=item;
+   const next={...record,pilot_id:PILOT_ID,pilot_phase:'NEW_LEAD',pilot_status:'ELIGIBLE_NEW_LEAD',cohort:a.cohort,enrollment_date:at,version:record.version||1,promotion:{from_kind:RAW_KIND,from_status:'INELIGIBLE_AGE',reason:'eligibility_window_extended',eligibility_window_days:PILOT_ELIGIBILITY_DAYS,promoted_at:at},late_enrollment:true};
+   const rid='promote-'+(await digest(w+'|'+row.source_id+'|'+PILOT_ELIGIBILITY_DAYS)).slice(0,40);
+   const batch=[
+    repo.sql('UPDATE cf_solo_sources SET kind=?,summary_json=?,updated_at=? WHERE workspace_id=? AND kind=? AND source_id=? AND opportunity_id=? AND summary_json=?',PILOT_KIND,JSON.stringify(next),at,w,RAW_KIND,row.source_id,row.opportunity_id,row.summary_json),
+    repo.sql("INSERT OR IGNORE INTO cf_solo_activity(id,workspace_id,opportunity_id,actor_id,kind,request_id,fingerprint,payload_json,created_at) VALUES(?,?,?,?,'district_pilot_promotion',?,?,?,?)",'act_'+rid,w,row.opportunity_id,repo.scope.actor,rid,p.fingerprint,JSON.stringify({action:'promoted_from_outside_pilot',cohort:a.cohort,eligibility_window_days:PILOT_ELIGIBILITY_DAYS,received_at:record.received_at}),at)
+   ];
+   if(record.conversation_id)batch.push(repo.sql('UPDATE sms_conversations SET data_json=?,updated_at=? WHERE record_key=?',JSON.stringify({opportunity_id:row.opportunity_id,cohort:a.cohort,owner:'DISTRICT_'+a.cohort,basis:'pilot_enrollment_promotion',hold:false}),at,'district-link/'+w+'/'+record.conversation_id));
+   try{
+    const applied=await repo.db.batch(batch);
+    if(applied?.[0]?.meta?.changes!==1){results.push({opportunity_id:row.opportunity_id,status:'SKIPPED_CHANGED'});continue;}
+    let warning=null;if(a.cohort==='SIGNAL')try{await repo.refreshOpportunityPriority(row.opportunity_id);}catch{warning='Priority refresh needs review; pilot promotion retained';}
+    results.push({opportunity_id:row.opportunity_id,status:'PROMOTED',cohort:a.cohort,warning});
+   }catch{results.push({opportunity_id:row.opportunity_id,status:'CONFLICT'});}
+  }
+  return {results,promoted:results.filter(x=>x.status==='PROMOTED').length,signal:results.filter(x=>x.status==='PROMOTED'&&x.cohort==='SIGNAL').length,control:results.filter(x=>x.status==='PROMOTED'&&x.cohort==='CONTROL').length,sms_sent:0};
+ }
  const owned=hash=>repo.sql('SELECT opportunity_id,summary_json,kind FROM cf_solo_sources WHERE workspace_id=? AND kind IN (?,?) AND source_id=? ORDER BY kind LIMIT 1',w,PILOT_KIND,RAW_KIND,hash).first();
  async function prepare(v){
   if(!Array.isArray(v.files)||v.files.length<1||v.files.length>20)throw Error('Select 1–20 CSV files');
@@ -45,7 +91,9 @@ export function rawImporter(repo,env){const w=repo.scope.workspace,store=createS
   }
   return {fingerprint,rows};
  }
- return {async preview(v){const p=await prepare(v);return {...p,rows:p.rows.map(({facts,provenance,contact,conversation_id,lead_key_hash,...r})=>({...r,first_name:contact?.firstName||'',name:contact?.name||'',phone_status:/MALFORMED PHONE/.test(r.status)?'INVALID':contact?.mobile?'VALID':r.import_status==='NEEDS_REVIEW'?'NOT_EVALUATED':'MISSING'}))};},
+ return {async promotionPreview(){const p=await promotionCandidates();return {fingerprint:p.fingerprint,eligible:p.eligible.length,signal:p.eligible.filter(x=>x.assignment.cohort==='SIGNAL').length,control:p.eligible.filter(x=>x.assignment.cohort==='CONTROL').length,skipped:p.skipped.length,eligibility_days:PILOT_ELIGIBILITY_DAYS};},
+ async promote(v){return promote(v);},
+ async preview(v){const p=await prepare(v);return {...p,rows:p.rows.map(({facts,provenance,contact,conversation_id,lead_key_hash,...r})=>({...r,first_name:contact?.firstName||'',name:contact?.name||'',phone_status:/MALFORMED PHONE/.test(r.status)?'INVALID':contact?.mobile?'VALID':r.import_status==='NEEDS_REVIEW'?'NOT_EVALUATED':'MISSING'}))};},
  async commit(v){if(v.confirmed!==true||v.eligible!==true)throw Error('Confirm California personal-lines district inventory and original timestamp timezone once for this batch');const p=await prepare(v);if(p.fingerprint!==v.fingerprint)throw Error('Preview the exact files and corrections again before importing');const results=[];
   for(const r of p.rows){if(r.import_status!=='READY'){results.push({index:r.index,status:r.status,import_status:r.import_status,pilot_status:r.pilot_status,row_number:r.row_number,opportunity_id:r.opportunity_id||null});continue;}
    const at=new Date().toISOString(),id='opp_raw_'+(await digest(w+'|'+r.lead_key)).slice(0,40),rid='raw-'+(await digest(w+'|'+r.lead_key)).slice(0,40),phase=v.synthetic===true?'TEST':r.pilot_status==='ELIGIBLE_NEW_LEAD'?'NEW_LEAD':null,kind=phase?PILOT_KIND:RAW_KIND;
