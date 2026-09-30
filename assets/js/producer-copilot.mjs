@@ -13,6 +13,6 @@ export function mountCopilot(root,data,api,smsApi,reload){
    if(!host.isConnected)return;
    if(action==='reject'){box.innerHTML='';suggestion=null;status.textContent='Discarded. Existing Signal reply unchanged.';}else{render(r.suggestion);status.textContent='Review the suggestion, then use it in your reply. Nothing sent.';}
   }catch(error){status.textContent=error.message+' You can continue with the existing reply controls.';}
-  finally{busy=false;buttons.forEach((b,i)=>{if(b.isConnected)b.disabled=states[i];});if(suggestion){host.querySelector('[data-copilot="revise"]').disabled=!!suggestion.stale;host.querySelector('[data-copilot="reject"]').disabled=false;}}
+  finally{busy=false;buttons.forEach((b,i)=>{if(b.isConnected)b.disabled=states[i];});host.querySelector('[data-copilot="revise"]').disabled=!suggestion||!!suggestion.stale;host.querySelector('[data-copilot="reject"]').disabled=!suggestion;}
  });
 }

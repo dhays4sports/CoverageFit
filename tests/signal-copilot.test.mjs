@@ -1,3 +1,4 @@
+import {producerWorkspace} from '../server/producer-workspace.mjs';
 import test from 'node:test';import assert from 'node:assert/strict';import {DatabaseSync} from 'node:sqlite';import {readFileSync,readdirSync} from 'node:fs';
 import {soloRepository,identity} from '../server/solo-desk-repository.mjs';
 import {createSmsConversationStore} from '../server/d1-json-store.mjs';
@@ -67,3 +68,16 @@ test('provider timeout aborts once without retry',async()=>{const f=await setup(
 test('concurrent distinct requests cannot overspend the reserved budget',async()=>{const f=await setup();try{f.env.CF_AI_MONTHLY_BUDGET_USD='.012';const r=await Promise.allSettled([f.svc.act({action:'analyze',id:'one',direction:'shorter'}),f.svc.act({action:'analyze',id:'one',direction:'warmer'})]);assert.equal(r.filter(x=>x.status==='fulfilled').length,1);assert.equal(f.calls(),1);}finally{f.sql.close();}});
 test('per-producer rate limit bounds explicit regeneration without breaking manual workflow',async()=>{const f=await setup();try{for(let n=0;n<6;n++)await f.svc.act({action:'analyze',id:'one',direction:'variation '+n});await assert.rejects(f.svc.act({action:'analyze',id:'one',direction:'seventh'}),/rate_limited/);assert.equal(f.calls(),6);assert.equal((await f.store.get(key)).signal.reply,'What has you looking?');}finally{f.sql.close();}});
 test('usage outcomes remain unknown when canonical measurement is absent',async()=>{const f=await setup();try{await f.svc.act({action:'analyze',id:'one'});const m=await f.svc.metrics();assert.equal(m.evaluation.analyzed_inbounds,1);assert.equal(m.evaluation.quotes,null);assert.equal(m.evaluation.binds,null);assert.equal(m.evaluation.sent_inbounds,0);}finally{f.sql.close();}});
+
+for(const scenario of ['eligible','off','CONTROL','OTHER','no_inbound','STOP','opted_out','suppressed','sending','delivery_review','missing_message'])test('Work Copilot visibility matches server eligibility: '+scenario,async()=>{const f=await setup();try{
+ if(scenario==='off')f.env.CF_AI_ENABLED='0';
+ if(scenario==='CONTROL'||scenario==='OTHER'){f.pilot.cohort=scenario;f.sql.prepare('UPDATE cf_solo_sources SET summary_json=?').run(JSON.stringify(f.pilot));}
+ if(scenario==='no_inbound')f.conversation.signal.latest_inbound='';
+ if(scenario==='STOP')f.conversation.signal.decision_2='STOP';
+ if(scenario==='opted_out')f.conversation.smsConsent={status:'opted_out'};
+ if(scenario==='suppressed')f.conversation.signal.contact_suppressed=true;
+ if(['sending','delivery_review'].includes(scenario))f.conversation.signal.draft_status=scenario;
+ if(scenario==='missing_message')f.conversation.transcript=[];
+ await f.store.setJSON(key,f.conversation);
+ const d=await producerWorkspace(f.repo,f.env).detail('one');assert.equal(d.copilot_enabled,scenario==='eligible');assert.equal(f.calls(),0);
+}finally{f.sql.close();}});

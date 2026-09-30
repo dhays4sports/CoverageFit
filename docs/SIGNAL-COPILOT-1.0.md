@@ -2,7 +2,7 @@
 
 Date: 2026-09-30. Baseline CoverageFit main: `5f47f2b7367110ca04ff03cc189983f136ab32fa`.
 Branch: `signal-copilot`. Production flags/configuration were not inspected or changed.
-**Implemented and mock-tested; not deployed or enabled. Hosted/mobile certification outstanding.**
+**Implemented and mock-tested. PR #7 branch preview is hosted at https://signal-copilot.coveragefit.pages.dev; authenticated hosted/mobile certification remains outstanding. Production enablement not approved.**
 Producer OS PR #6 remains separate; no assumption that its promotion fix is merged.
 
 ## Audit and reuse
@@ -134,7 +134,7 @@ are not a substitute for that remaining gate.
 
 ## Tests and boundaries
 
-Full suite: **365 passed, 0 failed, 0 skipped** (37 new Copilot tests).
+Full suite: **376 passed, 0 failed, 0 skipped** (48 Copilot tests).
 `node --test --experimental-loader ./tests/json-loader.mjs tests/*.test.mjs`
 
 Coverage includes generation/revision/selection/explicit one-send flow with mocked
@@ -152,15 +152,23 @@ No actual OpenAI requests, customer SMS, live import or production writes perfor
 
 ## Manual operator checkpoint (after code review/release)
 
-Project identity gate: historical repo evidence calls the CoverageFit Pages project
-`dontworrycoverage`; newer readiness explicitly requires verification. **Confirm
-that project's Custom domains contains coveragefit.com before any configuration.**
-If it does not, stop and identify the serving project; do not configure a guessed
-project or `408farmers-v2`. This uncertainty does not block repository work.
+Confirmed project: **`coveragefit`** (user confirmation, 2026-09-30).
+Branch: **`signal-copilot`**, draft PR #7. Preview:
+https://signal-copilot.coveragefit.pages.dev/agent/workspace/.
 
-In the confirmed CoverageFit Pages project, Settings → Variables and Secrets,
-configure the intended environment only. Preview first with isolated synthetic
-records and test transport; never point a canary at real customer identities.
+In Cloudflare → Workers & Pages → **coveragefit** → Settings → Variables and
+Secrets, select **Preview** only. Record the prior values for rollback. Preview
+variables can affect other preview branches: verify their scope before changing.
+Production must remain unchanged. Do not investigate unrelated projects.
+
+Before enabling either flag, confirm the Preview `COVERAGEFIT_DB` binding points to
+an isolated database containing only synthetic fixtures, and confirm the SMS test
+recipient is an operator-controlled number. Do not bind preview to production to
+make certification convenient. If isolation is absent, stop this hosted mutation
+gate and arrange the isolated fixture environment first. Ordinary records marked
+pilot phase TEST are intentionally ineligible for Copilot: synthetic NEW_LEAD
+SIGNAL fixtures belong only in isolated test storage, never production enrollment.
+There is no newly implemented hosted transport mock switch; do not invent one.
 
 | Setting | Value / format | Purpose |
 |---|---|---|
@@ -200,7 +208,7 @@ remain. Code revert is optional; retain audit records. No data reset.
 
 Repository implementation / mocked sender flow: PASS.
 Real provider quality/latency/cost: NOT VERIFIED (optional key-dependent canary).
-Hosted workflow and mobile visual/keyboard certification: BLOCKED at deployment/operator gate.
+Hosted workflow and mobile visual/keyboard certification: BLOCKED at producer-access / isolated-fixture operator gate.
 Overall: **PASS WITH LIMITATION for repository build; not certified for live enablement.**
 
 Primary evaluation target is safe drafts sent unchanged or after one short edit.
@@ -239,11 +247,72 @@ No autonomous sending, quoting, binding, vector DB or model fine-tuning is autho
 | 18. Cost | Atomic reservation/ceiling, 6 attempts/minute, identical request cache, no loops; conservative failure charges |
 | 19. Flags | CF_AI_ENABLED and CF_SIGNAL_COPILOT_ENABLED, both default off |
 | 20. Failure | Existing Signal/manual path stays; stale/invalid output held; no silent state mutation |
-| 21. Tests added | 37 Copilot tests, sanitized A–F fixture pack |
-| 22. Tests passing | 365 full-suite pass; 0 fail; 0 skip |
+| 21. Tests added | 48 Copilot tests, sanitized A–F fixture pack |
+| 22. Tests passing | 376 full-suite pass; 0 fail; 0 skip |
 | 23. Real provider | Not performed; no key used or requested in chat |
 | 24. Real-call cost | Unknown; synthetic arithmetic example $0.000525, not measured spend |
-| 25. Cloudflare | Manual serving-project identity check, secrets/vars and enablement steps above |
-| 26. Deployment | Separate branch; unmerged, undeployed, disabled by default |
+| 25. Cloudflare | Confirmed coveragefit project; Preview-only secrets/vars and isolation gate above |
+| 26. Deployment | PR #7 branch preview hosted; unmerged; flags default off; runtime enablement unverified |
 | 27. Limitations | Hosted/mobile/browser and real-model quality unverified; bounded telemetry/outcome joins; proposals require review; no complete free-text anonymization |
 | 28. Next increment | Synthetic provider + hosted mobile/approval certification before production enablement; then 1.1 evaluation refinement |
+
+
+## Readiness follow-up — 2026-09-30
+
+Preview inspected at PR head `a65edd1d5fd409f0770bf50405a48e07758d0496`.
+The workspace loads the Copilot-version module, Work and Tools navigate, and no
+application console errors were observed (one unrelated browser-extension error).
+At observed 1363px width, document width is 1363px: no horizontal overflow. Producer
+access is not connected in the certification browser; no customer records opened.
+Unauthenticated absence of the panel does **not** certify eligible/blocked records.
+
+Readiness fixes in this follow-up:
+- Work detail now derives Copilot availability from the same read-only context /
+  ownership / suppression / latest-message checks used by generation. Previously
+  flag + population alone could advertise the panel when generation was blocked.
+- Discard disables revision/discard controls until another suggestion exists.
+- Client module cache versions advance so the corrected controls load after deploy.
+- Eleven added Work visibility cases cover eligible, off, CONTROL, OTHER, missing
+  inbound, STOP, opted out, suppression, sending, delivery review and missing
+  transcript-message identity; no provider calls occur during detail hydration.
+
+### Required hosted certification (not replaced by local tests)
+
+1. Operator confirms isolated Preview database and synthetic fixtures; keep all
+   production bindings, assignments, provider credentials and automation unchanged.
+2. Connect producer access securely in the preview browser (never paste keys into
+   chat). Select only designated synthetic fixtures. Confirm flags-off manual edit
+   remains available before enabling Copilot in Preview.
+3. With both Preview flags 1, eligible NEW_LEAD SIGNAL with inbound evidence shows
+   the panel. CONTROL, WEB_DIRECT, OTHER, TEST phase, STOP, DNC/suppression, wrong
+   number and held ownership show no panel and direct analysis is rejected.
+4. Suggest once, add direction, revise once, Use this: existing pending reply is
+   updated, but no message sent. Verify facts/Decision 2 remain authoritative.
+5. Only an operator-controlled recipient may receive the explicit Approve & Send
+   canary via the existing gateway. Verify one provider message and timeline entry;
+   repeat approval must be held. No real-customer certification sends.
+6. Change synthetic inbound evidence after generation and after selection. Old Use
+   and approval must be rejected. Explicit manual replacement must remain possible.
+7. Disable the Copilot flag in Preview, redeploy, verify manual workflow remains.
+8. Check 320/375/390/430px and desktop: direction/draft edits, known answers, errors,
+   keyboard order, visible focus, live status, tap sizes and no horizontal overflow.
+   The current cloud browser exposes no viewport-resize capability; desktop alone
+   is insufficient. Mobile checks remain pending operator/device evidence.
+9. Bounded provider canary: maximum two calls (one Suggest, one Revise), synthetic
+   context only, no retries. Capture strict-output validity, cited facts, no-repeat,
+   latency, input/output tokens and recorded estimated cost from Tools usage.
+   No real call has been performed; latency, token usage and cost are unmeasured.
+
+Do not merge or enable production AI until the required hosted gates are green and
+results are reported. Full local tests pass; hosted end-to-end readiness is BLOCKED,
+not a PASS. No production data, Cloudflare configuration or SMS delivery changed.
+
+Hosted transport evidence: the first curl retrieval of producer-copilot.mjs returned
+200 and matched the PR-head asset byte-for-byte; it contains no OpenAI key reference.
+Later direct HTTP probes returned Cloudflare `403 / error code: 1010`, including
+static assets, so those responses are **not** proof of application authorization.
+The browser API-route navigation was blocked by the browser client. No retries or
+bypass attempted. Auth, stale-state, suppression and sender behavior are currently
+proven only by local tests, not the hosted API. Repository code keeps the OpenAI
+key exclusively in the server adapter; full authenticated runtime exposure checks
+remain pending alongside the synthetic canary.

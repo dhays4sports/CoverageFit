@@ -1,4 +1,4 @@
-import {mountCopilot} from './producer-copilot.mjs?v=1';
+import {mountCopilot} from './producer-copilot.mjs?v=1.0.1';
 import {webEvidence} from './work-web-evidence.mjs?v=1';
 import {workReceivedTime} from './work-received-time.mjs?v=1';
 import {mountContinue} from './producer-continue.mjs?v=ENTRY-1.0.1';
