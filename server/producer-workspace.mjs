@@ -70,7 +70,7 @@ export function producerWorkspace(repo,env){
    if(['DISTRICT_CONTROL','OTHER'].includes(pop.population)){data.opportunityPriority=null;data.possessionQuality=null;data.nextBestAction=null;}
    const webCid=pop.population==='WEB_DIRECT'?ss.find(s=>s.kind==='lead'&&s.summary?.context?.distribution?.phase==='producer_handoff')?.summary.context.distribution.conversation_id:null;
    const linkedCid=pilot?.conversation_id||webCid;const linked=linkedCid?await store.get('sms-live-conversations/'+linkedCid):null;const contactSafety={suppressed:!!(linked?.smsConsent?.status==='opted_out'||linked?.signal?.contact_suppressed||linked?.signal?.decision_2==='STOP')};
-   return {...data,contactSafety,continuation:await continuation(id,ss,pop.population),population:pop,pilot:['DISTRICT_SIGNAL','DISTRICT_CONTROL'].includes(pop.population)?pilot:null,sms:state,sms_enabled:enabled(env)};
+   return {...data,contactSafety,continuation:await continuation(id,ss,pop.population),population:pop,pilot:['DISTRICT_SIGNAL','DISTRICT_CONTROL'].includes(pop.population)?pilot:null,sms:state,copilot_enabled:env.CF_AI_ENABLED==='1'&&env.CF_SIGNAL_COPILOT_ENABLED==='1'&&pop.population==='DISTRICT_SIGNAL',sms_enabled:enabled(env)};
   },
   async list(params){
    const selected=params.get('population')||'DISTRICT_SIGNAL';if(![...POPULATIONS,'ALL'].includes(selected))fail(422,'population','Select a work population.');
