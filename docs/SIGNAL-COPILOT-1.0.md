@@ -316,3 +316,26 @@ bypass attempted. Auth, stale-state, suppression and sender behavior are current
 proven only by local tests, not the hosted API. Repository code keeps the OpenAI
 key exclusively in the server adapter; full authenticated runtime exposure checks
 remain pending alongside the synthetic canary.
+
+
+## Canonical roadmap forward
+
+SIGNAL-COPILOT-1.0 is the first capability layer, not the endpoint.
+
+The approved forward sequence is:
+
+1. **SIGNAL-COPILOT-1.0** — certify review-first SMS reasoning, drafting, producer direction and explicit approval.
+2. **SIGNAL-COPILOT-1.1** — durable thread summaries, commitments, callbacks and state-change recognition.
+3. **SIGNAL-COPILOT-1.2** — RingCentral call transcript intelligence feeding the same Signal state.
+4. **VISUAL-COPILOT-1.0** — user-triggered screenshot / screen-capture reasoning with current lead context.
+5. **Visual shortcut / companion** — hotkey and region capture only after in-app usage proves the workflow.
+6. **DOCUMENT-COPILOT-1.0** — declarations, competitor quotes and related documents into governed evidence/comparison.
+7. **PRODUCER-CONTEXT-1.0** — unify RAW, SMS, calls, screenshots, documents, email and notes into one evidence layer.
+8. **Mature Signal** — answer who needs attention, why now, what changed, what is known/missing, and the smallest effective next action.
+9. **PRODUCER-ACTION-1.0** — bounded suggested operational actions with explicit producer approval.
+
+All phases must reuse the same provider boundary, context model, provenance, ZERO-REPEAT ledger, cost governor, approval gates, telemetry and AI-off fallback.
+
+Do not turn future phases into channel-specific AI silos or generic chatbot features.
+
+Canonical roadmap: `docs/COVERAGEFIT-PRODUCER-COPILOT-ROADMAP-1.0.md`.
