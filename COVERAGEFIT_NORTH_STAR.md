@@ -408,6 +408,22 @@ Before adding a major feature, ask:
 
 If the answer to these questions is mostly no, the feature probably does not belong in CoverageFit.
 
+## Producer Copilot capability roadmap
+
+The producer-intelligence roadmap is governed by the same North Star, not a separate AI product strategy.
+
+The canonical progression is:
+
+**Signal Reply Copilot → durable conversation memory → call intelligence → visual capture → document intelligence → unified producer context → mature Signal next-action reasoning → bounded producer-approved actions.**
+
+Every new input channel should feed the same governed evidence and Signal state:
+
+**AgencyZoom RAW + SMS + calls + screenshots + documents + email + manual notes → CoverageFit evidence → Signal → next action → producer approval.**
+
+AI is a replaceable reasoning provider. CoverageFit remains authoritative for identity, provenance, compliance, business state, experiment assignment, and action authority. AI expansion must earn its way forward through measured producer utility, bounded cost, graceful fallback, and preserved human approval.
+
+See `docs/COVERAGEFIT-PRODUCER-COPILOT-ROADMAP-1.0.md` for the canonical phased roadmap.
+
 ## Canonical shorthand
 
 When future product work needs a concise statement of direction, use:
