@@ -896,3 +896,11 @@ The local reconciliation/cherry-pick hashes above are local provenance; remote
 publication combines those changes into the implementation commit. No main or
 PR #7 branch mutation occurred. PR #8 deployment and hosted behavior remain
 unverified. This following documentation-only checkpoint does not change runtime.
+
+Cloudflare bot subsequently confirmed implementation commit b205015 deployed
+successfully: https://5fe35900.coveragefit.pages.dev ; branch alias
+https://commitment-attention-foundat.coveragefit.pages.dev . Direct browser
+verification of `/agent/workspace/` rendered Work / Not connected and the existing
+population controls. No authenticated mutation was attempted. This verifies the
+shell only, not environment isolation or enabled feature behavior. The newer
+publication-documentation commits do not change the tested runtime.
