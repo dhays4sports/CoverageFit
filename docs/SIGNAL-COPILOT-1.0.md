@@ -325,17 +325,21 @@ SIGNAL-COPILOT-1.0 is the first capability layer, not the endpoint.
 The approved forward sequence is:
 
 1. **SIGNAL-COPILOT-1.0** — certify review-first SMS reasoning, drafting, producer direction and explicit approval.
-2. **SIGNAL-COPILOT-1.1** — durable thread summaries, commitments, callbacks and state-change recognition.
-3. **SIGNAL-COPILOT-1.2** — RingCentral call transcript intelligence feeding the same Signal state.
-4. **VISUAL-COPILOT-1.0** — user-triggered screenshot / screen-capture reasoning with current lead context.
-5. **Visual shortcut / companion** — hotkey and region capture only after in-app usage proves the workflow.
-6. **DOCUMENT-COPILOT-1.0** — declarations, competitor quotes and related documents into governed evidence/comparison.
-7. **PRODUCER-CONTEXT-1.0** — unify RAW, SMS, calls, screenshots, documents, email and notes into one evidence layer.
-8. **Mature Signal** — answer who needs attention, why now, what changed, what is known/missing, and the smallest effective next action.
-9. **PRODUCER-ACTION-1.0** — bounded suggested operational actions with explicit producer approval.
+2. **Producer OS foundation alignment** — reconcile the existing producer-operating substrate without changing AgencyZoom ownership boundaries.
+3. **SIGNAL-COPILOT-1.1** — durable thread summaries, commitments, callbacks, promises and state-change recognition.
+4. **SIGNAL-ATTENTION-1.0** — Recommended / High Intent / Due Now ordering with explainable why-now reasons.
+5. **CALENDAR-ACTIONS-1.0** — create, invite, reschedule and cancel appointments directly from the producer workspace using the existing Google Calendar rails.
+6. **Attention + Calendar convergence** — appointments and commitments feed the clock-aware attention queue and NBA.
+7. **SIGNAL-COPILOT-1.2** — RingCentral call transcript intelligence feeding the same evidence, commitment and attention state.
+8. **VISUAL-COPILOT-1.0** — user-triggered screenshot / screen-capture reasoning with current lead context.
+9. **Visual shortcut / companion** — hotkey and region capture only after in-app usage proves the workflow.
+10. **DOCUMENT-COPILOT-1.0** — declarations, competitor quotes and related documents into governed evidence/comparison.
+11. **PRODUCER-CONTEXT-1.0** — unify RAW, SMS, calls, screenshots, documents, email and notes into one evidence layer.
+12. **Mature Signal** — refine who needs attention, why now, what changed, what is known/missing, what commitment is due, and the smallest effective next action.
+13. **PRODUCER-ACTION-1.0** — bounded suggested operational actions with explicit producer approval.
 
 All phases must reuse the same provider boundary, context model, provenance, ZERO-REPEAT ledger, cost governor, approval gates, telemetry and AI-off fallback.
 
 Do not turn future phases into channel-specific AI silos or generic chatbot features.
 
-Canonical roadmap: `docs/COVERAGEFIT-PRODUCER-COPILOT-ROADMAP-1.0.md`.
+Canonical phased roadmap: `docs/COVERAGEFIT-PRODUCER-COPILOT-ROADMAP-1.0.md`. Detailed near-term sequence: `docs/COVERAGEFIT-NEAR-TERM-PRODUCER-ROADMAP-1.0.md`.
