@@ -47,7 +47,19 @@ for(const mutation of [r=>r.decision.candidate='SEND',r=>r.interpretation.intent
 test('direction is not evidence, unsupported dates rejected',()=>{const r=result();r.fact_proposals=[{field:'vehicle_ownership',value:'financed',confidence:1,evidence_text:'ask if financed',message_id:'direction'}];assert.throws(()=>validateReasoning(r,{messages:[],known_answers:{},do_not_reask:[]}),/unsupported_evidence/);r.fact_proposals=[{field:'renewal_date',value:'2026-02-30',confidence:1,evidence_text:'February',message_id:'in'}];assert.throws(()=>validateReasoning(r,{messages:[{id:'in',direction:'inbound',body:'February'}],known_answers:{},do_not_reask:[]}),/invalid_fact_date/);});
 test('stale suggestion cannot be used after new inbound',async()=>{const f=await setup();try{const r=await f.svc.act({action:'analyze',id:'one'});f.conversation.signal.revision++;await f.store.setJSON(key,f.conversation);await assert.rejects(f.svc.select('one',r.suggestion.id,r.suggestion.result.reply.draft),/stale/);}finally{f.sql.close();}});
 test('monthly hard ceiling blocks model and leaves existing reply intact',async()=>{const f=await setup();try{f.env.CF_AI_MONTHLY_BUDGET_USD='.00001';await assert.rejects(f.svc.act({action:'analyze',id:'one'}),/budget/);assert.equal(f.calls(),0);assert.equal((await f.store.get(key)).signal.reply,'What has you looking?');}finally{f.sql.close();}});
-test('concurrent identical requests cost once',async()=>{const f=await setup();try{const r=await Promise.allSettled([f.svc.act({action:'analyze',id:'one'}),f.svc.act({action:'analyze',id:'one'})]);assert.equal(r.filter(r=>r.status==='fulfilled').length,1);assert.equal(f.calls(),1);}finally{f.sql.close();}});
+test('concurrent identical requests cost once',async()=>{
+ const f=await setup();let release;const gate=new Promise(resolve=>{release=resolve;});
+ let started;const entered=new Promise(resolve=>{started=resolve;});
+ const svc=copilotService(f.repo,f.env,{provider:async(...args)=>{started();await gate;return f.provider(...args);}});
+ let first;
+ try{
+  first=svc.act({action:'analyze',id:'one'});await entered;
+  await assert.rejects(svc.act({action:'analyze',id:'one'}),/ai_request_already_attempted|ai_request_in_progress/);
+  release();const completed=await first;
+  const cached=await svc.act({action:'analyze',id:'one'});
+  assert.equal(cached.cached,true);assert.equal(cached.suggestion.id,completed.suggestion.id);assert.equal(f.calls(),1);
+ }finally{release();if(first)await first.catch(()=>{});f.sql.close();}
+});
 test('provider failure keeps a bounded charge reservation; no automatic retry',async()=>{const f=await setup();try{let n=0;const s=copilotService(f.repo,f.env,{provider:async()=>{n++;throw Error('provider_timeout');}});await assert.rejects(s.act({action:'analyze',id:'one'}));await assert.rejects(s.act({action:'analyze',id:'one'}));assert.equal(n,1);assert.equal((await f.store.get(key)).signal.draft_status,'pending');assert.equal((await s.metrics()).failures,1);}finally{f.sql.close();}});
 test('producer auth, same origin and opportunity scope required',async()=>{const f=await setup();try{const req=()=>new Request('https://example.test/api/solo-desk/copilot',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({id:'one',action:'analyze'})});assert.notEqual((await handleSoloDesk({request:req(),env:f.env})).status,200);await assert.rejects(f.svc.act({id:'not-owned',action:'analyze'}));assert.equal(f.calls(),0);}finally{f.sql.close();}});
 test('minimal context excludes raw prohibited attributes and producer identifiers',async()=>{const f=await setup();try{f.conversation.signal.facts={line:'AUTO',credit:'EXCLUDE_CREDIT',dob:'EXCLUDE_DOB',occupation:'EXCLUDE_JOB'};await f.store.setJSON(key,f.conversation);const c=await copilotContext(f.repo,f.store,f.env,'one');assert.doesNotMatch(JSON.stringify(c.data),/EXCLUDE_|12025550199|cohort|api.key/i);assert.match(minimize('Email me a@b.com. SSN 123-45-6789.'),/omitted/);}finally{f.sql.close();}});
