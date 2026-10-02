@@ -37,6 +37,23 @@ Acceptance gates:
 
 Production authority remains unchanged.
 
+## Near-term sequence refinement
+
+The near-term implementation order is now explicitly:
+
+1. **SIGNAL-COPILOT-1.0 certification**
+2. **Producer OS foundation alignment**
+3. **SIGNAL-COPILOT-1.1 — durable conversation state and commitments**
+4. **SIGNAL-ATTENTION-1.0 — Recommended / High Intent / Due Now**
+5. **CALENDAR-ACTIONS-1.0 — create / invite / reschedule / cancel from the producer workspace**
+6. **Attention + Calendar convergence**
+7. **SIGNAL-COPILOT-1.2 — call intelligence**
+8. Continue Visual Copilot, Document Copilot, Producer Context, mature Signal and bounded Producer Actions.
+
+This refinement moves producer attention orchestration and deterministic calendar actions earlier because CoverageFit already has the required Opportunity Priority, NBA, producer-workspace ordering and Google Calendar infrastructure. These are not separate products; they are missing operating layers on top of existing primitives.
+
+See docs/COVERAGEFIT-NEAR-TERM-PRODUCER-ROADMAP-1.0.md for the detailed contracts, acceptance gates, rollout sequence and test requirements.
+
 ## Phase 2 — SIGNAL-COPILOT-1.1
 
 Strengthen durable conversation state.
@@ -54,6 +71,50 @@ Add:
 - contextual re-entry after days or weeks.
 
 The lead should reopen with durable context rather than requiring the producer to reread the entire thread.
+
+Commitments are now a first-class near-term bridge between conversation evidence, Attention Priority and Calendar Actions. CoverageFit should normalize operational commitments such as CALLBACK, APPOINTMENT, FOLLOW_UP, QUOTE_REVIEW, DOCUMENT_EXPECTED, FUTURE_BIND, CLOSING and RENEWAL while preserving the distinction between customer evidence, confirmed business state and external provider actions.
+
+## Phase 2A — SIGNAL-ATTENTION-1.0
+
+Upgrade the current producer-workspace attentionRank() behavior into a cross-evidence Attention Projection.
+
+Attention Priority answers:
+
+> **Given the current relationship state and the clock, who specifically needs producer attention now, and why?**
+
+It remains separate from Opportunity Priority, FIV and NBA. It may consume current Signal state, Opportunity Priority, unresolved inbound, engagement momentum, commitments, appointments, callbacks, tasks, quote state, closing state, deadlines and suppression state.
+
+Required producer surfaces:
+
+- Recommended sort;
+- High Intent sort;
+- Due Now sort;
+- Newest sort;
+- compact why-now reasons;
+- next commitment;
+- smallest effective next action.
+
+Hard state outranks heuristic attractiveness: STOP / suppression first, then explicit proceed / call / quote requests, unanswered meaningful inbound, due appointments / callbacks, overdue producer commitments, same-day follow-up, high recent engagement, Opportunity Priority and normal fallback ordering.
+
+Do not create a black-box AI lead score. High Intent is an evidence-backed view, not a person-quality judgment.
+
+## Phase 2B — CALENDAR-ACTIONS-1.0
+
+Expose the existing Google Calendar scheduling capability directly inside the Producer Workspace.
+
+Reuse the current Google OAuth, free/busy, alternate-slot, create/get/update/delete, deterministic event ID, duplicate-recovery and booking-projection rails. Do not create a second calendar adapter.
+
+The producer should be able to create, invite, reschedule and cancel an appointment from the opportunity detail view. When explicitly selected and a valid prospect email is known, the Google event may include the prospect as an attendee and send the invitation. CoverageFit should retain the commitment and external event linkage as business state.
+
+Calendar actions are deterministic producer actions and do not need to wait for mature AI autonomy. Later Producer Action work may suggest them, but the producer still explicitly approves execution.
+
+## Phase 2C — Attention + Calendar convergence
+
+Connect appointments and commitments back into Attention Priority and NBA:
+
+**confirmed commitment → calendar action → upcoming attention → due-now attention → disposition → next commitment**
+
+A scheduled event never proves that contact occurred. Outcome requires explicit evidence.
 
 ## Phase 3 — SIGNAL-COPILOT-1.2
 
@@ -157,13 +218,17 @@ The durable context architecture—not the model vendor—is the strategic asset
 
 ## Phase 8 — mature Signal: “What should I do next?”
 
-Once evidence is unified, Signal should answer five producer questions quickly:
+By this phase, Attention Priority already exists. Mature Signal expands and refines it across all governed channels rather than introducing producer prioritization for the first time.
+
+Once evidence is unified, Signal should answer seven producer questions quickly:
 
 1. Who needs attention?
 2. Why now?
 3. What changed?
 4. What do we know / what is still missing?
 5. What is the smallest effective next action?
+6. What commitment is due next?
+7. What producer-approved action is CoverageFit waiting to execute?
 
 Examples:
 
@@ -177,7 +242,9 @@ This is the mature producer operating-system expression of Signal.
 
 Only after advisory reasoning proves reliable, allow CoverageFit to propose bounded operational actions such as:
 
+- create appointment;
 - create callback;
+- reschedule appointment;
 - request document;
 - draft email;
 - prepare quote checklist;
