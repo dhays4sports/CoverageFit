@@ -208,6 +208,78 @@ NBA answers a different question from FIV:
 
 Priority and next action must remain separate. Two opportunities in the same queue can have different NBAs.
 
+### Attention Priority — who needs the producer now
+
+Opportunity Priority and Attention Priority are separate projections.
+
+Opportunity Priority answers how much scarce producer attention an opportunity deserves from Need / Intent / Timing / Fit.
+
+Attention Priority answers:
+
+> **Given the current relationship state and the clock, who specifically needs producer attention now, and why?**
+
+Attention Priority may combine governed current-state signals such as:
+
+- explicit proceed / quote / contact requests;
+- unresolved meaningful inbound;
+- engagement momentum;
+- appointments and callbacks;
+- open producer or customer commitments;
+- overdue tasks;
+- quote / closing / FUTURE_BIND state;
+- renewal or closing timing;
+- Opportunity Priority;
+- suppression / STOP state.
+
+It should be deterministic, explainable and perishable. Old urgency must decay. A passed appointment becomes disposition-needed rather than permanently high-intent. STOP / DNC / wrong-number state outranks all priority logic.
+
+The producer UI should favor compact **why now** explanations rather than a mysterious AI score.
+
+Examples:
+
+- **NOW** — appointment at 10:00 AM today; customer confirmed yesterday.
+- **HIGH** — asked for a quote; replied three times in 48 hours; producer owes the next response.
+- **WAITING** — customer promised a document tonight; no useful action is due yet.
+
+High Intent is a producer view over current evidence, not a separate person-quality score.
+
+### Commitments as durable operating state
+
+CoverageFit should preserve what either side said is supposed to happen next.
+
+Initial commitment types may include:
+
+- CALLBACK
+- APPOINTMENT
+- FOLLOW_UP
+- QUOTE_REVIEW
+- DOCUMENT_EXPECTED
+- FUTURE_BIND
+- CLOSING
+- RENEWAL
+
+Keep evidence, business state and external action separate.
+
+For example:
+
+- customer evidence: "Monday at 10 works";
+- business state: confirmed appointment Monday at 10;
+- external action: Google Calendar event created and invitation sent.
+
+AI may propose a commitment from evidence, but confirmation, persistence and provider actions remain governed CoverageFit / producer-controlled state.
+
+### Calendar actions
+
+Calendar is an action provider, not the relationship source of truth.
+
+CoverageFit should reuse its existing Google Calendar scheduling rails to let a producer create, invite, reschedule and cancel appointments directly from the opportunity workspace. The appointment should remain linked to the CoverageFit opportunity and commitment, with the external Google event ID / URL stored for update and reconciliation.
+
+A calendar event never proves that a call or meeting occurred. Outcome requires explicit evidence.
+
+Calendar actions should feed Attention Priority and NBA so approaching appointments rise naturally in producer attention and completed / cancelled appointments stop driving urgency.
+
+See docs/COVERAGEFIT-NEAR-TERM-PRODUCER-ROADMAP-1.0.md for the canonical near-term implementation sequence.
+
 ### Signal-first acquisition principle
 
 The operating doctrine is:
@@ -408,6 +480,22 @@ Before adding a major feature, ask:
 
 If the answer to these questions is mostly no, the feature probably does not belong in CoverageFit.
 
+## Producer Copilot capability roadmap
+
+The producer-intelligence roadmap is governed by the same North Star, not a separate AI product strategy.
+
+The canonical progression is:
+
+**Signal Reply Copilot → durable conversation memory + commitments → Attention Priority → producer calendar actions → call intelligence → visual capture → document intelligence → unified producer context → mature Signal next-action reasoning → bounded producer-approved actions.**
+
+Every new input channel should feed the same governed evidence and Signal state:
+
+**AgencyZoom RAW + SMS + calls + screenshots + documents + email + manual notes → CoverageFit evidence → Signal → next action → producer approval.**
+
+AI is a replaceable reasoning provider. CoverageFit remains authoritative for identity, provenance, compliance, business state, experiment assignment, and action authority. AI expansion must earn its way forward through measured producer utility, bounded cost, graceful fallback, and preserved human approval.
+
+See docs/COVERAGEFIT-PRODUCER-COPILOT-ROADMAP-1.0.md for the canonical phased roadmap and docs/COVERAGEFIT-NEAR-TERM-PRODUCER-ROADMAP-1.0.md for the detailed near-term implementation sequence.
+
 ## Canonical shorthand
 
 When future product work needs a concise statement of direction, use:
@@ -460,3 +548,7 @@ Optimize useful revenue / producer hour and producer effort / useful conversatio
 Future EV(action | state) = expected incremental customer value − expected execution cost. Contactability, response velocity and channel responsiveness may later inform execution success/cost, not intrinsic person quality. No arbitrary points, numeric EV, fake DIG/$ or automatic weight changes are introduced. Calibration remains observational; scoring changes require human review and a new engine version.
 
 market.ad integration is deferred. It is one potential acquisition source, not the North Star. Generic attribution, canonical Signal, exposure, spend and outcome contracts should allow future source and feedback adapters without a core rewrite. Channel economics remain separate from individual opportunity quality. The system must work if market.ad never launches. See [the economic roadmap and conformance evidence](docs/SIGNAL-NORTH-STAR-1.0.md).
+
+## Producer operating loop and AI authority
+
+CoverageFit is evolving into a lean insurance growth and producer operating system alongside its existing consumer review capabilities. AI should convert communication into evidence proposals and better producer judgment without becoming the system of record or action authority. CoverageFit owns identity, provenance, permissions and state; the producer explicitly approves outbound communication. Existing workflows remain usable when AI is off.
