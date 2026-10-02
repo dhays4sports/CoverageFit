@@ -885,3 +885,14 @@ provider could finish before the second request checked the cache. The test now
 holds the provider open, proves the in-flight duplicate is rejected, then proves
 the completed result is cached with exactly one provider call. Production Copilot
 code was unchanged. Final full named suite: 426 pass, 0 fail, 0 skip.
+
+### Published review checkpoint
+
+Draft PR #8: https://github.com/dhays4sports/CoverageFit/pull/8
+Branch: `commitment-attention-foundation`; base: `signal-copilot` (PR #7).
+Implementation commit: `b205015d9d1896e29cd5fbd83eb9b1fb25658ea6`.
+Its tree exactly matches the tested local tree `41fb136698a8727a1470d84917aaa0f169567bd3`.
+The local reconciliation/cherry-pick hashes above are local provenance; remote
+publication combines those changes into the implementation commit. No main or
+PR #7 branch mutation occurred. PR #8 deployment and hosted behavior remain
+unverified. This following documentation-only checkpoint does not change runtime.
