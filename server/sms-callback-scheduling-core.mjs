@@ -382,12 +382,12 @@ async function googleCalendarAlternativeSlots(requestedStart, options = {}) {
   return slots;
 }
 
-async function googleEvent(method, eventId, event, options = {}) {
+export async function googleEvent(method, eventId, event, options = {}) {
   const config = options.config || callbackConfig(options.env || {});
   const access = await googleAccessToken(config, options);
   if (!access.configured) return { configured: false };
   const fetchFn = options.fetch || options.fetchImpl || globalThis.fetch;
-  const path = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(config.calendarId)}/events${eventId ? `/${encodeURIComponent(eventId)}` : ''}`;
+  const path = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(config.calendarId)}/events${eventId ? `/${encodeURIComponent(eventId)}` : ''}${options.guestUpdates==='all'?'?sendUpdates=all':''}`;
   const response = await fetchFn(path, {
     method, headers: { Authorization: `Bearer ${access.token}`, ...(event ? { 'Content-Type': 'application/json' } : {}) }, body: event ? JSON.stringify(event) : undefined
   });

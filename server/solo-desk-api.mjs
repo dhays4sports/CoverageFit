@@ -1,3 +1,4 @@
+import {producerCalendar} from './producer-calendar-actions.mjs';
 import {copilotService} from './signal-copilot-service.mjs';
 import {continueAnalytics} from './signal-continue-analytics.mjs';
 import {signalContinue} from './signal-continue-service.mjs';
@@ -37,6 +38,7 @@ export async function handleSoloDesk(context){
     try{await repo.ready();}catch{fail(503,'setup_required','Solo Desk needs its database update before it can save shared work. Continue in the existing Inbox until setup is complete.');}
     const url=new URL(request.url),route=url.pathname.replace(/^\/api\/solo-desk\/?/,'').replace(/\/$/,'');
     if(request.method==='GET'){
+      if(route==='producer-calendar'){if(env.CF_CALENDAR_ACTIONS_ENABLED!=='1')return json({ok:true,enabled:false});return json({ok:true,enabled:true,appointment:await producerCalendar(repo,env).view(url.searchParams.get('id'))});}
       if(route==='copilot-usage')return json({ok:true,...await copilotService(repo,env).metrics()});
       if(route==='continue-analytics')return json({ok:true,...await continueAnalytics(repo,env)});
       if(route==='continue-preview'){if(env.SIGNAL_CONTINUE_ENABLED!=='1')fail(503,'continue_disabled','Signal Continue is not activated.');const svc=signalContinue(repo,env);return json({ok:true,...await svc.preview(url.searchParams.get('id')),draft:await svc.draft(url.searchParams.get('id'))});}
@@ -65,6 +67,7 @@ export async function handleSoloDesk(context){
     if(request.headers.get('origin')!==url.origin)fail(403,'origin','Use the CoverageFit workspace to save this update.');
     const value=await body(request);
     if(route==='copilot'){try{return json({ok:true,...await copilotService(repo,env,{fetch:context.fetch,signal:request.signal}).act(value)});}catch{return json({ok:false,error:{message:'Copilot unavailable or context changed. Refresh; existing Signal and manual SMS remain available.'}},409);}}
+    if(route==='producer-calendar'){try{return json({ok:true,appointment:await producerCalendar(repo,env,{fetch:context.fetch}).act(value)});}catch(error){return json({ok:false,error:{message:error.message||'Appointment unavailable.'}},409);}}
     if(route==='raw-preview')return json({ok:true,...await rawImporter(repo,env).preview(value)});
     if(route==='raw-import')return json({ok:true,...await rawImporter(repo,env).commit(value)});
     if(route==='raw-promote')return json({ok:true,...await rawImporter(repo,env).promote(value)});

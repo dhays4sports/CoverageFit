@@ -28,7 +28,7 @@ export function rawImporter(repo,env){const w=repo.scope.workspace,store=createS
    }
    eligible.push({row,record,assignment:a});
   }
-  const fingerprint=await digest(JSON.stringify(eligible.map(x=>[x.row.source_id,x.row.opportunity_id,x.record.received_at,x.assignment.cohort,PILOT_ELIGIBILITY_DAYS])));
+  const fingerprint=await digest(JSON.stringify(eligible.map(x=>[x.row.source_id,x.row.opportunity_id,x.row.summary_json,x.assignment.cohort,PILOT_ELIGIBILITY_DAYS])));
   return {fingerprint,eligible,skipped};
  }
  async function applyPromotions(v){
@@ -37,13 +37,17 @@ export function rawImporter(repo,env){const w=repo.scope.workspace,store=createS
   const at=new Date().toISOString(),results=[];
   for(const item of p.eligible){
    const {row,record,assignment:a}=item;
-   const next={...record,pilot_id:PILOT_ID,pilot_phase:'NEW_LEAD',pilot_status:'ELIGIBLE_NEW_LEAD',cohort:a.cohort,enrollment_date:at,version:record.version||1,promotion:{from_kind:RAW_KIND,from_status:'INELIGIBLE_AGE',reason:'eligibility_window_extended',eligibility_window_days:PILOT_ELIGIBILITY_DAYS,promoted_at:at},late_enrollment:true};
+   const next={...record,pilot_id:PILOT_ID,pilot_phase:'NEW_LEAD',pilot_status:'ELIGIBLE_NEW_LEAD',cohort:a.cohort,enrollment_date:at,version:record.version||1,promotion:{from_kind:RAW_KIND,from_status:'INELIGIBLE_AGE',reason:'eligibility_window_extended',eligibility_window_days:PILOT_ELIGIBILITY_DAYS,promoted_at:at,operation_id:crypto.randomUUID()},late_enrollment:true};
    const rid='promote-'+(await digest(w+'|'+row.source_id+'|'+PILOT_ELIGIBILITY_DAYS)).slice(0,40);
+   // Every dependent write must prove that THIS compare-and-swap succeeded.
+   // A D1 batch is atomic, but a zero-row UPDATE is not a transaction failure.
+   const promotedGuard='EXISTS (SELECT 1 FROM cf_solo_sources WHERE workspace_id=? AND kind=? AND source_id=? AND opportunity_id=? AND summary_json=?)';
+   const promotedArgs=[w,PILOT_KIND,row.source_id,row.opportunity_id,JSON.stringify(next)];
    const batch=[
     repo.sql('UPDATE cf_solo_sources SET kind=?,summary_json=?,updated_at=? WHERE workspace_id=? AND kind=? AND source_id=? AND opportunity_id=? AND summary_json=?',PILOT_KIND,JSON.stringify(next),at,w,RAW_KIND,row.source_id,row.opportunity_id,row.summary_json),
-    repo.sql("INSERT OR IGNORE INTO cf_solo_activity(id,workspace_id,opportunity_id,actor_id,kind,request_id,fingerprint,payload_json,created_at) VALUES(?,?,?,?,'district_pilot_promotion',?,?,?,?)",'act_'+rid,w,row.opportunity_id,repo.scope.actor,rid,p.fingerprint,JSON.stringify({action:'promoted_from_outside_pilot',cohort:a.cohort,eligibility_window_days:PILOT_ELIGIBILITY_DAYS,received_at:record.received_at}),at)
+    repo.sql("INSERT OR IGNORE INTO cf_solo_activity(id,workspace_id,opportunity_id,actor_id,kind,request_id,fingerprint,payload_json,created_at) SELECT ?,?,?,?,'district_pilot_promotion',?,?,?,? WHERE "+promotedGuard,'act_'+rid,w,row.opportunity_id,repo.scope.actor,rid,p.fingerprint,JSON.stringify({action:'promoted_from_outside_pilot',cohort:a.cohort,eligibility_window_days:PILOT_ELIGIBILITY_DAYS,received_at:record.received_at}),at,...promotedArgs)
    ];
-   if(record.conversation_id)batch.push(repo.sql('UPDATE sms_conversations SET data_json=?,updated_at=? WHERE record_key=?',JSON.stringify({opportunity_id:row.opportunity_id,cohort:a.cohort,owner:'DISTRICT_'+a.cohort,basis:'pilot_enrollment_promotion',hold:false}),at,'district-link/'+w+'/'+record.conversation_id));
+   if(record.conversation_id)batch.push(repo.sql('UPDATE sms_conversations SET data_json=?,updated_at=? WHERE record_key=? AND '+promotedGuard,JSON.stringify({opportunity_id:row.opportunity_id,cohort:a.cohort,owner:'DISTRICT_'+a.cohort,basis:'pilot_enrollment_promotion',hold:false}),at,'district-link/'+w+'/'+record.conversation_id,...promotedArgs));
    try{
     const applied=await repo.db.batch(batch);
     if(applied?.[0]?.meta?.changes!==1){results.push({opportunity_id:row.opportunity_id,status:'SKIPPED_CHANGED'});continue;}
