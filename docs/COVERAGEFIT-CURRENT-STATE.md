@@ -1,5 +1,16 @@
 # CoverageFit Current State
 
+## Current certification override — 2026-10-05 16:22 PDT
+
+Latest audited PR #7 head: `9ef8c793d4c8ee9c8c3a22c703f3da98cfbe854b`; still draft/unmerged. Main remains `5f47f2b7367110ca04ff03cc189983f136ab32fa`. This documentation update changes no runtime code.
+
+Operator-tested preview is `f1777403.coveragefit.pages.dev` with isolated `coveragefit-signal-preview`. Generation, revision, Use This/save/reload, stale-selection rejection, basic mobile/focus, STOP/suppression/opt-out UI checks and synthetic fixture restoration are confirmed. Real-provider sample: four completed requests and one unsupported_evidence rejection; successful average 8.896s; total estimated cost of five usage-bearing rows $0.009522. Not provider billing or a broad quality certification.
+
+CONTROL hosted testing was explicitly deferred. Hosted direct API/unsupported-population enforcement, explicit controlled SMS delivery/duplicate-send/stale-approval checks, full runtime secret-exposure review and final full-suite rerun remain outstanding. PR #7 is not certified for production AI or merge. No production changes or real customer messages. Full evidence and limitations: latest section of `docs/SIGNAL-COPILOT-1.0.md`.
+
+Cloudflare is a manual operator checkpoint. Do not repeat inaccessible dashboard login attempts. Preview CF_SMS_SIGNAL_ENABLED=1 enabled the existing draft path; this is not itself a sandbox transport. No RingCentral credentials were added for certification. Historical sections below describe earlier snapshots; this override controls current Copilot readiness.
+
+
 **Document:** COVERAGEFIT-CURRENT-STATE  
 **Status:** Canonical operational handoff for active development  
 **Last audited:** 2026-10-05 (preview follow-up; historical repository inventory below retains its dates)  

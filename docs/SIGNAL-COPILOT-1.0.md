@@ -1,5 +1,49 @@
 # Signal Reply Copilot 1.0
 
+## Latest hosted certification — 2026-10-05 16:22 PDT
+
+This section supersedes older certification status below. Evidence is operator-performed and confirmed in chat/screenshots, not an independently authenticated browser run.
+
+- Audited PR #7 runtime head: `9ef8c793d4c8ee9c8c3a22c703f3da98cfbe854b`; main remains `5f47f2b7367110ca04ff03cc189983f136ab32fa`. PR #7 is draft/unmerged. No production enablement.
+- Latest operator-tested preview: https://f1777403.coveragefit.pages.dev ; synthetic opportunity `copilot-preview-qa-001` only. Preview database: `coveragefit-signal-preview`.
+- Generation/revision first succeeded after operator-funded API credits. Earlier diagnostic request returned provider_rate_limited / HTTP 429 / 780ms. Do not infer all earlier generic failures had the same cause.
+- Copilot generation and revision: PASS for observed synthetic scenario. Known Allstate/2026 Honda Ridgeline facts were used; revision produced “About how many miles do you drive in a year?” without repeating known fields.
+- Use This initially failed because the Preview SMS path was disabled. Operator set Preview CF_SMS_SIGNAL_ENABLED=1 and redeployed. On f1777403, draft selection/save/reload passed. This flag enables existing SMS controls; it is not a transport sandbox.
+- Stale selection: PASS, operator two-tab test. A newer manual edit caused “Conversation changed. Refresh before acting.” Old Use This did not overwrite “Synthetic QA — preserve this newer draft.” Operator confirmed persistence.
+- Mobile 320/375/390/430px and visible Tab focus: operator-confirmed PASS for Copilot controls. Full screen-reader/contrast/error-announcement certification not established.
+- STOP decision: operator-confirmed UI blocking. contact_suppressed=true with ASK_ONE_QUESTION: screenshot confirms panel absent, suppression banners and no send control. smsConsent.status=opted_out with contact_suppressed=false: operator confirmed continued blocking.
+- Fixture restored: ASK_ONE_QUESTION, contact_suppressed=false; removed synthetic smsConsent.status to restore its originally absent value. Operator confirmed Copilot returned. This is fixture cleanup, not permission to clear real consent.
+- CONTROL hosted test explicitly deferred by user. Unsupported populations, wrong-number/held ownership and direct authenticated API denials remain unverified hosted. UI hiding alone does not certify API enforcement.
+- AI-off manual edit/save/reload previously operator-confirmed on da1f721a. No real SMS sent, no RingCentral credentials added for certification; fixture has no phone/email.
+
+### Observed provider telemetry
+
+D1 screenshot of six latest request rows:
+
+| Status | Model | Latency ms | Input tokens | Output tokens | Estimated USD |
+|---|---|---:|---:|---:|---:|
+| complete | gpt-5-mini | 7501 | 1464 | 724 | 0.001814 |
+| complete | gpt-5-mini | 10552 | 1459 | 819 | 0.00200275 |
+| failed: unsupported_evidence | gpt-5-mini | 8323 | 1453 | 788 | 0.00193925 |
+| complete | gpt-5-mini | 9069 | 1499 | 722 | 0.00181875 |
+| complete | gpt-5-mini | 8461 | 1477 | 789 | 0.00194725 |
+| failed: provider_rate_limited | gpt-5-mini | 780 | unknown | unknown | unknown |
+
+Successful average: 8895.75ms, range 7501–10552ms. Total estimated cost for the five usage-bearing rows: $0.009522. This is application pricing arithmetic, not a provider billing receipt. Earlier failed requests outside this six-row window are excluded. Conservative unknown-usage budget reservations remain distinct from spend.
+
+One output failed the exact evidence-citation guard. Rejected raw output was not persisted, so the log cannot distinguish an incorrect citation from unsupported extraction. Provider quality: PASS WITH LIMITATION, small single-scenario sample; not an accuracy claim. The originally planned two-call canary was exceeded by additional explicitly guided manual workflow checks; no automatic retry or uncontrolled load test.
+
+### Remaining gates / release decision
+
+- Hosted explicit Approve & Send through an operator-controlled transport/recipient, one provider message/timeline entry, duplicate approval hold, and stale approval after evidence change: NOT VERIFIED.
+- CONTROL: DEFERRED at user request, not PASS.
+- Hosted unsupported population and direct API isolation: NOT VERIFIED.
+- Full authenticated client/network secret exposure review: NOT VERIFIED; prior static/module and repository checks do not substitute.
+- Fresh full-suite run on final PR head: outstanding. Historical 376 full-suite tests and 11 targeted diagnostic tests remain historical, not rerun by this documentation update.
+- No live activation or merge approval. Overall: PASS WITH LIMITATION for observed preview drafting; BLOCKED for full hosted certification under original all-green merge requirement.
+- Keep production AI disabled, AgencyZoom ownership unchanged, no production D1 edits or migration 0019 replay. Cloudflare remains manual operator configuration; do not retry dashboard login.
+
+
 Date: 2026-09-30. Baseline CoverageFit main: `5f47f2b7367110ca04ff03cc189983f136ab32fa`.
 Branch: `signal-copilot`. Production flags/configuration were not inspected or changed.
 **Implemented and mock-tested. PR #7 branch preview is hosted at https://signal-copilot.coveragefit.pages.dev; authenticated hosted/mobile certification remains outstanding. Production enablement not approved.**
