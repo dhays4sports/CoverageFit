@@ -2,7 +2,7 @@ import {createSmsConversationStore} from './d1-json-store.mjs';
 import {digest,parse} from './solo-desk-repository.mjs';
 import {copilotContext,minimize} from './signal-copilot-context.mjs';
 import {COPILOT_VERSION,validateReasoning} from './signal-copilot-contract.mjs';
-import {aiConfig,reasonWithProvider} from './ai-provider.mjs';
+import {aiConfig,reasonWithProvider,safeProviderFailure} from './ai-provider.mjs';
 const PREFIX='signal-copilot/';
 export function copilotService(repo,env,options={}){
  const store=createSmsConversationStore(repo.db),w=repo.scope.workspace,base=PREFIX+w+'/';
@@ -57,7 +57,7 @@ export function copilotService(repo,env,options={}){
    record.result=validateReasoning(response.result,ctx.data);
    const fresh=await load(v.id);if(fresh.fingerprint!==ctx.fingerprint||fresh.revision!==ctx.revision)throw Error('stale_suggestion');
    record.status='complete';record.known_answers=ctx.data.known_answers;
-  }catch(e){record.status='failed';record.error=['ai_rate_limited','ai_budget_exceeded','stale_suggestion','invalid_output','unsupported_evidence','invalid_fact_date','invalid_fact_value','provider_timeout','provider_unavailable','provider_incomplete','provider_refusal'].includes(e.message)?e.message:'ai_unavailable';}
+  }catch(e){record.status='failed';Object.assign(record,safeProviderFailure(e));}
   record.latency_ms=Date.now()-start;record.reserved_usd=reserved?.amount||0;
   if(reserved&&Number.isFinite(record.estimated_cost_usd))await repo.sql("UPDATE sms_conversations SET data_json=json_set(data_json,'$.charged',MAX(0,json_extract(data_json,'$.charged')+?)) WHERE record_key=?",record.estimated_cost_usd-reserved.amount,reserved.budgetKey).run();
   await store.setJSON(key,record);

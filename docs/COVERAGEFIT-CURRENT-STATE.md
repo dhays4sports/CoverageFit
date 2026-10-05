@@ -2,7 +2,7 @@
 
 **Document:** COVERAGEFIT-CURRENT-STATE  
 **Status:** Canonical operational handoff for active development  
-**Last audited:** 2026-10-02  
+**Last audited:** 2026-10-05 (preview follow-up; historical repository inventory below retains its dates)  
 **Repository:** dhays4sports/CoverageFit  
 **Canonical working branch for this document:** signal-copilot
 
@@ -26,6 +26,23 @@ Source-of-truth order:
 This file is a handoff, not a substitute for verification.
 
 ---
+
+
+## Preview certification update — 2026-10-05
+
+This update supersedes older preview-access blockers above; it does not certify live activation.
+- Operator confirmed Preview COVERAGEFIT_DB -> coveragefit-signal-preview, separate from production; initial empty application schema bootstrapped with final CREATE-only DDL. Operator counts: 51 application tables, 53 explicit application indexes. Counts are not full schema equivalence certification. No production migration/reset.
+- Preview producer access now works at da1f721a.coveragefit.pages.dev. Earlier branch alias returned inbox_not_configured. Alias routing/configuration discrepancy remains unresolved; use exact successful deployment URLs.
+- Synthetic copilot-preview-qa-001 created without phone/email. OTHER detail loaded with AI off. Synthetic district_pilot_v1 NEW_LEAD SIGNAL source and synthetic transcript then attached in isolated preview only.
+- Operator confirmed basic workspace layout at 320/375/390/430px and Tab focus/Enter disclosure behavior. Copilot controls, screen-reader and full accessibility certification remain outstanding.
+- Operator confirmed manual Save edit persisted across refresh with AI off at da1f721a. This is not SMS delivery certification.
+- At 7f06eefe.coveragefit.pages.dev, AI flags on exposed Copilot for synthetic SIGNAL. Screenshot also shows SMS sending OFF; runtime SMS flag parity across deployments remains unresolved.
+- First provider canary failed. D1 screenshot shows TWO failed request records: ai_unavailable, gpt-5-mini, 522ms and 1744ms, estimated_cost_usd null, reserved_usd 0.0115 each. These are failed-attempt elapsed times and conservative reservations, not successful model latency or measured billed cost.
+- No automatic retries or real customer SMS. Do not repeat paid attempts before diagnosis. Existing records must remain intact.
+- Diagnostic fix preserves allowlisted provider error codes and HTTP statuses in request telemetry. Provider bodies/messages/headers and secrets are never retained by this diagnostic change. Rate-limit failures no longer collapse to ai_unavailable.
+- Validation: 11 targeted provider diagnostic tests passed, 0 failed, 0 skipped; modified service passes syntax check. Historical full suite was NOT rerun for this patch.
+- PR #7 remains draft/unmerged. PR #8 is stacked separately; this patch does not update that branch. Production AI remains unapproved. Hosted suppression/CONTROL/unsupported population tests with AI on, stale draft, selection/revision and controlled transport approval remain outstanding.
+- Preview operator settings: CF_AI_PROVIDER=openai; CF_AI_MONTHLY_BUDGET_USD=1; CF_AI_REQUEST_TIMEOUT_MS=15000; NORMAL_REASON gpt-5-mini input/output per million .25/2, reasoning low; server-only OPENAI_API_KEY saved privately. No RingCentral credentials added. Flags/settings were operator-managed, not independently enumerated from runtime.
 
 ## 1. Canonical repository state
 
