@@ -1,4 +1,4 @@
-export const COPILOT_VERSION='SIGNAL-COPILOT-1.0.3';
+export const COPILOT_VERSION='SIGNAL-COPILOT-1.0.4';
 export const FIELDS=['line','shopping_reason','renewal_date','closing_date','callback_date','current_carrier','current_premium','price_target','deductible_target','vehicle_count','driver_count','owner_or_buyer','zip','claims_indicator','bundle_interest','preferred_channel','explicit_call_request','explicit_quote_request','existing_farmers','wrong_number','opt_out','vehicle','vehicles','vehicle_ownership','annual_mileage','currently_insured'];
 const str=(maxLength=600)=>({type:'string',maxLength});
 const list=(items,maxItems=12)=>({type:'array',items,maxItems});
@@ -28,16 +28,19 @@ const BOOLEAN_FIELDS=new Set(['bundle_interest','currently_insured','explicit_ca
 const canonicalBoolean=value=>({true:'true',yes:'true','1':'true',false:'false',no:'false','0':'false'})[String(value??'').trim().toLowerCase()]||null;
 export function validateReasoning(value,context){
  assertSchema(value);const r=structuredClone(value);
- r.fact_proposals=r.fact_proposals.map(p=>{
+ r.fact_proposals=r.fact_proposals.flatMap(p=>{
+  if(BOOLEAN_FIELDS.has(p.field)){const normalized=canonicalBoolean(p.value);if(!normalized)throw validationError('invalid_fact_value',p.field);p={...p,value:normalized};}
+  const known=context.known_answers[p.field];
+  // An exact repeat of an already-known canonical fact adds no new evidence. Drop it
+  // before SMS evidence validation; unknown and conflicting proposals remain gated.
+  if(known?.status==='KNOWN'&&equal(known.value,p.value))return [];
   const m=context.messages.find(m=>m.id===p.message_id&&m.direction==='inbound');
   if(!p.evidence_text||!m||!literalEvidence(m.body,p.evidence_text))throw validationError('unsupported_evidence',p.field);
   if(/_date$/.test(p.field)&&(!/^\d{4}-\d{2}-\d{2}$/.test(p.value)||!Number.isFinite(Date.parse(p.value))||new Date(p.value).toISOString().slice(0,10)!==p.value))throw validationError('invalid_fact_date',p.field);
   if(p.field==='line'&&!['AUTO','HOME','HOME_AUTO'].includes(p.value.toUpperCase()))throw validationError('invalid_fact_value',p.field);
   if(['vehicle_count','driver_count'].includes(p.field)&&(!/^\d+$/.test(p.value)||Number(p.value)<1||Number(p.value)>100))throw validationError('invalid_fact_value',p.field);
   if(['vehicle_count','driver_count','annual_mileage','current_premium','price_target','deductible_target'].includes(p.field)&&(!/^\d+(\.\d+)?$/.test(p.value)||Number(p.value)>10000000))throw validationError('invalid_fact_value',p.field);
-  if(BOOLEAN_FIELDS.has(p.field)){const normalized=canonicalBoolean(p.value);if(!normalized)throw validationError('invalid_fact_value',p.field);p={...p,value:normalized};}
-  const known=context.known_answers[p.field];
-  return {...p,status:known&&['KNOWN','CONFLICTING'].includes(known.status)&&(!equal(known.value,p.value)||known.status==='CONFLICTING')?'CONFLICTING':p.confidence<.85?'UNCERTAIN':'PROPOSED',source:'sms_inbound',extractor:COPILOT_VERSION};
+  return [{...p,status:known&&['KNOWN','CONFLICTING'].includes(known.status)&&(!equal(known.value,p.value)||known.status==='CONFLICTING')?'CONFLICTING':p.confidence<.85?'UNCERTAIN':'PROPOSED',source:'sms_inbound',extractor:COPILOT_VERSION}];
  });
  const guarded=[...new Set([...context.do_not_reask,...r.fact_proposals.filter(p=>p.status==='PROPOSED').map(p=>p.field)])];
  const repeat=r.reply.asks.filter(k=>guarded.includes(k));
