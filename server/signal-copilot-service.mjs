@@ -6,14 +6,14 @@ import {aiConfig,reasonWithProvider,safeProviderFailure} from './ai-provider.mjs
 const PREFIX='signal-copilot/';
 export function copilotService(repo,env,options={}){
  const store=createSmsConversationStore(repo.db),w=repo.scope.workspace,base=PREFIX+w+'/';
- const requestPattern=(base+'requests/').replace(/[\\%_]/g,x=>'\\'+x)+'%';
+ const requestPrefix=base+'requests/';
  const load=id=>copilotContext(repo,store,env,id);
  const requestKey=id=>{if(!/^[a-f0-9]{64}$/.test(id||''))throw Error('invalid_suggestion');return base+'requests/'+id;};
  async function metrics(){
   let stage='request_history';
   try{
    const month=new Date().toISOString().slice(0,7),day=new Date().toISOString().slice(0,10);
-   const rows=await repo.rows("SELECT data_json FROM sms_conversations WHERE record_key LIKE ? ESCAPE '\\' ORDER BY updated_at DESC LIMIT 1001",requestPattern);
+   const rows=await repo.rows("SELECT data_json FROM sms_conversations WHERE substr(record_key,1,?)=? ORDER BY updated_at DESC LIMIT 1001",requestPrefix.length,requestPrefix);
    stage='aggregate_history';
    const all=rows.slice(0,1000).map(x=>parse(x.data_json)),recent=all.filter(r=>typeof r.at==='string'&&r.at.startsWith(month)),today=recent.filter(r=>r.at.startsWith(day));
    const analyzed=new Set(recent.map(r=>r.conversation_id+'|'+r.inbound_message_id)),sent=recent.filter(r=>r.sent_at),sentInbounds=new Set(sent.map(r=>r.conversation_id+'|'+r.inbound_message_id));
@@ -45,7 +45,7 @@ export function copilotService(repo,env,options={}){
  async function act(v){
   const ctx=await load(v.id);
   if(v.action==='status'){
-   const rows=await repo.rows("SELECT data_json FROM sms_conversations WHERE record_key LIKE ? ESCAPE '\\' ORDER BY updated_at DESC LIMIT 100",requestPattern);
+   const rows=await repo.rows("SELECT data_json FROM sms_conversations WHERE substr(record_key,1,?)=? ORDER BY updated_at DESC LIMIT 100",requestPrefix.length,requestPrefix);
    const latest=rows.map(x=>parse(x.data_json)).find(x=>x.opportunity_id===v.id&&x.status==='complete');
    return {enabled:env.CF_AI_ENABLED==='1'&&env.CF_SIGNAL_COPILOT_ENABLED==='1',suggestion:latest?{...latest,stale:latest.fingerprint!==ctx.fingerprint||latest.revision!==ctx.revision}:null};
   }
