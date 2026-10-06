@@ -993,6 +993,10 @@ Dylan will collect any quote or application details during or after your convers
 export async function ringCentralConnectionStatus(env = {}, options = {}) {
   const config = ringCentralConfig(env);
   const missing = missingRingCentralConfiguration(env);
+  const outboundNames = new Set(['RINGCENTRAL_CLIENT_ID','RINGCENTRAL_CLIENT_SECRET','RINGCENTRAL_JWT_TOKEN','RINGCENTRAL_FROM_NUMBER','RINGCENTRAL_CONVERSATION_HASH_SECRET']);
+  const webhookNames = new Set(['RINGCENTRAL_WEBHOOK_URL','RINGCENTRAL_WEBHOOK_VALIDATION_TOKEN']);
+  const missingOutbound = missing.filter(name => outboundNames.has(name));
+  const missingWebhook = missing.filter(name => webhookNames.has(name));
   const [recovery, maintenance] = await Promise.all([
     ringCentralRecoveryStatus(options.store).catch(() => null),
     readMaintenanceState(options.store)
@@ -1000,33 +1004,38 @@ export async function ringCentralConnectionStatus(env = {}, options = {}) {
   const base = {
     configured: missing.length === 0,
     missing,
+    outboundConfigured: missingOutbound.length === 0,
+    missingOutbound,
+    webhookConfigured: missingWebhook.length === 0,
+    missingWebhook,
     environment: config.serverUrl.includes('sandbox') ? 'sandbox' : 'production',
     fromNumber: maskNumber(config.fromNumber),
     webhookUrl: config.webhookUrl,
     connected: false,
     senderReady: false,
-    connectionState: missing.length ? 'configuration_required' : 'unchecked',
+    connectionState: missingOutbound.length ? 'outbound_configuration_required' : 'unchecked',
     phoneNumber: null,
     subscription: null,
     subscriptionHealth: ringCentralSubscriptionHealth(null, options),
     recovery,
     maintenance
   };
-  if (missing.length) return base;
+  if (missingOutbound.length) return base;
   try {
-    const [phoneNumbers, subscriptions] = await Promise.all([
-      listRingCentralPhoneNumbers(env, options),
-      listRingCentralSubscriptions(env, options)
-    ]);
+    const phoneNumbers = await listRingCentralPhoneNumbers(env, options);
     const phoneNumber = findConfiguredSmsNumber(phoneNumbers, config.fromNumber);
-    const subscription = findSmsWebhookSubscription(subscriptions, config.webhookUrl, options);
     const senderReady = Boolean(phoneNumber && phoneNumberSupportsSms(phoneNumber));
-    const subscriptionHealth = ringCentralSubscriptionHealth(subscription, options);
+    let subscription = null, subscriptionHealth = ringCentralSubscriptionHealth(null, options);
+    if (missingWebhook.length === 0) {
+      const subscriptions = await listRingCentralSubscriptions(env, options);
+      subscription = findSmsWebhookSubscription(subscriptions, config.webhookUrl, options);
+      subscriptionHealth = ringCentralSubscriptionHealth(subscription, options);
+    }
     return {
       ...base,
-      connected: Boolean(senderReady && subscriptionHealth.active),
+      connected: Boolean(senderReady && missingWebhook.length === 0 && subscriptionHealth.active),
       senderReady,
-      connectionState: subscriptionConnectionState(senderReady, subscriptionHealth),
+      connectionState: !senderReady ? 'sender_unavailable' : missingWebhook.length ? 'sender_ready_webhook_unconfigured' : subscriptionConnectionState(senderReady, subscriptionHealth),
       phoneNumber: {
         found: Boolean(phoneNumber),
         smsSender: senderReady,
