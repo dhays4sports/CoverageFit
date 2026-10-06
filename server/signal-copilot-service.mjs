@@ -10,14 +10,28 @@ export function copilotService(repo,env,options={}){
  const load=id=>copilotContext(repo,store,env,id);
  const requestKey=id=>{if(!/^[a-f0-9]{64}$/.test(id||''))throw Error('invalid_suggestion');return base+'requests/'+id;};
  async function metrics(){
-  const month=new Date().toISOString().slice(0,7),day=new Date().toISOString().slice(0,10);
-  const rows=await repo.rows("SELECT data_json FROM sms_conversations WHERE record_key LIKE ? ESCAPE '\\' ORDER BY updated_at DESC LIMIT 1001",requestPattern);
-  const all=rows.slice(0,1000).map(x=>parse(x.data_json)),recent=all.filter(r=>r.at?.startsWith(month)),today=recent.filter(r=>r.at.startsWith(day));
-  const analyzed=new Set(recent.map(r=>r.conversation_id+'|'+r.inbound_message_id)),sent=recent.filter(r=>r.sent_at),sentInbounds=new Set(sent.map(r=>r.conversation_id+'|'+r.inbound_message_id));
-  const uniqueIds=[...new Set(recent.map(r=>r.opportunity_id).filter(Boolean))],ids=uniqueIds.slice(0,50);let measured=[],outcomeJoinAvailable=true;
-  if(ids.length)try{measured=await repo.rows('SELECT opportunity_id,meaningful_conversation_at,quoteable_at,quote_prepared_at,bound_at FROM cf_acq_opportunity_measurements WHERE workspace_id=? AND opportunity_id IN ('+ids.map(()=>'?').join(',')+')',w,...ids);}catch{outcomeJoinAvailable=false;}
-  const evaluation={basis:'Descriptive results for analyzed inbounds only; not causal lift or all meaningful inbound coverage.',analyzed_inbounds:analyzed.size,sent_inbounds:sentInbounds.size,sent_per_analyzed:analyzed.size?sentInbounds.size/analyzed.size:null,accepted_after_revision:sent.filter(r=>r.parent_suggestion_id).length,sent_unchanged:sent.filter(r=>!r.edited).length,average_time_to_approval_ms:sent.length?Math.round(sent.reduce((n,r)=>n+Math.max(0,Date.parse(r.sent_at)-Date.parse(r.at)),0)/sent.length):null,fact_conflicts:recent.filter(r=>r.result?.fact_proposals?.some?.(p=>p.status==='CONFLICTING')).length,outcome_join_available:outcomeJoinAvailable,outcome_join_truncated:uniqueIds.length>50,outcome_records:outcomeJoinAvailable?measured.length:null,useful_conversations:outcomeJoinAvailable&&measured.length?measured.filter(r=>r.meaningful_conversation_at).length:null,quote_ready:outcomeJoinAvailable&&measured.length?measured.filter(r=>r.quoteable_at).length:null,quotes:outcomeJoinAvailable&&measured.length?measured.filter(r=>r.quote_prepared_at).length:null,binds:outcomeJoinAvailable&&measured.length?measured.filter(r=>r.bound_at).length:null};
-  return {evaluation,enabled:env.CF_AI_ENABLED==='1'&&env.CF_SIGNAL_COPILOT_ENABLED==='1',month,budget_usd:Number(env.CF_AI_MONTHLY_BUDGET_USD)||null,budget_warning:((await store.get(base+'budget/'+month))?.charged||0)>=Number(env.CF_AI_MONTHLY_BUDGET_USD)*.8,provider:env.CF_AI_PROVIDER||'openai',charged_or_reserved_usd:(await store.get(base+'budget/'+month))?.charged||0,requests_today:today.length,failures:recent.filter(r=>r.status==='failed').length,average_latency_ms:recent.length?Math.round(recent.reduce((n,r)=>n+(r.latency_ms||0),0)/recent.length):null,accepted:recent.filter(r=>r.accepted).length,edited:recent.filter(r=>r.edited).length,rejected:recent.filter(r=>r.rejected).length,repeat_rejections:recent.filter(r=>r.result?.validation?.repeated_fields?.length).length,truncated:rows.length>1000};
+  let stage='request_history';
+  try{
+   const month=new Date().toISOString().slice(0,7),day=new Date().toISOString().slice(0,10);
+   const rows=await repo.rows("SELECT data_json FROM sms_conversations WHERE record_key LIKE ? ESCAPE '\\' ORDER BY updated_at DESC LIMIT 1001",requestPattern);
+   stage='aggregate_history';
+   const all=rows.slice(0,1000).map(x=>parse(x.data_json)),recent=all.filter(r=>typeof r.at==='string'&&r.at.startsWith(month)),today=recent.filter(r=>r.at.startsWith(day));
+   const analyzed=new Set(recent.map(r=>r.conversation_id+'|'+r.inbound_message_id)),sent=recent.filter(r=>r.sent_at),sentInbounds=new Set(sent.map(r=>r.conversation_id+'|'+r.inbound_message_id));
+   const uniqueIds=[...new Set(recent.map(r=>r.opportunity_id).filter(Boolean))],ids=uniqueIds.slice(0,50);let measured=[],outcomeJoinAvailable=true;
+   stage='outcome_join';
+   if(ids.length)try{measured=await repo.rows('SELECT opportunity_id,meaningful_conversation_at,quoteable_at,quote_prepared_at,bound_at FROM cf_acq_opportunity_measurements WHERE workspace_id=? AND opportunity_id IN ('+ids.map(()=>'?').join(',')+')',w,...ids);}catch{outcomeJoinAvailable=false;}
+   stage='evaluation';
+   const evaluation={basis:'Descriptive results for analyzed inbounds only; not causal lift or all meaningful inbound coverage.',analyzed_inbounds:analyzed.size,sent_inbounds:sentInbounds.size,sent_per_analyzed:analyzed.size?sentInbounds.size/analyzed.size:null,accepted_after_revision:sent.filter(r=>r.parent_suggestion_id).length,sent_unchanged:sent.filter(r=>!r.edited).length,average_time_to_approval_ms:sent.length?Math.round(sent.reduce((n,r)=>n+Math.max(0,Date.parse(r.sent_at)-Date.parse(r.at)),0)/sent.length):null,fact_conflicts:recent.filter(r=>r.result?.fact_proposals?.some?.(p=>p.status==='CONFLICTING')).length,outcome_join_available:outcomeJoinAvailable,outcome_join_truncated:uniqueIds.length>50,outcome_records:outcomeJoinAvailable?measured.length:null,useful_conversations:outcomeJoinAvailable&&measured.length?measured.filter(r=>r.meaningful_conversation_at).length:null,quote_ready:outcomeJoinAvailable&&measured.length?measured.filter(r=>r.quoteable_at).length:null,quotes:outcomeJoinAvailable&&measured.length?measured.filter(r=>r.quote_prepared_at).length:null,binds:outcomeJoinAvailable&&measured.length?measured.filter(r=>r.bound_at).length:null};
+   stage='budget_read';
+   const budget=await store.get(base+'budget/'+month);
+   stage='response';
+   return {evaluation,enabled:env.CF_AI_ENABLED==='1'&&env.CF_SIGNAL_COPILOT_ENABLED==='1',month,budget_usd:Number(env.CF_AI_MONTHLY_BUDGET_USD)||null,budget_warning:(budget?.charged||0)>=Number(env.CF_AI_MONTHLY_BUDGET_USD)*.8,provider:env.CF_AI_PROVIDER||'openai',charged_or_reserved_usd:budget?.charged||0,requests_today:today.length,failures:recent.filter(r=>r.status==='failed').length,average_latency_ms:recent.length?Math.round(recent.reduce((n,r)=>n+(r.latency_ms||0),0)/recent.length):null,accepted:recent.filter(r=>r.accepted).length,edited:recent.filter(r=>r.edited).length,rejected:recent.filter(r=>r.rejected).length,repeat_rejections:recent.filter(r=>r.result?.validation?.repeated_fields?.length).length,truncated:rows.length>1000};
+  }catch(error){
+   const e=Error('Copilot usage is temporarily unavailable at '+stage+'.');
+   e.code='copilot_usage_'+stage;
+   e.status=503;
+   throw e;
+  }
  }
  async function reserve(config){
   const at=new Date().toISOString(),month=at.slice(0,7),budgetKey=base+'budget/'+month,rateKey=base+'rate/'+repo.scope.actor+'/'+at.slice(0,16);
