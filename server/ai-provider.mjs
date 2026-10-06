@@ -1,10 +1,11 @@
-import {COPILOT_SCHEMA,INSTRUCTIONS} from './signal-copilot-contract.mjs';
+import {COPILOT_SCHEMA,INSTRUCTIONS,FIELDS} from './signal-copilot-contract.mjs';
 const PROVIDER_CODES=new Set(['insufficient_quota','rate_limit_exceeded','invalid_api_key','model_not_found','invalid_json_schema','invalid_request_error','permission_denied','billing_hard_limit_reached']);
 const FAILURE_CODES=new Set(['ai_rate_limited','ai_budget_exceeded','stale_suggestion','invalid_output','unsupported_evidence','invalid_fact_date','invalid_fact_value','provider_timeout','provider_unavailable','provider_incomplete','provider_refusal','provider_rate_limited','invalid_usage','provider_cancelled','context_too_large']);
 export function safeProviderFailure(error){
  const result={error:FAILURE_CODES.has(error?.message)?error.message:'ai_unavailable'};
  if(Number.isInteger(error?.provider_status)&&error.provider_status>=400&&error.provider_status<=599)result.provider_status=error.provider_status;
  if(PROVIDER_CODES.has(error?.provider_code))result.provider_code=error.provider_code;
+ if(['invalid_fact_value','invalid_fact_date','unsupported_evidence'].includes(error?.message)&&FIELDS.includes(error?.validation_field))result.validation_field=error.validation_field;
  return result;
 }
 export const CAPABILITIES=['FAST_EXTRACT','NORMAL_REASON','DEEP_REASON'];
