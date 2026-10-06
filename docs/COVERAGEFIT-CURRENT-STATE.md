@@ -1,5 +1,19 @@
 # CoverageFit Current State
 
+## Current certification override — 2026-10-06
+
+Latest audited PR #7 head: `640285435fc0dd166c3f220c318fed82514db9ea`; still draft/unmerged. Main remains `5f47f2b7367110ca04ff03cc189983f136ab32fa`. This override supersedes older hosted-certification summaries below.
+
+Hosted Preview certification materially advanced on isolated `coveragefit-signal-preview` using synthetic opportunity `copilot-preview-qa-001` and an operator-controlled mobile recipient only. The following are now operator-proven in hosted Preview: real OpenAI Suggest generation; bounded validation and safe diagnostics; Use This selection; pending-draft persistence; stale approval rejection after source evidence change; explicit one-send approval; actual RingCentral SMS receipt on the operator-controlled phone; and duplicate/replayed approval rejection with HTTP 409 and no second send.
+
+The hosted 409 investigation produced bounded fixes without weakening authority: resilient Copilot usage metrics, safe validation-field diagnostics, normalized literal evidence matching, canonical boolean normalization, redundant-known-fact suppression, and deterministic Copilot version advances through `SIGNAL-COPILOT-1.0.4`. Historical failed request records were preserved.
+
+RingCentral outbound Preview configuration is now verified with a JWT belonging to the authenticated producer extension: `outboundConfigured=true`, configured from-number found, `SmsSender=true`, and `senderReady=true`. A controlled outbound SMS from +1 *** *** 6377 to the operator-controlled test phone was received. A replay of the consumed approval was rejected with 409 and produced no duplicate message.
+
+Preview RingCentral webhook configuration remains intentionally incomplete: `RINGCENTRAL_WEBHOOK_URL` and `RINGCENTRAL_WEBHOOK_VALIDATION_TOKEN` are absent, so inbound subscription/webhook readiness is not certified. Production configuration, production AI, customer messaging, AgencyZoom automation and main remain unchanged.
+
+Remaining Phase 0 hosted/safety work: direct authenticated denial checks for CONTROL/OTHER/unsupported populations and held/wrong-number states; full runtime secret-exposure review; fresh full-suite test evidence; PR #6/#7/#8 reconciliation; canonical roadmap/current-state cleanup. Do not treat the successful synthetic send as production rollout authorization.
+
 ## Current certification override — 2026-10-05 16:22 PDT
 
 Latest audited PR #7 head: `9ef8c793d4c8ee9c8c3a22c703f3da98cfbe854b`; still draft/unmerged. Main remains `5f47f2b7367110ca04ff03cc189983f136ab32fa`. This documentation update changes no runtime code.
