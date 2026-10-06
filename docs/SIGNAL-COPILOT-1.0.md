@@ -1,5 +1,26 @@
 # Signal Reply Copilot 1.0
 
+## Latest hosted certification — 2026-10-06
+
+This section supersedes older hosted-certification status below. Evidence is operator-performed in isolated Cloudflare Preview with synthetic opportunity `copilot-preview-qa-001` and an operator-controlled recipient.
+
+- PR #7 remains draft/unmerged. Current audited head: `640285435fc0dd166c3f220c318fed82514db9ea`. Main remains unchanged.
+- Real OpenAI Suggest generation: PASS in hosted Preview.
+- Review-first selection / Use This: PASS.
+- Pending draft persistence across refresh: PASS.
+- Stale approval protection: PASS. After synthetic source evidence changed, Approve & Send returned HTTP 409 `Copilot context changed. Refresh and review before sending.`; no SMS was sent.
+- Controlled explicit send: PASS. After restoring a fresh context and selecting a fresh Copilot draft, one explicit Approve & Send delivered one real RingCentral SMS from the configured business sender to the operator-controlled mobile number. Conversation revision advanced after successful send.
+- Duplicate/replay approval protection: PASS. Replaying the already-consumed approval at the prior revision returned HTTP 409 and no second SMS was received.
+- Delivery-review fail-closed behavior: PASS. Before RingCentral credentials were corrected, the gateway returned `Delivery needs review in RingCentral. Do not retry blindly.`; no outbound message existed in RingCentral and no automatic retry occurred.
+- RingCentral outbound credential diagnosis: PASS. Initial Preview JWT/app mismatch produced `invalid_request`; a replacement JWT tied to the producer extension was configured. Read-only status then reported `outboundConfigured=true`, configured sender found, `smsSender=true`, and `senderReady=true`.
+- RingCentral inbound webhook/subscription: NOT CERTIFIED. Preview still lacks `RINGCENTRAL_WEBHOOK_URL` and `RINGCENTRAL_WEBHOOK_VALIDATION_TOKEN`; outbound sender readiness is intentionally reported separately from webhook readiness.
+- Copilot usage panel: PASS after request-history query and legacy-record resilience fixes.
+- Safe validation diagnostics now preserve only bounded field identifiers, never rejected provider values or bodies.
+- Validation hardening added normalized literal evidence matching, canonical yes/no boolean normalization, and suppression of exact redundant proposals for already-known facts. Unknown/conflicting facts remain evidence-gated.
+- No production AI enablement, no customer certification send, no main merge, no AgencyZoom change.
+
+Remaining certification before any production rollout: direct authenticated API denial checks for CONTROL/OTHER/unsupported populations, wrong-number/held ownership behavior, runtime secret-exposure review, fresh full-suite tests, and repository/PR reconciliation.
+
 ## Latest hosted certification — 2026-10-05 16:22 PDT
 
 This section supersedes older certification status below. Evidence is operator-performed and confirmed in chat/screenshots, not an independently authenticated browser run.
