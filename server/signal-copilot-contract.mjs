@@ -1,4 +1,4 @@
-export const COPILOT_VERSION='SIGNAL-COPILOT-1.0.1';
+export const COPILOT_VERSION='SIGNAL-COPILOT-1.0.2';
 export const FIELDS=['line','shopping_reason','renewal_date','closing_date','callback_date','current_carrier','current_premium','price_target','deductible_target','vehicle_count','driver_count','owner_or_buyer','zip','claims_indicator','bundle_interest','preferred_channel','explicit_call_request','explicit_quote_request','existing_farmers','wrong_number','opt_out','vehicle','vehicles','vehicle_ownership','annual_mileage','currently_insured'];
 const str=(maxLength=600)=>({type:'string',maxLength});
 const list=(items,maxItems=12)=>({type:'array',items,maxItems});
