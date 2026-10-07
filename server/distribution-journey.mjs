@@ -5,6 +5,7 @@ import {normalizeLeadPayload,upsertLeadJourney} from './lead-operations-core.mjs
 import {projectSoloDeskEvent} from './solo-desk-event-projection.mjs';
 import {sha256Hex} from './runtime-crypto.mjs';
 import {smsLiveConversationId} from './sms-outbound-gateway.mjs';
+import {sendDistributionProducerEmail} from './distribution-producer-email.mjs';
 
 // Same PVX record primitive, with a distinct cookie so legacy PVX update APIs
 // cannot mutate this execution. No separate lead exists before permission.
@@ -110,6 +111,22 @@ async function deliver(loaded,options){
   const next={...r,contact:{...c,delivered:true},revision:r.revision+1,updatedAt:date(options).toISOString()};
   await save(loaded,next,options);
   await event(next.distribution,'producer_handoff',options).catch(()=>{});
+  // Only confirmed 408FARMERS contact handoffs are eligible. Customer replies,
+  // anonymous answers, legacy appointments, and district lead imports are excluded.
+  // The email is a non-blocking operational notice, not part of the durable
+  // lead/producer receipt. Never make a saved lead appear to fail because of email.
+  if(r.distribution.presentation==='408_contextual'){
+    const notifier=options.sendDistributionProducerEmail||sendDistributionProducerEmail;
+    const work=Promise.resolve().then(()=>notifier({
+      journeyId:r.journeyId,opportunityId:projected.opportunityId,
+      entry:r.distribution.entry,requestedMode:c.mode
+    },options)).then(result=>{
+      if(result?.status==='failed'||(result?.status==='skipped'&&result.reason==='not_configured'))
+        console.warn('distribution_producer_email_unavailable',result.reason||'unknown');
+    }).catch(cause=>console.error('distribution_producer_email_error',cause?.code||cause?.name||'unknown'));
+    if(typeof options.waitUntil==='function')options.waitUntil(work);
+    else await work;
+  }
   return json(publicState(next,date(options)));
 }
 export async function distributionJourney(request,options={}){
