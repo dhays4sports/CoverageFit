@@ -1,6 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {DatabaseSync} from 'node:sqlite';import {readFileSync,readdirSync} from 'node:fs';
 import {parseRaw,fieldClass} from '../server/agencyzoom-raw.mjs';
-import {rawImporter} from '../server/agencyzoom-import.mjs';
+import {rawImporter,intakeTriage} from '../server/agencyzoom-import.mjs';
 import {districtPilot,pilotAssignment} from '../server/district-pilot.mjs';
 function fixture(){const sql=new DatabaseSync(':memory:');for(const f of readdirSync(new URL('../migrations/',import.meta.url)).filter(f=>f.endsWith('.sql')).sort())sql.exec(readFileSync(new URL('../migrations/'+f,import.meta.url),'utf8'));const db={prepare(q){let args=[];const stmt={bind(...v){args=v;return stmt},async first(){return sql.prepare(q).get(...args)||null},async all(){return {results:sql.prepare(q).all(...args)}},async run(){return {meta:sql.prepare(q).run(...args)}}};return stmt},async batch(stmts){sql.exec('BEGIN');try{const result=[];for(const s of stmts)result.push(await s.run());sql.exec('COMMIT');return result}catch(e){sql.exec('ROLLBACK');throw e}}};const now=new Date().toISOString();for(const id of ['one','two'])sql.prepare('INSERT INTO cf_solo_opportunities(id,workspace_id,owner_id,contact_json,source,last_mutation_id,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?)').run(id,'qa','qa','{}','district','qa',now,now);const repo={db,scope:{workspace:'qa',actor:'qa'},sql:(q,...v)=>db.prepare(q).bind(...v),rows:async(q,...v)=>(await db.prepare(q).bind(...v).all()).results,own:async id=>{const r=sql.prepare('SELECT * FROM cf_solo_opportunities WHERE workspace_id=? AND id=?').get('qa',id);if(!r)throw new Error('unavailable');return r;}};return {sql,repo,pilot:districtPilot(repo),received:new Date(Date.now()-60000).toISOString()};}
 const file=(id='100',phone='2025550199')=>({name:'AWL-'+id+'.csv',text:'Lead ID,Date,Lead Type,State,Cell Phone,Name,Current Insurance Co,Experation Date,Credit Rating,DOB,Occupation,Needs Quote\n'+[id,new Date(Date.now()-60000).toISOString(),'Automobile','CA',phone,'Synthetic Tester','Mercury','2026-12-31','EXCLUDED_CREDIT','EXCLUDED_DOB','EXCLUDED_JOB','ASAP'].join(',')});
@@ -175,5 +175,26 @@ test('promotion transaction failure rolls back enrollment, audit and ownership t
   const r=await f.importer.promote({confirmed:true,fingerprint:p.fingerprint});
   assert.equal(r.results[0].status,'CONFLICT');assert.equal(r.promoted,0);assert.deepEqual(f.link(),before);assert.equal(f.audits(),0);
   assert.equal((await f.importer.promotionPreview()).eligible,1);assert.equal(f.refreshed.length,0);
+ }finally{f.sql.close();}
+});
+
+
+test('intake triage separates machine-safe rows from true exceptions',()=>{
+ assert.deepEqual(intakeTriage({import_status:'DUPLICATE',status:'DUPLICATE'}),{bucket:'DUPLICATE',needs_attention:false,reason:'Already represented by stable source identity'});
+ assert.equal(intakeTriage({import_status:'READY',pilot_status:'INELIGIBLE_AGE',status:'READY'}).bucket,'SAFE_HOLD');
+ assert.equal(intakeTriage({import_status:'READY',pilot_status:'ELIGIBLE_NEW_LEAD',status:'READY',contact:{mobile:''},phone_status:'MISSING'}).bucket,'READY_NO_SMS');
+ assert.equal(intakeTriage({import_status:'NEEDS_REVIEW',status:'PHONE CONFLICT: different lead keys share a phone'}).bucket,'REVIEW_IDENTITY');
+ assert.equal(intakeTriage({import_status:'NEEDS_REVIEW',status:'Combined AWL schema not safely recognized'}).bucket,'REVIEW_SCHEMA');
+ assert.equal(intakeTriage({import_status:'NEEDS_REVIEW',status:'FUTURE RECEIVED DATE: review source timestamp'}).bucket,'REVIEW_TIME');
+ assert.equal(intakeTriage({import_status:'NEEDS_REVIEW',status:'UNSUPPORTED PRODUCT: review'}).bucket,'REVIEW_FIELD');
+});
+
+test('preview returns aggregate intake triage so producer need not inspect every valid row',async()=>{
+ const f=setup();try{
+  const old=file('triage-old','2025550166');old.text=old.text.replace(/20\d\d-\d\d-\d\dT[^,]+/,new Date(Date.now()-8*86400000).toISOString());
+  const bad=file('triage-bad','2025550167');bad.text=bad.text.replace(',CA,',',NV,');
+  const p=await f.importer.preview({files:[file('triage-ready','2025550165'),old,bad]});
+  assert.equal(p.triage.ready,2);assert.equal(p.triage.needs_attention,1);assert.equal(p.triage.counts.READY,1);assert.equal(p.triage.counts.SAFE_HOLD,1);assert.equal(p.triage.counts.REVIEW_FIELD,1);
+  assert.equal(p.rows.find(r=>r.lead_key==='awl:triage-bad').triage.needs_attention,true);
  }finally{f.sql.close();}
 });
