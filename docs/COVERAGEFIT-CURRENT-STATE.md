@@ -1,5 +1,28 @@
 # CoverageFit Current State
 
+## Roadmap direction override — 2026-10-07
+
+CoverageFit's near-term strategy is now: **intelligence and attention operating layer first; CRM replacement only if earned later.**
+
+AgencyZoom remains the current CRM authority where agency workflows depend on it. CoverageFit must not silently become a second conflicting CRM. New CRM-like authority is gated by `docs/AGENCYZOOM-COEXISTENCE-DATA-GOVERNANCE-1.0.md`.
+
+Forward sequence:
+1. finish Phase 0 stabilization and hosted safety;
+2. reconcile Producer OS foundation with current Copilot/commitment work;
+3. complete AgencyZoom coexistence and data-governance rules before new CRM-like writes;
+4. improve raw-lead intake and evidence normalization;
+5. build durable conversation state and commitments;
+6. build Attention Priority / Recommended / High Intent / Due Now;
+7. expose calendar actions and connect them to commitments/attention;
+8. certify RingCentral inbound webhook/subscription handling;
+9. add call intelligence;
+10. expand governed document/visual evidence and Producer Context;
+11. mature Signal and bounded producer-approved actions.
+
+Operational North Star: **turn a large pile of raw leads into a very small number of things the producer actually needs to do.**
+
+Existing CONTROL history and cohort capability are preserved. New CONTROL enrollment may be reduced or paused during production crunch; historical records are not retroactively relabeled.
+
 ## Current certification override — 2026-10-06
 
 Latest audited PR #7 head: `640285435fc0dd166c3f220c318fed82514db9ea`; still draft/unmerged. Main remains `5f47f2b7367110ca04ff03cc189983f136ab32fa`. This override supersedes older hosted-certification summaries below.
