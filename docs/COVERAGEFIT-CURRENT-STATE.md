@@ -1,5 +1,22 @@
 # CoverageFit Current State
 
+## Phase 0 stabilization update — 2026-10-07
+
+PR #6's unique district-promotion race-safety behavior has now been reconciled into the active `signal-copilot` branch rather than leaving it stranded on a divergent PR.
+
+Reconciled behavior:
+- promotion preview fingerprints the exact source snapshot;
+- each promotion attempt gets an operation ID;
+- dependent activity/SMS ownership writes execute only if the exact compare-and-swap promotion succeeded;
+- a lost compare-and-swap returns `SKIPPED_CHANGED` without ownership, audit or priority side effects;
+- transaction failure remains fail-closed;
+- regression coverage for SIGNAL and CONTROL promotion, stale evidence, lost compare-and-swap and rollback has been added;
+- the Producer OS foundation architecture reference is now present on the active branch.
+
+This is source reconciliation, **not fresh full-suite certification**. Historical PR #8 evidence showed these regressions passing in its older stacked tree, but the current PR #7 head still requires a fresh complete test run after all recent Copilot and documentation changes.
+
+Next Phase 0 work: audit the remaining unique PR #8 commitment/attention/calendar changes against the now-current PR #7 tree; port only compatible increments; complete hosted denial/security checks; then obtain fresh full-suite evidence before merge/production authority changes.
+
 ## Roadmap direction override — 2026-10-07
 
 CoverageFit's near-term strategy is now: **intelligence and attention operating layer first; CRM replacement only if earned later.**
