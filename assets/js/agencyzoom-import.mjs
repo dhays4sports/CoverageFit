@@ -22,9 +22,13 @@ export function mountRawImport(root,api){let files=[],preview=null,busy=false;
  function input(){return {files,synthetic:root.querySelector('[data-synthetic]').checked};}
  async function inspect(){if(busy)return;busy=true;invalidate();status.textContent='Checking each lead…';try{
   preview=await api('raw-preview',input());
-  rows.innerHTML=`<div style="overflow-x:auto"><table><thead><tr>${['File / row','Lead key','Name','Line','Source','Received (Pacific)','Phone','Import','SMS','Pilot','Status'].map(x=>`<th scope="col">${x}</th>`).join('')}</tr></thead><tbody>${preview.rows.map(rawPreviewRowHTML).join('')}</tbody></table></div>`;
+  const attention=preview.rows.filter(r=>r.triage?.needs_attention),quiet=preview.rows.filter(r=>!r.triage?.needs_attention);
+  const table=items=>`<div style="overflow-x:auto"><table><thead><tr>${['File / row','Lead key','Name','Line','Source','Received (Pacific)','Phone','Import','SMS','Pilot','Status'].map(x=>`<th scope="col">${x}</th>`).join('')}</tr></thead><tbody>${items.map(rawPreviewRowHTML).join('')}</tbody></table></div>`;
+  const counts=preview.triage?.counts||{};
+  const summary=`<section class="notice"><b>Machine triage</b><p>${preview.triage?.ready||0} can move forward without row-by-row review · ${preview.triage?.duplicates||0} duplicates · ${preview.triage?.needs_attention||0} true exceptions.</p><p class="muted">Ready ${counts.READY||0} · Ready/no SMS ${counts.READY_NO_SMS||0} · Safe hold ${counts.SAFE_HOLD||0} · Identity ${counts.REVIEW_IDENTITY||0} · Schema ${counts.REVIEW_SCHEMA||0} · Time ${counts.REVIEW_TIME||0} · Field ${counts.REVIEW_FIELD||0} · Other ${counts.REVIEW_OTHER||0}</p></section>`;
+  rows.innerHTML=summary+(attention.length?`<h3>Needs your attention</h3>${table(attention)}`:'<p><b>No row-level exceptions need your attention.</b></p>')+(quiet.length?`<details><summary>Validated / held / duplicate rows (${quiet.length})</summary>${table(quiet)}</details>`:'');
   const ready=preview.rows.filter(r=>r.import_status==='READY').length;go.disabled=!ready;go.textContent=`Import ${ready} valid leads`;
-  status.textContent=`${ready} ready; ${preview.rows.filter(r=>r.import_status==='DUPLICATE').length} duplicates; ${preview.rows.filter(r=>r.import_status==='NEEDS_REVIEW').length} need review. Older inventory stays outside NEW_LEAD. No SMS will be sent.`;
+  status.textContent=`${preview.triage?.needs_attention||0} exceptions need review. ${preview.triage?.ready||0} validated/held rows can be handled without opening each row. No SMS will be sent.`;
  }catch(e){status.textContent=e.message;}finally{busy=false;}}
  root.querySelector('[data-preview]').addEventListener('click',inspect);
  rows.addEventListener('input',e=>{const i=e.target.dataset.correction;if(i===undefined)return;const row=e.target.dataset.row;files[i].rowCorrections={...(files[i].rowCorrections||{}),[row]:{...(files[i].rowCorrections?.[row]||{}),[e.target.dataset.key]:e.target.value}};invalidate();});
