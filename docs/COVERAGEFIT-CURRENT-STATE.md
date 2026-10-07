@@ -1,5 +1,24 @@
 # CoverageFit Current State
 
+## Raw lead intake / triage update — 2026-10-07
+
+The first RAW-LEAD-INTAKE-1.0 slice is now implemented on the active branch.
+
+New behavior:
+- deterministic preview triage separates READY, READY_NO_SMS, SAFE_HOLD, DUPLICATE and true review exceptions;
+- review exceptions are classified into identity, schema, time, bounded-field and other buckets;
+- the Import UI leads with true exceptions and collapses validated/held/duplicate rows;
+- preview returns aggregate triage counts so producer attention is measured in exceptions rather than total rows;
+- a default-off `CF_DISTRICT_CONTROL_ENROLLMENT_PAUSED` capability can route newly eligible deterministic CONTROL assignments to operational SIGNAL while preserving `assignment_cohort` and an explicit override reason for audit;
+- historical CONTROL records are not relabeled;
+- import still sends zero SMS.
+
+The synchronous 100-lead batch limit remains intentionally unchanged until hosted latency is measured. Higher throughput should be achieved without creating timeout/retry ambiguity.
+
+Canonical intake contract: `docs/RAW-LEAD-INTAKE-1.0.md`.
+
+Fresh full-suite execution is still outstanding. GitHub currently exposes no Actions/check run for the active PR head, and the local container cannot reach GitHub to clone the repository; therefore no new test-pass count is claimed.
+
 ## Security/data gate update — 2026-10-07
 
 A current-source security review has been formalized in `docs/COVERAGEFIT-SECURITY-DATA-GATE-1.0.md`.
