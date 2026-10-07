@@ -41,18 +41,35 @@ Production authority remains unchanged.
 
 The near-term implementation order is now explicitly:
 
-1. **SIGNAL-COPILOT-1.0 certification**
+1. **PHASE-0-STABILIZE — finish safety certification and reconcile the active branches**
 2. **Producer OS foundation alignment**
-3. **SIGNAL-COPILOT-1.1 — durable conversation state and commitments**
-4. **SIGNAL-ATTENTION-1.0 — Recommended / High Intent / Due Now**
-5. **CALENDAR-ACTIONS-1.0 — create / invite / reschedule / cancel from the producer workspace**
-6. **Attention + Calendar convergence**
-7. **SIGNAL-COPILOT-1.2 — call intelligence**
-8. Continue Visual Copilot, Document Copilot, Producer Context, mature Signal and bounded Producer Actions.
+3. **AgencyZoom coexistence + data-governance gate**
+4. **Raw-lead intake / evidence normalization**
+5. **SIGNAL-COPILOT-1.1 — durable conversation state and commitments**
+6. **SIGNAL-ATTENTION-1.0 — Recommended / High Intent / Due Now**
+7. **CALENDAR-ACTIONS-1.0 — create / invite / reschedule / cancel from the producer workspace**
+8. **Attention + Calendar convergence**
+9. **RingCentral inbound certification**
+10. **SIGNAL-COPILOT-1.2 — call intelligence**
+11. Continue Document/Visual evidence, Producer Context, mature Signal and bounded Producer Actions.
 
 This refinement moves producer attention orchestration and deterministic calendar actions earlier because CoverageFit already has the required Opportunity Priority, NBA, producer-workspace ordering and Google Calendar infrastructure. These are not separate products; they are missing operating layers on top of existing primitives.
 
 See docs/COVERAGEFIT-NEAR-TERM-PRODUCER-ROADMAP-1.0.md for the detailed contracts, acceptance gates, rollout sequence and test requirements.
+
+## Phase 1A — AgencyZoom coexistence and data governance
+
+Before Copilot expands into broader CRM-like actions, CoverageFit must establish the coexistence contract in **docs/AGENCYZOOM-COEXISTENCE-DATA-GOVERNANCE-1.0.md**.
+
+The strategic rule is:
+
+> **Do not disengage from AgencyZoom during Producer OS development. Make AgencyZoom replaceable through clean authority, provenance, synchronization and export boundaries rather than assuming it will be replaced.**
+
+CoverageFit may continue to own intelligence, evidence projections, Signal, commitments and Attention while AgencyZoom remains authoritative for agency CRM state that other staff/processes depend on.
+
+New external writes must move through an authority ladder: observe → recommend → prepared producer-approved write → bounded idempotent write-through → only then narrowly delegated automation.
+
+This gate also establishes data minimization, retention/deletion planning, AI context minimization, environment/secret isolation, export/recovery and field-level reconciliation rules.
 
 ## Phase 2 — SIGNAL-COPILOT-1.1
 
