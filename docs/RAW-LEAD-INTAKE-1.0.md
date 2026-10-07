@@ -153,13 +153,16 @@ Future support may add a specific verified combined schema adapter if real sourc
 - aggregate triage counts;
 - audited CONTROL pause capability.
 
-### Slice B
-- import-batch receipt with counts by triage bucket;
-- persistent exception queue keyed by batch/source identity;
-- explicit resolved/deferred disposition for review items;
-- no need to re-open successful rows after import.
+### Slice B — implemented
+- durable import-batch receipt;
+- persistent exception queue keyed by batch/source-derived identity;
+- explicit OPEN / DEFERRED / RESOLVED disposition for review items;
+- exceptions store only bounded operational metadata, not raw file bodies or phone values;
+- successful rows do not remain in the exception queue.
 
-### Slice C
+### Slice C — instrumentation implemented; hosted measurement pending
+- preview returns `preview_duration_ms`;
+- import receipts persist `prepare_duration_ms` and `import_duration_ms`;
 - measure 100-row hosted preview/import latency;
 - choose larger synchronous batches vs chunked intake;
 - preserve idempotency across chunk retries.
