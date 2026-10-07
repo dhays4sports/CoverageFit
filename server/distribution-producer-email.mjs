@@ -4,7 +4,6 @@ import { notificationConfig, RESEND_EMAIL_ENDPOINT } from './producer-notificati
 export const DISTRIBUTION_PRODUCER_EMAIL_BUILD = 'CF-DISTRIBUTION-LEAD-EMAIL-1.0';
 export const DISTRIBUTION_PRODUCER_EMAIL_FLAG = 'COVERAGEFIT_DISTRIBUTION_LEAD_EMAIL_ENABLED';
 const PREFIX = 'producer-notifications/distribution/';
-const MAX_BODY = 16000;
 const ENTRY_LABELS = Object.freeze({
   home: 'Home',
   buyer: 'Homebuyer',
@@ -111,7 +110,7 @@ export async function sendDistributionProducerEmail(input = {}, options = {}) {
   try {
     if (typeof fetcher !== 'function') throw new Error('fetch_unavailable');
     const response = await fetcher(RESEND_EMAIL_ENDPOINT, {
-      method:'POST', headers, body:JSON.stringify(request).slice(0, MAX_BODY),
+      method:'POST', headers, body:JSON.stringify(request),
       ...(controller ? {signal:controller.signal} : {})
     });
     providerStatus = response.status;
