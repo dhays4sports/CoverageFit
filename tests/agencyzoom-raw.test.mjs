@@ -212,3 +212,16 @@ test('CONTROL enrollment pause routes only new eligible records to SIGNAL while 
   assert.equal(stored.assignment_cohort,'CONTROL');assert.equal(stored.cohort,'SIGNAL');assert.equal(stored.cohort_override_reason,'control_enrollment_paused');
  }finally{f.sql.close();}
 });
+
+
+test('persistent exception queue and receipt survive import and support disposition',async()=>{
+ const f=setup();try{
+  const good=file('receipt-good','2025550131'),bad=file('receipt-bad','2025550132');bad.text=bad.text.replace(',CA,',',NV,');
+  const files=[good,bad],p=await f.importer.preview({files}),r=await f.importer.commit({files,fingerprint:p.fingerprint,confirmed:true,eligible:true});
+  assert.equal(r.imported,1);assert.equal(r.needs_review,1);assert.equal(r.receipt.row_count,2);assert.equal(r.receipt.exceptions.length,1);
+  const receipts=await f.importer.receipts({limit:10});assert.equal(receipts.records[0].id,p.fingerprint);assert.equal(receipts.records[0].imported,1);assert.equal(receipts.records[0].needs_review,1);
+  let exceptions=await f.importer.exceptions({state:'OPEN'});assert.equal(exceptions.records.length,1);const x=exceptions.records[0];assert.equal(x.triage.bucket,'REVIEW_FIELD');assert.equal(x.state,'OPEN');assert.ok(!JSON.stringify(x).includes('+12025550132'));
+  const next=await f.importer.disposition({id:x.id,state:'DEFERRED',note:'Check original source tomorrow'});assert.equal(next.state,'DEFERRED');assert.equal(next.disposition_note,'Check original source tomorrow');
+  exceptions=await f.importer.exceptions({state:'OPEN'});assert.equal(exceptions.records.length,0);assert.equal((await f.importer.exceptions({state:'DEFERRED'})).records.length,1);
+ }finally{f.sql.close();}
+});
