@@ -56,6 +56,8 @@ export async function handleSoloDesk(context){
       if(route==='producer-detail')return json({ok:true,...await producerWorkspace(repo,env).detail(url.searchParams.get('id'))});
       if(route==='district-pilot')return json({ok:true,...await districtPilot(repo,env).report()});
       if(route==='raw-promotion-preview')return json({ok:true,...await rawImporter(repo,env).promotionPreview()});
+      if(route==='raw-intake-receipts')return json({ok:true,...await rawImporter(repo,env).receipts({limit:url.searchParams.get('limit')})});
+      if(route==='raw-intake-exceptions')return json({ok:true,...await rawImporter(repo,env).exceptions({state:url.searchParams.get('state')||'OPEN',limit:url.searchParams.get('limit')})});
       if(route==='pilot-record')return json({ok:true,pilot:await districtPilot(repo,env).get(url.searchParams.get('id'))});
       if(route==='activity')return json({ok:true,...await repo.activity(url.searchParams.get('id'),url.searchParams.get('cursor'))});
       if(route==='sync-status')return json({ok:true,streams:STREAMS,states:await repo.rows('SELECT stream,cursor_json FROM cf_solo_sync WHERE workspace_id=?',repo.scope.workspace)});
@@ -68,6 +70,7 @@ export async function handleSoloDesk(context){
     if(route==='raw-preview')return json({ok:true,...await rawImporter(repo,env).preview(value)});
     if(route==='raw-import')return json({ok:true,...await rawImporter(repo,env).commit(value)});
     if(route==='raw-promote')return json({ok:true,...await rawImporter(repo,env).promote(value)});
+    if(route==='raw-exception-disposition'){if(!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(value.requestId||''))fail(422,'request_id','Reload the exception before saving.');return json({ok:true,exception:await rawImporter(repo,env).disposition(value)});}
     if(route==='sync')return json({ok:true,...await sourceSync(repo).sync(value.stream)});
     if(route==='priority-backfill'){const result=await repo.backfillOpportunityPriority(value.limit||60);return json({ok:true,...result});}
     if(!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(value.requestId||''))fail(422,'request_id','Reload the form before saving.');
