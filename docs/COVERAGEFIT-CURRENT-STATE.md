@@ -1,5 +1,24 @@
 # CoverageFit Current State
 
+## Durable intake exception queue update — 2026-10-07
+
+RAW-LEAD-INTAKE Slice B is now implemented on the active branch.
+
+After a confirmed import:
+- CoverageFit writes a durable batch receipt with imported/duplicate/review/pilot/SMS-link counts;
+- true review exceptions are persisted separately as bounded exception records;
+- exception records support OPEN, DEFERRED and RESOLVED dispositions;
+- the Import UI loads unresolved exceptions independently from successful rows;
+- recent batch receipts remain visible;
+- exception persistence intentionally excludes raw CSV bodies and phone values;
+- successful/duplicate rows do not become unresolved exception work.
+
+Slice C instrumentation is also present: preview responses expose `preview_duration_ms`, and receipts persist `prepare_duration_ms` plus total `import_duration_ms`. These measurements are intended for hosted 100-row timing before any batch-size increase.
+
+CI was strengthened with explicit syntax checks for critical importer/workspace/API modules. A syntax regression introduced during this slice was caught by CI and corrected before hosted certification. The corrected branch push suite passed **441/441**, and the initially scheduler-sensitive PR concurrency test passed on rerun **441/441**. No runtime concurrency guard was weakened.
+
+No production configuration, customer send, AgencyZoom write, calendar write or schema migration was enabled by this slice.
+
 ## Fresh full-suite certification — 2026-10-07
 
 GitHub Actions now runs the repository's full Node test suite on every push / pull request using Node 24.
