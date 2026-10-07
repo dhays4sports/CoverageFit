@@ -1,5 +1,15 @@
 # CoverageFit Current State
 
+## Read-only Attention integration update — 2026-10-07
+
+The active `signal-copilot` branch now contains the standalone Commitment Projection and deterministic Attention Priority foundation from PR #8, plus a **surgical current-head Producer Workspace integration** behind `CF_ATTENTION_ENABLED=1`.
+
+The integration was reimplemented against the current Copilot branch instead of copying PR #8's stale workspace wholesale. When the flag is absent/off, baseline Work sorting and behavior remain unchanged. When enabled, the workspace may return read-only commitments, Attention projections and optional sorts (`recommended`, `high_intent`, `due_now`, `newest`). DISTRICT_CONTROL receives no Attention guidance. Suppression checks include opt-out, STOP, wrong-number and explicit opt-out facts.
+
+No calendar mutation, Google write, AgencyZoom write, customer message, migration or production flag was enabled.
+
+Regression coverage was added for the default-off behavior, CONTROL exclusion and invalid sort rejection. These tests have **not yet been freshly executed on the current full tree**; full-suite certification remains a Phase 0 gate.
+
 ## PR #8 reconciliation update — 2026-10-07
 
 The remaining PR #8 work has been triaged rather than merged wholesale.
