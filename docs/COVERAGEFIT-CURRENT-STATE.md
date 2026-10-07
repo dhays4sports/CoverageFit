@@ -1,5 +1,19 @@
 # CoverageFit Current State
 
+## PR #8 reconciliation update — 2026-10-07
+
+The remaining PR #8 work has been triaged rather than merged wholesale.
+
+**Ported now:** standalone read-only `commitment-projection.mjs`, deterministic `attention-priority.mjs`, and their regression tests.
+
+**Reimplement against current head:** Producer Workspace integration for commitments/Attention. The old PR #8 workspace is stale relative to the hosted-certified Copilot branch and contains integration assumptions that should not overwrite current behavior.
+
+**Deferred:** calendar mutation/UI and related external Google write paths until read-only Attention/Commitment integration is clean and the AgencyZoom/data-governance authority gate is satisfied.
+
+**Regenerate:** environment-contract inventory from the current tree; do not treat PR #8's generated inventory as current evidence.
+
+No new production flag, migration, customer action, AgencyZoom write or calendar action was enabled by this reconciliation.
+
 ## Phase 0 stabilization update — 2026-10-07
 
 PR #6's unique district-promotion race-safety behavior has now been reconciled into the active `signal-copilot` branch rather than leaving it stranded on a divergent PR.
