@@ -5,6 +5,13 @@ import {smsLiveConversationId} from './sms-outbound-gateway.mjs';
 import {createSmsConversationStore} from './d1-json-store.mjs';
 import {CONTROL_PREFIX} from './district-control-roster.mjs';
 export const RAW_KIND='district_raw_v2';
+export function syntheticRawRehearsalBatch({batchId,receivedAt}={}){
+ const id=String(batchId||'').toLowerCase();if(!/^[a-f0-9-]{16,64}$/.test(id))throw Error('Invalid synthetic rehearsal batch ID.');
+ const at=String(receivedAt||'');if(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/.test(at)||!Number.isFinite(Date.parse(at)))throw Error('Invalid synthetic rehearsal timestamp.');
+ const header='Lead ID,Date,Lead Type,State,Cell Phone,Name,Current Insurance Co,Experation Date,Needs Quote';
+ const rows=Array.from({length:100},(_,i)=>{const n=String(i).padStart(3,'0'),phone='202555'+String(100+i).padStart(4,'0');return ['rehearsal-'+id+'-'+n,at,'Automobile','CA',phone,'Synthetic Rehearsal '+n,'Synthetic Carrier','2026-12-31','ASAP'].join(',');});
+ return [{name:'AWL-synthetic-rehearsal-'+id+'.csv',text:[header,...rows].join('\n')}];
+}
 const msg=e=>String(e.message||'Import failed').slice(0,240);
 export function intakeTriage(row={}){
  const status=String(row.status||'');
