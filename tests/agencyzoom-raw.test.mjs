@@ -198,3 +198,17 @@ test('preview returns aggregate intake triage so producer need not inspect every
   assert.equal(p.rows.find(r=>r.lead_key==='awl:triage-bad').triage.needs_attention,true);
  }finally{f.sql.close();}
 });
+
+
+test('CONTROL enrollment pause routes only new eligible records to SIGNAL while preserving assignment evidence',async()=>{
+ const f=fixture();try{
+  f.repo.refreshOpportunityPriority=async()=>{};
+  let key;for(let n=50000;n<51000;n++){const a=await pilotAssignment('awl:'+n);if(a.cohort==='CONTROL'){key=String(n);break;}}
+  assert.ok(key);
+  const importer=rawImporter(f.repo,{...env,CF_DISTRICT_CONTROL_ENROLLMENT_PAUSED:'1'}),files=[file(key,'2025550144')],p=await importer.preview({files});
+  assert.equal(p.rows[0].assignment_cohort,'CONTROL');assert.equal(p.rows[0].cohort,'SIGNAL');assert.equal(p.rows[0].cohort_override_reason,'control_enrollment_paused');
+  const r=await importer.commit({files,fingerprint:p.fingerprint,confirmed:true,eligible:true});assert.equal(r.results[0].cohort,'SIGNAL');
+  const stored=JSON.parse(f.sql.prepare("SELECT summary_json FROM cf_solo_sources WHERE opportunity_id=? AND kind='district_pilot_v1'").get(r.results[0].opportunity_id).summary_json);
+  assert.equal(stored.assignment_cohort,'CONTROL');assert.equal(stored.cohort,'SIGNAL');assert.equal(stored.cohort_override_reason,'control_enrollment_paused');
+ }finally{f.sql.close();}
+});
