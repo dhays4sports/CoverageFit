@@ -16,10 +16,10 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Use Node.js 22
+      - name: Use Node.js 24
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '24'
 
       - name: Run full test suite
         run: node --test --test-isolation=none --experimental-loader ./tests/json-loader.mjs tests/*.test.mjs
