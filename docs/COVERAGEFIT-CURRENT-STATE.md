@@ -1,5 +1,24 @@
 # CoverageFit Current State
 
+## Security/data gate update — 2026-10-07
+
+A current-source security review has been formalized in `docs/COVERAGEFIT-SECURITY-DATA-GATE-1.0.md`.
+
+Key conclusion: existing RingCentral/Copilot/action code has meaningful fail-closed controls, but producer authentication is still a single long-lived bearer key stored in browser `sessionStorage`. This remains acceptable only for the bounded single-producer Preview/early-production phase. Multi-producer access or materially broader external-write authority is now gated on per-user/short-lived session authentication and stronger browser-session controls.
+
+The review also records required gates for:
+- current-tree environment inventory and Preview/Production matrix;
+- runtime secret-exposure review;
+- Producer Workspace CSP/browser hardening;
+- RingCentral inbound webhook/subscription security;
+- platform-wide retention classes;
+- AgencyZoom write-integrity/reconciliation;
+- fresh full-suite evidence.
+
+The source-only environment inventory generator has been ported to the active branch at `scripts/environment-contract-inventory.py`. No deployed secret values were read or stored.
+
+Development may continue on read-only intelligence, governed raw-lead ingestion, durable evidence and Attention while these gates are completed. New multi-user identity authority and broader external writes remain deferred.
+
 ## Read-only Attention integration update — 2026-10-07
 
 The active `signal-copilot` branch now contains the standalone Commitment Projection and deterministic Attention Priority foundation from PR #8, plus a **surgical current-head Producer Workspace integration** behind `CF_ATTENTION_ENABLED=1`.
