@@ -1,5 +1,27 @@
 # CoverageFit Current State
 
+## Fresh full-suite certification — 2026-10-07
+
+GitHub Actions now runs the repository's full Node test suite on every push / pull request using Node 24.
+
+Current active branch head at certification: `a77e1429a2fc757429469e8bc3cc770a64fc26be`.
+
+Fresh CI result:
+
+**440 passed, 0 failed, 0 skipped**  
+Duration reported by Node test runner: approximately **2.18 seconds**.
+
+The first CI attempt failed before tests because Node 22 did not support the historical `--test-isolation=none` option. CI was corrected to Node 24; both the push and pull-request runs then completed successfully.
+
+This fresh suite includes the recent:
+- Producer OS promotion race-safety reconciliation;
+- Commitment/Attention foundations and current-head read-only workspace integration tests;
+- raw intake machine-triage tests;
+- audited CONTROL-enrollment-pause test;
+- current Copilot/RingCentral/SMS safety regressions.
+
+This is repository test certification, not hosted Cloudflare behavior certification. Hosted CONTROL/OTHER/wrong-number denial checks, current environment matrix review and Preview inbound-webhook certification remain separate gates.
+
 ## Raw lead intake / triage update — 2026-10-07
 
 The first RAW-LEAD-INTAKE-1.0 slice is now implemented on the active branch.
