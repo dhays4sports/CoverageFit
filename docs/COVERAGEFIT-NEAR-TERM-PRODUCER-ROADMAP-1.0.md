@@ -842,16 +842,17 @@ The recommended sequence is:
 1. **PHASE-0-STABILIZE — finish hosted safety, reconcile PR #6/#7/#8, rerun the full suite, clean CURRENT-STATE**
 2. **Producer OS foundation alignment — preserve identity, provenance, ownership and promotion safety**
 3. **AGENCYZOOM-COEXISTENCE-DATA-GOVERNANCE-1.0 — authority, sync, retention, security, export/recovery**
-4. **RAW-LEAD-INTAKE / evidence normalization — safely ingest more lead volume without expanding action authority**
-5. **SIGNAL-COPILOT-1.1 — durable conversation state and commitments**
-6. **SIGNAL-ATTENTION-1.0 — Recommended / High Intent / Due Now**
-7. **CALENDAR-ACTIONS-1.0 — create / invite / reschedule / cancel in CoverageFit**
-8. **Attention + Calendar convergence**
-9. **RINGCENTRAL-INBOUND-1.0 — authenticated webhook/subscription, replay protection and durable inbound evidence**
-10. **SIGNAL-COPILOT-1.2 — call intelligence**
-11. **Document / Visual evidence expansion**
-12. **PRODUCER-CONTEXT-1.0 — governed cross-channel evidence**
-13. **Mature Signal — smallest effective next action**
-14. **PRODUCER-ACTION-1.0 — bounded approved actions; no broad CRM autonomy**
+4. **COVERAGEFIT-SECURITY-DATA-GATE-1.0 — auth, environment isolation, secret review, webhook security, retention classes**
+5. **RAW-LEAD-INTAKE / evidence normalization — safely ingest more lead volume without expanding action authority**
+6. **SIGNAL-COPILOT-1.1 — durable conversation state and commitments**
+7. **SIGNAL-ATTENTION-1.0 — Recommended / High Intent / Due Now**
+8. **CALENDAR-ACTIONS-1.0 — create / invite / reschedule / cancel in CoverageFit**
+9. **Attention + Calendar convergence**
+10. **RINGCENTRAL-INBOUND-1.0 — authenticated webhook/subscription, replay protection and durable inbound evidence**
+11. **SIGNAL-COPILOT-1.2 — call intelligence**
+12. **Document / Visual evidence expansion**
+13. **PRODUCER-CONTEXT-1.0 — governed cross-channel evidence**
+14. **Mature Signal — smallest effective next action**
+15. **PRODUCER-ACTION-1.0 — bounded approved actions; no broad CRM autonomy**
 
 The reason for moving attention and calendar earlier is practical: CoverageFit already has the Opportunity Priority, NBA, producer-workspace ordering and Google Calendar rails required to make them useful. They close immediate producer-operating gaps without waiting for every future evidence channel to exist.
