@@ -855,3 +855,13 @@ The recommended sequence is:
 14. **PRODUCER-ACTION-1.0 — bounded approved actions; no broad CRM autonomy**
 
 The reason for moving attention and calendar earlier is practical: CoverageFit already has the Opportunity Priority, NBA, producer-workspace ordering and Google Calendar rails required to make them useful. They close immediate producer-operating gaps without waiting for every future evidence channel to exist.
+
+## 2026-10-02 implementation checkpoint
+
+The `commitment-attention-foundation` branch starts from PR #7 head 819a7e6 and
+reconciles PR #6's unique promotion transaction fix. See Current State for exact
+status. It implements read-only commitment normalization, optional deterministic
+attention sorts and default-off producer calendar actions using the existing
+Google transport. No production activation is implied. Copilot 1.1 proposals have
+a validated contract but are not yet wired into the model schema or an acceptance
+UI. Hosted/device certification and provider-isolation audit remain release gates.

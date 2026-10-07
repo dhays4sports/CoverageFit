@@ -119,3 +119,61 @@ test('six-day district leads remain eligible for NEW_LEAD while eight-day leads 
   assert.match(p.rows[1].status,/outside 7 days/i);
  }finally{f.sql.close()}
 });
+
+// Reproduce legacy age-hold inventory without changing the approved seven-day policy.
+async function legacyPromotionFixture(cohort='SIGNAL') {
+ const f=setup();let key;
+ for(let n=40000;n<41000;n++)if((await pilotAssignment('awl:'+n)).cohort===cohort){key=String(n);break;}
+ const input=file(key);input.text=input.text.replace(/20\d\d-\d\d-\d\dT[^,]+/,new Date(Date.now()-8*86400000).toISOString());
+ const files=[input],p=await f.importer.preview({files});
+ const r=await f.importer.commit({files,fingerprint:p.fingerprint,confirmed:true,eligible:true});
+ f.id=r.results[0].opportunity_id;
+ const row=f.sql.prepare('SELECT * FROM cf_solo_sources WHERE kind=? AND opportunity_id=?').get('district_raw_v2',f.id);
+ f.record=JSON.parse(row.summary_json);f.record.received_at=new Date(Date.now()-3*86400000).toISOString();
+ f.sql.prepare('UPDATE cf_solo_sources SET summary_json=? WHERE kind=? AND source_id=?').run(JSON.stringify(f.record),'district_raw_v2',row.source_id);
+ f.linkKey='district-link/qa/'+f.record.conversation_id;
+ f.link=()=>JSON.parse(f.sql.prepare('SELECT data_json FROM sms_conversations WHERE record_key=?').get(f.linkKey).data_json);
+ f.audits=()=>f.sql.prepare("SELECT COUNT(*) n FROM cf_solo_activity WHERE kind='district_pilot_promotion'").get().n;
+ return f;
+}
+for(const cohort of ['SIGNAL','CONTROL'])test('promotion preserves identity and '+cohort+' assignment, retries never send',async()=>{
+ const f=await legacyPromotionFixture(cohort);try{
+  const preview=await f.importer.promotionPreview();assert.equal(preview.eligible,1);
+  const result=await f.importer.promote({confirmed:true,fingerprint:preview.fingerprint});
+  assert.equal(result.promoted,1);assert.equal(result.sms_sent,0);assert.equal(result.results[0].cohort,cohort);
+  assert.equal(f.link().opportunity_id,f.id);assert.equal(f.link().owner,'DISTRICT_'+cohort);assert.equal(f.audits(),1);
+  assert.equal(f.refreshed.length,cohort==='SIGNAL'?1:0);
+  await assert.rejects(f.importer.promote({confirmed:true,fingerprint:preview.fingerprint}),/Refresh promotion preview/);
+  const retry=await f.importer.promotionPreview();assert.equal(retry.eligible,0);
+  assert.equal((await f.importer.promote({confirmed:true,fingerprint:retry.fingerprint})).promoted,0);assert.equal(f.audits(),1);
+ }finally{f.sql.close();}
+});
+test('promotion rejects changed evidence after preview without changing ownership',async()=>{
+ const f=await legacyPromotionFixture();try{
+  const p=await f.importer.promotionPreview(),before=f.link();
+  f.sql.prepare('UPDATE cf_solo_sources SET summary_json=? WHERE kind=? AND opportunity_id=?').run(JSON.stringify({...f.record,raw_facts:{line:'HOME'}}),'district_raw_v2',f.id);
+  await assert.rejects(f.importer.promote({confirmed:true,fingerprint:p.fingerprint}),/Refresh promotion preview/);
+  assert.deepEqual(f.link(),before);assert.equal(f.audits(),0);
+ }finally{f.sql.close();}
+});
+test('promotion losing compare-and-swap has no ownership, audit or priority side effects',async()=>{
+ const f=await legacyPromotionFixture();try{
+  const p=await f.importer.promotionPreview(),before=f.link(),batch=f.repo.db.batch;
+  f.repo.db.batch=async statements=>{
+   f.sql.prepare('UPDATE cf_solo_sources SET summary_json=? WHERE kind=? AND opportunity_id=?').run(JSON.stringify({...f.record,version:2}),'district_raw_v2',f.id);
+   return batch(statements);
+  };
+  const r=await f.importer.promote({confirmed:true,fingerprint:p.fingerprint});
+  assert.equal(r.results[0].status,'SKIPPED_CHANGED');assert.equal(r.promoted,0);assert.equal(r.sms_sent,0);
+  assert.deepEqual(f.link(),before);assert.equal(f.audits(),0);assert.equal(f.refreshed.length,0);
+ }finally{f.sql.close();}
+});
+test('promotion transaction failure rolls back enrollment, audit and ownership together',async()=>{
+ const f=await legacyPromotionFixture();try{
+  const p=await f.importer.promotionPreview(),before=f.link();
+  f.sql.exec("CREATE TRIGGER reject_promotion_link BEFORE UPDATE ON sms_conversations BEGIN SELECT RAISE(ABORT,'synthetic storage failure'); END");
+  const r=await f.importer.promote({confirmed:true,fingerprint:p.fingerprint});
+  assert.equal(r.results[0].status,'CONFLICT');assert.equal(r.promoted,0);assert.deepEqual(f.link(),before);assert.equal(f.audits(),0);
+  assert.equal((await f.importer.promotionPreview()).eligible,1);assert.equal(f.refreshed.length,0);
+ }finally{f.sql.close();}
+});

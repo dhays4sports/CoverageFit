@@ -171,7 +171,7 @@ export function sourceSync(repo){
     bookings:{table:'sms_conversations',key:'record_key',where:"record_key LIKE 'callback-web-bookings/%'",apply:r=>booking(parse(r.data_json))},
     journeys:{table:'pvx_records',key:'record_key',where:"record_key LIKE 'pvx/checkpoint/%'",apply:r=>journey(parse(r.data_json),r.record_key)}
   };
-  return {anchor,link,projectLead:lead,projectRecommendation:recommendation,projectResponse:response,projectClosing:closing,projectBooking:booking,projectJourney:journey,async sync(stream){
+  return {anchor,link,async projectAppointment(id,a){await repo.own(id);await appointmentTask(id,a,'producer_calendar');return id;},projectLead:lead,projectRecommendation:recommendation,projectResponse:response,projectClosing:closing,projectBooking:booking,projectJourney:journey,async sync(stream){
     if(workspace!=='virginia-tam:dylan-haysbert')fail(409,'workspace_transition','Importing legacy records into a different agency workspace requires a reviewed transition mapping.');
     const c=configs[stream];if(!c)fail(422,'stream','Choose a supported source.');
     const saved=await sql('SELECT cursor_json FROM cf_solo_sync WHERE workspace_id=? AND stream=?',workspace,stream).first(),prior=saved?.cursor_json;

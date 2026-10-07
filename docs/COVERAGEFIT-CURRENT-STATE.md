@@ -52,7 +52,7 @@ Cloudflare is a manual operator checkpoint. Do not repeat inaccessible dashboard
 **Status:** Canonical operational handoff for active development  
 **Last audited:** 2026-10-05 (preview follow-up; historical repository inventory below retains its dates)  
 **Repository:** dhays4sports/CoverageFit  
-**Canonical working branch for this document:** signal-copilot
+**Canonical working branch for this document:** commitment-attention-foundation
 
 ## How to use this document
 
@@ -168,7 +168,7 @@ Branch:
 
 Head:
 
-**c08721d304685d01fe82c3429de07c4d0771ba6a**
+**819a7e6aa74c88f0d1cb7c5d179cc28784eda7e3**
 
 Base:
 
@@ -216,11 +216,11 @@ Cloudflare branch preview last observed successful:
 
 Latest deployment commit observed:
 
-**c08721d**
+**819a7e6**
 
 Latest immutable preview observed:
 
-**946ea9e8.coveragefit.pages.dev**
+**89d4a25f.coveragefit.pages.dev**
 
 The Cloudflare bot reported that exact branch head deployed successfully.
 
@@ -235,7 +235,7 @@ The two PRs share base:
 Current comparison:
 
 - status: **diverged**
-- signal-copilot is **9 commits ahead** of producer-os-foundation;
+- signal-copilot is **10 commits ahead** of producer-os-foundation;
 - signal-copilot is **1 commit behind** producer-os-foundation.
 
 Interpretation:
@@ -509,7 +509,7 @@ This project name is confirmed by successful Cloudflare bot deployments for PR #
 
 ### What is verified
 
-- PR #7 current branch head c08721d deployed successfully;
+- PR #7 current branch head 819a7e6 deployed successfully;
 - branch preview exists;
 - PR #6 branch preview previously deployed successfully.
 
@@ -729,7 +729,7 @@ are historical.
 
 Current audited PR #7 head is:
 
-**c08721d304685d01fe82c3429de07c4d0771ba6a**
+**819a7e6aa74c88f0d1cb7c5d179cc28784eda7e3**
 
 Always recheck before use.
 
@@ -809,3 +809,163 @@ The near-term producer experience should converge toward:
 > **Open CoverageFit → immediately see who needs attention and why → understand what has happened and what was promised next → take the smallest useful producer-approved action without reconstructing context across AgencyZoom, RingCentral, Google Calendar and ChatGPT.**
 
 That is the current producer-side operating target.
+
+
+## Forward implementation audit — 2026-10-02
+
+Fresh GitHub metadata and git fetch confirm main `5f47f2b7367110ca04ff03cc189983f136ab32fa`,
+PR #6 head `c315d42dbbfb6363fc282eeadb05c2a90c76bbe9` and PR #7 head
+`819a7e6aa74c88f0d1cb7c5d179cc28784eda7e3`. Both PRs are open/draft/unmerged.
+PR #6 reports mergeable. PR #7 initially reported mergeable=false; the final
+GitHub refresh reports mergeable=true at the same head (transient provider result). No main merge is authorized. Both bases remain main above.
+PR #7 has ten unique commits; PR #6 has one. The only shared changed file is
+`tests/agencyzoom-raw.test.mjs`: both correct the same obsolete 48-hour assertion.
+PR #6's guarded promotion writes are unique and compatible with PR #7's advisory
+Copilot. Integration choice: a new branch based on exact PR #7 head, deliberately
+cherry-picking PR #6's unique behavior and retaining its transaction tests.
+
+Latest Cloudflare bot evidence: successful deployment of `819a7e6` to
+`89d4a25f.coveragefit.pages.dev`, branch alias `signal-copilot.coveragefit.pages.dev`.
+This does not establish production settings or Preview isolation. Automatic
+approval review rejected the requested fresh dashboard tab due private-config /
+previous manual-operator boundary. No dashboard access, bindings or flags changed;
+no bypass attempted. Provider configuration inventory remains UNKNOWN pending
+operator evidence. Hosted mutations and paid AI canary are deferred, per the
+forward mandate; this does not block deterministic repository foundations.
+
+## Forward foundation result — 2026-10-02
+
+Active branch: `commitment-attention-foundation`, based on PR #7 819a7e6.
+Audit commit dccdf7e; PR #6 unique safety reconciliation ef42863. PR #6/#7 remain
+unmerged and unchanged by this implementation. No new migration; latest migration
+remains 0019 and was not applied to any remote database.
+
+### Implemented, tested, default OFF
+
+- `server/commitment-projection.mjs`: read-only normalized commitments from existing
+  task/calendar/Signal timing/deadline state. Eight types, source references,
+  confirmation and participant fields (unknown remains null), status/history,
+  provider linkage. Calendar preparation tasks deduplicate by event ID. Day-only
+  facts stay dates; ambiguous time stays unresolved. Evidence-only SMS facts do
+  not become confirmed appointments. Generic waiting tasks do not prove who promised.
+- Commitment proposal validator: evidence/message citations, confidence/type/party
+  checks and mandatory confirmation. Contract only: no provider-schema extension,
+  no automatic acceptance, no new commitment persistence system. Full durable
+  conversational commitment extraction/confirmation remains PARTIAL.
+- `server/attention-priority.mjs`: separate deterministic read-only Attention, seven
+  bands and ordered reasons with evidence references. CONTROL gets null. Suppression
+  overrides ranking. Fresh intent/reply window is 48h, unrelated new inbound cannot
+  resurrect an old raised-hand fact. Optional Recommended / High Intent / Due Now /
+  Newest; Current order remains default. `CF_ATTENTION_ENABLED=1` is required.
+- `server/producer-calendar-actions.mjs` plus detail form: create, explicitly invite,
+  reschedule, cancel, provider link. Default duration 20 minutes; explicit timezone,
+  phone/email/title/description. `CF_CALENDAR_ACTIONS_ENABLED=1` is required. Reuses
+  existing OAuth/event/free-busy functions; guest updates use `sendUpdates=all` only
+  on explicit invite or subsequent updates/cancellation of an invited appointment.
+- Durable pending operation in existing sms_conversations namespace
+  `producer-calendar/{workspace}/{opportunity}`. CAS guards initial ownership;
+  deterministic event ID and provider ownership/operation marker prevent blind
+  duplicate writes. Same request/fingerprint retries reconcile by GET. Unknown
+  acceptance without a matching event is held rather than replayed. One current
+  producer appointment per opportunity. Existing scheduled calendar projections
+  block duplicate creation; legacy event mutation remains in existing booking UI.
+- Calendar projections reuse existing appointment task/source machinery. Detail
+  re-derives NBA and attention; cancelled appointments lose urgency and retain
+  history. A past appointment requests disposition, never implies completed contact.
+
+### Current validation evidence
+
+Node v24.19.0. Historical canonical command was run, reporting 22 passing file
+subtests in 1858ms, zero fail/skip. To obtain actual named-case evidence in this
+runtime, additionally ran:
+`node --test --test-isolation=none --experimental-loader ./tests/json-loader.mjs tests/*.test.mjs`
+Result: **426 passed, 0 failed, 0 skipped**, duration **2536ms**.
+No runtime warnings appeared in this execution log; the experimental loader remains
+part of the command. Tests include 48 existing Copilot cases, PR #6 transaction
+regressions, 37 commitment/attention cases and 8 new workspace/calendar cases.
+Provider and transport tests use synthetic fixtures/mocks only. No real SMS,
+calendar invitation, OpenAI request, customer import or production write occurred.
+
+Latest hosted read-only observation: PR #7 alias renders Work, shows Not connected.
+At 1363px document width matches viewport, keyboard focus has a solid outline and
+an aria-live status exists. No application console errors observed; browser extension
+errors excluded. Authenticated list/detail/import/manual-send/CONTROL checks and
+320/375/390/430 mobile widths remain **BLOCKED / unverified**. Browser API provides
+no viewport resize. New foundation branch deployment is not yet independently
+certified. Flags-off status cannot be inferred from an unauthenticated shell.
+
+### Configuration contract and operator checkpoint
+
+See `COVERAGEFIT-ENVIRONMENT-CONTRACT.md`: 97 statically referenced configuration
+names, file/line provenance and 4 dynamic lookup sites. Generated without reading
+secrets. Existing Google Calendar variables are GOOGLE_CALENDAR_ID,
+GOOGLE_CALENDAR_CLIENT_ID, GOOGLE_CALENDAR_CLIENT_SECRET,
+GOOGLE_CALENDAR_REFRESH_TOKEN; scheduling defaults remain in callbackConfig.
+RingCentral exact names and all current AI flags are in that inventory.
+
+Cloudflare project is coveragefit (bot evidence); production branch/deployment,
+D1/KV/R2/service bindings, variables/secrets, compatibility settings, triggers and
+Preview isolation remain UNKNOWN. No configuration changes were made. Cleanup
+candidates cannot be identified without the deployed names inventory; delete none.
+Automatic approval review rejected dashboard access. Operator can supply names,
+binding targets and environment scopes (never secret values), or explicitly
+re-authorize the read-only dashboard audit for review. Do not replace COVERAGEFIT_DB.
+
+Keep CF_AI_ENABLED, CF_SIGNAL_COPILOT_ENABLED, CF_ATTENTION_ENABLED and
+CF_CALENDAR_ACTIONS_ENABLED absent/0 until their respective activation gates pass.
+No new binding or migration is needed for this branch. For an eventual verified
+isolated Preview only: enable Attention for optional-sort evaluation; enable Calendar
+Actions only with an operator-controlled calendar/recipient and explicit actions.
+Production activation is not authorized. Rollback: flags 0/redeploy; preserve
+calendar history and pending operations, reconcile external events explicitly.
+
+### Remaining limitations / exact next slice
+
+- Repository deterministic foundation passes; hosted mutation/provider canary
+  deferred because environment isolation is unverified. Real latency/cost unknown.
+- Calendar ambiguous acceptance can require operator reconciliation when the
+  provider does not expose the accepted operation; no unsafe retry button added.
+- Free/busy conservatively rejects rescheduling into a window overlapping the
+  existing event; it cannot distinguish that event from a second booking. Use a
+  different free slot or existing calendar UI pending owned-event availability work.
+- No generic commitment editor or Copilot commitment acceptance UI. Existing
+  task completion/cancellation remains authoritative. Full customer/producer promise
+  extraction, conflict resolution and durable summary evolution remain next work.
+- Attention's first High Intent view uses explicit fresh facts and recent replies;
+  comparison/objection-resolution signals without governed structured provenance
+  remain unclassified. This is not a quality/propensity score or outcome-calibrated
+  default. No source, profession, ZIP, income or protected attribute is ranked.
+- Upcoming appointments are UPCOMING/TODAY/NOW then disposition-needed. Future Bind
+  remains governed by existing timing; no automated re-entry or calendar writes.
+- Browser/mobile visual certification and real Google hosted permission/error tests
+  are required before enabling calendar actions. Do not mark the overall mandate
+  complete or either feature production-ready on unit tests alone.
+
+Next: review this draft integration branch, certify the disabled hosted build and
+operator configuration/isolation, then finish commitment acceptance/provenance and
+calendar reconciliation ergonomics. Main merge still requires explicit permission.
+
+Final verification caught a timing-dependent concurrency test assumption: a fast
+provider could finish before the second request checked the cache. The test now
+holds the provider open, proves the in-flight duplicate is rejected, then proves
+the completed result is cached with exactly one provider call. Production Copilot
+code was unchanged. Final full named suite: 426 pass, 0 fail, 0 skip.
+
+### Published review checkpoint
+
+Draft PR #8: https://github.com/dhays4sports/CoverageFit/pull/8
+Branch: `commitment-attention-foundation`; base: `signal-copilot` (PR #7).
+Implementation commit: `b205015d9d1896e29cd5fbd83eb9b1fb25658ea6`.
+Its tree exactly matches the tested local tree `41fb136698a8727a1470d84917aaa0f169567bd3`.
+The local reconciliation/cherry-pick hashes above are local provenance; remote
+publication combines those changes into the implementation commit. No main or
+PR #7 branch mutation occurred. PR #8 deployment and hosted behavior remain
+unverified. This following documentation-only checkpoint does not change runtime.
+
+Cloudflare bot subsequently confirmed implementation commit b205015 deployed
+successfully: https://5fe35900.coveragefit.pages.dev ; branch alias
+https://commitment-attention-foundat.coveragefit.pages.dev . Direct browser
+verification of `/agent/workspace/` rendered Work / Not connected and the existing
+population controls. No authenticated mutation was attempted. This verifies the
+shell only, not environment isolation or enabled feature behavior. The newer
+publication-documentation commits do not change the tested runtime.
