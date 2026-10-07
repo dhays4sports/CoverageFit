@@ -1,6 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {DatabaseSync} from 'node:sqlite';import {readFileSync,readdirSync} from 'node:fs';
 import {parseRaw,fieldClass} from '../server/agencyzoom-raw.mjs';
-import {rawImporter,intakeTriage} from '../server/agencyzoom-import.mjs';
+import {rawImporter,intakeTriage,syntheticRawRehearsalBatch} from '../server/agencyzoom-import.mjs';
 import {districtPilot,pilotAssignment} from '../server/district-pilot.mjs';
 function fixture(){const sql=new DatabaseSync(':memory:');for(const f of readdirSync(new URL('../migrations/',import.meta.url)).filter(f=>f.endsWith('.sql')).sort())sql.exec(readFileSync(new URL('../migrations/'+f,import.meta.url),'utf8'));const db={prepare(q){let args=[];const stmt={bind(...v){args=v;return stmt},async first(){return sql.prepare(q).get(...args)||null},async all(){return {results:sql.prepare(q).all(...args)}},async run(){return {meta:sql.prepare(q).run(...args)}}};return stmt},async batch(stmts){sql.exec('BEGIN');try{const result=[];for(const s of stmts)result.push(await s.run());sql.exec('COMMIT');return result}catch(e){sql.exec('ROLLBACK');throw e}}};const now=new Date().toISOString();for(const id of ['one','two'])sql.prepare('INSERT INTO cf_solo_opportunities(id,workspace_id,owner_id,contact_json,source,last_mutation_id,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?)').run(id,'qa','qa','{}','district','qa',now,now);const repo={db,scope:{workspace:'qa',actor:'qa'},sql:(q,...v)=>db.prepare(q).bind(...v),rows:async(q,...v)=>(await db.prepare(q).bind(...v).all()).results,own:async id=>{const r=sql.prepare('SELECT * FROM cf_solo_opportunities WHERE workspace_id=? AND id=?').get('qa',id);if(!r)throw new Error('unavailable');return r;}};return {sql,repo,pilot:districtPilot(repo),received:new Date(Date.now()-60000).toISOString()};}
 const file=(id='100',phone='2025550199')=>({name:'AWL-'+id+'.csv',text:'Lead ID,Date,Lead Type,State,Cell Phone,Name,Current Insurance Co,Experation Date,Credit Rating,DOB,Occupation,Needs Quote\n'+[id,new Date(Date.now()-60000).toISOString(),'Automobile','CA',phone,'Synthetic Tester','Mercury','2026-12-31','EXCLUDED_CREDIT','EXCLUDED_DOB','EXCLUDED_JOB','ASAP'].join(',')});
@@ -223,5 +223,16 @@ test('persistent exception queue and receipt survive import and support disposit
   let exceptions=await f.importer.exceptions({state:'OPEN'});assert.equal(exceptions.records.length,1);const x=exceptions.records[0];assert.equal(x.triage.bucket,'REVIEW_FIELD');assert.equal(x.state,'OPEN');assert.ok(!JSON.stringify(x).includes('+12025550132'));
   const next=await f.importer.disposition({id:x.id,state:'DEFERRED',note:'Check original source tomorrow'});assert.equal(next.state,'DEFERRED');assert.equal(next.disposition_note,'Check original source tomorrow');
   exceptions=await f.importer.exceptions({state:'OPEN'});assert.equal(exceptions.records.length,0);assert.equal((await f.importer.exceptions({state:'DEFERRED'})).records.length,1);
+ }finally{f.sql.close();}
+});
+
+
+test('100-row synthetic rehearsal exercises full importer path and records timings',async()=>{
+ const f=setup();try{
+  const batchId='12345678-1234-4234-9234-123456789abc',receivedAt=new Date(Date.now()-60000).toISOString(),files=syntheticRawRehearsalBatch({batchId,receivedAt});
+  assert.equal(files.length,1);assert.equal(files[0].text.split('\n').length,101);assert.ok(files[0].text.includes('2025550100'));assert.ok(files[0].text.includes('2025550199'));
+  const p=await f.importer.preview({files,synthetic:true});assert.equal(p.rows.length,100);assert.equal(p.triage.needs_attention,0);assert.equal(p.triage.ready,100);assert.ok(p.preview_duration_ms>=0);
+  const r=await f.importer.commit({files,synthetic:true,fingerprint:p.fingerprint,confirmed:true,eligible:true});assert.equal(r.imported,100);assert.equal(r.needs_review,0);assert.equal(r.receipt.row_count,100);assert.equal(r.receipt.sms_sent,0);assert.ok(r.receipt.import_duration_ms>=0);
+  assert.equal((await f.pilot.report()).records.length,0);
  }finally{f.sql.close();}
 });
