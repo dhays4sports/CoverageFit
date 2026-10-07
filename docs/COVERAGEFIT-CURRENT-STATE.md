@@ -1,5 +1,21 @@
 # CoverageFit Current State
 
+## 100-row intake rehearsal readiness — 2026-10-07
+
+A default-off hosted certification path now exists for the current RAW intake architecture.
+
+- `syntheticRawRehearsalBatch` generates exactly 100 deterministic synthetic records using reserved 202-555-0100 through 0199 numbers.
+- `/api/solo-desk/raw-rehearsal` is unavailable unless `CF_RAW_SYNTHETIC_REHEARSAL_ENABLED=1`.
+- The endpoint uses the real importer with `synthetic:true`, requires producer authentication/same-origin mutation controls, creates TEST rather than real pilot inventory and sends zero SMS.
+- CI now includes an end-to-end 100-row synthetic importer rehearsal.
+- Latest full suite: **442 passed, 0 failed, 0 skipped**.
+- The 100-row in-memory rehearsal test itself completed in approximately **124 ms**. This is not hosted D1 latency.
+- Both push and PR CI paths passed on the rehearsal implementation.
+
+Hosted Preview measurement remains the next operator checkpoint. Canonical steps are in `docs/RAW-LEAD-HOSTED-CERTIFICATION-1.0.md`.
+
+Do not increase the synchronous row limit until Preview records `preview_duration_ms` and `import_duration_ms` for the 100-row canary.
+
 ## Durable intake exception queue update — 2026-10-07
 
 RAW-LEAD-INTAKE Slice B is now implemented on the active branch.
