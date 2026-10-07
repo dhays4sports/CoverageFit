@@ -3,7 +3,7 @@ import {continueAnalytics} from './signal-continue-analytics.mjs';
 import {signalContinue} from './signal-continue-service.mjs';
 import {pilotReconciliation} from './pilot-reconciliation.mjs';
 import {producerWorkspace} from './producer-workspace.mjs';
-import {rawImporter} from './agencyzoom-import.mjs';
+import {rawImporter,syntheticRawRehearsalBatch} from './agencyzoom-import.mjs';
 import {districtPilot} from './district-pilot.mjs';
 import {authorizeProducer} from './consultation-inbox-core.mjs';
 import {resolveProducerEnvironment} from './cloudflare-pages-handlers.mjs';
@@ -70,6 +70,15 @@ export async function handleSoloDesk(context){
     if(route==='raw-preview')return json({ok:true,...await rawImporter(repo,env).preview(value)});
     if(route==='raw-import')return json({ok:true,...await rawImporter(repo,env).commit(value)});
     if(route==='raw-promote')return json({ok:true,...await rawImporter(repo,env).promote(value)});
+    if(route==='raw-rehearsal'){
+      if(env.CF_RAW_SYNTHETIC_REHEARSAL_ENABLED!=='1')fail(404,'route','Synthetic intake rehearsal is unavailable.');
+      if(!['preview','commit'].includes(value.action))fail(422,'action','Choose preview or commit.');
+      const batchId=String(value.batch_id||'').toLowerCase(),receivedAt=String(value.received_at||'');
+      const files=syntheticRawRehearsalBatch({batchId,receivedAt}),svc=rawImporter(repo,env);
+      if(value.action==='preview')return json({ok:true,batch_id:batchId,received_at:receivedAt,...await svc.preview({files,synthetic:true})});
+      if(value.confirmed!==true)fail(422,'confirmation','Confirm the synthetic rehearsal before importing.');
+      return json({ok:true,batch_id:batchId,received_at:receivedAt,...await svc.commit({files,synthetic:true,fingerprint:value.fingerprint,confirmed:true,eligible:true})});
+    }
     if(route==='raw-exception-disposition'){if(!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(value.requestId||''))fail(422,'request_id','Reload the exception before saving.');return json({ok:true,exception:await rawImporter(repo,env).disposition(value)});}
     if(route==='sync')return json({ok:true,...await sourceSync(repo).sync(value.stream)});
     if(route==='priority-backfill'){const result=await repo.backfillOpportunityPriority(value.limit||60);return json({ok:true,...result});}
