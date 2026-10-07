@@ -40,3 +40,6 @@ test('Work list exposes creation separately from updated activity',async()=>{con
  const result=await f.work.list(new URLSearchParams({population:'ALL',status:'all'}));const row=result.records.find(r=>r.id==='one');
  assert.equal(row.created_at,'2026-09-20T17:00:00Z');assert.equal(row.updated_at,'2026-09-26T19:00:00Z');assert.equal(row.received_at,null);
 }finally{f.sql.close();}});
+
+
+test('attention remains optional and CONTROL receives no guidance',async()=>{const f=prepared();try{source(f,'one','district_pilot_v1',pilot('SIGNAL'));source(f,'two','district_pilot_v1',pilot('CONTROL',otherCid));let r=await f.work.list(new URLSearchParams({population:'ALL',sort:'recommended'}));assert.equal(r.attention_enabled,false);assert.ok(r.records.every(x=>x.attention===null));f.env.CF_ATTENTION_ENABLED='1';r=await f.work.list(new URLSearchParams({population:'ALL',sort:'recommended'}));assert.equal(r.records.find(x=>x.id==='two').attention,null);assert.equal((await f.work.detail('two')).commitments.length,0);assert.equal(r.sort,'recommended');await assert.rejects(f.work.list(new URLSearchParams({sort:'credit'})));}finally{f.sql.close();}});
