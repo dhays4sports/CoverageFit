@@ -228,6 +228,35 @@ Preserve:
 
 This milestone does not require replacing AgencyZoom. It establishes the durable CoverageFit operating substrate.
 
+## Milestone 1A — AgencyZoom coexistence and data-governance gate
+
+Before CoverageFit becomes the producer's primary operating surface or receives additional CRM-like write authority, apply **docs/AGENCYZOOM-COEXISTENCE-DATA-GOVERNANCE-1.0.md**.
+
+This is a required architecture gate, not a side project.
+
+The objective is:
+
+> **CoverageFit becomes the intelligence and attention operating layer first. AgencyZoom remains the current agency CRM where it is authoritative. CoverageFit earns write authority field-by-field rather than becoming a shadow CRM.**
+
+Required work:
+
+- build a field-level authority matrix: external authority / CoverageFit authority / derived projection / producer-confirmed / compliance hard-state;
+- document READ / DERIVE / OWN / WRITE / CONFIRM / RECONCILE / RECOVER / AUDIT behavior for every AgencyZoom-integrated field or action;
+- preserve observed AgencyZoom state separately from CoverageFit recommendations;
+- define stale/conflict behavior instead of last-write-wins;
+- define export and rebuild behavior for CoverageFit-owned state;
+- complete Local / Preview / Production provider/secret/binding matrix;
+- complete runtime secret-exposure review;
+- define minimum retention/deletion rules before broad ingestion;
+- preserve STOP / DNC / wrong-number / suppression precedence across systems;
+- keep AgencyZoom writes recommendation-only until a narrower write tier is explicitly certified.
+
+This milestone does **not** block read-only lead ingestion, CoverageFit-owned scoring, Signal reasoning, commitments or Attention work. It blocks ungoverned expansion of CRM-like authority.
+
+### Operational experiment policy
+
+Preserve existing CONTROL records and cohort capability. During production crunch, new CONTROL enrollment may be paused or reduced rather than withholding the improved workflow from a large share of usable leads. Do not retroactively relabel historical CONTROL records.
+
 ## Milestone 2 — durable conversation state
 
 ### SIGNAL-COPILOT-1.1
@@ -810,17 +839,19 @@ Do not use this roadmap as permission to:
 
 The recommended sequence is:
 
-1. **SIGNAL-COPILOT-1.0 certification**
-2. **Producer OS foundation alignment**
-3. **SIGNAL-COPILOT-1.1 — durable conversation state and commitments**
-4. **SIGNAL-ATTENTION-1.0 — Recommended / High Intent / Due Now**
-5. **CALENDAR-ACTIONS-1.0 — create / invite / reschedule / cancel in CoverageFit**
-6. **Attention + Calendar convergence**
-7. **SIGNAL-COPILOT-1.2 — calls**
-8. **Visual Copilot**
-9. **Document Copilot**
-10. **PRODUCER-CONTEXT-1.0**
-11. **Mature Signal**
-12. **PRODUCER-ACTION-1.0**
+1. **PHASE-0-STABILIZE — finish hosted safety, reconcile PR #6/#7/#8, rerun the full suite, clean CURRENT-STATE**
+2. **Producer OS foundation alignment — preserve identity, provenance, ownership and promotion safety**
+3. **AGENCYZOOM-COEXISTENCE-DATA-GOVERNANCE-1.0 — authority, sync, retention, security, export/recovery**
+4. **RAW-LEAD-INTAKE / evidence normalization — safely ingest more lead volume without expanding action authority**
+5. **SIGNAL-COPILOT-1.1 — durable conversation state and commitments**
+6. **SIGNAL-ATTENTION-1.0 — Recommended / High Intent / Due Now**
+7. **CALENDAR-ACTIONS-1.0 — create / invite / reschedule / cancel in CoverageFit**
+8. **Attention + Calendar convergence**
+9. **RINGCENTRAL-INBOUND-1.0 — authenticated webhook/subscription, replay protection and durable inbound evidence**
+10. **SIGNAL-COPILOT-1.2 — call intelligence**
+11. **Document / Visual evidence expansion**
+12. **PRODUCER-CONTEXT-1.0 — governed cross-channel evidence**
+13. **Mature Signal — smallest effective next action**
+14. **PRODUCER-ACTION-1.0 — bounded approved actions; no broad CRM autonomy**
 
 The reason for moving attention and calendar earlier is practical: CoverageFit already has the Opportunity Priority, NBA, producer-workspace ordering and Google Calendar rails required to make them useful. They close immediate producer-operating gaps without waiting for every future evidence channel to exist.
