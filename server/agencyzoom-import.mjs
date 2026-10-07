@@ -6,6 +6,20 @@ import {createSmsConversationStore} from './d1-json-store.mjs';
 import {CONTROL_PREFIX} from './district-control-roster.mjs';
 export const RAW_KIND='district_raw_v2';
 const msg=e=>String(e.message||'Import failed').slice(0,240);
+export function intakeTriage(row={}){
+ const status=String(row.status||'');
+ if(row.import_status==='DUPLICATE')return {bucket:'DUPLICATE',needs_attention:false,reason:'Already represented by stable source identity'};
+ if(row.import_status==='READY'){
+  if(row.pilot_status==='INELIGIBLE_AGE')return {bucket:'SAFE_HOLD',needs_attention:false,reason:'Imported evidence; outside current fresh-lead treatment window'};
+  if(!row.contact?.mobile&&row.phone_status==='MISSING')return {bucket:'READY_NO_SMS',needs_attention:false,reason:'Usable lead record without an SMS-capable phone'};
+  return {bucket:'READY',needs_attention:false,reason:row.pre_enrollment_response?'Fresh lead with existing inbound evidence':'Validated lead ready for governed import'};
+ }
+ if(/IDENTITY CONFLICT|PHASE CONFLICT|EXISTING OPPORTUNITY|PHONE CONFLICT|COHORT CONFLICT/.test(status))return {bucket:'REVIEW_IDENTITY',needs_attention:true,reason:'Identity or ownership conflict requires a human decision'};
+ if(/schema|alignment|Combined AWL|Unlabeled source|header\/value|RAW FILE|ENCODING|UNSUPPORTED FILE/i.test(status))return {bucket:'REVIEW_SCHEMA',needs_attention:true,reason:'Source structure is not safe to infer'};
+ if(/RECEIVED DATE|FUTURE RECEIVED DATE|AMBIGUOUS DATE|Invalid seconds/i.test(status))return {bucket:'REVIEW_TIME',needs_attention:true,reason:'Source timing must be resolved from original evidence'};
+ if(/PRODUCT|CALIFORNIA|PHONE/i.test(status))return {bucket:'REVIEW_FIELD',needs_attention:true,reason:'A bounded source field needs correction or confirmation'};
+ return {bucket:'REVIEW_OTHER',needs_attention:true,reason:'Import exception needs review'};
+}
 export function rawImporter(repo,env){const w=repo.scope.workspace,store=createSmsConversationStore(repo.db);
  async function promotionCandidates(){
   const found=await repo.rows('SELECT source_id,opportunity_id,summary_json FROM cf_solo_sources WHERE workspace_id=? AND kind=? ORDER BY updated_at,source_id LIMIT 501',w,RAW_KIND);
@@ -97,7 +111,7 @@ export function rawImporter(repo,env){const w=repo.scope.workspace,store=createS
  }
  return {async promotionPreview(){const p=await promotionCandidates();return {fingerprint:p.fingerprint,eligible:p.eligible.length,signal:p.eligible.filter(x=>x.assignment.cohort==='SIGNAL').length,control:p.eligible.filter(x=>x.assignment.cohort==='CONTROL').length,skipped:p.skipped.length,eligibility_days:PILOT_ELIGIBILITY_DAYS};},
  async promote(v){return applyPromotions(v);},
- async preview(v){const p=await prepare(v);return {...p,rows:p.rows.map(({facts,provenance,contact,conversation_id,lead_key_hash,...r})=>({...r,first_name:contact?.firstName||'',name:contact?.name||'',phone_status:/MALFORMED PHONE/.test(r.status)?'INVALID':contact?.mobile?'VALID':r.import_status==='NEEDS_REVIEW'?'NOT_EVALUATED':'MISSING'}))};},
+ async preview(v){const p=await prepare(v);const rows=p.rows.map(({facts,provenance,contact,conversation_id,lead_key_hash,...r})=>{const row={...r,first_name:contact?.firstName||'',name:contact?.name||'',phone_status:/MALFORMED PHONE/.test(r.status)?'INVALID':contact?.mobile?'VALID':r.import_status==='NEEDS_REVIEW'?'NOT_EVALUATED':'MISSING'};const triage=intakeTriage({...r,contact,phone_status:row.phone_status});return {...row,triage};});const counts={};for(const row of rows)counts[row.triage.bucket]=(counts[row.triage.bucket]||0)+1;return {...p,rows,triage:{counts,needs_attention:rows.filter(r=>r.triage.needs_attention).length,ready:rows.filter(r=>['READY','READY_NO_SMS','SAFE_HOLD'].includes(r.triage.bucket)).length,duplicates:rows.filter(r=>r.triage.bucket==='DUPLICATE').length}};},
  async commit(v){if(v.confirmed!==true||v.eligible!==true)throw Error('Confirm California personal-lines district inventory and original timestamp timezone once for this batch');const p=await prepare(v);if(p.fingerprint!==v.fingerprint)throw Error('Preview the exact files and corrections again before importing');const results=[];
   for(const r of p.rows){if(r.import_status!=='READY'){results.push({index:r.index,status:r.status,import_status:r.import_status,pilot_status:r.pilot_status,row_number:r.row_number,opportunity_id:r.opportunity_id||null});continue;}
    const at=new Date().toISOString(),id='opp_raw_'+(await digest(w+'|'+r.lead_key)).slice(0,40),rid='raw-'+(await digest(w+'|'+r.lead_key)).slice(0,40),phase=v.synthetic===true?'TEST':r.pilot_status==='ELIGIBLE_NEW_LEAD'?'NEW_LEAD':null,kind=phase?PILOT_KIND:RAW_KIND;
