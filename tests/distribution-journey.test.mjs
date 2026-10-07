@@ -254,3 +254,51 @@ test('QR first answer persists original campaign and market through producer rec
   const normalized=normalizeDistribution(handoff,new Date(now));assert.equal(normalized.marketContext,'95118');assert.deepEqual(normalized.evidence,{product:'home'});
  }finally{f.sql.close();}
 });
+
+
+test('a canonical 408FARMERS contact handoff queues one Workspace alert after producer projection',async()=>{
+  const f=fixture();try{
+    const sent=[];
+    f.sendDistributionProducerEmail=async (event,options)=>{
+      assert.equal(options.store,f.store);
+      sent.push(event);
+      return {status:'sent'};
+    };
+    const s=await start(f);
+    const body={action:'contact',revision:0,name:'Synthetic Workspace Lead',phone:'2025550199',mode:'text',permission:true};
+    const first=await s.post(body);
+    assert.equal(first.status,200,await first.clone().text());
+    assert.equal((await first.json()).contactSubmitted,true);
+    assert.equal(sent.length,1);
+    assert.match(sent[0].journeyId,/^pvxj_/);
+    assert.match(sent[0].opportunityId,/^opp_src_/);
+    assert.equal(sent[0].entry,'buyer');
+    assert.equal(sent[0].requestedMode,'text');
+    const repeated=await s.post(body);
+    assert.equal(repeated.status,200);
+    assert.equal(sent.length,1,'resubmitting an already confirmed contact must not create a second alert');
+    assert.equal(f.sql.prepare('SELECT COUNT(*) n FROM cf_solo_opportunities').get().n,1);
+  }finally{f.sql.close();}
+});
+
+test('email notification errors never make a durably saved contact appear unsuccessful',async()=>{
+  const f=fixture();try{
+    f.sendDistributionProducerEmail=async()=>({status:'failed',reason:'provider_unavailable'});
+    const s=await start(f);
+    const response=await s.post({action:'contact',revision:0,name:'Synthetic Email Failure',phone:'2025550188',mode:'call',permission:true});
+    assert.equal(response.status,200,await response.clone().text());
+    assert.equal((await response.json()).contactSubmitted,true);
+    assert.equal(f.sql.prepare('SELECT COUNT(*) n FROM cf_solo_opportunities').get().n,1);
+  }finally{f.sql.close();}
+});
+
+test('paid CoverageFit direct handoffs do not trigger 408FARMERS producer emails',async()=>{
+  const f=fixture();try{
+    let attempted=0;
+    f.sendDistributionProducerEmail=async()=>{attempted++;return {status:'sent'};};
+    const s=await start(f,{...input(),presentation:'paid_agency'});
+    const response=await s.post({action:'contact',revision:0,name:'Synthetic Paid Lead',phone:'2025550177',mode:'call',permission:true});
+    assert.equal(response.status,200,await response.clone().text());
+    assert.equal(attempted,0);
+  }finally{f.sql.close();}
+});
