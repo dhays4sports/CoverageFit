@@ -186,3 +186,13 @@ RAW-LEAD-INTAKE-1.0 is useful when:
 - CONTROL pause, when enabled, preserves original assignment evidence;
 - every imported row can be traced to original source identity/provenance;
 - a retry cannot create a duplicate opportunity/enrollment.
+
+## Hosted recovery certification — 2026-10-07
+
+The original 100-row synchronous Preview commit returned HTTP 503 after 30 TEST rows had already committed. Rehearsal status proved the partial state exactly: 30 present, 70 missing, next missing ordinal 30.
+
+Recovery then proceeded in 10-row chunks. The first recovery chunk (ordinals 30–39) completed in 1,581 ms total with 933 ms preparation, 10 imported, 0 duplicates, 0 review exceptions and 0 SMS. Sequential chunks then advanced the durable status 40 → 50 → 60 → 70 → 80 → 90 → 100 without another 503. Final state: 100 TEST rows present, complete=true, next_missing=null.
+
+Decision: 100-row one-shot writes are not an acceptable production primitive. The normal Import UI now uses resumable 10-row chunk commits. A transient chunk failure leaves the UI on that chunk; clicking Resume replays the same chunk, relying on stable source identity to dedupe any rows that committed before the failure.
+
+Chunk completion now finalizes a durable batch receipt. True review exceptions are persisted per chunk; successful rows do not remain in the exception queue.
