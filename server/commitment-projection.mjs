@@ -20,7 +20,11 @@ export function projectCommitments({opportunity={},tasks=[],sources=[],sms=null}
  }
  for(const [field,type] of [['callback_date','CALLBACK'],['closing_date','CLOSING'],['renewal_date','RENEWAL']])if(sms?.facts?.[field])add('sms:'+field,type,sms.facts[field],{kind:'sms_fact',field,evidence:sms.fact_provenance?.[field]||sms.fact_evidence?.[field]||null},{confirmation:'evidence_only'});
  if(sms?.decision_2==='LATER'&&(sms.future_date||sms.future_month))add('sms:future','FUTURE_BIND',sms.future_date||sms.future_month,{kind:'sms_state',field:'future_date'},{confirmation:'recorded_timing'});
- if(opportunity.deadline&&!out.some(c=>c.due_at===opportunity.deadline||c.due_date===opportunity.deadline))add('opportunity:deadline','FOLLOW_UP',opportunity.deadline,{kind:'opportunity',field:'deadline'},{confirmation:'producer_recorded'});
+ if(opportunity.deadline&&!out.some(c=>c.due_at===opportunity.deadline||c.due_date===opportunity.deadline)){
+  const raw=sources.find(s=>s.kind==='lead'&&s.summary?.rawFacts)||sources.find(s=>s.kind==='district_pilot_v1'&&s.summary?.raw_facts),facts=raw?.summary?.rawFacts||raw?.summary?.raw_facts||{};
+  const rawType=facts.closing_date===opportunity.deadline?'CLOSING':facts.renewal_date===opportunity.deadline?'RENEWAL':null;
+  add('opportunity:deadline',rawType||'FOLLOW_UP',opportunity.deadline,{kind:'opportunity',field:'deadline',basis:rawType?'raw_timing_evidence':'recorded_deadline'},{confirmation:rawType?'evidence_only':'producer_recorded'});
+ }
  return out.sort((a,b)=>a.id.localeCompare(b.id));
 }
 // Optional 1.1 proposal contract, not a provider schema or mutation endpoint.
