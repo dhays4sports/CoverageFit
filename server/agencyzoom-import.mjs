@@ -166,6 +166,14 @@ export function rawImporter(repo,env){const w=repo.scope.workspace,store=createS
   const importedActual=await repo.sql('SELECT COUNT(*) AS n FROM cf_acq_opportunity_attribution WHERE workspace_id=? AND batch_id=?',w,p.fingerprint).first();
   const nextStart=Math.min(p.rows.length,start+limit),complete=nextStart>=p.rows.length,record={schemaVersion:'1.0',fingerprint:p.fingerprint,start,limit,row_count:selected.length,total_rows:p.rows.length,next_start:complete?null:nextStart,complete,prepare_duration_ms:prepareDuration,chunk_duration_ms:Math.max(0,Date.now()-started),actual_imported:Number(importedActual?.n)||0,exception_ids:exceptionIds,...summary,results:results.map(({opportunity_id,...r})=>r),created_at:new Date().toISOString()};
   await store.setJSON('district-import-chunk/'+w+'/'+p.fingerprint+'/'+String(start).padStart(3,'0'),record,{metadata:{createdAt:record.created_at,updatedAt:record.created_at,complete}});
+  if(complete){
+   const listed=await store.list({prefix:'district-import-chunk/'+w+'/'+p.fingerprint+'/',limit:100}),chunks=[];
+   for(const item of listed.blobs||[]){const value=await store.get(item.key);if(value)chunks.push(value);}
+   const exceptionIds=[...new Set(chunks.flatMap(x=>Array.isArray(x.exception_ids)?x.exception_ids:[]))];
+   const receipt={schemaVersion:'1.1',id:p.fingerprint,created_at:new Date().toISOString(),synthetic:v.synthetic===true,files:v.files.map(f=>String(f.name||'').slice(0,100)),row_count:p.rows.length,imported:Number(importedActual?.n)||0,duplicates:chunks.reduce((n,x)=>n+(Number(x.duplicates)||0),0),needs_review:chunks.reduce((n,x)=>n+(Number(x.needs_review)||0),0),pilot_enrollments:chunks.reduce((n,x)=>n+(Number(x.pilot_enrollments)||0),0),outside_pilot:chunks.reduce((n,x)=>n+(Number(x.outside_pilot)||0),0),sms_linked:chunks.reduce((n,x)=>n+(Number(x.sms_linked)||0),0),sms_sent:0,exceptions:exceptionIds,chunk_count:chunks.length,chunked:true,import_duration_ms:chunks.reduce((n,x)=>n+(Number(x.chunk_duration_ms)||0),0),control_enrollment_paused:env.CF_DISTRICT_CONTROL_ENROLLMENT_PAUSED==='1'};
+   await store.setJSON(receiptPrefix+p.fingerprint,receipt,{metadata:{createdAt:receipt.created_at,updatedAt:receipt.created_at,needs_review:receipt.needs_review}});
+   record.receipt=receipt;
+  }
   return record;
  }
  return {async promotionPreview(){const p=await promotionCandidates();return {fingerprint:p.fingerprint,eligible:p.eligible.length,signal:p.eligible.filter(x=>x.assignment.cohort==='SIGNAL').length,control:p.eligible.filter(x=>x.assignment.cohort==='CONTROL').length,skipped:p.skipped.length,eligibility_days:PILOT_ELIGIBILITY_DAYS,control_enrollment_paused:env.CF_DISTRICT_CONTROL_ENROLLMENT_PAUSED==='1'};},
