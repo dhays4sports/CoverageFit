@@ -1,5 +1,23 @@
 # CoverageFit Current State
 
+## Resumable raw intake after hosted partial commit — 2026-10-07
+
+Hosted certification proved that a 100-row synchronous write is not an acceptable ingestion primitive: the original synthetic commit returned HTTP 503 after **30 of 100 TEST rows** had already committed (18 SIGNAL / 12 CONTROL assignments). Stable source identity made the partial write recoverable and observable.
+
+The active branch now contains a resumable chunk path:
+- `commitChunk` commits a bounded 1–20-row slice; certification uses 10 rows;
+- preparation limits database ownership/duplicate checks to the active slice while still parsing/validating the exact source batch;
+- each chunk persists a receipt with start, limit, next start, timing and result counts;
+- replaying an already committed chunk resolves to duplicates rather than duplicate opportunities;
+- synthetic rehearsal status reports exact present/missing ordinals and the next missing row;
+- TEST rehearsal rows skip Opportunity Priority refresh, avoiding production-only projection work during throughput certification;
+- `/api/solo-desk/raw-rehearsal` supports `commit_chunk` for Preview certification;
+- generic `/api/solo-desk/raw-import-chunk` is present for the later production UI migration, but the existing Import UI has not yet been switched from one-shot commit.
+
+Fresh CI at branch head `55b8b52df522bbe1ecf269c762c77530955ef23e`: **444 passed, 0 failed, 0 skipped**.
+
+Next hosted checkpoint: deploy this head to isolated Preview, re-read the original failed batch, then resume only missing ordinals in 10-row chunks. Do not retry the old 100-row one-shot commit.
+
 ## 100-row intake rehearsal readiness — 2026-10-07
 
 A default-off hosted certification path now exists for the current RAW intake architecture.
