@@ -57,12 +57,12 @@ test('attention summary counts actionable work and excludes CONTROL guidance',as
 
 test('TEST pilot inventory is excluded from Attention summary and guidance',async()=>{const f=prepared();try{
  source(f,'one','district_pilot_v1',{...pilot('SIGNAL'),pilot_phase:'TEST',is_test:true});f.env.CF_ATTENTION_ENABLED='1';
- const r=await f.work.list(new URLSearchParams({population:'ALL',status:'all',sort:'recommended'}));const row=r.records.find(x=>x.id==='one');assert.equal(row.attention,null);assert.equal(r.attention_summary.actionable,0);assert.equal((await f.work.detail('one')).attention,null);
+ const r=await f.work.list(new URLSearchParams({population:'ALL',status:'all',sort:'recommended'}));assert.equal(r.records.some(x=>x.id==='one'),false);assert.equal(r.test_excluded,1);assert.equal(r.attention_summary.actionable,0);assert.equal((await f.work.detail('one')).attention,null);
  }finally{f.sql.close();}});
 
 
 test('normal Producer Work excludes TEST pilot records while detail remains auditable',async()=>{const f=prepared();try{
  source(f,'one','district_pilot_v1',{...pilot('SIGNAL'),pilot_phase:'TEST',is_test:true});f.env.CF_ATTENTION_ENABLED='1';
  const r=await f.work.list(new URLSearchParams({population:'ALL',status:'all',sort:'recommended'}));assert.equal(r.test_excluded,1);assert.equal(r.records.some(x=>x.id==='one'),false);assert.equal(r.total,1);
- const d=await f.work.detail('one');assert.equal(d.pilot.pilot_phase,'TEST');assert.equal(d.attention,null);
+ const d=await f.work.detail('one');assert.equal(d.sources.find(s=>s.kind==='district_pilot_v1')?.summary?.pilot_phase,'TEST');assert.equal(d.attention,null);
  }finally{f.sql.close();}});
