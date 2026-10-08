@@ -39,7 +39,7 @@ import {parseRawRows,csvRows} from '../server/agencyzoom-raw.mjs';
 import {normalizeAwlText} from '../server/awl-normalization.mjs';
 import {resolveSmsOwnership} from '../server/sms-ownership.mjs';
 import {classifyPopulation} from '../server/producer-workspace.mjs';
-import {rawPreviewRowHTML} from '../assets/js/agencyzoom-import.mjs';
+import {rawPreviewRowHTML,runChunkedRawImport} from '../assets/js/agencyzoom-import.mjs';
 const awlFixture=name=>({name:'AWL-'+name+'.csv',text:readFileSync(new URL('./fixtures/awl/'+name+'.csv',import.meta.url),'utf8')});
 const batchFile=files=>({name:'AWL-batch.csv',text:[files[0].text.split('\n')[0],...files.map(f=>f.text.split('\n').slice(1).join('\n'))].join('\n')});
 test('observed home placeholder and unlabeled padding align facts semantically, not just rectangularly',()=>{
@@ -257,5 +257,21 @@ test('chunked rehearsal resumes safely from partial import and never duplicates 
   const replay=await f.importer.commitChunk({files,synthetic:true,fingerprint:p.fingerprint,confirmed:true,eligible:true,start:20,limit:10});assert.equal(replay.imported,0);assert.equal(replay.duplicates,10);
   for(let start=30;start<100;start+=10){const chunk=await f.importer.commitChunk({files,synthetic:true,fingerprint:p.fingerprint,confirmed:true,eligible:true,start,limit:10});assert.equal(chunk.imported,10);assert.equal(chunk.needs_review,0);}
   s=await f.importer.rehearsalStatus({batch_id:batchId});assert.equal(s.imported_test_rows,100);assert.equal(s.complete,true);assert.equal(s.next_missing,null);assert.deepEqual(s.missing_ordinals,[]);
+ }finally{f.sql.close();}
+});
+
+
+test('chunked UI helper resumes from failed chunk without restarting completed work',async()=>{
+ let calls=[],failOnce=true;const api=async(route,body)=>{assert.equal(route,'raw-import-chunk');calls.push(body.start);if(body.start===10&&failOnce){failOnce=false;const e=Error('synthetic transient');e.resumeStart=10;throw e;}const next=body.start+10;return {chunk:{start:body.start,row_count:10,next_start:next>=30?null:next,complete:next>=30,imported:10,duplicates:0,needs_review:0,pilot_enrollments:10,outside_pilot:0,sms_linked:10,sms_sent:0}};};
+ await assert.rejects(runChunkedRawImport(api,{files:[]},'f'.repeat(64),30,{chunkSize:10}),e=>e.message==='synthetic transient');assert.deepEqual(calls,[0,10]);
+ const progress=[];const r=await runChunkedRawImport(api,{files:[]},'f'.repeat(64),30,{chunkSize:10,start:10,onProgress:x=>progress.push(x.nextStart)});assert.equal(r.complete,true);assert.deepEqual(calls,[0,10,10,20]);assert.deepEqual(progress,[20,30]);assert.equal(r.totals.imported,20);
+});
+
+test('chunked import finalizes durable receipt from completed chunk receipts',async()=>{
+ const f=setup();try{
+  const batchId='cccccccc-dddd-4eee-8fff-aaaaaaaaaaaa',receivedAt=new Date(Date.now()-60000).toISOString(),files=syntheticRawRehearsalBatch({batchId,receivedAt}),p=await f.importer.preview({files,synthetic:true});let last;
+  for(let start=0;start<100;start+=10)last=await f.importer.commitChunk({files,synthetic:true,fingerprint:p.fingerprint,confirmed:true,eligible:true,start,limit:10});
+  assert.equal(last.complete,true);assert.equal(last.receipt?.chunked,true);assert.equal(last.receipt?.row_count,100);assert.equal(last.receipt?.imported,100);assert.equal(last.receipt?.needs_review,0);assert.equal(last.receipt?.chunk_count,10);assert.equal(last.receipt?.sms_sent,0);
+  const receipts=await f.importer.receipts({limit:10});assert.ok(receipts.records.some(x=>x.id===p.fingerprint&&x.chunked===true&&x.imported===100));
  }finally{f.sql.close();}
 });
