@@ -247,3 +247,15 @@ test('synthetic rehearsal status reports completion without heavy preview and TE
   const s=await importer.rehearsalStatus({batch_id:batchId});assert.equal(s.imported_test_rows,100);assert.equal(s.complete,true);assert.equal(Object.values(s.cohorts).reduce((a,b)=>a+b,0),100);
  }finally{f.sql.close();}
 });
+
+
+test('chunked rehearsal resumes safely from partial import and never duplicates completed rows',async()=>{
+ const f=setup();try{
+  const batchId='bbbbbbbb-cccc-4ddd-8eee-ffffffffffff',receivedAt=new Date(Date.now()-60000).toISOString(),files=syntheticRawRehearsalBatch({batchId,receivedAt}),p=await f.importer.preview({files,synthetic:true});
+  for(const start of [0,10,20]){const chunk=await f.importer.commitChunk({files,synthetic:true,fingerprint:p.fingerprint,confirmed:true,eligible:true,start,limit:10});assert.equal(chunk.imported,10);assert.equal(chunk.duplicates,0);assert.equal(chunk.row_count,10);assert.equal(chunk.complete,false);}
+  let s=await f.importer.rehearsalStatus({batch_id:batchId});assert.equal(s.imported_test_rows,30);assert.equal(s.next_missing,30);assert.deepEqual(s.missing_ordinals.slice(0,3),[30,31,32]);
+  const replay=await f.importer.commitChunk({files,synthetic:true,fingerprint:p.fingerprint,confirmed:true,eligible:true,start:20,limit:10});assert.equal(replay.imported,0);assert.equal(replay.duplicates,10);
+  for(let start=30;start<100;start+=10){const chunk=await f.importer.commitChunk({files,synthetic:true,fingerprint:p.fingerprint,confirmed:true,eligible:true,start,limit:10});assert.equal(chunk.imported,10);assert.equal(chunk.needs_review,0);}
+  s=await f.importer.rehearsalStatus({batch_id:batchId});assert.equal(s.imported_test_rows,100);assert.equal(s.complete,true);assert.equal(s.next_missing,null);assert.deepEqual(s.missing_ordinals,[]);
+ }finally{f.sql.close();}
+});
