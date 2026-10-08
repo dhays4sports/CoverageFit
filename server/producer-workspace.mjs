@@ -104,7 +104,9 @@ export function producerWorkspace(repo,env){
    }
    records.sort((a,b)=>attentionEnabled&&sort!=='baseline'?compareAttention(a,b,sort):(a.population==='DISTRICT_SIGNAL'&&b.population==='DISTRICT_SIGNAL'?attentionRank(b)-attentionRank(a):0)||b.updated_at.localeCompare(a.updated_at)||a.id.localeCompare(b.id));
    const offset=Number(params.get('offset')||0);if(!Number.isInteger(offset)||offset<0)fail(422,'offset','Invalid page');
-   return {attention_enabled:attentionEnabled,sort:attentionEnabled?sort:'baseline',counts,records:records.slice(offset,offset+40),total:records.length,nextOffset:offset+40<records.length?offset+40:null,status,searchAcrossPopulations:!!q};
+   const attentionSummary={NOW:0,TODAY:0,HIGH:0,UPCOMING:0,WAITING:0,NORMAL:0,SUPPRESSED:0,actionable:0};
+   if(attentionEnabled)for(const r of records){const a=r.attention;if(!a)continue;if(Object.hasOwn(attentionSummary,a.band))attentionSummary[a.band]++;if(a.actionable!==false)attentionSummary.actionable++;}
+   return {attention_enabled:attentionEnabled,attention_summary:attentionSummary,sort:attentionEnabled?sort:'baseline',counts,records:records.slice(offset,offset+40),total:records.length,nextOffset:offset+40<records.length?offset+40:null,status,searchAcrossPopulations:!!q};
   }
  };
 }
