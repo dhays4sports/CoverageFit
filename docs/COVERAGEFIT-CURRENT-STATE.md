@@ -1,5 +1,21 @@
 # CoverageFit Current State
 
+## Attention certification tightened: TEST inventory excluded — 2026-10-07
+
+Hosted Preview showed the corrected Attention model with 100 synthetic rehearsal records carrying no guidance, but they still cluttered Producer Work. That is now resolved.
+
+Normal Producer Work now:
+- excludes `pilot_phase: TEST` / `is_test: true` records from list totals, counts and ranking;
+- reports `test_excluded` so the exclusion remains visible and auditable;
+- keeps direct record detail and intake receipts/evidence available for TEST records;
+- keeps fallback `NORMAL — Review current evidence` non-actionable unless stronger work evidence exists.
+
+This preserves the product distinction between audit/test evidence and operational producer work. Synthetic rehearsal records cannot consume producer attention merely by existing.
+
+Fresh CI at head `6867613072ca87811be5c1444e7da11c702cfdf6`: **452 passed, 0 failed, 0 skipped**.
+
+Next hosted checkpoint: deploy this head with `CF_ATTENTION_ENABLED=1` and re-run Producer Work. Expected result is approximately the real non-test inventory only, with the 100 rehearsal records excluded from `total` and `top_10`.
+
 ## Producer Attention surfaced in Workspace — 2026-10-07
 
 The deterministic Attention layer is now surfaced in `/agent/workspace/` behind the existing default-off `CF_ATTENTION_ENABLED=1` gate.
