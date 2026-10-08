@@ -96,18 +96,19 @@ export function rawImporter(repo,env){const w=repo.scope.workspace,store=createS
   return {results,promoted:results.filter(x=>x.status==='PROMOTED').length,signal:results.filter(x=>x.status==='PROMOTED'&&x.cohort==='SIGNAL').length,control:results.filter(x=>x.status==='PROMOTED'&&x.cohort==='CONTROL').length,sms_sent:0};
  }
  const owned=hash=>repo.sql('SELECT opportunity_id,summary_json,kind FROM cf_solo_sources WHERE workspace_id=? AND kind IN (?,?) AND source_id=? ORDER BY kind LIMIT 1',w,PILOT_KIND,RAW_KIND,hash).first();
- async function prepare(v){
+ async function prepare(v,options={}){
   if(!Array.isArray(v.files)||v.files.length<1||v.files.length>20)throw Error('Select 1–20 CSV files');
   if(v.files.reduce((n,f)=>n+(typeof f.text==='string'?new TextEncoder().encode(f.text).length:0),0)>1048576)throw Error('Batch maximum is 1 MB');
-  const fingerprint=await digest(JSON.stringify([v.files,v.synthetic===true,RAW_VERSION])),rows=[],seen=new Map(),phones=new Map();
+  const fingerprint=await digest(JSON.stringify([v.files,v.synthetic===true,RAW_VERSION])),rows=[],seen=new Map(),phones=new Map(),databaseStart=Math.max(0,Number(options.databaseStart)||0),databaseLimit=options.databaseLimit==null?Infinity:Math.max(1,Number(options.databaseLimit)||1);let ordinal=-1;
   const parsed=v.files.flatMap((file,index)=>parseRawRows(file).map(result=>({file,index,...result})));
   if(parsed.length>RAW_BATCH_LEADS)throw Error('Preview at most 100 leads per batch');
   for(const item of parsed){
+   ordinal++;const databaseCheck=ordinal>=databaseStart&&ordinal<databaseStart+databaseLimit;
    const {file,index,lead,error,correction_fields,row_number,stage}=item;
    const row={index,file:String(file.name).slice(0,100),row_number,...lead,import_status:error?'NEEDS_REVIEW':'READY',pilot_status:'NOT_EVALUATED',status:error||'READY',sms_link:'NOT_EVALUATED',correction_fields,issues:error?[{stage,message:error}]:[]};
    rows.push(row);if(error)continue;
    try{
-    const a=operationalAssignment(await pilotAssignment(lead.lead_key),env),old=await owned(a.lead_key_hash);row.lead_key_hash=a.lead_key_hash;row.assignment_cohort=a.assignment_cohort;row.cohort_override_reason=a.cohort_override_reason;
+    const a=operationalAssignment(await pilotAssignment(lead.lead_key),env),old=databaseCheck?await owned(a.lead_key_hash):null;row.lead_key_hash=a.lead_key_hash;row.assignment_cohort=a.assignment_cohort;row.cohort_override_reason=a.cohort_override_reason;
     if(old){
      const record=parse(old.summary_json);if((record.pilot_phase==='TEST'||record.is_test===true)!==(v.synthetic===true))throw Error('PHASE CONFLICT: existing test and real imports must not share a key');
      Object.assign(row,{status:'DUPLICATE',import_status:'DUPLICATE',opportunity_id:old.opportunity_id,pilot_status:old.kind===PILOT_KIND?'ALREADY_ENROLLED':record.pilot_status||'NOT_APPLICABLE',cohort:record.cohort||null,sms_link:record.conversation_id?'LINKED':'NOT_LINKED'});continue;
@@ -123,10 +124,12 @@ export function rawImporter(repo,env){const w=repo.scope.workspace,store=createS
     row.sms_link=row.conversation_id?'LINKABLE':lead.contact.mobile?'NOT_EVALUATED':'NOT_APPLICABLE';
     if(row.conversation_id){
      const priorPhone=phones.get(row.conversation_id);if(priorPhone){priorPhone.status='PHONE CONFLICT: different lead keys share a phone';priorPhone.import_status='NEEDS_REVIEW';throw Error('PHONE CONFLICT: different lead keys share a phone; review identity');}phones.set(row.conversation_id,row);
-     const link=await repo.sql("SELECT opportunity_id FROM cf_solo_sources WHERE workspace_id=? AND kind IN (?,?) AND json_extract(summary_json,'$.conversation_id')=?",w,PILOT_KIND,RAW_KIND,row.conversation_id).first();if(link)throw Error('PHONE CONFLICT: relationship already imported under another lead key');
-     if(row.cohort==='SIGNAL'&&await store.get(CONTROL_PREFIX+row.conversation_id))throw Error('COHORT CONFLICT: preassigned CONTROL exclusion');
-     const existing=await repo.sql("SELECT id FROM cf_solo_opportunities WHERE workspace_id=? AND json_extract(contact_json,'$.mobile')=? LIMIT 1",w,lead.contact.mobile).first();if(existing)throw Error('EXISTING OPPORTUNITY: verify stable source identity; no phone-only merge');
-     const c=await store.get('sms-live-conversations/'+row.conversation_id);row.pre_enrollment_response=!!(c?.transcript||[]).some(x=>x.direction==='inbound'&&x.occurredAt>=lead.received_at);
+     if(databaseCheck){
+      const link=await repo.sql("SELECT opportunity_id FROM cf_solo_sources WHERE workspace_id=? AND kind IN (?,?) AND json_extract(summary_json,'$.conversation_id')=?",w,PILOT_KIND,RAW_KIND,row.conversation_id).first();if(link)throw Error('PHONE CONFLICT: relationship already imported under another lead key');
+      if(row.cohort==='SIGNAL'&&await store.get(CONTROL_PREFIX+row.conversation_id))throw Error('COHORT CONFLICT: preassigned CONTROL exclusion');
+      const existing=await repo.sql("SELECT id FROM cf_solo_opportunities WHERE workspace_id=? AND json_extract(contact_json,'$.mobile')=? LIMIT 1",w,lead.contact.mobile).first();if(existing)throw Error('EXISTING OPPORTUNITY: verify stable source identity; no phone-only merge');
+      const live=await store.get('sms-live-conversations/'+row.conversation_id);row.pre_enrollment_response=!!(live?.transcript||[]).some(x=>x.direction==='inbound'&&x.occurredAt>=lead.received_at);
+     }
     }
     row.late_enrollment=!!row.pre_enrollment_response;
    }catch(e){row.import_status='NEEDS_REVIEW';row.status=msg(e);row.issues.push({stage:'validation',message:row.status});}
