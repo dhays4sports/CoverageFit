@@ -91,10 +91,12 @@ export function producerWorkspace(repo,env){
    const all=await repo.rows('SELECT * FROM cf_solo_opportunities WHERE workspace_id=? ORDER BY updated_at DESC,id LIMIT 5001',w);if(all.length>5000)fail(422,'work_size','Work inventory exceeds this pilot view limit; use the existing specialist desk.');
    const sourceRows=await repo.rows('SELECT opportunity_id,kind,source_id,summary_json FROM cf_solo_sources WHERE workspace_id=?',w),by=new Map();for(const row of sourceRows){if(!by.has(row.opportunity_id))by.set(row.opportunity_id,[]);by.get(row.opportunity_id).push({...row,summary:parse(row.summary_json)});}
    const projected=await repo.rows('SELECT opportunity_id,queue,score,score_min,score_max FROM cf_opportunity_priority_projections WHERE workspace_id=?',w),priority=new Map(projected.map(x=>[x.opportunity_id,x]));
-   const counts=Object.fromEntries(POPULATIONS.map(x=>[x,0])),records=[];
-   for(const op of all){const ss=by.get(op.id)||[],pop=await population(op.id,ss),contact=parse(op.contact_json);if(status!=='all'&&(status==='closed'?op.status!=='closed':op.status==='closed'))continue;counts[pop.population]++;
+   const counts=Object.fromEntries(POPULATIONS.map(x=>[x,0])),records=[];let test_excluded=0;
+   for(const op of all){const ss=by.get(op.id)||[],pilot=ss.find(s=>s.kind==='district_pilot_v1')?.summary,pop=await population(op.id,ss),contact=parse(op.contact_json);if(status!=='all'&&(status==='closed'?op.status!=='closed':op.status==='closed'))continue;
+    if(pilot?.pilot_phase==='TEST'||pilot?.is_test===true){test_excluded++;continue;}
+    counts[pop.population]++;
     if((selected!=='ALL'&&!q&&pop.population!==selected)||(q&&![contact.name,contact.firstName,contact.lastName,contact.mobile,contact.email,op.products,op.source].join(' ').toLowerCase().includes(q)))continue;
-    const pilot=ss.find(s=>s.kind==='district_pilot_v1')?.summary,sm=await sms(pilot,pop.population);
+    const sm=await sms(pilot,pop.population);
     const commitments=attentionEnabled&&pop.population!=='DISTRICT_CONTROL'?projectCommitments({opportunity:op,tasks:tasksBy.get(op.id)||[],sources:ss,sms:sm}):[];
     const safetyCid=pilot?.conversation_id||ss.find(s=>s.kind==='signal_continue_v1')?.summary?.conversation_id||ss.find(s=>s.kind==='lead')?.summary?.context?.distribution?.conversation_id;
     const safety=attentionEnabled&&safetyCid?await store.get('sms-live-conversations/'+safetyCid):null;
@@ -106,7 +108,7 @@ export function producerWorkspace(repo,env){
    const offset=Number(params.get('offset')||0);if(!Number.isInteger(offset)||offset<0)fail(422,'offset','Invalid page');
    const attentionSummary={NOW:0,TODAY:0,HIGH:0,UPCOMING:0,WAITING:0,NORMAL:0,SUPPRESSED:0,actionable:0};
    if(attentionEnabled)for(const r of records){const a=r.attention;if(!a)continue;if(Object.hasOwn(attentionSummary,a.band))attentionSummary[a.band]++;if(a.actionable!==false)attentionSummary.actionable++;}
-   return {attention_enabled:attentionEnabled,attention_summary:attentionSummary,sort:attentionEnabled?sort:'baseline',counts,records:records.slice(offset,offset+40),total:records.length,nextOffset:offset+40<records.length?offset+40:null,status,searchAcrossPopulations:!!q};
+   return {attention_enabled:attentionEnabled,attention_summary:attentionSummary,test_excluded,sort:attentionEnabled?sort:'baseline',counts,records:records.slice(offset,offset+40),total:records.length,nextOffset:offset+40<records.length?offset+40:null,status,searchAcrossPopulations:!!q};
   }
  };
 }
