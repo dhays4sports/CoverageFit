@@ -43,3 +43,13 @@ test('Work list exposes creation separately from updated activity',async()=>{con
 
 
 test('attention remains optional and CONTROL receives no guidance',async()=>{const f=prepared();try{source(f,'one','district_pilot_v1',pilot('SIGNAL'));source(f,'two','district_pilot_v1',pilot('CONTROL',otherCid));let r=await f.work.list(new URLSearchParams({population:'ALL',sort:'recommended'}));assert.equal(r.attention_enabled,false);assert.ok(r.records.every(x=>x.attention===null));f.env.CF_ATTENTION_ENABLED='1';r=await f.work.list(new URLSearchParams({population:'ALL',sort:'recommended'}));assert.equal(r.records.find(x=>x.id==='two').attention,null);assert.equal((await f.work.detail('two')).commitments.length,0);assert.equal(r.sort,'recommended');await assert.rejects(f.work.list(new URLSearchParams({sort:'credit'})));}finally{f.sql.close();}});
+
+
+test('attention summary counts actionable work and excludes CONTROL guidance',async()=>{const f=prepared();try{
+ source(f,'one','district_pilot_v1',pilot('SIGNAL'));source(f,'two','district_pilot_v1',pilot('CONTROL',otherCid));
+ f.env.CF_ATTENTION_ENABLED='1';
+ await f.store.setJSON('sms-live-conversations/'+cid,{id:cid,signal:{...signal(),latest_inbound:'Please call me',new_facts:{explicit_call_request:true},transcript:[{id:'in-1',direction:'inbound',body:'Please call me',occurredAt:new Date().toISOString()}]},transcript:[{id:'in-1',direction:'inbound',body:'Please call me',occurredAt:new Date().toISOString()}]});
+ const r=await f.work.list(new URLSearchParams({population:'ALL',status:'all',sort:'recommended'}));
+ const one=r.records.find(x=>x.id==='one'),two=r.records.find(x=>x.id==='two');assert.equal(r.attention_enabled,true);assert.equal(one.attention.band,'NOW');assert.equal(one.attention.reasons[0].text,'Explicit contact, quote or proceed request');assert.equal(two.attention,null);assert.equal(r.attention_summary.NOW,1);assert.equal(r.attention_summary.actionable,1);
+ const d=await f.work.detail('one');assert.equal(d.attention.band,'NOW');assert.equal(d.attention.actionable,true);
+ }finally{f.sql.close();}});
