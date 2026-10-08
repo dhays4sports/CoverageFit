@@ -66,3 +66,10 @@ test('normal Producer Work excludes TEST pilot records while detail remains audi
  const r=await f.work.list(new URLSearchParams({population:'ALL',status:'all',sort:'recommended'}));assert.equal(r.test_excluded,1);assert.equal(r.records.some(x=>x.id==='one'),false);assert.equal(r.total,1);
  const d=await f.work.detail('one');assert.equal(d.sources.find(s=>s.kind==='district_pilot_v1')?.summary?.pilot_phase,'TEST');assert.equal(d.attention,null);
  }finally{f.sql.close();}});
+
+
+test('synthetic NEW_LEAD pilot fixtures are excluded from normal Producer Work but remain directly auditable',async()=>{const f=prepared();try{
+ source(f,'one','district_pilot_v1',{...pilot('SIGNAL'),synthetic:true});f.env.CF_ATTENTION_ENABLED='1';
+ const r=await f.work.list(new URLSearchParams({population:'ALL',status:'all',sort:'recommended'}));assert.equal(r.records.some(x=>x.id==='one'),false);assert.equal(r.test_excluded,1);
+ const d=await f.work.detail('one');assert.equal(d.sources.find(s=>s.kind==='district_pilot_v1')?.summary?.synthetic,true);assert.equal(d.attention,null);
+ }finally{f.sql.close();}});
