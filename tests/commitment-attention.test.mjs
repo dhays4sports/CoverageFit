@@ -45,3 +45,13 @@ test('evidence-only fallback is non-actionable until stronger work evidence exis
  const a=deriveAttention({population:'OTHER',opportunity:{id:'x',status:'open'},commitments:[],now:Date.parse('2026-10-08T01:00:00Z')});assert.equal(a.band,'NORMAL');assert.equal(a.actionable,false);assert.equal(a.reasons[0].text,'Review current evidence');
  const q=deriveAttention({population:'DISTRICT_SIGNAL',opportunity:{id:'x',status:'open'},commitments:[],sms:{quote_ready:true},now:Date.parse('2026-10-08T01:00:00Z')});assert.equal(q.band,'NORMAL');assert.equal(q.actionable,true);
 });
+
+
+test('attention canaries cover NOW TODAY HIGH SUPPRESSED and CONTROL',()=>{
+ const now=Date.parse('2026-10-08T17:00:00Z'),base={id:'x',status:'open'};
+ const explicit=deriveAttention({population:'DISTRICT_SIGNAL',opportunity:base,sms:{latest_inbound:'Call me',new_facts:{explicit_call_request:true},transcript:[{id:'m1',direction:'inbound',body:'Call me',occurredAt:'2026-10-08T16:30:00Z'}]},now});assert.equal(explicit.band,'NOW');assert.equal(explicit.actionable,true);
+ const today=deriveAttention({population:'DISTRICT_SIGNAL',opportunity:base,commitments:[{id:'c1',type:'FOLLOW_UP',status:'open',due_date:'2026-10-08',confirmation:'producer_recorded',producer_committed:true,source_ref:{kind:'task',id:'t1'}}],now});assert.equal(today.band,'TODAY');assert.equal(today.actionable,true);
+ const high=deriveAttention({population:'DISTRICT_SIGNAL',opportunity:base,sms:{priority:'HIGH',latest_inbound:'Interested',transcript:[{id:'m2',direction:'inbound',body:'Interested',occurredAt:'2026-10-08T16:45:00Z'}]},now});assert.equal(high.band,'HIGH');assert.equal(high.actionable,true);
+ const stop=deriveAttention({population:'DISTRICT_SIGNAL',opportunity:base,sms:{decision_2:'STOP'},now});assert.equal(stop.band,'SUPPRESSED');assert.equal(stop.actionable,false);
+ const control=deriveAttention({population:'DISTRICT_CONTROL',opportunity:base,now});assert.equal(control,null);
+});
