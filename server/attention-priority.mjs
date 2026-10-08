@@ -30,7 +30,7 @@ export function deriveAttention({population,opportunity={},sms={},commitments=[]
  if(s.quote_ready||s.az_confirmed_stage==='QUOTE_SENT')return finish('NORMAL',30,'Quote work available',{kind:'sms_state'});
  if(future)return finish('UPCOMING',25,'Upcoming '+future.type.toLowerCase().replaceAll('_',' '),future.source_ref,{due_at:future.due_at});
  if(active.some(c=>c.status==='waiting'||c.customer_committed===true&&c.producer_committed!==true))return finish('WAITING',10,'Waiting on a recorded commitment',{kind:'commitment'});
- return finish('NORMAL',20,'Review current evidence',{kind:'opportunity'});
+ return finish('NORMAL',20,'Review current evidence',{kind:'opportunity'},{actionable:false});
 }
 export function compareAttention(a,b,mode='recommended'){
  const x=a.attention,y=b.attention;
