@@ -39,3 +39,9 @@ test('explicit recorded opportunity deadline still projects actionable future fo
  const follow=commitments.find(x=>x.id==='opportunity:deadline');assert.equal(follow.type,'FOLLOW_UP');assert.equal(follow.confirmation,'producer_recorded');
  const a=deriveAttention({population:'WEB_DIRECT',opportunity,commitments,now:Date.parse('2026-10-08T01:00:00Z')});assert.equal(a.band,'UPCOMING');
 });
+
+
+test('evidence-only fallback is non-actionable until stronger work evidence exists',()=>{
+ const a=deriveAttention({population:'OTHER',opportunity:{id:'x',status:'open'},commitments:[],now:Date.parse('2026-10-08T01:00:00Z')});assert.equal(a.band,'NORMAL');assert.equal(a.actionable,false);assert.equal(a.reasons[0].text,'Review current evidence');
+ const q=deriveAttention({population:'DISTRICT_SIGNAL',opportunity:{id:'x',status:'open'},commitments:[],sms:{quote_ready:true},now:Date.parse('2026-10-08T01:00:00Z')});assert.equal(q.band,'NORMAL');assert.equal(q.actionable,true);
+});
