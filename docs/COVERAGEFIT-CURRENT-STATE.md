@@ -1,5 +1,27 @@
 # CoverageFit Current State
 
+## Producer Attention surfaced in Workspace — 2026-10-07
+
+The deterministic Attention layer is now surfaced in `/agent/workspace/` behind the existing default-off `CF_ATTENTION_ENABLED=1` gate.
+
+When enabled, Producer Work now exposes:
+- aggregate Attention bands for the current result set: NOW, TODAY, HIGH, UPCOMING, WAITING, NORMAL and SUPPRESSED;
+- actionable count;
+- Recommended, High intent, Due now, Newest and Baseline sorts;
+- the evidence-backed Attention reason directly on each work row;
+- the same Attention reason in opportunity detail.
+
+Safety/governance remains unchanged:
+- DISTRICT_CONTROL receives no Attention guidance;
+- STOP, opt-out, wrong-number and suppression states remain non-actionable;
+- Attention is deterministic orchestration, not contact permission or bind probability;
+- AgencyZoom remains CRM authority and no stage is written by Attention;
+- the feature remains default-off until hosted Preview certification.
+
+Fresh CI at runtime head `b9ae9bb2ebf36ec7af23b2120b8ce4201c2eecf9`: **447 passed, 0 failed, 0 skipped**.
+
+Next hosted checkpoint: deploy the current branch to isolated Preview with `CF_ATTENTION_ENABLED=1`, load Producer Work, verify summary/sorting/reasons against real Preview inventory, and confirm CONTROL and suppressed records never receive actionable guidance.
+
 ## RAW Import switched to resumable chunking — 2026-10-07
 
 Hosted certification is complete enough to make the ingestion architecture decision.
