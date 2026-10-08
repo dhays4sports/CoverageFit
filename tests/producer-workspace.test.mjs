@@ -53,3 +53,9 @@ test('attention summary counts actionable work and excludes CONTROL guidance',as
  const one=r.records.find(x=>x.id==='one'),two=r.records.find(x=>x.id==='two');assert.equal(r.attention_enabled,true);assert.equal(one.attention.band,'NOW');assert.equal(one.attention.reasons[0].text,'Explicit contact, quote or proceed request');assert.equal(two.attention,null);assert.equal(r.attention_summary.NOW,1);assert.equal(r.attention_summary.actionable,1);
  const d=await f.work.detail('one');assert.equal(d.attention.band,'NOW');assert.equal(d.attention.actionable,true);
  }finally{f.sql.close();}});
+
+
+test('TEST pilot inventory is excluded from Attention summary and guidance',async()=>{const f=prepared();try{
+ source(f,'one','district_pilot_v1',{...pilot('SIGNAL'),pilot_phase:'TEST',is_test:true});f.env.CF_ATTENTION_ENABLED='1';
+ const r=await f.work.list(new URLSearchParams({population:'ALL',status:'all',sort:'recommended'}));const row=r.records.find(x=>x.id==='one');assert.equal(row.attention,null);assert.equal(r.attention_summary.actionable,0);assert.equal((await f.work.detail('one')).attention,null);
+ }finally{f.sql.close();}});
