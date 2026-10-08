@@ -23,3 +23,19 @@ test('price/payment text is not proceed; source/traits do not change ranking',()
 test('sort ties stable and suppressed never rises on intent',()=>{const a={id:'a',attention:{actionable:true,rank:20,intent_rank:0}},b={id:'b',attention:{actionable:true,rank:20,intent_rank:0}},c={id:'c',attention:{actionable:false,rank:120,intent_rank:3}};assert.deepEqual([c,b,a].sort((x,y)=>compareAttention(x,y,'high_intent')).map(r=>r.id),['a','b','c']);});
 
 test('old raised hand does not revive from unrelated new inbound',()=>{const b=base();b.sms.facts.explicit_quote_request=true;assert.equal(deriveAttention(b).rank,110);assert.equal(deriveAttention(b).intent_rank,1);});
+
+
+test('raw renewal evidence does not become producer commitment or UPCOMING attention',()=>{
+ const opportunity={id:'raw-1',status:'open',deadline:'2026-11-15'};
+ const sources=[{kind:'lead',summary:{rawFacts:{renewal_date:'2026-11-15'}}}];
+ const commitments=projectCommitments({opportunity,sources,tasks:[],sms:null});
+ const renewal=commitments.find(x=>x.id==='opportunity:deadline');assert.equal(renewal.type,'RENEWAL');assert.equal(renewal.confirmation,'evidence_only');
+ const a=deriveAttention({population:'DISTRICT_SIGNAL',opportunity,commitments,now:Date.parse('2026-10-08T01:00:00Z')});assert.equal(a.band,'NORMAL');assert.equal(a.reasons[0].text,'Review current evidence');
+});
+
+test('explicit recorded opportunity deadline still projects actionable future follow-up',()=>{
+ const opportunity={id:'manual-1',status:'open',deadline:'2026-11-15'};
+ const commitments=projectCommitments({opportunity,sources:[],tasks:[],sms:null});
+ const follow=commitments.find(x=>x.id==='opportunity:deadline');assert.equal(follow.type,'FOLLOW_UP');assert.equal(follow.confirmation,'producer_recorded');
+ const a=deriveAttention({population:'WEB_DIRECT',opportunity,commitments,now:Date.parse('2026-10-08T01:00:00Z')});assert.equal(a.band,'UPCOMING');
+});
