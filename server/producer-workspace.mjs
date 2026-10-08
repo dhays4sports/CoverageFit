@@ -74,7 +74,7 @@ export function producerWorkspace(repo,env){
    const webCid=pop.population==='WEB_DIRECT'?ss.find(s=>s.kind==='lead'&&s.summary?.context?.distribution?.phase==='producer_handoff')?.summary.context.distribution.conversation_id:null;
    const linkedCid=pilot?.conversation_id||webCid;const linked=linkedCid?await store.get('sms-live-conversations/'+linkedCid):null;const contactSafety={suppressed:!!(linked?.smsConsent?.status==='opted_out'||linked?.signal?.contact_suppressed||linked?.signal?.decision_2==='STOP'||linked?.signal?.facts?.wrong_number||linked?.signal?.facts?.opt_out)};
    const commitments=env.CF_ATTENTION_ENABLED==='1'&&pop.population!=='DISTRICT_CONTROL'?projectCommitments({opportunity:data.opportunity,tasks:await repo.rows('SELECT * FROM cf_solo_tasks WHERE workspace_id=? AND opportunity_id=?',w,id),sources:ss,sms:state}):[];
-   const attention=env.CF_ATTENTION_ENABLED==='1'&&pilot?.pilot_phase!=='TEST'&&pilot?.is_test!==true?deriveAttention({population:pop.population,opportunity:data.opportunity,sms:state,commitments,priority:data.opportunityPriority,suppressed:contactSafety.suppressed}):null;
+   const attention=env.CF_ATTENTION_ENABLED==='1'&&pilot?.pilot_phase!=='TEST'&&pilot?.is_test!==true&&pilot?.synthetic!==true?deriveAttention({population:pop.population,opportunity:data.opportunity,sms:state,commitments,priority:data.opportunityPriority,suppressed:contactSafety.suppressed}):null;
    let copilotEnabled=false;
    if(env.CF_AI_ENABLED==='1'&&env.CF_SIGNAL_COPILOT_ENABLED==='1'&&pop.population==='DISTRICT_SIGNAL'){
     // Use the same read-only eligibility gates as generation; never call a provider here.
@@ -93,7 +93,7 @@ export function producerWorkspace(repo,env){
    const projected=await repo.rows('SELECT opportunity_id,queue,score,score_min,score_max FROM cf_opportunity_priority_projections WHERE workspace_id=?',w),priority=new Map(projected.map(x=>[x.opportunity_id,x]));
    const counts=Object.fromEntries(POPULATIONS.map(x=>[x,0])),records=[];let test_excluded=0;
    for(const op of all){const ss=by.get(op.id)||[],pilot=ss.find(s=>s.kind==='district_pilot_v1')?.summary,pop=await population(op.id,ss),contact=parse(op.contact_json);if(status!=='all'&&(status==='closed'?op.status!=='closed':op.status==='closed'))continue;
-    if(pilot?.pilot_phase==='TEST'||pilot?.is_test===true){test_excluded++;continue;}
+    if(pilot?.pilot_phase==='TEST'||pilot?.is_test===true||pilot?.synthetic===true){test_excluded++;continue;}
     counts[pop.population]++;
     if((selected!=='ALL'&&!q&&pop.population!==selected)||(q&&![contact.name,contact.firstName,contact.lastName,contact.mobile,contact.email,op.products,op.source].join(' ').toLowerCase().includes(q)))continue;
     const sm=await sms(pilot,pop.population);
@@ -101,7 +101,7 @@ export function producerWorkspace(repo,env){
     const safetyCid=pilot?.conversation_id||ss.find(s=>s.kind==='signal_continue_v1')?.summary?.conversation_id||ss.find(s=>s.kind==='lead')?.summary?.context?.distribution?.conversation_id;
     const safety=attentionEnabled&&safetyCid?await store.get('sms-live-conversations/'+safetyCid):null;
     const isSuppressed=!!(safety?.smsConsent?.status==='opted_out'||safety?.signal?.contact_suppressed||safety?.signal?.decision_2==='STOP'||safety?.signal?.facts?.wrong_number||safety?.signal?.facts?.opt_out);
-    const attention=attentionEnabled&&pilot?.pilot_phase!=='TEST'&&pilot?.is_test!==true?deriveAttention({population:pop.population,opportunity:op,sms:sm,suppressed:isSuppressed,commitments,priority:pop.population==='DISTRICT_SIGNAL'?priority.get(op.id):null}):null;
+    const attention=attentionEnabled&&pilot?.pilot_phase!=='TEST'&&pilot?.is_test!==true&&pilot?.synthetic!==true?deriveAttention({population:pop.population,opportunity:op,sms:sm,suppressed:isSuppressed,commitments,priority:pop.population==='DISTRICT_SIGNAL'?priority.get(op.id):null}):null;
     records.push({attention,id:op.id,name:contact.name||[contact.firstName,contact.lastName].filter(Boolean).join(' ')||'Unnamed opportunity',phone:contact.mobile||'',products:op.products,source:op.source,status:op.status,population:pop.population,received_at:pilot?.received_at||null,created_at:op.created_at,updated_at:op.updated_at,deadline:op.deadline,continuation:await continuation(op.id,ss,pop.population),priority:pop.population==='DISTRICT_SIGNAL'?priority.get(op.id)||null:null,sms:sm?{decision_2:sm.decision_2,priority:sm.priority,latest_inbound:sm.latest_inbound,draft_status:sm.draft_status,human_required:sm.human_required,quote_ready:sm.quote_ready,az_sync_status:sm.az_sync_status,contact_suppressed:sm.contact_suppressed}:null});
    }
    records.sort((a,b)=>attentionEnabled&&sort!=='baseline'?compareAttention(a,b,sort):(a.population==='DISTRICT_SIGNAL'&&b.population==='DISTRICT_SIGNAL'?attentionRank(b)-attentionRank(a):0)||b.updated_at.localeCompare(a.updated_at)||a.id.localeCompare(b.id));
