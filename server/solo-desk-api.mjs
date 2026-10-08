@@ -72,9 +72,10 @@ export async function handleSoloDesk(context){
     if(route==='raw-promote')return json({ok:true,...await rawImporter(repo,env).promote(value)});
     if(route==='raw-rehearsal'){
       if(env.CF_RAW_SYNTHETIC_REHEARSAL_ENABLED!=='1')fail(404,'route','Synthetic intake rehearsal is unavailable.');
-      if(!['preview','commit'].includes(value.action))fail(422,'action','Choose preview or commit.');
-      const batchId=String(value.batch_id||'').toLowerCase(),receivedAt=String(value.received_at||'');
-      const files=syntheticRawRehearsalBatch({batchId,receivedAt}),svc=rawImporter(repo,env);
+      if(!['preview','commit','status'].includes(value.action))fail(422,'action','Choose preview, commit or status.');
+      const batchId=String(value.batch_id||'').toLowerCase(),receivedAt=String(value.received_at||''),svc=rawImporter(repo,env);
+      if(value.action==='status')return json({ok:true,...await svc.rehearsalStatus({batch_id:batchId})});
+      const files=syntheticRawRehearsalBatch({batchId,receivedAt});
       if(value.action==='preview')return json({ok:true,batch_id:batchId,received_at:receivedAt,...await svc.preview({files,synthetic:true})});
       if(value.confirmed!==true)fail(422,'confirmation','Confirm the synthetic rehearsal before importing.');
       return json({ok:true,batch_id:batchId,received_at:receivedAt,...await svc.commit({files,synthetic:true,fingerprint:value.fingerprint,confirmed:true,eligible:true})});
