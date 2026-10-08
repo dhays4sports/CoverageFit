@@ -138,6 +138,14 @@ export function rawImporter(repo,env){const w=repo.scope.workspace,store=createS
   return {fingerprint,rows};
  }
 
+ async function persistExceptionRow(row,batch){
+  if(row.import_status!=='NEEDS_REVIEW')return null;
+  const phone_status=/MALFORMED PHONE/.test(String(row.status||''))?'INVALID':row.contact?.mobile?'VALID':'NOT_EVALUATED';
+  const triage=intakeTriage({...row,phone_status}),id=await digest(JSON.stringify([batch,row.index,row.row_number,row.lead_key||'',row.status||'']));
+  const key=exceptionPrefix+id,existing=await store.get(key);
+  if(!existing){const record={id,...safeException(row,triage,batch)};await store.setJSON(key,record,{metadata:{state:'OPEN',bucket:triage.bucket,createdAt:record.created_at,updatedAt:record.updated_at}});}
+  return id;
+ }
  async function commitChunk(v){
   if(v.confirmed!==true||v.eligible!==true)throw Error('Confirm this raw intake chunk.');
   const start=Number(v.start),limit=Number(v.limit||10);if(!Number.isInteger(start)||start<0)throw Error('Invalid chunk start.');if(!Number.isInteger(limit)||limit<1||limit>20)throw Error('Chunk size must be 1–20 rows.');
@@ -154,7 +162,9 @@ export function rawImporter(repo,env){const w=repo.scope.workspace,store=createS
    catch(e){const existing=await owned(r.lead_key_hash);results.push({index:r.index,row_number:r.row_number,import_status:existing?'DUPLICATE':'NEEDS_REVIEW',status:existing?'DUPLICATE':'CONFLICT / IMPORT FAILED',opportunity_id:existing?.opportunity_id||null});}
   }
   const summary={imported:results.filter(r=>r.status==='IMPORTED').length,duplicates:results.filter(r=>r.import_status==='DUPLICATE').length,needs_review:results.filter(r=>r.import_status==='NEEDS_REVIEW').length,pilot_enrollments:results.filter(r=>r.status==='IMPORTED'&&r.enrolled).length,outside_pilot:results.filter(r=>r.status==='IMPORTED'&&!r.enrolled).length,sms_linked:results.filter(r=>r.sms_linked).length,sms_sent:0};
-  const nextStart=Math.min(p.rows.length,start+limit),complete=nextStart>=p.rows.length,record={schemaVersion:'1.0',fingerprint:p.fingerprint,start,limit,row_count:selected.length,total_rows:p.rows.length,next_start:complete?null:nextStart,complete,prepare_duration_ms:prepareDuration,chunk_duration_ms:Math.max(0,Date.now()-started),...summary,results:results.map(({opportunity_id,...r})=>r),created_at:new Date().toISOString()};
+  const exceptionIds=[];for(const row of selected){const id=await persistExceptionRow(row,p.fingerprint);if(id)exceptionIds.push(id);}
+  const importedActual=await repo.sql('SELECT COUNT(*) AS n FROM cf_acq_opportunity_attribution WHERE workspace_id=? AND batch_id=?',w,p.fingerprint).first();
+  const nextStart=Math.min(p.rows.length,start+limit),complete=nextStart>=p.rows.length,record={schemaVersion:'1.0',fingerprint:p.fingerprint,start,limit,row_count:selected.length,total_rows:p.rows.length,next_start:complete?null:nextStart,complete,prepare_duration_ms:prepareDuration,chunk_duration_ms:Math.max(0,Date.now()-started),actual_imported:Number(importedActual?.n)||0,exception_ids:exceptionIds,...summary,results:results.map(({opportunity_id,...r})=>r),created_at:new Date().toISOString()};
   await store.setJSON('district-import-chunk/'+w+'/'+p.fingerprint+'/'+String(start).padStart(3,'0'),record,{metadata:{createdAt:record.created_at,updatedAt:record.created_at,complete}});
   return record;
  }
