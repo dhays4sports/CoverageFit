@@ -1,5 +1,31 @@
 # CoverageFit Current State
 
+## RAW Import switched to resumable chunking — 2026-10-07
+
+Hosted certification is complete enough to make the ingestion architecture decision.
+
+Observed failure mode:
+- 100-row synchronous preview succeeded;
+- 100-row synchronous commit returned 503 after **30 rows had already committed**;
+- lightweight status proved the exact partial state: 30 present, 70 missing.
+
+Hosted recovery:
+- rows 30–39: 10/10 imported, 0 duplicates, 0 review exceptions, 0 SMS, 1,581 ms total / 933 ms preparation;
+- subsequent 10-row chunks advanced imported TEST rows to 50, 60, 70, 80, 90 and 100;
+- final status: `complete=true`, `next_missing=null`, no missing ordinals.
+
+The normal Import UI has now been migrated from `raw-import` one-shot writes to resumable 10-row `raw-import-chunk` writes. On a transient failure, the UI stops at the current chunk and presents **Resume import**; replaying that chunk safely deduplicates any rows that committed before failure.
+
+Chunk processing also now:
+- persists true review exceptions;
+- reports actual batch-imported count from attribution evidence;
+- writes durable per-chunk receipts;
+- finalizes a durable batch receipt on the last chunk.
+
+Fresh CI at runtime head `818742a38581333e86c439b47a79f6fd76550137`: **446 passed, 0 failed, 0 skipped**.
+
+The old one-shot endpoint remains available for compatibility/small internal callers, but it is no longer the intended UI path for normal multi-row RAW imports.
+
 ## Resumable raw intake after hosted partial commit — 2026-10-07
 
 Hosted certification proved that a 100-row synchronous write is not an acceptable ingestion primitive: the original synthetic commit returned HTTP 503 after **30 of 100 TEST rows** had already committed (18 SIGNAL / 12 CONTROL assignments). Stable source identity made the partial write recoverable and observable.
