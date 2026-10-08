@@ -69,15 +69,17 @@ export async function handleSoloDesk(context){
     if(route==='copilot'){try{return json({ok:true,...await copilotService(repo,env,{fetch:context.fetch,signal:request.signal}).act(value)});}catch{return json({ok:false,error:{message:'Copilot unavailable or context changed. Refresh; existing Signal and manual SMS remain available.'}},409);}}
     if(route==='raw-preview')return json({ok:true,...await rawImporter(repo,env).preview(value)});
     if(route==='raw-import')return json({ok:true,...await rawImporter(repo,env).commit(value)});
+    if(route==='raw-import-chunk')return json({ok:true,chunk:await rawImporter(repo,env).commitChunk(value)});
     if(route==='raw-promote')return json({ok:true,...await rawImporter(repo,env).promote(value)});
     if(route==='raw-rehearsal'){
       if(env.CF_RAW_SYNTHETIC_REHEARSAL_ENABLED!=='1')fail(404,'route','Synthetic intake rehearsal is unavailable.');
-      if(!['preview','commit','status'].includes(value.action))fail(422,'action','Choose preview, commit or status.');
+      if(!['preview','commit','commit_chunk','status'].includes(value.action))fail(422,'action','Choose preview, commit_chunk, commit or status.');
       const batchId=String(value.batch_id||'').toLowerCase(),receivedAt=String(value.received_at||''),svc=rawImporter(repo,env);
       if(value.action==='status')return json({ok:true,...await svc.rehearsalStatus({batch_id:batchId})});
       const files=syntheticRawRehearsalBatch({batchId,receivedAt});
       if(value.action==='preview')return json({ok:true,batch_id:batchId,received_at:receivedAt,...await svc.preview({files,synthetic:true})});
       if(value.confirmed!==true)fail(422,'confirmation','Confirm the synthetic rehearsal before importing.');
+      if(value.action==='commit_chunk')return json({ok:true,batch_id:batchId,received_at:receivedAt,chunk:await svc.commitChunk({files,synthetic:true,fingerprint:value.fingerprint,confirmed:true,eligible:true,start:value.start,limit:value.limit})});
       return json({ok:true,batch_id:batchId,received_at:receivedAt,...await svc.commit({files,synthetic:true,fingerprint:value.fingerprint,confirmed:true,eligible:true})});
     }
     if(route==='raw-exception-disposition'){if(!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(value.requestId||''))fail(422,'request_id','Reload the exception before saving.');return json({ok:true,exception:await rawImporter(repo,env).disposition(value)});}
