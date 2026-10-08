@@ -236,3 +236,14 @@ test('100-row synthetic rehearsal exercises full importer path and records timin
   assert.equal((await f.pilot.report()).records.length,0);
  }finally{f.sql.close();}
 });
+
+
+test('synthetic rehearsal status reports completion without heavy preview and TEST skips priority refresh',async()=>{
+ const f=fixture();try{
+  f.refreshed=[];f.repo.refreshOpportunityPriority=async id=>f.refreshed.push(id);
+  const importer=rawImporter(f.repo,env),batchId='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee',receivedAt=new Date(Date.now()-60000).toISOString(),files=syntheticRawRehearsalBatch({batchId,receivedAt}),p=await importer.preview({files,synthetic:true});
+  assert.equal((await importer.rehearsalStatus({batch_id:batchId})).imported_test_rows,0);
+  const r=await importer.commit({files,synthetic:true,fingerprint:p.fingerprint,confirmed:true,eligible:true});assert.equal(r.imported,100);assert.equal(f.refreshed.length,0);
+  const s=await importer.rehearsalStatus({batch_id:batchId});assert.equal(s.imported_test_rows,100);assert.equal(s.complete,true);assert.equal(Object.values(s.cohorts).reduce((a,b)=>a+b,0),100);
+ }finally{f.sql.close();}
+});
