@@ -1,5 +1,22 @@
 # CoverageFit Current State
 
+## Attention Preview certification complete enough for operational gate — 2026-10-07
+
+Hosted Preview certification now proves the intended producer-attention boundaries:
+- 100 TEST rehearsal records are excluded from normal Producer Work;
+- legacy synthetic NEW_LEAD QA fixtures are excluded by durable `pilot.synthetic=true` provenance, not by display name;
+- generic NORMAL fallback remains non-actionable;
+- CONTROL receives no Attention guidance;
+- deterministic canaries cover NOW, TODAY, HIGH, SUPPRESSED and CONTROL precedence;
+- a fresh unanswered inbound outranks HIGH and correctly becomes NOW;
+- suppression/STOP is non-actionable.
+
+The previous hosted inventory result before the legacy synthetic exclusion was `total=1`, `NORMAL=1`, `actionable=0`; that remaining record was confirmed by direct detail to carry `pilot.synthetic=true`.
+
+Fresh CI at head `8150103c204403db5737723b1fd24afb750ccb69`: **454 passed, 0 failed, 0 skipped**.
+
+Next hosted checkpoint: deploy this head with `CF_ATTENTION_ENABLED=1` and verify normal Producer Work returns zero synthetic QA/test records. If clean, the Attention feature can remain Preview-enabled while the next roadmap work focuses on real operational evidence and producer action quality.
+
 ## Attention certification tightened: TEST inventory excluded — 2026-10-07
 
 Hosted Preview showed the corrected Attention model with 100 synthetic rehearsal records carrying no guidance, but they still cluttered Producer Work. That is now resolved.
