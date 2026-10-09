@@ -1,5 +1,30 @@
 # CoverageFit Current State
 
+## Desktop Copilot parallel-coordination audit — 2026-10-08
+
+CoverageFit canonical development continues on draft PR #7 / `signal-copilot`. The separate Desktop Copilot initiative is visible as draft PR #10 on `feature/coveragefit-desktop-copilot-1.0`.
+
+Current overlap audit:
+- PR #10 is isolated under `apps/desktop-copilot/`, its desktop workflow, and desktop-specific documentation;
+- it does not modify Producer Action Quality, Attention, Producer Workspace, AgencyZoom import, RingCentral/SMS authority, or CoverageFit business-state modules;
+- its gateway reuses the existing constant-time bearer helper with a separate desktop-scoped token, but it does not currently call CoverageFit CRM/Producer Work routes;
+- it explicitly does not accept verified lead links or governed actions yet.
+
+CoverageFit integration-readiness is documented at:
+`docs/COVERAGEFIT-DESKTOP-COPILOT-INTEGRATION-READINESS-1.0.md`.
+
+Assessment outcome:
+- do not add a Desktop integration API yet;
+- current `producer-work` / `producer-detail` demonstrate the required intelligence but are internal UI contracts, not appropriately minimized/versioned external contracts;
+- Producer Action Quality is the correct future authoritative intelligence primitive;
+- future integration still needs scoped/revocable auth, a minimized versioned context envelope, normalized contact-safety reasons, and a unified context freshness token;
+- screenshot/model observations must remain separate from verified CoverageFit evidence;
+- Desktop must never independently reconcile Attention, Signal Decision 2, Opportunity Priority, Commitments and NBA.
+
+Producer Action Quality remains Priority 1. Hosted Preview certification of ASK_ONE_QUESTION, CALL, due commitment and STOP/suppressed remains the next operator gate.
+
+Fresh CI at head `01388a4269c528e492fd3974d85883520bacbbde`: **463 passed, 0 failed, 0 skipped**.
+
 ## Producer Action Quality 1.0 started — 2026-10-08
 
 The current branch now contains the first deterministic reconciliation layer for producer action quality.
