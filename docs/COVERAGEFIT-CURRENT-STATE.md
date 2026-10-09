@@ -1,5 +1,51 @@
 # CoverageFit Current State
 
+## Producer Action Quality 1.0 started — 2026-10-08
+
+The current branch now contains the first deterministic reconciliation layer for producer action quality.
+
+Audit conclusion:
+- Attention owns **why now**;
+- Signal Decision 2 owns the current governed SMS disposition;
+- Opportunity Priority owns scarce-attention allocation from Need / Intent / Timing / Fit;
+- Commitments own recorded obligations/timing;
+- NBA owns broad opportunity-level next action;
+- before this slice, these could all be individually valid but still leave the producer to resolve conflicts manually.
+
+New module:
+- `server/producer-action-quality.mjs`
+- canonical doc: `docs/COVERAGEFIT-PRODUCER-ACTION-QUALITY-1.0.md`
+
+The projection returns:
+- **Why now**
+- **Exact action**
+- **Supporting evidence**
+- explicit precedence used to resolve collisions.
+
+Current precedence:
+1. contact safety;
+2. Signal STOP / CLOSE / LATER;
+3. due/overdue confirmed commitment;
+4. current Signal Decision 2;
+5. upcoming confirmed commitment;
+6. NBA.
+
+Opportunity Priority remains supporting evidence unless consumed by Attention/NBA. It never directly grants contact authority.
+
+Producer Work list/detail now expose the projection behind the existing Attention gate. Actionable rows render:
+- Why now;
+- Do;
+- Evidence.
+
+Important collision discovered during integration:
+- a fixture produced Attention NOW from an explicit call request while the current Signal Decision 2 remained ASK_ONE_QUESTION;
+- the reconciliation correctly kept **ASK_ONE_QUESTION** as the exact action rather than silently converting urgency into CALL;
+- the test was corrected; runtime precedence was not weakened.
+
+Fresh CI at head `f38dab62b31be43a5a2a4aa5f08bf2aa8e498a26`: **463 passed, 0 failed, 0 skipped**.
+
+Next gate: isolated Preview certification of list/detail consistency for ASK_ONE_QUESTION, CALL, due commitment and STOP/suppressed cases. No new AgencyZoom write, calendar write, autonomous send or provider authority is introduced by this slice.
+
 ## Attention Preview certification complete enough for operational gate — 2026-10-07
 
 Hosted Preview certification now proves the intended producer-attention boundaries:
