@@ -1,0 +1,60 @@
+name: Desktop copilot preview
+on:
+  push:
+    branches: [feature/coveragefit-desktop-copilot-1.0]
+  pull_request:
+    paths: ['apps/desktop-copilot/**', '.github/workflows/desktop-copilot.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  desktop-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/desktop-copilot
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: apps/desktop-copilot/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: node tests/ui-smoke.mjs
+  windows-installer:
+    needs: desktop-tests
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: apps/desktop-copilot
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: apps/desktop-copilot/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - run: node tests/windows-smoke.mjs
+      - run: npm run pack:win
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CoverageFit-Copilot-0.1.0-unsigned-windows-x64
+          path: apps/desktop-copilot/release/*.exe
+          retention-days: 14
+  existing-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --test --test-isolation=none --experimental-loader ./tests/json-loader.mjs tests/*.test.mjs
