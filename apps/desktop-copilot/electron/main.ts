@@ -14,7 +14,6 @@ import {
 } from "electron";
 import { readFileSync, writeFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
-import { pathToFileURL } from "node:url";
 import { randomUUID } from "node:crypto";
 import {
   settings as settingsSchema,
@@ -323,6 +322,8 @@ ipcMain.handle("copilot", async (event, action, value) => {
     case "clearLocal":
       for (const a of requests.values()) a.abort();
       token = "";
+      config.login = false;
+      if (process.platform === "win32") app.setLoginItemSettings({ openAtLogin: false });
       rmSync(configPath(), { force: true });
       await session.defaultSession.clearStorageData();
       emit({ type: "reset" });

@@ -17,9 +17,13 @@ try {
       break;
     }
   assert.ok(overlay, "An actual display overlay must exist");
-  await overlay.evaluate(() =>
-    window.copilot.call("select", { x: 10, y: 10, width: 200, height: 100 }),
-  );
+  // Completing selection intentionally destroys the overlay sender. The reviewed
+  // pixels in the surviving chat below, not the destroyed IPC reply, are the gate.
+  await overlay.evaluate(() => {
+    void window.copilot.call("select", { x: 10, y: 10, width: 200, height: 100 });
+  }).catch(error => {
+    if (!/Target page, context or browser has been closed/.test(error.message)) throw error;
+  });
   await window.getByText("Keep only what you need.").waitFor();
   const pixels = await window
     .locator("canvas")
