@@ -1,8 +1,9 @@
+import {copilotService} from './signal-copilot-service.mjs';
 import {continueAnalytics} from './signal-continue-analytics.mjs';
 import {signalContinue} from './signal-continue-service.mjs';
 import {pilotReconciliation} from './pilot-reconciliation.mjs';
 import {producerWorkspace} from './producer-workspace.mjs';
-import {rawImporter} from './agencyzoom-import.mjs';
+import {rawImporter,syntheticRawRehearsalBatch} from './agencyzoom-import.mjs';
 import {districtPilot} from './district-pilot.mjs';
 import {authorizeProducer} from './consultation-inbox-core.mjs';
 import {resolveProducerEnvironment} from './cloudflare-pages-handlers.mjs';
@@ -36,6 +37,7 @@ export async function handleSoloDesk(context){
     try{await repo.ready();}catch{fail(503,'setup_required','Solo Desk needs its database update before it can save shared work. Continue in the existing Inbox until setup is complete.');}
     const url=new URL(request.url),route=url.pathname.replace(/^\/api\/solo-desk\/?/,'').replace(/\/$/,'');
     if(request.method==='GET'){
+      if(route==='copilot-usage')return json({ok:true,...await copilotService(repo,env).metrics()});
       if(route==='continue-analytics')return json({ok:true,...await continueAnalytics(repo,env)});
       if(route==='continue-preview'){if(env.SIGNAL_CONTINUE_ENABLED!=='1')fail(503,'continue_disabled','Signal Continue is not activated.');const svc=signalContinue(repo,env);return json({ok:true,...await svc.preview(url.searchParams.get('id')),draft:await svc.draft(url.searchParams.get('id'))});}
       if(!route)return json({ok:true,build:BUILD,operator:repo.scope.name,mode:'solo',...await repo.list(url.searchParams,context.now||new Date())});
@@ -54,6 +56,8 @@ export async function handleSoloDesk(context){
       if(route==='producer-detail')return json({ok:true,...await producerWorkspace(repo,env).detail(url.searchParams.get('id'))});
       if(route==='district-pilot')return json({ok:true,...await districtPilot(repo,env).report()});
       if(route==='raw-promotion-preview')return json({ok:true,...await rawImporter(repo,env).promotionPreview()});
+      if(route==='raw-intake-receipts')return json({ok:true,...await rawImporter(repo,env).receipts({limit:url.searchParams.get('limit')})});
+      if(route==='raw-intake-exceptions')return json({ok:true,...await rawImporter(repo,env).exceptions({state:url.searchParams.get('state')||'OPEN',limit:url.searchParams.get('limit')})});
       if(route==='pilot-record')return json({ok:true,pilot:await districtPilot(repo,env).get(url.searchParams.get('id'))});
       if(route==='activity')return json({ok:true,...await repo.activity(url.searchParams.get('id'),url.searchParams.get('cursor'))});
       if(route==='sync-status')return json({ok:true,streams:STREAMS,states:await repo.rows('SELECT stream,cursor_json FROM cf_solo_sync WHERE workspace_id=?',repo.scope.workspace)});
@@ -62,9 +66,23 @@ export async function handleSoloDesk(context){
     if(request.method!=='POST')fail(405,'method','Use GET or POST for this desk.');
     if(request.headers.get('origin')!==url.origin)fail(403,'origin','Use the CoverageFit workspace to save this update.');
     const value=await body(request);
+    if(route==='copilot'){try{return json({ok:true,...await copilotService(repo,env,{fetch:context.fetch,signal:request.signal}).act(value)});}catch{return json({ok:false,error:{message:'Copilot unavailable or context changed. Refresh; existing Signal and manual SMS remain available.'}},409);}}
     if(route==='raw-preview')return json({ok:true,...await rawImporter(repo,env).preview(value)});
     if(route==='raw-import')return json({ok:true,...await rawImporter(repo,env).commit(value)});
+    if(route==='raw-import-chunk')return json({ok:true,chunk:await rawImporter(repo,env).commitChunk(value)});
     if(route==='raw-promote')return json({ok:true,...await rawImporter(repo,env).promote(value)});
+    if(route==='raw-rehearsal'){
+      if(env.CF_RAW_SYNTHETIC_REHEARSAL_ENABLED!=='1')fail(404,'route','Synthetic intake rehearsal is unavailable.');
+      if(!['preview','commit','commit_chunk','status'].includes(value.action))fail(422,'action','Choose preview, commit_chunk, commit or status.');
+      const batchId=String(value.batch_id||'').toLowerCase(),receivedAt=String(value.received_at||''),svc=rawImporter(repo,env);
+      if(value.action==='status')return json({ok:true,...await svc.rehearsalStatus({batch_id:batchId})});
+      const files=syntheticRawRehearsalBatch({batchId,receivedAt});
+      if(value.action==='preview')return json({ok:true,batch_id:batchId,received_at:receivedAt,...await svc.preview({files,synthetic:true})});
+      if(value.confirmed!==true)fail(422,'confirmation','Confirm the synthetic rehearsal before importing.');
+      if(value.action==='commit_chunk')return json({ok:true,batch_id:batchId,received_at:receivedAt,chunk:await svc.commitChunk({files,synthetic:true,fingerprint:value.fingerprint,confirmed:true,eligible:true,start:value.start,limit:value.limit})});
+      return json({ok:true,batch_id:batchId,received_at:receivedAt,...await svc.commit({files,synthetic:true,fingerprint:value.fingerprint,confirmed:true,eligible:true})});
+    }
+    if(route==='raw-exception-disposition'){if(!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(value.requestId||''))fail(422,'request_id','Reload the exception before saving.');return json({ok:true,exception:await rawImporter(repo,env).disposition(value)});}
     if(route==='sync')return json({ok:true,...await sourceSync(repo).sync(value.stream)});
     if(route==='priority-backfill'){const result=await repo.backfillOpportunityPriority(value.limit||60);return json({ok:true,...result});}
     if(!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(value.requestId||''))fail(422,'request_id','Reload the form before saving.');

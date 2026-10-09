@@ -40,3 +40,39 @@ test('Work list exposes creation separately from updated activity',async()=>{con
  const result=await f.work.list(new URLSearchParams({population:'ALL',status:'all'}));const row=result.records.find(r=>r.id==='one');
  assert.equal(row.created_at,'2026-09-20T17:00:00Z');assert.equal(row.updated_at,'2026-09-26T19:00:00Z');assert.equal(row.received_at,null);
 }finally{f.sql.close();}});
+
+
+test('attention remains optional and CONTROL receives no guidance',async()=>{const f=prepared();try{source(f,'one','district_pilot_v1',pilot('SIGNAL'));source(f,'two','district_pilot_v1',pilot('CONTROL',otherCid));let r=await f.work.list(new URLSearchParams({population:'ALL',sort:'recommended'}));assert.equal(r.attention_enabled,false);assert.ok(r.records.every(x=>x.attention===null));f.env.CF_ATTENTION_ENABLED='1';r=await f.work.list(new URLSearchParams({population:'ALL',sort:'recommended'}));assert.equal(r.records.find(x=>x.id==='two').attention,null);assert.equal((await f.work.detail('two')).commitments.length,0);assert.equal(r.sort,'recommended');await assert.rejects(f.work.list(new URLSearchParams({sort:'credit'})));}finally{f.sql.close();}});
+
+
+test('attention summary counts actionable work and excludes CONTROL guidance',async()=>{const f=prepared();try{
+ source(f,'one','district_pilot_v1',pilot('SIGNAL'));source(f,'two','district_pilot_v1',pilot('CONTROL',otherCid));
+ f.env.CF_ATTENTION_ENABLED='1';
+ await f.store.setJSON('sms-live-conversations/'+cid,{id:cid,signal:{...signal(),latest_inbound:'Please call me',new_facts:{explicit_call_request:true},transcript:[{id:'in-1',direction:'inbound',body:'Please call me',occurredAt:new Date().toISOString()}]},transcript:[{id:'in-1',direction:'inbound',body:'Please call me',occurredAt:new Date().toISOString()}]});
+ const r=await f.work.list(new URLSearchParams({population:'ALL',status:'all',sort:'recommended'}));
+ const one=r.records.find(x=>x.id==='one'),two=r.records.find(x=>x.id==='two');assert.equal(r.attention_enabled,true);assert.equal(one.attention.band,'NOW');assert.equal(one.attention.reasons[0].text,'Explicit contact, quote or proceed request');assert.equal(two.attention,null);assert.equal(r.attention_summary.NOW,1);assert.equal(r.attention_summary.actionable,1);assert.equal(one.action_quality.actionable,true);assert.equal(one.action_quality.why_now.text,'Explicit contact, quote or proceed request');assert.equal(one.action_quality.action.code,'ASK_ONE_QUESTION');assert.ok(one.action_quality.evidence.some(x=>x.kind==='signal_decision_2'));
+ const d=await f.work.detail('one');assert.equal(d.attention.band,'NOW');assert.equal(d.attention.actionable,true);assert.equal(d.actionQuality.action.code,'ASK_ONE_QUESTION');
+ }finally{f.sql.close();}});
+
+
+test('TEST pilot inventory is excluded from Attention summary and guidance',async()=>{const f=prepared();try{
+ source(f,'one','district_pilot_v1',{...pilot('SIGNAL'),pilot_phase:'TEST',is_test:true});f.env.CF_ATTENTION_ENABLED='1';
+ const r=await f.work.list(new URLSearchParams({population:'ALL',status:'all',sort:'recommended'}));assert.equal(r.records.some(x=>x.id==='one'),false);assert.equal(r.test_excluded,1);assert.equal(r.attention_summary.actionable,0);assert.equal((await f.work.detail('one')).attention,null);
+ }finally{f.sql.close();}});
+
+
+test('normal Producer Work excludes TEST pilot records while detail remains auditable',async()=>{const f=prepared();try{
+ source(f,'one','district_pilot_v1',{...pilot('SIGNAL'),pilot_phase:'TEST',is_test:true});f.env.CF_ATTENTION_ENABLED='1';
+ const r=await f.work.list(new URLSearchParams({population:'ALL',status:'all',sort:'recommended'}));assert.equal(r.test_excluded,1);assert.equal(r.records.some(x=>x.id==='one'),false);assert.equal(r.total,1);
+ const d=await f.work.detail('one');assert.equal(d.sources.find(s=>s.kind==='district_pilot_v1')?.summary?.pilot_phase,'TEST');assert.equal(d.attention,null);
+ }finally{f.sql.close();}});
+
+
+test('synthetic NEW_LEAD pilot fixtures are excluded from normal Producer Work but remain directly auditable',async()=>{const f=prepared();try{
+ source(f,'one','district_pilot_v1',{...pilot('SIGNAL'),synthetic:true});f.env.CF_ATTENTION_ENABLED='1';
+ const r=await f.work.list(new URLSearchParams({population:'ALL',status:'all',sort:'recommended'}));assert.equal(r.records.some(x=>x.id==='one'),false);assert.equal(r.test_excluded,1);
+ const d=await f.work.detail('one');assert.equal(d.sources.find(s=>s.kind==='district_pilot_v1')?.summary?.synthetic,true);assert.equal(d.attention,null);
+ }finally{f.sql.close();}});
+
+
+test('CONTROL receives no Producer Action Quality projection',async()=>{const f=prepared();try{source(f,'two','district_pilot_v1',pilot('CONTROL',otherCid));f.env.CF_ATTENTION_ENABLED='1';const r=await f.work.list(new URLSearchParams({population:'ALL',status:'all',sort:'recommended'}));const two=r.records.find(x=>x.id==='two');assert.equal(two.action_quality,null);assert.equal((await f.work.detail('two')).actionQuality,null);}finally{f.sql.close();}});
