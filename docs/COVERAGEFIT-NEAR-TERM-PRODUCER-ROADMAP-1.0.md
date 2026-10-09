@@ -469,6 +469,62 @@ CoverageFit should surface the kinds of missed opportunities that currently requ
 
 A bounded historical replay should demonstrate that known high-intent messages and same-day commitments rise above ordinary inventory without violating suppression or population boundaries.
 
+## Milestone 3A — producer action quality
+
+### COVERAGEFIT-PRODUCER-ACTION-QUALITY-1.0
+
+Before adding more action providers, reconcile the existing reasoning layers into one producer-facing instruction.
+
+Every **actionable** Work row must answer:
+
+1. **Why now?**
+2. **What exactly should the producer do?**
+3. **What evidence supports that recommendation?**
+
+This is a reconciliation projection, not a new source of authority.
+
+#### Authority model
+
+- Attention owns **why now**.
+- Signal Decision 2 owns the current governed SMS disposition.
+- Commitments own due/overdue recorded obligations.
+- Opportunity Priority owns general scarce-attention allocation.
+- NBA owns broad opportunity-level action selection.
+- Contact safety outranks all of them.
+
+#### Precedence
+
+1. STOP / DNC / wrong-number / suppression.
+2. Signal STOP / CLOSE / LATER.
+3. Due or overdue confirmed commitment.
+4. Current Signal Decision 2.
+5. Upcoming confirmed commitment.
+6. NBA.
+7. Opportunity Priority remains supporting evidence unless used by Attention/NBA.
+
+Attention urgency must not silently replace the exact current conversation action.
+
+For example:
+
+- Attention: NOW — explicit customer signal
+- Signal Decision 2: ASK_ONE_QUESTION
+- Opportunity Priority: shoot_now
+- NBA: CONNECT_OR_PREPARE_NOW
+
+The producer action remains the one governed question until conversation state changes.
+
+#### Exit criteria
+
+- list and detail agree on the same exact action;
+- every actionable row shows Why / Do / Evidence;
+- STOP/suppression cannot be overridden;
+- CONTROL receives no action-quality guidance;
+- current Signal Decision 2 cannot be overwritten by a generic Opportunity Priority/NBA recommendation;
+- due commitments can supply the exact task when they are the clock reason;
+- no new external write or autonomous action authority is added.
+
+Canonical contract: `docs/COVERAGEFIT-PRODUCER-ACTION-QUALITY-1.0.md`.
+
 ## Milestone 4 — producer calendar actions
 
 ### CALENDAR-ACTIONS-1.0
