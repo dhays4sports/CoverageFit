@@ -85,3 +85,5 @@ See `apps/desktop-copilot/README.md` for build, gateway setup, installation and 
 - Existing main suite repeated unchanged: 328 tests, 327 passed, 1 failed, 0 skipped (pre-existing AgencyZoom wording assertion documented above).
 - Local NSIS attempt failed at Wine execution, ENOENT. Windows CI contains packaging and a native Electron smoke test; its outcome must be inspected separately.
 - No live OpenAI call, no RingCentral login/capture, no customer-data transmission, no CRM read/write or external messaging was performed.
+
+Dependency audit: packaged production npm dependencies reported zero advisories. The build-only electron-builder dependency chain has eight moderate advisories rooted in sprintf-js <=1.1.3 (unbounded precision denial of service); latest sprintf-js is still 1.1.3. No arbitrary format strings enter that build path in this pilot. Do not treat this as a clean full dependency audit or force-downgrade the builder automatically. A low esbuild Windows development-server advisory was resolved by updating esbuild to 0.28.2; this project does not run an esbuild development server.
