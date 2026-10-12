@@ -107,7 +107,11 @@ export function producerWorkspace(repo,env){
    const taskRows=attentionEnabled?await repo.rows('SELECT * FROM cf_solo_tasks WHERE workspace_id=?',w):[],tasksBy=new Map();for(const t of taskRows){if(!tasksBy.has(t.opportunity_id))tasksBy.set(t.opportunity_id,[]);tasksBy.get(t.opportunity_id).push(t);}
    const all=await repo.rows('SELECT * FROM cf_solo_opportunities WHERE workspace_id=? ORDER BY updated_at DESC,id LIMIT 5001',w);if(all.length>5000)fail(422,'work_size','Work inventory exceeds this pilot view limit; use the existing specialist desk.');
    const sourceRows=await repo.rows('SELECT opportunity_id,kind,source_id,summary_json FROM cf_solo_sources WHERE workspace_id=?',w),by=new Map();for(const row of sourceRows){if(!by.has(row.opportunity_id))by.set(row.opportunity_id,[]);by.get(row.opportunity_id).push({...row,summary:parse(row.summary_json)});}
-   const projected=await repo.rows('SELECT opportunity_id,status,queue,score,score_min,score_max FROM cf_opportunity_priority_projections WHERE workspace_id=?',w),priority=new Map(projected.map(x=>[x.opportunity_id,x]));
+   const projected=await repo.rows('SELECT opportunity_id,status,queue,score,score_min,score_max,projection_json FROM cf_opportunity_priority_projections WHERE workspace_id=?',w);
+   // Keep the public Work row compact; NBA must consume the full canonical
+   // projection (including its next micro-question), just as detail does.
+   const priority=new Map(projected.map(({projection_json,...x})=>[x.opportunity_id,x]));
+   const priorityDetail=new Map(projected.map(x=>[x.opportunity_id,parse(x.projection_json)]));
    const counts=Object.fromEntries(POPULATIONS.map(x=>[x,0])),records=[];let test_excluded=0;
    for(const op of all){const ss=by.get(op.id)||[],pilot=ss.find(s=>s.kind==='district_pilot_v1')?.summary,pop=await population(op.id,ss),contact=parse(op.contact_json);if(status!=='all'&&(status==='closed'?op.status!=='closed':op.status==='closed'))continue;
     if(pilot?.pilot_phase==='TEST'||pilot?.is_test===true||pilot?.synthetic===true){test_excluded++;continue;}
@@ -120,7 +124,7 @@ export function producerWorkspace(repo,env){
     const isSuppressed=contactSafetyState(safety).suppressed;
     const currentPriority=pop.population==='DISTRICT_SIGNAL'?priority.get(op.id)||null:null;
     const attention=attentionEnabled&&pilot?.pilot_phase!=='TEST'&&pilot?.is_test!==true&&pilot?.synthetic!==true?deriveAttention({population:pop.population,opportunity:op,sms:sm,suppressed:isSuppressed,commitments,priority:currentPriority}):null;
-    const nba=attentionEnabled&&pop.population!=='DISTRICT_CONTROL'?deriveNextBestAction({opportunity:op,tasks:(tasksBy.get(op.id)||[]).filter(t=>!['completed','cancelled'].includes(t.state)),sources:ss,opportunityPriority:currentPriority}):null;
+    const nba=attentionEnabled&&pop.population!=='DISTRICT_CONTROL'?deriveNextBestAction({opportunity:op,tasks:(tasksBy.get(op.id)||[]).filter(t=>!['completed','cancelled'].includes(t.state)),sources:ss,opportunityPriority:priorityDetail.get(op.id)||currentPriority}):null;
     const actionQuality=attention?deriveProducerActionQuality({population:pop.population,attention,sms:sm,commitments,opportunityPriority:currentPriority,nextBestAction:nba,suppressed:isSuppressed}):null;
     records.push({attention,action_quality:actionQuality,id:op.id,name:contact.name||[contact.firstName,contact.lastName].filter(Boolean).join(' ')||'Unnamed opportunity',phone:contact.mobile||'',products:op.products,source:op.source,status:op.status,population:pop.population,received_at:pilot?.received_at||null,created_at:op.created_at,updated_at:op.updated_at,deadline:op.deadline,continuation:await continuation(op.id,ss,pop.population),priority:currentPriority,sms:sm?{decision_2:sm.decision_2,priority:sm.priority,latest_inbound:sm.latest_inbound,draft_status:sm.draft_status,human_required:sm.human_required,quote_ready:sm.quote_ready,az_sync_status:sm.az_sync_status,contact_suppressed:sm.contact_suppressed}:null});
    }
