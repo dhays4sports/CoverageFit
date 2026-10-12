@@ -7,7 +7,7 @@ import {certifySnapshots,CERT_CASES,validateManifest} from '../scripts/certify-p
 import {producerWorkspace} from '../server/producer-workspace.mjs';
 import {soloRepository} from '../server/solo-desk-repository.mjs';
 
-const head='a'.repeat(40),runId='qa-preview-validation-20261012',workspace='qa';
+const head='a'.repeat(40),runId='qa-preview-validation-20261012',workspace='qa-preview';
 function setup(){
  const sql=new DatabaseSync(':memory:');
  for(const name of readdirSync(new URL('../migrations/',import.meta.url)).filter(f=>f.endsWith('.sql')).sort())
