@@ -1,5 +1,13 @@
 // Read-only normalization. Evidence never becomes a confirmed appointment by inference.
 export const COMMITMENT_TYPES=['CALLBACK','APPOINTMENT','FOLLOW_UP','QUOTE_REVIEW','DOCUMENT_EXPECTED','FUTURE_BIND','CLOSING','RENEWAL'];
+// Only recorded/confirmed obligations drive producer attention and exact actions.
+// Calendar records with unknown/tentative status, AI proposals and unverified
+// timing evidence remain visible for review but do not grant due-work authority.
+export function actionableCommitment(c){
+ if(!c||['cancelled','completed','proposed'].includes(c.status))return false;
+ if(c.confirmation==='confirmed'||c.confirmation==='producer_recorded')return true;
+ return c.type==='FUTURE_BIND'&&c.confirmation==='recorded_timing';
+}
 const bool=v=>typeof v==='boolean'?v:null;
 export function dueWindow(value){
  const raw=String(value||'');
