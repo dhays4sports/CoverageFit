@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {CERT_CASES,safePreviewOrigin,validateManifest,verifyCase,certifySnapshots} from '../scripts/certify-producer-action-preview.mjs';
+import {CERT_CASES,safePreviewOrigin,validateManifest,verifyUnauthorizedStatus,verifyCase,certifySnapshots} from '../scripts/certify-producer-action-preview.mjs';
 
 const head='a'.repeat(40);
 const fixtures=Object.fromEntries(Object.keys(CERT_CASES).map(k=>[k,'qa-cert-'+k.replaceAll('_','-')]));
@@ -90,4 +90,9 @@ test('certification fails closed with disabled Attention or mismatched fixture i
  assert.throws(()=>certifySnapshots(x),/attention_feature_not_enabled_in_preview/);
  x.work.attention_enabled=true;x.details.call.opportunity.id='not-the-expected-fixture';
  assert.throws(()=>certifySnapshots(x),/fixture_detail_identity_mismatch_call/);
+});
+
+test('unauthenticated producer endpoint must refuse with exact 401',()=>{
+ assert.equal(verifyUnauthorizedStatus(401),true);
+ for(const status of [200,302,403,404,500])assert.throws(()=>verifyUnauthorizedStatus(status),/producer_authorization_not_enforced/);
 });
