@@ -80,6 +80,7 @@ The owner should be interrupted only for a consequential approval or a real oper
 - This file: **canonical implementation roadmap and seven-phase execution map**.
 - `docs/COVERAGEFIT-CURRENT-STATE.md`: latest operational audit, branch and provider status; update whenever materially changed.
 - `docs/COVERAGEFIT-PRODUCER-ACTION-QUALITY-1.0.md`: exact deterministic decision and evidence contract.
+- `docs/COVERAGEFIT-PRODUCER-COMMAND-CENTER-UX-1.0.md`: **design proposal under review** for Today / Inbox / selected SMS approvals, Prospect 360 and renewal intelligence. It does not reorder the current Phase 2 certification gate or authorize any sends.
 - `docs/PR8-RECONCILIATION-2026-10-07.md`: why historical PR #8 cannot be blindly merged.
 - `docs/COVERAGEFIT-SIGNAL-OPERATIONAL-GATES-1.0.md`: explicit near-term certification/release checklist, **now incorporated into draft PR #12**. PR #11 is superseded for integration purposes.
 - PR #7 → PR #12: current read-only producer-action development lane. Production `main` is not assumed to include either.
