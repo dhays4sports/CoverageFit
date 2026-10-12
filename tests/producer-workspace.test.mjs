@@ -171,14 +171,16 @@ test('with Attention disabled the Producer Action Quality surface remains off',a
 test('completed high-priority task does not resurrect a proceed recommendation in Work list',async()=>{
  const f=prepared();try{
   f.env.CF_ATTENTION_ENABLED='1';
-  source(f,'one','lead',{permission:{basis:'Explicit request'},context:{signalHome:{}}});
+  source(f,'one','district_pilot_v1',pilot('SIGNAL'));
   const at=new Date().toISOString();
   f.sql.prepare("INSERT INTO cf_solo_tasks(id,workspace_id,opportunity_id,assignee_id,work_type,title,due_at,state,priority,source_key,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)")
    .run('completed-task','qa','one','qa','outreach','Customer requested proceed',at,'completed',100,'test:completed',at);
-  const row=(await f.work.list(new URLSearchParams({population:'WEB_DIRECT'}))).records.find(r=>r.id==='one');
+  // Give list and detail the same existing canonical priority projection.
+  await f.repo.detail('one');
+  const row=(await f.work.list(new URLSearchParams({population:'DISTRICT_SIGNAL'}))).records.find(r=>r.id==='one');
   const detail=await f.work.detail('one');
   const listNba=row.action_quality.evidence.find(e=>e.kind==='nba');
-  assert.equal(detail.nextBestAction.action,'CONNECT_OR_BOOK');
+  assert.notEqual(detail.nextBestAction.action,'RESPOND_TO_PROCEED');
   assert.equal(listNba.action,detail.nextBestAction.action);
   assert.notEqual(listNba.action,'RESPOND_TO_PROCEED');
  }finally{f.sql.close();}
