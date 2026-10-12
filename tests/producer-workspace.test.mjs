@@ -167,3 +167,39 @@ test('with Attention disabled the Producer Action Quality surface remains off',a
   assert.equal(detailed.actionQuality,null);
  }finally{f.sql.close();}
 });
+
+test('completed high-priority task does not resurrect a proceed recommendation in Work list',async()=>{
+ const f=prepared();try{
+  f.env.CF_ATTENTION_ENABLED='1';
+  source(f,'one','lead',{permission:{basis:'Explicit request'},context:{signalHome:{}}});
+  const at=new Date().toISOString();
+  f.sql.prepare("INSERT INTO cf_solo_tasks(id,workspace_id,opportunity_id,assignee_id,work_type,title,due_at,state,priority,source_key,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)")
+   .run('completed-task','qa','one','qa','outreach','Customer requested proceed',at,'completed',100,'test:completed',at);
+  const row=(await f.work.list(new URLSearchParams({population:'WEB_DIRECT'}))).records.find(r=>r.id==='one');
+  const detail=await f.work.detail('one');
+  const listNba=row.action_quality.evidence.find(e=>e.kind==='nba');
+  assert.equal(detail.nextBestAction.action,'CONNECT_OR_BOOK');
+  assert.equal(listNba.action,detail.nextBestAction.action);
+  assert.notEqual(listNba.action,'RESPOND_TO_PROCEED');
+ }finally{f.sql.close();}
+});
+
+test('fresh CALL request outranks unrelated future appointment consistently in list and detail',async()=>{
+ const f=prepared();try{
+  f.env.CF_ATTENTION_ENABLED='1';
+  source(f,'one','district_pilot_v1',pilot('SIGNAL'));
+  source(f,'one','calendar',{eventId:'future-app',status:'scheduled',start:new Date(Date.now()+21*86400000).toISOString(),title:'Future insurance review'});
+  const transcript=[{id:'urgent-inbound',direction:'inbound',body:'Please call me',occurredAt:new Date().toISOString()}];
+  await f.store.setJSON('sms-live-conversations/'+cid,{
+   id:cid,signal:{...signal(),decision_2:'CALL',latest_inbound:'Please call me',new_facts:{explicit_call_request:true},facts:{line:'AUTO',explicit_call_request:true}},transcript
+  });
+  const row=(await f.work.list(new URLSearchParams({population:'DISTRICT_SIGNAL'}))).records.find(r=>r.id==='one');
+  const detail=await f.work.detail('one');
+  assert.equal(row.attention.band,'NOW');
+  assert.equal(detail.attention.band,'NOW');
+  assert.equal(row.action_quality.action.code,'CALL_CUSTOMER');
+  assert.equal(detail.actionQuality.action.code,'CALL_CUSTOMER');
+  assert.equal(row.action_quality.action.source,'signal_decision_2');
+  assert.ok(row.action_quality.evidence.some(e=>e.kind==='commitment'));
+ }finally{f.sql.close();}
+});
