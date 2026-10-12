@@ -1,3 +1,4 @@
+import {actionableCommitment} from './commitment-projection.mjs';
 // Deterministic read-only orchestration; never a contact permission or bind score.
 export const ATTENTION_VERSION='SIGNAL-ATTENTION-1.0';
 const time=v=>v&&Number.isFinite(Date.parse(v))?Date.parse(v):null;
@@ -14,7 +15,7 @@ export function deriveAttention({population,opportunity={},sms={},commitments=[]
  const finish=(...args)=>({...result(...args),intent_rank:intent});
  if(fresh&&(requests.explicit_quote_request||requests.explicit_call_request||requests.explicit_proceed_request))return finish('NOW',120,'Explicit contact, quote or proceed request',{kind:'sms',id:lastIn.id});
  if(fresh&&(!lastOut||lastOut.at<lastIn.at)&&s.latest_inbound&&s.reason_code!=='autoresponder')return finish('NOW',110,'Recent inbound has no later producer reply',{kind:'sms',id:lastIn.id});
- const active=commitments.filter(c=>!['cancelled','completed','proposed'].includes(c.status)&&c.confirmation!=='evidence_only');
+ const active=commitments.filter(actionableCommitment);
  const due=active.filter(c=>c.due_at&&time(c.due_at)<=n+15*60000&&['APPOINTMENT','CALLBACK'].includes(c.type)).sort((a,b)=>time(a.due_at)-time(b.due_at))[0];
  if(due)return finish('NOW',100,time(due.due_at)<n-30*60000?'Past appointment/callback needs disposition':'Appointment/callback due now',due.source_ref,{due_at:due.due_at});
  const overdue=active.find(c=>c.producer_committed===true&&(c.due_at&&time(c.due_at)<n||c.due_date&&c.due_date<today));
