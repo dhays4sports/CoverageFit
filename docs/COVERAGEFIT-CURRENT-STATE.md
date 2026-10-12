@@ -1,5 +1,15 @@
 # CoverageFit Current State
 
+## Phase 2 synthetic fixture-provenance gate — 2026-10-12
+
+**Certification-tool safeguard added on PR #12, after the previous 488-test head:** The preview runner must not accept the manifest's `synthetic_only` declaration as evidence that an opportunity is synthetic. It now requires an explicit per-record `preview_cert_fixture_v1` source marker matching a `run_id` and scenario, a fictional contact name and test-only phone/email values. It additionally checks true TEST provenance for the excluded fixture and actual DISTRICT_CONTROL classification. Only immutable 8-hex Pages Preview hosts are accepted. Nine fixture detail records are provenance-checked before scanning the broader Work list.
+
+**Validation:** Current runtime changes at `4bfc9c74a042932e626e41127e68b39022e6323e` passed **492/492** Node.js tests, with no failures ([GitHub run 38311795821](https://github.com/dhays4sports/CoverageFit/actions/runs/38311795821)). Subsequent documentation changes are not automatically covered by that historical exact head; consult the newest workflow run.
+
+**Remaining blocker:** Independent Cloudflare D1 Preview/Production isolation verification and operator-controlled Preview fixture construction are still required before the runner's hosted acceptance can be claimed. The per-record marker is **not** cryptographic authorization or proof of isolation. `main` is unchanged; no live customer activity was performed. Follow `docs/COVERAGEFIT-PRODUCER-ACTION-QUALITY-1.0.md` for the manifest schema 1.1 and safe operator procedure.
+
+---
+
 ## Phase 2 Preview acceptance automation — 2026-10-12
 
 **Master Roadmap 2.0:** Phase 1 runtime integration and Phase 2 producer-decision certification remain the active lane. The canonical release checklist is `docs/COVERAGEFIT-SIGNAL-OPERATIONAL-GATES-1.0.md`; Producer Action Quality contract and hosted runner instructions are in `docs/COVERAGEFIT-PRODUCER-ACTION-QUALITY-1.0.md`.
