@@ -1,5 +1,15 @@
 # CoverageFit Current State
 
+## Phase 2 Step 3 fixture package — 2026-10-12
+
+**Code prepared, not remotely executed.** PR #12 now contains `scripts/prepare-producer-action-preview-fixtures.mjs` and `tests/producer-action-preview-fixtures.test.mjs`. The offline generator emits replay-safe INSERT-only SQL and a private manifest (schema 1.1) for nine controlled synthetic scenarios. It requires an explicit workspace ID and exact 40-character Preview deployment SHA; the SQL does not call providers, create real calendar events, or send communications.
+
+**Validation:** The generated SQL was executed twice against real repository migrations in an in-memory SQLite integration test and the authentic `producerWorkspace` list/detail produced all nine expected certification outputs. GitHub CI on `2ffaf42e7d7164e9df7592c478268d12fd62d436` passed **497/497**, zero failures ([run 38313729386](https://github.com/dhays4sports/CoverageFit/actions/runs/38313729386)). Documentation commits afterward require fresh exact-head checks.
+
+**Operator-only next step:** Use `docs/PRODUCER-ACTION-PREVIEW-FIXTURES-STEP3.md` to paste the generated SQL into the *verified isolated Preview D1 Console only*, checking database UUID and workspace ID first. Obtain a marker count of 9. The authenticated Preview acceptance runner remains **unexecuted against Cloudflare**, and Phase 2 remains **BLOCKED** until isolated hosted PASS plus UI review. A successful Cloudflare build or in-memory test does not substitute for D1-console insertion/certification. Do not ask ChatGPT to bypass Cloudflare's verification checkpoint.
+
+---
+
 ## Phase 2 synthetic fixture-provenance gate — 2026-10-12
 
 **Certification-tool safeguard added on PR #12, after the previous 488-test head:** The preview runner must not accept the manifest's `synthetic_only` declaration as evidence that an opportunity is synthetic. It now requires an explicit per-record `preview_cert_fixture_v1` source marker matching a `run_id` and scenario, a fictional contact name and test-only phone/email values. It additionally checks true TEST provenance for the excluded fixture and actual DISTRICT_CONTROL classification. Only immutable 8-hex Pages Preview hosts are accepted. Nine fixture detail records are provenance-checked before scanning the broader Work list.
