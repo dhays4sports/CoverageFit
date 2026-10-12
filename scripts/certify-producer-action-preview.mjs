@@ -73,6 +73,11 @@ export function verifyCase(kind,row,detail){
  return [...new Set(errors)];
 }
 
+export function verifyUnauthorizedStatus(status){
+ if(status!==401)fail('producer_authorization_not_enforced');
+ return true;
+}
+
 export function certifySnapshots({manifest,work,details}){
  const failures=[],results=[];
  if(work?.attention_enabled!==true)fail('attention_feature_not_enabled_in_preview');
@@ -100,6 +105,13 @@ async function main(){
  });
  const token=process.env.CF_PREVIEW_PRODUCER_TOKEN;
  if(typeof token!=='string'||token.length<16)fail('missing_producer_credential');
+ // Check that public callers cannot read the producer queue before using a secret.
+ // Authentication denial precedes any stateful Workspace projection work.
+ const denied=await fetch(origin+'/api/solo-desk/producer-work?population=ALL',{
+  method:'GET',redirect:'manual',cache:'no-store',headers:{Accept:'application/json'},
+  signal:AbortSignal.timeout(15000)
+ });
+ verifyUnauthorizedStatus(denied.status);
  const api=async route=>{
   const response=await fetch(origin+'/api/solo-desk/'+route,{
    method:'GET',redirect:'manual',cache:'no-store',
