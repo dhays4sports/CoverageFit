@@ -1,10 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {CERT_CASES,safePreviewOrigin,validateManifest,verifyUnauthorizedStatus,verifyCase,certifySnapshots} from '../scripts/certify-producer-action-preview.mjs';
+import {CERT_CASES,safePreviewOrigin,validateManifest,verifyUnauthorizedStatus,verifyFixtureProvenance,verifyCase,certifySnapshots} from '../scripts/certify-producer-action-preview.mjs';
 
 const head='a'.repeat(40);
+const runId='qa-run-20261012-confirmed';
 const fixtures=Object.fromEntries(Object.keys(CERT_CASES).map(k=>[k,'qa-cert-'+k.replaceAll('_','-')]));
-const manifest=()=>({schema_version:'1.0',synthetic_only:true,head,
+const manifest=()=>({schema_version:'1.1',synthetic_only:true,head,run_id:runId,
  isolation_evidence:'Cloudflare Preview D1 distinct from Production D1 (operator recorded)',
  deployment_evidence:'Cloudflare immutable deployment at exact approved SHA (operator recorded)',
  fixtures:{...fixtures}});
@@ -17,14 +18,17 @@ const quality=(code,actionable=true,attention=attn())=>({
 });
 function fixtureData(kind){
  const id=fixtures[kind],expected=CERT_CASES[kind];
- if(kind==='test_excluded')return {detail:{opportunity:{id},attention:null,actionQuality:null}};
- if(kind==='control')return {row:{id,attention:null,action_quality:null},detail:{opportunity:{id},attention:null,actionQuality:null}};
+ const marker={kind:'preview_cert_fixture_v1',source_id:'qa-marker-'+kind,summary:{run_id:runId,scenario:kind,synthetic:true,suite:'PRODUCER_ACTION_QUALITY_1'}};
+ const opportunity={id,contact:{name:'Synthetic QA '+kind,email:'qa@example.invalid',mobile:'2025550199'}};
+ const sources=[marker];
+ if(kind==='test_excluded')return {detail:{opportunity,sources:[...sources,{kind:'district_pilot_v1',summary:{pilot_phase:'TEST'}}],attention:null,actionQuality:null}};
+ if(kind==='control')return {row:{id,population:'DISTRICT_CONTROL',attention:null,action_quality:null},detail:{opportunity,sources,population:{population:'DISTRICT_CONTROL'},attention:null,actionQuality:null}};
  const a=attn(kind==='stop'||kind==='opt_out'?'SUPPRESSED':kind==='tentative_calendar'?'NORMAL':'NOW',
   kind!=='stop'&&kind!=='opt_out'&&kind!=='tentative_calendar');
  const q=quality(expected.code||'CHOOSE_NEXT_ACTION',expected.actionable??false,a);
  return {
-  row:{id,attention:a,action_quality:q},
-  detail:{opportunity:{id},attention:a,actionQuality:structuredClone(q),contactSafety:{suppressed:['stop','opt_out'].includes(kind)}}
+  row:{id,population:'WEB_DIRECT',attention:a,action_quality:q},
+  detail:{opportunity,sources,population:{population:'WEB_DIRECT'},attention:a,actionQuality:structuredClone(q),contactSafety:{suppressed:['stop','opt_out'].includes(kind)}}
  };
 }
 function complete(){
@@ -43,7 +47,8 @@ test('preview target is fixed to HTTPS Cloudflare Pages preview subdomains, no l
   'https://foo.coveragefit.pages.dev.evil.com/','https://user:pass@foo.coveragefit.pages.dev/',
   'https://foo.coveragefit.pages.dev:8443/','https://foo.coveragefit.pages.dev/?token=x',
   'https://foo.coveragefit.pages.dev/api/solo-desk/producer-work',
-  'https://foo.coveragefit.pages.dev/#token'
+  'https://foo.coveragefit.pages.dev/#token',
+  'https://ops-producer-action-quality.coveragefit.pages.dev/'
  ])assert.throws(()=>safePreviewOrigin(url),/preview_host_not_allowed/);
 });
 test('no network operation can begin without exact deployed head and isolation attestation',()=>{
@@ -57,6 +62,7 @@ test('no network operation can begin without exact deployed head and isolation a
  assert.throws(()=>validateManifest({...manifest(),synthetic_only:false},env),/manifest_not_approved/);
  assert.throws(()=>validateManifest({...manifest(),fixtures:{...fixtures,call:fixtures.ask_one_question}},env),/duplicate_fixture_identity/);
  assert.throws(()=>validateManifest({...manifest(),isolation_evidence:''},env),/missing_isolation_evidence/);
+ assert.throws(()=>validateManifest({...manifest(),run_id:'short'},env),/missing_synthetic_run_id/);
 });
 test('all nine synthetic governed cases pass with complete list/detail parity',()=>{
  const r=certifySnapshots(complete());
@@ -95,4 +101,35 @@ test('certification fails closed with disabled Attention or mismatched fixture i
 test('unauthenticated producer endpoint must refuse with exact 401',()=>{
  assert.equal(verifyUnauthorizedStatus(401),true);
  for(const status of [200,302,403,404,500])assert.throws(()=>verifyUnauthorizedStatus(status),/producer_authorization_not_enforced/);
+});
+
+test('hosted PASS requires per-record synthetic provenance, not just a manifest claim',()=>{
+ const data=complete();
+ const invalid=data.details.call;
+ invalid.sources=[];
+ const result=certifySnapshots(data);
+ assert.equal(result.status,'NO_GO');
+ assert.ok(result.failures.some(x=>x.case==='call'&&x.code==='synthetic_source_provenance_missing'));
+});
+test('real contact fields or switched scenario marker block certification',()=>{
+ const record=fixtureData('call').detail;
+ assert.deepEqual(verifyFixtureProvenance('call',record,manifest()),[]);
+ record.opportunity.contact.mobile='+14085551212';
+ assert.ok(verifyFixtureProvenance('call',record,manifest()).includes('non_reserved_phone_in_fixture'));
+ record.opportunity.contact.mobile='2025550199';
+ record.opportunity.contact.email='person@gmail.com';
+ assert.ok(verifyFixtureProvenance('call',record,manifest()).includes('non_reserved_email_in_fixture'));
+ record.opportunity.contact.email='qa@example.invalid';
+ record.sources[0].summary.scenario='ask_one_question';
+ assert.ok(verifyFixtureProvenance('call',record,manifest()).includes('synthetic_source_provenance_missing'));
+});
+test('TEST exception requires actual stored pilot TEST provenance',()=>{
+ const data=complete();
+ data.details.test_excluded.sources=data.details.test_excluded.sources.filter(s=>s.kind!=='district_pilot_v1');
+ assert.ok(certifySnapshots(data).failures.some(x=>x.code==='missing_test_exclusion_provenance'));
+});
+test('CONTROL exclusion checks immutable population classification',()=>{
+ const data=complete();
+ data.details.control.population.population='WEB_DIRECT';
+ assert.ok(certifySnapshots(data).failures.some(x=>x.code==='control_cohort_not_verified'));
 });
