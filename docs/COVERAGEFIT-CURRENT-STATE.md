@@ -1,6 +1,16 @@
 # CoverageFit Current State
 
-## Producer Command Center 1.0 UX proposal — 2026-10-12
+## Producer Command Center North Star locked — 2026-10-12
+
+**Product-level decision approved by principal:** `docs/COVERAGEFIT-PRODUCER-COMMAND-CENTER-UX-1.0.md` now governs the intended user experience: Today, unified Inbox, efficient multi-message approval, Prospect 360 evidence memory, verified Renewal Intelligence and progressively automated engagement. **Bulk purchased-lead acquisition and permissioned automated SMS are core product requirements**, not optional or indefinitely deferred features. The project remains CoverageFit + SIGNAL; no new competing CRM or SMS sender is authorized.
+
+**Practical engineering interpretation:** continue Phase 2 hosted Producer Action Quality gate and Phase 3 RingCentral inbound reliability. In parallel, allow bounded code/design/testing for purchaser/source lineage, consent/contact authority, import qualification, renewal capture, and no-send SHADOW messaging workflows. Minimize owner interruptions via automated classification and exception-only review. Separately certify provider route/TCR campaign requirements before any live messaging. RingCentral's published current SMS policy disallows purchased/third-party lead list SMS for its SMS solutions; do not assume lead-vendor opt-in bypasses sender restrictions, and do not obscure lead origin. Eligible first-party or otherwise actually authorized contact routes may be pursued under documented provider rules and agency approvals.
+
+**Authority distinction:** This locks the product direction; it does **not** merge PRs, modify Cloudflare/D1 bindings, purchase lead lists, send texts, alter AgencyZoom campaign ownership, or expand production autonomous sending. Latest code state, hosted Preview environment isolation, consent records, sender approvals and performance economics still require independent verification.
+
+---
+
+## Producer Command Center 1.0 UX implementation proposal — 2026-10-12
 
 A review-only design has been added at `docs/COVERAGEFIT-PRODUCER-COMMAND-CENTER-UX-1.0.md` in the active PR #12 development lane. It specifies Today, Inbox, multi-select **individually governed** SMS approvals, the Prospect 360 evidence/renewal substrate, mobile/desktop interactions, feature-flag sequence, and release gates. It reuses existing Producer Workspace, Opportunity/Attention/Action Quality, Signal Decision 2, consent/ownership and the current SMS gateway; **no new sender, production route, mutation endpoint or automation activation is implemented by this document**.
 
