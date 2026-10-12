@@ -20,6 +20,7 @@ export const CERT_CASES=Object.freeze({
 
 const HEAD=/^[0-9a-f]{40}$/;
 const ID=/^[a-zA-Z0-9:_-]{4,120}$/;
+const RUN_ID=/^[a-z0-9_-]{12,80}$/;
 const fail=m=>{throw Error(m)};
 export function safePreviewOrigin(raw){
  let url;try{url=new URL(raw);}catch{fail('invalid_preview_url');}
@@ -31,13 +32,33 @@ export function safePreviewOrigin(raw){
 export function validateManifest(raw,{expectedHead,attestedHead,isolationConfirmed}={}){
  if(isolationConfirmed!=='1')fail('preview_isolation_not_verified');
  if(!HEAD.test(String(expectedHead||''))||!HEAD.test(String(attestedHead||''))||expectedHead!==attestedHead)fail('deployed_head_not_verified');
- if(raw?.schema_version!=='1.0'||raw.synthetic_only!==true||raw.head!==expectedHead)fail('manifest_not_approved');
+ if(raw?.schema_version!=='1.1'||raw.synthetic_only!==true||raw.head!==expectedHead)fail('manifest_not_approved');
+ if(!RUN_ID.test(String(raw.run_id||'')))fail('missing_synthetic_run_id');
  if(typeof raw.isolation_evidence!=='string'||raw.isolation_evidence.trim().length<12)fail('missing_isolation_evidence');
  if(typeof raw.deployment_evidence!=='string'||raw.deployment_evidence.trim().length<12)fail('missing_deployment_evidence');
  const fixtures=raw.fixtures||{};
  for(const key of Object.keys(CERT_CASES))if(!ID.test(String(fixtures[key]||'')))fail('missing_synthetic_fixture_'+key);
  if(new Set(Object.values(fixtures)).size!==Object.values(fixtures).length)fail('duplicate_fixture_identity');
  return fixtures;
+}
+
+// Every displayed opportunity must be proven synthetic by its own durable
+// Preview-only source, not by a manifest assertion, name guess, or cohort label.
+// The source is a QA marker, not an immutable authentication or send permission.
+export function verifyFixtureProvenance(kind,detail,manifest){
+ const errors=[];
+ const marker=(detail?.sources||[]).find(s=>s.kind==='preview_cert_fixture_v1'
+  &&s.summary?.run_id===manifest?.run_id&&s.summary?.scenario===kind
+  &&s.summary?.synthetic===true&&s.summary?.suite==='PRODUCER_ACTION_QUALITY_1');
+ if(!marker)errors.push('synthetic_source_provenance_missing');
+ const contact=detail?.opportunity?.contact||{};
+ const name=String(contact.name||[contact.firstName,contact.lastName].filter(Boolean).join(' '));
+ if(!/^Synthetic (?:QA|Certification)\b/.test(name))errors.push('synthetic_name_not_verified');
+ const phones=[contact.mobile,contact.phone,contact.cell].filter(Boolean).map(v=>String(v).replace(/[^\d]/g,''));
+ if(phones.some(v=>!/^1?20255501\d\d$/.test(v)))errors.push('non_reserved_phone_in_fixture');
+ const emails=[contact.email].filter(Boolean).map(x=>String(x).toLowerCase());
+ if(emails.some(v=>!/^[a-z0-9._%+-]+@example\.(invalid|test)$/.test(v)))errors.push('non_reserved_email_in_fixture');
+ return errors;
 }
 
 export function verifyCase(kind,row,detail){
@@ -86,7 +107,7 @@ export function certifySnapshots({manifest,work,details}){
  for(const kind of Object.keys(CERT_CASES)){
   const id=manifest.fixtures[kind],row=rows.get(id)||null,detail=details[kind]||null;
   if(detail?.opportunity?.id!==id)fail('fixture_detail_identity_mismatch_'+kind);
-  const errors=verifyCase(kind,row,detail);
+  const errors=[...verifyFixtureProvenance(kind,detail,manifest),...verifyCase(kind,row,detail)];
   results.push({case:kind,result:errors.length?'FAIL':'PASS',errors});
   if(errors.length)failures.push(...errors.map(code=>({case:kind,code})));
  }
@@ -124,6 +145,15 @@ async function main(){
   if(body.ok!==true)fail('preview_payload_not_ok');
   return body;
  };
+ // Detail first: reject any unmarked/non-synthetic fixture before scanning
+ // the wider Producer Work inventory. These GETs still require Preview isolation.
+ const details={};
+ for(const kind of Object.keys(CERT_CASES)){
+  const id=manifest.fixtures[kind];
+  details[kind]=await api('producer-detail?id='+encodeURIComponent(id));
+  if(details[kind]?.opportunity?.id!==id)fail('fixture_detail_identity_mismatch_'+kind);
+  if(verifyFixtureProvenance(kind,details[kind],manifest).length)fail('fixture_provenance_not_verified_'+kind);
+ }
  const page=await api('producer-work?population=ALL&status=all&sort=recommended');
  if(!page.attention_enabled)fail('preview_attention_flag_off');
  const all=[...page.records];let offset=page.nextOffset,pageCount=1;
@@ -132,17 +162,12 @@ async function main(){
   const next=await api('producer-work?population=ALL&status=all&sort=recommended&offset='+offset);
   all.push(...next.records);offset=next.nextOffset;
  }
- const details={};
- for(const kind of Object.keys(CERT_CASES)){
-  const id=manifest.fixtures[kind];
-  details[kind]=await api('producer-detail?id='+encodeURIComponent(id));
- }
  const report=certifySnapshots({manifest,work:{attention_enabled:true,records:all},details});
  console.log(JSON.stringify({
   ...report,verified_head:process.env.CF_PREVIEW_EXPECTED_HEAD,
   preview_host:new URL(origin).hostname,
   isolation:'operator_attested_only',
-  requests:pageCount+Object.keys(CERT_CASES).length,
+  requests:1+pageCount+Object.keys(CERT_CASES).length,
   note:'GET endpoints may refresh internal projections; run exclusively on verified isolated synthetic Preview.'
  },null,2));
  if(report.status!=='PASS')process.exitCode=1;
