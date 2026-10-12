@@ -1,5 +1,21 @@
 # CoverageFit Current State
 
+## Phase 2 Preview acceptance automation — 2026-10-12
+
+**Master Roadmap 2.0:** Phase 1 runtime integration and Phase 2 producer-decision certification remain the active lane. The canonical release checklist is `docs/COVERAGEFIT-SIGNAL-OPERATIONAL-GATES-1.0.md`; Producer Action Quality contract and hosted runner instructions are in `docs/COVERAGEFIT-PRODUCER-ACTION-QUALITY-1.0.md`.
+
+**Latest independently reviewed evidence:**
+- Draft PR #12 on `ops/producer-action-quality-parity-20261012` now includes `scripts/certify-producer-action-preview.mjs` and `tests/producer-action-preview-certification.test.mjs`; no second roadmap or separate test repository was created.
+- The runner permits only Cloudflare Pages **Preview subdomains**, blocks redirects and changed/unverified deployment heads, requires explicit recorded Preview/Production D1 isolation, uses a producer credential supplied at execution time and never prints the token, verifies public denial (HTTP 401), and checks list/detail agreement on **nine synthetic-only scenarios**. It sends no SMS or external writes. Its authenticated GET endpoints may refresh internal projection/classification state; **isolation must be confirmed before running**.
+- Exact runtime commit `eb09c66395d5b83651fe3967952ec49efef1444d` passed the Node 24 GitHub Actions suite **488 passed, 0 failed, 0 skipped** ([run 38309924317](https://github.com/dhays4sports/CoverageFit/actions/runs/38309924317)).
+- GitHub's Cloudflare Pages PR comment reports a successful immutable Preview deployment for `eb09c66`: `https://d3c3521f.coveragefit.pages.dev`. This is deployment-event evidence **only**, not authenticated environment/configuration certification.
+
+**Blocking operator evidence:** current Preview D1 database identifier and Production D1 identifier are independently verified distinct, actual Preview flags are known, appropriate synthetic noncustomer fixture IDs exist, and the authenticated acceptance runner plus browser keyboard/mobile review complete on the exact deployed SHA. Neither the assistant's public web access nor the available connected tools can inspect those private Cloudflare settings or establish a logged-in browser session. No customer data, real messages, production configuration or live control cohorts were used here.
+
+**Next action:** Complete isolated Cloudflare Preview verification and one certified run of the existing script against nine controlled fixture identities; capture only its redacted PASS/NO_GO evidence and manual UI checks. If blocked, report the missing condition explicitly and do not attempt unsafe production fallbacks. Then return to Phase 3 RingCentral inbound/lead-to-follow-up certification. PR #12 remains draft and unmerged until release authority is separately granted.
+
+---
+
 ## Master Roadmap 2.0 execution handoff — 2026-10-12
 
 **Canonical plan:** [docs/COVERAGEFIT-NEAR-TERM-PRODUCER-ROADMAP-1.0.md](COVERAGEFIT-NEAR-TERM-PRODUCER-ROADMAP-1.0.md), see **Executive execution map — CoverageFit + SIGNAL Master Roadmap 2.0 (2026-10-12)** at the top. It is the approved reference for phase order; later architectural detail in that same file remains valid unless explicitly reconciled. Do not create a separate competing roadmap.
