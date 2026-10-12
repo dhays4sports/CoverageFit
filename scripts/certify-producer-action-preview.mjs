@@ -24,7 +24,7 @@ const RUN_ID=/^[a-z0-9_-]{12,80}$/;
 const fail=m=>{throw Error(m)};
 export function safePreviewOrigin(raw){
  let url;try{url=new URL(raw);}catch{fail('invalid_preview_url');}
- if(url.protocol!=='https:'||!/^([a-z0-9-]+)\.coveragefit\.pages\.dev$/i.test(url.hostname)
+ if(url.protocol!=='https:'||!/^([a-f0-9]{8})\.coveragefit\.pages\.dev$/i.test(url.hostname)
   ||url.username||url.password||url.port||url.pathname!=='/'||url.search||url.hash)fail('preview_host_not_allowed');
  return url.origin;
 }
@@ -47,7 +47,7 @@ export function validateManifest(raw,{expectedHead,attestedHead,isolationConfirm
 // The source is a QA marker, not an immutable authentication or send permission.
 export function verifyFixtureProvenance(kind,detail,manifest){
  const errors=[];
- const marker=(detail?.sources||[]).find(s=>s.kind==='preview_cert_fixture_v1'
+ const marker=(Array.isArray(detail?.sources)?detail.sources:[]).find(s=>s.kind==='preview_cert_fixture_v1'
   &&s.summary?.run_id===manifest?.run_id&&s.summary?.scenario===kind
   &&s.summary?.synthetic===true&&s.summary?.suite==='PRODUCER_ACTION_QUALITY_1');
  if(!marker)errors.push('synthetic_source_provenance_missing');
@@ -65,6 +65,8 @@ export function verifyCase(kind,row,detail){
  const expected=CERT_CASES[kind],errors=[];
  if(!expected)return ['unknown_certification_case'];
  if(kind==='test_excluded'){
+  const pilot=(detail?.sources||[]).find(s=>s.kind==='district_pilot_v1')?.summary;
+  if(!(pilot?.pilot_phase==='TEST'||pilot?.is_test===true||pilot?.synthetic===true))errors.push('missing_test_exclusion_provenance');
   if(row)errors.push('synthetic_record_visible_in_work');
   if(detail?.attention!==null||detail?.actionQuality!==null)errors.push('synthetic_detail_has_guidance');
   return errors;
@@ -72,6 +74,7 @@ export function verifyCase(kind,row,detail){
  if(!detail?.opportunity?.id)errors.push('missing_detail');
  if(!row)errors.push('missing_work_row');
  if(kind==='control'){
+  if(row?.population!=='DISTRICT_CONTROL'||detail?.population?.population!=='DISTRICT_CONTROL')errors.push('control_cohort_not_verified');
   if(row?.action_quality!==null||detail?.actionQuality!==null||row?.attention!==null||detail?.attention!==null)errors.push('control_exposed_guidance');
   return errors;
  }
