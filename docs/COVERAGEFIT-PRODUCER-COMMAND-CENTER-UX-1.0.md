@@ -1,5 +1,5 @@
 # CoverageFit Producer Command Center UX 1.0
-**Status:** DESIGN PROPOSAL — review required; no runtime changes, deployments, or new send authority  
+**Status:** PRODUCT DIRECTION ACCEPTED — implementation/release authority gated; no runtime changes, deployments, or new send authority  
 **Date:** 2026-10-12  
 **Repository:** `dhays4sports/CoverageFit`  
 **Governing plan:** Master Roadmap 2.0 in `docs/COVERAGEFIT-NEAR-TERM-PRODUCER-ROADMAP-1.0.md`  
@@ -7,6 +7,33 @@
 **Primary success:** fewer producer minutes per useful compliant conversation, with better renewal coverage, faster priority follow-up, and more verified written premium per productive hour.
 
 > This is a **scoped UX and development specification**, NOT a new competing roadmap or permission to merge PRs, contact prospects, enable automatic sends, or alter Cloudflare/AgencyZoom/RingCentral configurations. Continue through the current Phase 2 hosted safety gate. Re-evaluate external providers' policy and agency/carrier approval before real campaigns.
+
+## Product decision LOCK — 2026-10-12
+
+The principal explicitly adopted this **Command Center product architecture** as the durable product direction. This authorization **locks UX/architecture priorities only**, not main merges, deployment, regulatory decisions, provider account changes, purchased-lead SMS campaigns, real outreach, or financial commitments.
+
+### Core objectives that must NOT be deferred away
+1. **Bulk purchased lead acquisition is a first-class requirement**, with reputable vendors, source agreements and provenance, accurate normalization/dedupe, contactability classification, exceptions-only operation, and measurable source economics.
+2. **Automated SMS qualification and follow-up is a first-class requirement**, not merely an optional later enhancement. Develop the runtime in bounded shadow mode in parallel with provider/consent readiness; qualify and nurture renewable opportunities with minimal owner intervention.
+3. **Producer SMS approvals must be fast and optionally batched.** Deliver multi-select review and individual per-recipient send safety before controlled unattended operation.
+4. **Prospect 360 and Renewal Intelligence form the durable data asset.** Every allowed lead field, SMS, call transcript, attachment, screenshot, email or verified note contributes to source-linked prospect evidence without arbitrary overwrites.
+5. **Principal Attention Sovereignty:** seek owner review for high-intent prospects, consequential exceptions and release decisions, not repeated daily compliance/source checks.
+
+### Provider and data-rights architecture (not an excuse to halt development)
+
+The business goal is **permissioned automated lead engagement**, including leads acquired from legitimate vendors. Do not confuse vendor quality or a vendor's declaration of opt-in with authorization under a particular sender, registered campaign, consent scope and provider policy.
+
+RingCentral's current US SMS policy allows registered/consented automation, but expressly states **no SMS to purchased or third-party-generated lead lists**, even if such leads were allegedly opted in to SMS. Reference: https://www.ringcentral.com/legal/sms-mms-content-policies.html. That is a provider-specific **send route constraint**, not an architectural prohibition on building bulk purchased-lead ingestion, intelligence, consent handling or SMS workflows. Do not bypass RingCentral's limits by misrepresenting provenance or suppressing source metadata. Evaluate whether a proposed list is truly a first-party lead to the named agency versus a third-party-generated/purchased list; do not assume either based solely on how the vendor markets its leads.
+
+Implement **provider-neutral Contact Authority**, explicit source agreements/consent proof and a transport compatibility matrix. Authorized send routes must be reviewed for the actual use case; when a route is not eligible, retain the lead and route to compliant alternatives or a direct first-party opt-in capture process. Do not silently substitute another provider merely to evade restrictions. Current RingCentral conversation and response flows stay untouched unless specifically approved. Respect state/federal restrictions, DNC/opt-out, carrier/agency requirements, and registered messaging categories.
+
+**Engineering directive:** Start *design and offline simulation of an automated qualification family* in parallel with Today, Inbox, Prospect 360 and the provider-certification work. Activate only for an approved eligible population and sending route after positive consent evidence, producer controls, idempotency and pilot proof. This avoids making the system permanently approval-only without authorizing prohibited SMS.
+
+### Acquisition → engagement operating sequence
+
+`Source purchase / first-party intake → Raw ingestion & attribution → Identity/dedupe → Consent evidence & route verification → Source-qualified prospect record → Permissioned engagement / alternative channel → Evidence & renewal capture → Follow-up clock → Producer attention when warranted → Quote/bind outcome → Re-enter the next annual cycle`
+
+**Acceptance principle:** The automation has succeeded only if it turns raw acquired prospects into more useful conversations, confirmed renewal dates, and verified premium **at lower producer effort**—not because it sent more texts.
 
 ## A. Product position and operating loop
 
@@ -202,9 +229,9 @@ Measure **% prospects with verified usable renewal timing** and **renewal-to-use
 
 ## H. Acquisition and contact authority are different
 
-**Purchased bulk leads are eligible for ingestion, evidence analysis, phone/other channel routing when appropriate, deduplication, and timing qualification. They are NOT automatically eligible for RingCentral SMS.** RingCentral's published US messaging policy prohibits using purchased/third-party-generated lead lists for SMS, including lists purported to have opted-in; promotional and automated SMS have additional direct consent/TCR/campaign conditions. See https://www.ringcentral.com/legal/sms-mms-content-policies.html .
+**Purchased leads and automated messaging are foundational product requirements, with separately verified send authority.** Purchased records enter acquisition, enrichment, source attribution, deduplication, prospect intelligence and the pipeline by default; **send eligibility is a separate positive decision**. RingCentral's published US SMS policy prohibits SMS to purchased/third-party-generated lead lists even when vendor opt-in is claimed; approved registered and consented automated messaging remains possible for eligible first-party populations. Build the provider-neutral eligibility contract and approve each route/campaign on its merits. See https://www.ringcentral.com/legal/sms-mms-content-policies.html .
 
-Define a **Consent & Contact Authority** projection independent of high-intent scoring and existing legacy `smsConsent.status`. Before each prospective SMS, require positive evidenced permission for the actual sender/campaign/message class (not merely "not opted out"), source and scope, capture timestamp, retention, proof, opt-out status, DNC, ownership and applicable provider policy. **Default UNKNOWN→NO_SEND** for bulk approval and all future autonomous outreach. Existing one-to-one use cases need their own separately reviewed authorization assumptions.
+Define a **Consent & Contact Authority** projection independent of high-intent scoring and existing legacy `smsConsent.status`. Before each prospective SMS, require positive evidenced permission for the actual sender/campaign/message class (not merely "not opted out"), source and scope, capture timestamp, retention, proof, opt-out status, DNC, ownership and applicable provider policy. **Default UNKNOWN→NO_SEND** for bulk approval and future autonomous outreach, while continuing safe ingestion, enrichment, producer triage and eligible non-SMS work. Existing one-to-one use cases need their own separately reviewed authorization assumptions.
 
 High-priority prospects with no SMS permission can be placed in **Manual permitted-channel work**, never smuggled into the SMS queue. Buying/sourcing lists does not confer permission.
 
@@ -290,7 +317,7 @@ This is a **UX workstream within Master Roadmap 2.0**, not a replacement for the
 ```
 
 ### M0 — Design, instrumentation and provider/consent rules (NO_SEND)
-Deliver: this spec review, personas/tasks, current route inventory, data contracts, channel policy review, safe demo data, acceptance fixtures, qualitative usability test. Gate: approve design and backlog; no writes.
+Deliver: this now-adopted product direction, personas/tasks, route inventory, data contracts, source/permission capture design, channel/sending-route compatibility review, safe demo data, acceptance fixtures and qualitative usability evaluation. Gate: engineering design freeze and documented backlog; no production writes.
 
 ### M1 — Today 1.0 read-only (NO_SEND)
 Deliver: existing Attention/Action Quality data in a compact Today list, explainable priority, renewal and commitment chips, deep link to current detail; default-off flag `CF_COMMAND_CENTER_TODAY_ENABLED`. Gate: list/detail parity, STOP/CONTROL and manual fallback, desktop/iPhone acceptance.
@@ -304,11 +331,11 @@ Deliver: multi-select, exact-body producer confirmation, per-recipient eligibili
 ### M4 — Prospect 360 + Renewal Evidence 1.0 (NO_SEND initially)
 Deliver: source-linked fact assertions and conflict review, renewal precision/verification, source/time trail, future-return commitments, read-only adapters for SMS/RAW, later calls/files/screenshots. Gate: importer fidelity, identity conflict holds, zero silent fact overwrite, renewal verified vs imported distinction, producer usability.
 
-### M5 — Permissioned workflow automation (separate program/activation)
-Deliver: one single-owner, opt-in, registered-message class workflow in SHADOW, audited consent and suppression check at actual send time, kill switch, human takeover, per-item economic monitoring. Gate: provider/TCR, legal/agency approval, opt-out/retry/fail-close, pilot improvement evidence, explicit LIVE authorization. Purchased lead CSVs cannot be sent through RingCentral SMS.
+### M5 — Permissioned workflow automation (core product, progressive authority)
+Deliver: one single-owner, opt-in, registered-message-class qualification/follow-up workflow. Start implementing its deterministic scheduling, missing-question logic, renewal memory, STOP, provider identity, review queues and SHADOW evaluator during earlier milestones; keep transport OFF until approved. Gate LIVE on verified first-party or otherwise provider-eligible permission, registered campaign and sender-route confirmation, legal/agency approval, opt-out/retry/fail-close, pilot evidence and explicit activation. RingCentral's restriction on third-party/purchased-list SMS remains in force for that route. Reuse one verified gateway/provider adapter rather than constructing evasive send paths.
 
-### M6 — Scale and source economics
-Deliver: unattended bounded importer and exception queue, dedupe, lawful channel routing, scheduled return, lead-source funnel accounting. Gate: import accuracy, cost per qualified contactable prospect, producer minutes per useful conversation, renewal coverage and verified bind economics. No scale without demonstrated unit economics.
+### M6 — Bulk acquisition scale and compounding pipeline
+Deliver: recurring ingestion of reputable bulk leads with source attribution, schema/identity reconciliation, permission/route eligibility ledger, lawful acquisition channel routing, scheduled follow-up and renewal triggers, exceptions-only work and source-funnel economics. Begin import/source and route-readiness engineering earlier without granting send authority. Gate high-volume deployment on import accuracy, duplicate/exception rates, vendor permission evidence, eligible-contact fraction, verified renewal capture, cost per useful conversation, premium per producer hour and measured producer time savings. Escalate only consequential exceptions.
 
 Each milestone must provide: exact PR/commit, read-only vs write boundary, flags OFF by default, replay/edge tests, independent hosted environment isolation, user acceptance, rollback, security/data/privacy review and explicit sign-off for new external authority. **Never call a feature live simply because CI is green.**
 
@@ -343,15 +370,15 @@ Pilot experiments must retain CONTROL baseline isolation and distinguish **impro
 
 **Principal Attention Sovereignty:** build mock/read-only slices, run CI, draft PRs, use synthetic fixtures, batch approvals and surface only consequential decisions. Owner should approve a small number of product choices and external write gates—not babysit each AI agent.
 
-## N. Decision requests for this design review (do not block current Phase 2)
+## N. Product defaults locked (2026-10-12) — no deployment authority
 
-Proposed defaults, to approve/change together:
+The principal has approved this product direction. The following are adopted engineering defaults; material UX changes or new production send authority still require review:
 1. Keep canonical route `/agent/workspace/`; evolve navigation, no complete UI rebuild.
 2. Today and Inbox first; Approvals embedded as dedicated Inbox queue with a Today shortcut.
 3. Mobile-first responsiveness with two-pane desktop and quick view of Prospect 360.
 4. Start with **read-only queues**, then explicit **human-reviewed selected approval**, initial cap **10**.
-5. Never SMS purchased leads through RingCentral; purchased-lead import/routing separate from positive-consent eligible SMS.
+5. Bulk purchased leads and documented permissioned SMS automation are core outcomes; source records and provider/sender-route rules are evaluated separately. Never route RingCentral purchased/third-party lists contrary to its published SMS rules.
 6. Prospect 360 evidence/fact/timing ledger is the durable intelligence substrate, shared across every input channel.
 7. End state: permission-governed automation only after observed provider reliability/economics and separate activation approval.
 
-**Current program status:** proposal only. Existing PR #12 hosted producer-action acceptance, RingCentral inbound/subscription certification, Preview data isolation, and agency/provider approvals remain independent gates.
+**Current program status:** Product direction locked, implementation gated. Existing PR #12 hosted Producer Action Quality acceptance, RingCentral inbound/subscription certification, Preview data isolation, provider route/campaign compatibility and agency approvals remain independent gates. This document authorizes no live customer communication or release.
