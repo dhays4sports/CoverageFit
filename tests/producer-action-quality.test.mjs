@@ -143,3 +143,28 @@ test('completed or evidence-only commitment never becomes an active exact action
   assert.equal(q.evidence.some(e=>e.kind==='commitment'),false);
  }
 });
+
+test('unconfirmed calendar cannot become a confirmed action when Attention mentions it',()=>{
+ const q=deriveProducerActionQuality({
+  population:'WEB_DIRECT',
+  attention:{band:'TODAY',rank:80,actionable:true,reasons:[{text:'Tentative appointment time',source_ref:{kind:'calendar',id:'maybe'}}]},
+  commitments:[{type:'APPOINTMENT',status:'open',confirmation:'unknown',due_at:'2026-10-12T18:00:00Z',source_ref:{kind:'calendar',id:'maybe'}}],
+  sms:{decision_2:'ASK_ONE_QUESTION',reply:'When does your coverage renew?'}
+ });
+ assert.equal(q.action.code,'ASK_ONE_QUESTION');
+ assert.equal(q.evidence.some(e=>e.kind==='commitment'),false);
+});
+
+test('confirmed callback wins when matched to the Attention reason, not unrelated tentative calendar',()=>{
+ const q=deriveProducerActionQuality({
+  population:'WEB_DIRECT',
+  attention:{band:'TODAY',rank:90,actionable:true,reasons:[{text:'Callback due',source_ref:{kind:'task',id:'ready'}}]},
+  commitments:[
+   {type:'APPOINTMENT',status:'open',confirmation:'unknown',due_at:'2026-10-01T18:00:00Z',source_ref:{kind:'calendar',id:'maybe'}},
+   {type:'CALLBACK',status:'open',confirmation:'producer_recorded',due_at:'2026-10-12T18:00:00Z',source_ref:{kind:'task',id:'ready'}}
+  ],
+  nextBestAction:{action:'CONNECT_OR_BOOK',label:'Connect or book'}
+ });
+ assert.equal(q.action.code,'CALL_BACK');
+ assert.equal(q.action.due_at,'2026-10-12T18:00:00Z');
+});
