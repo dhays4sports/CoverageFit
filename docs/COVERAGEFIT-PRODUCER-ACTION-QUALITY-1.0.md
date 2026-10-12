@@ -248,14 +248,40 @@ Create or identify **nine distinct, synthetic, Preview-only** opportunities, eac
 | `test_excluded` | TEST/synthetic excluded from list; direct detail auditable with no guidance |
 | `tentative_calendar` | Unconfirmed calendar cannot create a due callback/appointment or NOW/TODAY attention |
 
+### 1.1 synthetic-source verification (mandatory)
+
+The hosted harness no longer trusts `synthetic_only: true` by itself. Each opportunity's authenticated detail response must contain a source record with:
+
+```json
+{
+  "kind": "preview_cert_fixture_v1",
+  "source_id": "qa-marker-unique-to-fixture",
+  "summary": {
+    "suite": "PRODUCER_ACTION_QUALITY_1",
+    "run_id": "qa-certification-20261012",
+    "scenario": "call",
+    "synthetic": true
+  }
+}
+```
+
+The `scenario` must match that fixture's manifest key and `run_id` must match the manifest's run ID. The actual opportunity contact name must begin with `Synthetic QA` or `Synthetic Certification`. Any contact phone must be within reserved `202-555-0100`–`202-555-0199` (with optional +1); any contact email must use `example.invalid` or `example.test`. Prefer empty phone/email wherever possible. A TEST-excluded fixture must also have original `district_pilot_v1` source provenance marked `pilot_phase: TEST`, `is_test: true`, or `synthetic: true`. A CONTROL fixture must have `DISTRICT_CONTROL` classification in both list and detail.
+
+**Important fixture-design distinction:** Most ordinary TEST pilot opportunities are intentionally excluded from the Work list. To test visible scenarios without silently making real opportunities, the operator must create **explicitly marked fictional fixture records inside the verified, isolated Preview database only**, using existing evidence/CRM contracts plus the separate `preview_cert_fixture_v1` source. Do not change production cohort rules to make TEST records appear. No fixture creation, migrations, provider sends or customer contact are authorized by the checker itself.
+
+Before running, independently verify that the target isolated Preview database contains no real customer records. The source marker verifies test intent, **not** a cryptographic guarantee that the record is safe; the operator's D1 isolation check remains mandatory. The checker preflights the nine direct details and validates marker/contact fields **before** scanning the general Work inventory. Its authenticated GETs may still update internal projections, so a production database remains prohibited.
+
+The target URL must be the **immutable 8-hex deployment host**, such as `https://d3c3521f.coveragefit.pages.dev/`, not a branch alias; the exact SHA is separately attested against Cloudflare's deployment record.
+
 ### Local manifest (never commit it)
 
 Place a local file such as `preview-qa-private.json` **outside the repository** containing this structure, replacing placeholders with actual Preview fixture IDs and the exact 40-character SHA:
 
 ```json
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "synthetic_only": true,
+  "run_id": "qa-certification-20261012",
   "head": "<exact-40-character-hex-deployment-sha>",
   "isolation_evidence": "Cloudflare Preview/Production D1 identifiers visually verified different; internal change record ...",
   "deployment_evidence": "Cloudflare immutable Preview build record and exact commit ...",
