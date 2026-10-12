@@ -1,5 +1,24 @@
 # CoverageFit Current State
 
+## Master Roadmap 2.0 execution handoff — 2026-10-12
+
+**Canonical plan:** [docs/COVERAGEFIT-NEAR-TERM-PRODUCER-ROADMAP-1.0.md](COVERAGEFIT-NEAR-TERM-PRODUCER-ROADMAP-1.0.md), see **Executive execution map — CoverageFit + SIGNAL Master Roadmap 2.0 (2026-10-12)** at the top. It is the approved reference for phase order; later architectural detail in that same file remains valid unless explicitly reconciled. Do not create a separate competing roadmap.
+
+**Current release lane:** Phase 1 consolidation -> Phase 2 hosted Producer Action Quality certification -> Phase 3 lead/communication/commitment reliability -> Phase 4 daily producer dogfood -> Phase 5 SIGNAL economics -> conditional Phase 6 scale and Phase 7 enrichment.
+
+- Production `main` last verified at `5f47f2b7367110ca04ff03cc189983f136ab32fa`, unchanged on the 2026-10-12 audit. Recheck before any integration.
+- Draft PR #7 `signal-copilot` at `ad2915a7889637580505293ce38ab4db66f0a9b3` supplies current Copilot/Attention/Action Quality, including already reconciled district-promotion CAS safety.
+- Draft PR #12 is stacked on #7, at least through **runtime head `83a6bd1faaed94a8aba57623711e8500eaf9c864`**, where Node 24 full CI passed **475/475**, 0 failed, 0 skipped ([run 38307468735](https://github.com/dhays4sports/CoverageFit/actions/runs/38307468735)). Its later roadmap documentation commits are **not** automatically included in that historical test claim.
+- Draft PR #11 on `main` documents operational certification gates and fixes the legacy seven-day assertion, which already has a corresponding corrected assertion on #7. Reconcile without duplicate/stale replacement.
+- Draft PR #8 is an old stacked base. The read-only Commitment and Attention portions have been ported/reconciled into #7; calendar write surfaces remain separately gated.
+- Draft PR #9 is a separate off-by-default producer email notification integration; PR #10 is isolated Desktop Copilot, not critical path.
+- GitHub-only review has **not** certified the newest code in Cloudflare hosted isolated Preview, current RingCentral inbound subscription, production flags/bindings, or real producer economics. Remain **NO-GO** for live activation/district rollout.
+- Approved seven-day fresh lead window, AgencyZoom cadence ownership, explicit-send review, CONTROL/STOP suppression, and producer attention budget remain mandatory.
+
+**Resume instruction:** Check current refs and exact hosted/config state; read the canonical executive roadmap; execute the earliest unmet certification gate. Do not confuse a green suite with a deployed, production-authorized loop.
+
+---
+
 ## Desktop Copilot parallel-coordination audit — 2026-10-08
 
 CoverageFit canonical development continues on draft PR #7 / `signal-copilot`. The separate Desktop Copilot initiative is visible as draft PR #10 on `feature/coveragefit-desktop-copilot-1.0`.
