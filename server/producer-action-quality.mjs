@@ -53,13 +53,17 @@ function nbaAction(nba){
  });
 }
 
+function sameEvidenceSource(a,b){
+ return !!(a&&b&&a.kind===b.kind&&(
+  a.id!=null&&b.id!=null&&a.id===b.id
+  ||a.field!=null&&b.field!=null&&a.field===b.field
+ ));
+}
 function activeCommitment(commitments=[],attention){
  const ref=firstReason(attention)?.source_ref;
- if(ref?.kind==='task')return commitments.find(c=>c.source_ref?.kind==='task'&&c.source_ref?.id===ref.id)||null;
- if(ref?.kind==='calendar')return commitments.find(c=>c.source_ref?.kind==='calendar'&&c.source_ref?.id===ref.id)||null;
- return commitments
-  .filter(c=>!['cancelled','completed','proposed'].includes(c.status)&&c.confirmation!=='evidence_only')
-  .sort((a,b)=>String(a.due_at||a.due_date||'9999').localeCompare(String(b.due_at||b.due_date||'9999')))[0]||null;
+ const active=commitments.filter(c=>!['cancelled','completed','proposed'].includes(c.status)&&c.confirmation!=='evidence_only');
+ const matched=active.find(c=>sameEvidenceSource(c.source_ref,ref));
+ return matched||active.sort((a,b)=>String(a.due_at||a.due_date||'9999').localeCompare(String(b.due_at||b.due_date||'9999')))[0]||null;
 }
 
 export function deriveProducerActionQuality({
@@ -80,10 +84,10 @@ export function deriveProducerActionQuality({
  if(suppressed||attention?.band==='SUPPRESSED'||sms?.decision_2==='STOP')exact=action('DO_NOT_CONTACT','Do not contact',{actionable:false,source:'contact_safety'});
  else if(sms?.decision_2==='CLOSE'||sms?.decision_2==='LATER')exact=signalAction(sms);
  // A due/overdue commitment can be the precise task even when Signal has no immediate direction.
- else if(['NOW','TODAY'].includes(attention?.band)&&commitment)exact=commitmentAction(commitment,attention);
+ else if(['NOW','TODAY'].includes(attention?.band)&&commitment&&sameEvidenceSource(commitment.source_ref,reason?.source_ref))exact=commitmentAction(commitment,attention);
  // Current SMS direction outranks older/generic NBA.
  else if(sms?.decision_2)exact=signalAction(sms);
- else if(commitment&&['NOW','TODAY','UPCOMING'].includes(attention?.band))exact=commitmentAction(commitment,attention);
+ else if(commitment&&attention?.band==='UPCOMING'&&sameEvidenceSource(commitment.source_ref,reason?.source_ref))exact=commitmentAction(commitment,attention);
  else exact=nbaAction(nextBestAction);
 
  const actionable=Boolean(attention?.actionable!==false&&exact?.actionable!==false&&exact);
