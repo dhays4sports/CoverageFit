@@ -87,10 +87,8 @@ export function generatePreviewFixturePackage({
    if(kind==='due_callback'){
     add('cf_solo_tasks',
      ['id','workspace_id','opportunity_id','assignee_id','work_type','title','due_at','state','priority','source_key','created_at'],
-     ['qa-task-'+runId,id, id,'dylan-haysbert','outreach','Callback as requested',due,'open','20','qa:callback:'+runId,at]
+     ['qa-task-'+runId,workspaceId,id,'dylan-haysbert','outreach','Callback as requested',due,'open','20','qa:callback:'+runId,at]
     );
-    // Fix workspace_id inserted with the actual workspace below when rendering.
-    sql[sql.length-1]=sql[sql.length-1].replace(quote(id)+','+quote(id)+','+quote('dylan-haysbert'),quote(workspaceId)+','+quote(id)+','+quote('dylan-haysbert'));
    }
    if(['due_appointment','tentative_calendar'].includes(kind)){
     source(id,'calendar','qa-calendar-'+runId+'-'+kind,{
