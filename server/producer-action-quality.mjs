@@ -1,3 +1,4 @@
+import {actionableCommitment} from './commitment-projection.mjs';
 // COVERAGEFIT-PRODUCER-ACTION-QUALITY-1.0
 // Deterministic reconciliation of existing governed projections.
 // This module grants no contact permission, does not mutate CRM/provider state,
@@ -61,7 +62,7 @@ function sameEvidenceSource(a,b){
 }
 function activeCommitment(commitments=[],attention){
  const ref=firstReason(attention)?.source_ref;
- const active=commitments.filter(c=>!['cancelled','completed','proposed'].includes(c.status)&&c.confirmation!=='evidence_only');
+ const active=commitments.filter(actionableCommitment);
  const matched=active.find(c=>sameEvidenceSource(c.source_ref,ref));
  return matched||active.sort((a,b)=>String(a.due_at||a.due_date||'9999').localeCompare(String(b.due_at||b.due_date||'9999')))[0]||null;
 }
