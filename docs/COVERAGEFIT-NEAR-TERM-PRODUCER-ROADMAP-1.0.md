@@ -28,7 +28,7 @@
 
 ### What each phase concretely means
 
-**Phase 1 — integrate, don't rebuild.** PR #7 contains the newest producer Copilot/Attention/Action Quality work, including the guarded district-promotion pattern already present in PR #6. PR #12 is stacked on #7 and adds list/detail suppression/evidence/next-action parity and regression checks. PR #11 is a narrow main-based seven-day assertion/release-gate draft; its assertion overlaps newer #7 and must be reconciled, not double-applied. PR #8 is based on a stale #7 revision: retain already ported read-only commitment/attention primitives, defer calendar write surfaces until the appropriate gate, and **do not merge #8 wholesale**. PR #9 (producer notifications) has an independent provider/secret/hosted-canary gate. PR #10 (Desktop Copilot) is parallel and nonblocking. Before a merge, explicitly record retained source of truth per overlapping file, test coverage, flag defaults, release and rollback instructions. Draft PRs and green CI alone are not deployment approval.
+**Phase 1 — integrate, don't rebuild.** PR #7 contains the newest producer Copilot/Attention/Action Quality work, including the guarded district-promotion pattern already present in PR #6. PR #12 is stacked on #7 and adds list/detail suppression/evidence/next-action parity and regression checks. PR #11 is a narrow main-based seven-day assertion/release-gate draft; its release-gate document has now been carried into PR #12 and its assertion already exists on #7. Do not merge PR #11 separately or reapply stale code. PR #8 is based on a stale #7 revision: retain already ported read-only commitment/attention primitives, defer calendar write surfaces until the appropriate gate, and **do not merge #8 wholesale**. PR #9 (producer notifications) has an independent provider/secret/hosted-canary gate. PR #10 (Desktop Copilot) is parallel and nonblocking. Before a merge, explicitly record retained source of truth per overlapping file, test coverage, flag defaults, release and rollback instructions. Draft PRs and green CI alone are not deployment approval.
 
 **Phase 2 — trust the action.** The governing signal is:
 `Why now → exact governed action → evidence reference → producer judgment`.
@@ -81,7 +81,7 @@ The owner should be interrupted only for a consequential approval or a real oper
 - `docs/COVERAGEFIT-CURRENT-STATE.md`: latest operational audit, branch and provider status; update whenever materially changed.
 - `docs/COVERAGEFIT-PRODUCER-ACTION-QUALITY-1.0.md`: exact deterministic decision and evidence contract.
 - `docs/PR8-RECONCILIATION-2026-10-07.md`: why historical PR #8 cannot be blindly merged.
-- Draft PR #11: `docs/COVERAGEFIT-SIGNAL-OPERATIONAL-GATES-1.0.md`, explicit near-term certification/release checklist, pending integration.
+- `docs/COVERAGEFIT-SIGNAL-OPERATIONAL-GATES-1.0.md`: explicit near-term certification/release checklist, **now incorporated into draft PR #12**. PR #11 is superseded for integration purposes.
 - PR #7 → PR #12: current read-only producer-action development lane. Production `main` is not assumed to include either.
 
 **Resume instruction for future work:** *Re-audit current repo and deployment state, read this execution map and CURRENT-STATE, identify the earliest unmet gate, and deliver only the smallest reviewable slice that measurably advances it. Do not start another workstream merely because a later-phase capability is technically interesting.*
