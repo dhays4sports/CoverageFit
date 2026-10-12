@@ -4,6 +4,7 @@
 // Never use production, real customer records, or a shared browser token in logs.
 import {readFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
+import {resolve} from 'node:path';
 
 export const CERT_CASES=Object.freeze({
  ask_one_question:{code:'ASK_ONE_QUESTION',actionable:true},
@@ -135,6 +136,6 @@ async function main(){
  if(report.status!=='PASS')process.exitCode=1;
 }
 
-if(process.argv[1]&&fileURLToPath(import.meta.url)===fileURLToPath(new URL('file://'+process.argv[1]).href)){
+if(process.argv[1]&&fileURLToPath(import.meta.url)===resolve(process.argv[1])){
  main().catch(e=>{console.error('Preview acceptance blocked: '+(e?.message||'unknown_error'));process.exitCode=2;});
 }
