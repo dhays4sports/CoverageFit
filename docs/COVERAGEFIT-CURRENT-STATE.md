@@ -1,5 +1,15 @@
 # CoverageFit Current State
 
+## Producer Command Center 1.0 UX proposal — 2026-10-12
+
+A review-only design has been added at `docs/COVERAGEFIT-PRODUCER-COMMAND-CENTER-UX-1.0.md` in the active PR #12 development lane. It specifies Today, Inbox, multi-select **individually governed** SMS approvals, the Prospect 360 evidence/renewal substrate, mobile/desktop interactions, feature-flag sequence, and release gates. It reuses existing Producer Workspace, Opportunity/Attention/Action Quality, Signal Decision 2, consent/ownership and the current SMS gateway; **no new sender, production route, mutation endpoint or automation activation is implemented by this document**.
+
+Important product decision for review: RingCentral US SMS policy prohibits purchased and third-party-generated lead lists for SMS, even where vendors assert opt-in. Buying/importing leads is distinct from documented recipient permission and sender/campaign authority; default unknown permission to NO_SEND for new selected approvals/automation. Batch approvals must recheck consent, source provenance, STOP, ownership and revisions independently for every item. These controls and user testing must be certified before external write authority expands.
+
+**Execution order unchanged:** complete isolated Phase 2 Action Quality acceptance, certify inbound provider state, then build Today/Inbox as read-only and finally propose separately approved SMS batch writes. Prospect/renewal fact projection can proceed in parallel without provider authority expansion. Source of truth remains Master Roadmap 2.0 and current repository/provider evidence. This design is NOT live.
+
+---
+
 ## Phase 2 Step 3 fixture package — 2026-10-12
 
 **Code prepared, not remotely executed.** PR #12 now contains `scripts/prepare-producer-action-preview-fixtures.mjs` and `tests/producer-action-preview-fixtures.test.mjs`. The offline generator emits replay-safe INSERT-only SQL and a private manifest (schema 1.1) for nine controlled synthetic scenarios. It requires an explicit workspace ID and exact 40-character Preview deployment SHA; the SQL does not call providers, create real calendar events, or send communications.
