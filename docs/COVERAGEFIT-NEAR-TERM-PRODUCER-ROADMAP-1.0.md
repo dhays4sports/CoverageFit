@@ -8,6 +8,10 @@
 
 ## Executive execution map — CoverageFit + SIGNAL Master Roadmap 2.0 (2026-10-12)
 
+> **Product North Star adoption (2026-10-12):** The principal approved the CoverageFit Producer Command Center UX 1.0 product direction as the roadmap's operating target: **Today → Inbox / Bulk Approvals → Prospect 360 / Renewal Intelligence → permissioned SMS workflow autonomy and large-scale purchased-lead acquisition**. Purchased lead ingestion and automated SMS are **core goals, not optional features**. Build send-free acquisition/consent data contracts and SHADOW automation in parallel with Phase 2/3 integration, but do not grant live send authority until sender/campaign permission and provider-specific constraints are verified. The RingCentral route is not authorized for purchased or third-party-generated SMS lead lists under its published policy; the acquisition objective should not be abandoned, nor should list provenance be masked. See `docs/COVERAGEFIT-PRODUCER-COMMAND-CENTER-UX-1.0.md` for locked UX details and escalation rules.
+>
+> **Governance:** This adopts the product plan, **not** approval to merge code, change Cloudflare, ingest live purchases, send messages or activate automation. Keep Phase 2 hosted certification and the existing release gates; avoid making consent/provider evidence a recurring principal task by using auditable import receipts, automatic eligibility classification and consolidated exception reviews.
+
 **Purpose:** Give the principal and every implementation thread **one short, phase-gated reference** for what to build next. This is the executive execution map within the **existing canonical near-term roadmap**, not a second roadmap or a replacement for the architectural details below. The detailed Milestones 0–10 describe capabilities; **the seven phases here set operating order and release gates**. Read the latest `docs/COVERAGEFIT-CURRENT-STATE.md` and current repository/provider evidence before relying on any recorded SHA, flag, test count, or hosted environment claim.
 
 **North Star:** CoverageFit is the insurance producer command center; SIGNAL is its governed decision/attention engine; 408FARMERS and its acquisition satellites are entry surfaces; AgencyZoom retains existing district cadence ownership, RingCentral transports communications, Google Calendar executes approved appointments, and Farmers retains underwriting/binding/policy administration. The target is **fewer producer minutes per useful, compliant conversation and more verified premium per productive hour**, not the largest feature list.
@@ -84,6 +88,8 @@ The owner should be interrupted only for a consequential approval or a real oper
 - `docs/PR8-RECONCILIATION-2026-10-07.md`: why historical PR #8 cannot be blindly merged.
 - `docs/COVERAGEFIT-SIGNAL-OPERATIONAL-GATES-1.0.md`: explicit near-term certification/release checklist, **now incorporated into draft PR #12**. PR #11 is superseded for integration purposes.
 - PR #7 → PR #12: current read-only producer-action development lane. Production `main` is not assumed to include either.
+
+**Implementation priority refinement:** Develop permissioned acquisition source evidence, renewal/Prospect 360 projections and the automated qualification SHADOW runner *alongside* Today/Inbox engineering. Keep batch approvals human-governed until their separate send gate passes. Do not treat the last phases of the seven-phase executive map as a requirement to wait before designing or coding safe shadow automation.
 
 **Resume instruction for future work:** *Re-audit current repo and deployment state, read this execution map and CURRENT-STATE, identify the earliest unmet gate, and deliver only the smallest reviewable slice that measurably advances it. Do not start another workstream merely because a later-phase capability is technically interesting.*
 
