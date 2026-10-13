@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {selectedIds,projectSelectedReview} from '../server/sms-review-readonly.mjs';
 import {simulateEngagement,simulateEngagementBatch} from '../server/engagement-shadow-simulator.mjs';
+import {selectableReview,selectedReviewHTML} from '../assets/js/sms-review-panel.mjs';
 const detail=()=>({
  opportunity:{id:'synthetic-a',contact:{name:'Synthetic QA Prospect'}},
  population:{population:'DISTRICT_SIGNAL'},
@@ -78,4 +79,14 @@ test('100 synthetic prospects simulate without network or provider side effects'
  assert.equal(report.external_actions,0);assert.equal(report.counts.HOLD_PURCHASED_LIST_ROUTE,50);
  assert.equal(report.counts.PROPOSE_ASK_RENEWAL,50);
  assert.throws(()=>simulateEngagementBatch(Array.from({length:1001},()=>({}))),/shadow_batch_limit/);
+});
+
+test('review HTML escapes untrusted names and draft bodies without any send controls',async()=>{
+ const r=selectableReview([{category:'DRAFT_REVIEW',opportunity_id:'safe-id',name:'<script>oops</script>',latest_inbound:'<img src=x onerror=alert(1)>',decision_2:'ASK_ONE_QUESTION'}]);
+ assert.equal(r.includes('<script>'),false);
+ assert.equal(r.includes('&lt;script&gt;'),true);
+ const html=selectedReviewHTML({items:[{opportunity_id:'safe-id',display_name:'<b>evil</b>',can_review:true,reason:'ELIGIBILITY_NOT_VERIFIED',current_revision:4,draft_body:'</textarea><script>alert(1)</script>'}]});
+ assert.equal(html.includes('</textarea><script>'),false);
+ assert.equal(html.includes('&lt;/textarea&gt;&lt;script&gt;'),true);
+ assert.equal(html.includes('data-cc-send'),false);
 });
