@@ -1,5 +1,21 @@
 # CoverageFit Current State
 
+## Phase 2 hosted acceptance: nine synthetic scenarios PASS — 2026-10-12
+
+**Operator-supplied browser evidence (17:30 PDT):** In Chrome DevTools on immutable Cloudflare Pages Preview `https://ee3f966a.coveragefit.pages.dev/agent/workspace/`, the authenticated synthetic certification checker printed `COVERAGEFIT_PHASE2_RESULT` with `status: PASS`, `passed: 9`, `checked: 9`, `failures: []`, `sends: 0`. The browser displayed PASS for: `ask_one_question`, `call`, `due_callback`, `due_appointment`, `stop`, `opt_out`, `control`, `test_excluded`, and `tentative_calendar`.
+
+**Auth boundary:** The browser's `401 Unauthorized` for an intentionally unauthenticated `GET /api/solo-desk/producer-work` is **expected** and the checker recorded `authorization: 401_verified`. This is evidence the route denied a request without the producer bearer credential, not an application failure.
+
+**Provenance and deployment:** The run's embedded expected head was `1bb773debb339b595e5b39a9f53f35ac0f1850a5`, matching the then-reported PR #12 Cloudflare deployment on `ee3f966a.coveragefit.pages.dev`. The checker validated fixture source/run markers, fictional names, reserved test contacts, list/detail parity and positive Attention flag. Preview D1 isolation is **operator-attested** by the confirmation prompt, **not independently inspected by ChatGPT**; treat exact D1-binding UUID evidence separately.
+
+**Scope limits:** This was GET-only browser API certification; the existing GET handlers can refresh internal Workspace projections. No outbound SMS, calendar writes, AgencyZoom writes or production activation was tested or authorized. The result does **not** certify RingCentral bidirectional live webhook/delivery, autonomous messages, purchased-lead outreach, or the proposed Today/Inbox/Bulk Approval UI.
+
+**Remaining Phase 2 release gate:** Brief operator visual review of the existing `/agent/workspace/` Work UI on the **same immutable Preview URL** in desktop and mobile widths: WHY NOW / DO / EVIDENCE visible and readable; CALL / ASK_ONE_QUESTION / due actions correct; STOP/opt-out lack send controls, CONTROL has no SIGNAL guidance, TEST excluded; error/empty states, focus/navigation and manual/AI-OFF fallback. If the UI acceptance passes, Phase 2 **Action Quality hosted acceptance** may be marked complete with the operator-isolation qualification. Production merge/flag changes remain separately authorized. Next engineering gate: RingCentral inbound and lead-to-follow-up reliability, followed by approved Today/Inbox UI work.
+
+**Record source:** User-provided screenshot of Chrome console PASS (9/9), October 12, 2026. Do not interpret a browser-side `deployed_commit_operator_verified` constant as a server-origin cryptographic attestation.
+
+---
+
 ## Producer Command Center North Star locked — 2026-10-12
 
 **Product-level decision approved by principal:** `docs/COVERAGEFIT-PRODUCER-COMMAND-CENTER-UX-1.0.md` now governs the intended user experience: Today, unified Inbox, efficient multi-message approval, Prospect 360 evidence memory, verified Renewal Intelligence and progressively automated engagement. **Bulk purchased-lead acquisition and permissioned automated SMS are core product requirements**, not optional or indefinitely deferred features. The project remains CoverageFit + SIGNAL; no new competing CRM or SMS sender is authorized.
