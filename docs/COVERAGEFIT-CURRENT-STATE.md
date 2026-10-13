@@ -1,5 +1,17 @@
 # CoverageFit Current State
 
+## Phase 3A RingCentral no-send preflight prepared — 2026-10-12
+
+**Current state:** Phase 2 Producer Action Quality hosted functional and desktop/mobile visual acceptance is operator-accepted. Phase 3 is ACTIVE. GitHub code audit confirms existing `handleRingCentralStatus`, `handleRingCentralSubscription`, `handleRingCentralWebhook`, `runRingCentralRecovery`, `sms-outbound-gateway` and safety/ownership code must be preserved, not reimplemented.
+
+**New no-send engineering slice:** `scripts/phase3-ringcentral-readiness.mjs` projects a bounded, secret-free status from the existing authorized `GET /api/sms/ringcentral/status`; `tests/phase3-ringcentral-readiness.test.mjs` checks redaction, config gaps, sender/subscription mismatch, and unusable API status. The operator procedure and self-contained Chrome console GET snippet are in `docs/COVERAGEFIT-PHASE3-RINGCENTRAL-READONLY-CHECK-1.0.md`.
+
+**What has NOT happened:** No Preview RingCentral account/status GET has yet been observed in this phase, no subscription renewal/creation, no provider recovery replay, no controlled sender/inbound canary, no real message, no Cloudflare provider/secret setting change, and no PR merge. Existing historical `sender_ready_webhook_unconfigured` is not today's status. The Phase 3A operator should check the **same immutable authenticated Preview** used for Phase 2, `ee3f966a.coveragefit.pages.dev`, and share only the sanitized report fields.
+
+**Next**: obtain operator's read-only Phase 3A status snapshot, triage missing webhook/subscription/provider configuration; then run deterministic Phase 3B replay/STOP/ownership/recovery tests before asking for any provider writes or live canary.
+
+---
+
 ## Phase 2 Producer Action Quality accepted; Phase 3 now active — 2026-10-12
 
 **Decision:** Phase 2 **HOSTED-CERTIFIED (operator-attested Preview)** for the existing **Producer Action Quality** surface. The principal explicitly confirmed all remaining visual checks passed on the tested Preview: desktop layout, mobile viewport, correctly presented WHY NOW / DO / EVIDENCE, STOP and opt-out suppression, CONTROL isolation, and synthetic TEST exclusion. This closes the Phase 2 **functional/visual acceptance gate** and advances the program execution focus to Phase 3.
