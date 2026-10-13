@@ -65,3 +65,18 @@ test('one seeded Preview fixture package exercises hosted-equivalent Today, Inbo
   assert.equal(conflicted.facts.contact_safety.sms_authority,'NOT_EVALUATED');
  }finally{f.sql.close()}
 });
+
+test('combined browser checker is same-origin GET-only and reports sanitized acceptance',()=>{
+ const text=readFileSync(new URL('../scripts/command-center-combined-browser-check.template.js',import.meta.url),'utf8');
+ assert.match(text,/const HOST='__PREVIEW_HOST__'/);
+ assert.match(text,/const HEAD='__EXPECTED_HEAD__'/);
+ assert.match(text,/const RUN='__RUN_ID__'/);
+ assert.match(text,/location\.hostname!==HOST/);
+ assert.match(text,/method:'GET'/);
+ assert.match(text,/COVERAGEFIT_UNIFIED_RESULT/);
+ assert.match(text,/preview_isolation:'OPERATOR_ATTESTED_ONLY'/);
+ assert.match(text,/sends:0/);
+ assert.doesNotMatch(text,/method:\s*['"](?:POST|PATCH|DELETE|PUT)['"]/);
+ assert.doesNotMatch(text,/sessionStorage\.setItem\s*\(/);
+ assert.doesNotMatch(text,/console\.log\s*\([^\n]*\b(?:token|data\.opportunity|data\.sources)\b/);
+});
