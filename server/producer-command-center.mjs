@@ -1,6 +1,7 @@
 // COMMAND-CENTER-TODAY-INBOX-0.1 — read-only projection of existing producer work.
 // Provides no new lead identity, contact permission, messaging transport, or send authority.
 // No source mutations or new database tables. Producer Workspace owns the underlying data.
+import {producerWorkspace} from './producer-workspace.mjs';
 const STOP=new Set(['DO_NOT_CONTACT','CLOSE_NO_OUTREACH','WAIT_UNTIL_RECORDED_TIME']);
 const urgent=new Set(['NOW','TODAY','HIGH']);
 const trim=(v,max=240)=>String(v??'').slice(0,max);
@@ -85,7 +86,7 @@ export function projectCommandCenter(work,{maxRows=30}={}){
 }
 export async function commandCenterPreview(repo,env){
  if(env.CF_COMMAND_CENTER_READONLY_ENABLED!=='1')return {enabled:false,reason:'feature_disabled'};
- const {producerWorkspace}=await import('./producer-workspace.mjs');
+ // Read-only command center consumes the canonical single producer projection.
  const work=await producerWorkspace(repo,env).list(
   new URLSearchParams({population:'ALL',status:'open',sort:'recommended'}),
   {allRecords:true}
