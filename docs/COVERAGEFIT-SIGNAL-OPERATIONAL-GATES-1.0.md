@@ -1,5 +1,29 @@
 # CoverageFit + SIGNAL — Operational Consolidation Certification Gates 1.0
 
+## Phase 2 acceptance / Phase 3 active execution gate — 2026-10-12
+
+**Gate 1 status: ACCEPTED FOR ISOLATED PREVIEW PRODUCER ACTION QUALITY (operator-attested)**. The principal supplied browser evidence of 9/9 hosted synthetic cases PASS on immutable `ee3f966a.coveragefit.pages.dev` at tested code `1bb773debb339b595e5b39a9f53f35ac0f1850a5`, with no sends, proper unauthenticated HTTP 401 denial, and later explicitly confirmed desktop/mobile, STOP, CONTROL, TEST-exclusion visual acceptance. Review `docs/COVERAGEFIT-CURRENT-STATE.md` for the complete audit trail. Cloudflare D1 UUID separation was **operator-attested**, not independently inspected by ChatGPT. No production release or provider-send authorization is implied.
+
+**Gate 3 status: ACTIVE; LIVE BIDIRECTIONAL PROVIDER EVIDENCE NOT YET VERIFIED.** Start with the existing implementation:
+- `GET /api/sms/ringcentral/status` — authenticated **read-only endpoint**, handled by `handleRingCentralStatus`, reports presence of outbound and webhook configuration, sender readiness, subscription health, masked number, recovery cursor/status and maintenance state. This GET can call RingCentral read-only provider APIs and read D1 state; do not paste entire JSON or credentials into public logs. Any status result requires proof of which isolated environment it came from.
+- `POST /api/sms/ringcentral/subscription` — may **create or renew** RingCentral webhook and start recovery; a mutation. Not included in read-only audit authority.
+- `POST /api/sms/ringcentral/recovery` — may **replay missed provider history** into durable stores. Not included in read-only audit authority.
+- `POST /api/sms/ringcentral/webhook` — inbound callback with validation-token/provider-readback authentication, message-level dedup and ownership locks. No synthetic unauthenticated event injection against hosted Preview.
+- `POST /api/sms/ringcentral/maintenance` — privileged webhook renewal/recovery; do not trigger during configuration inspection.
+- Existing `server/sms-outbound-gateway.mjs`, `server/sms-signal-api.mjs`, `server/ringcentral-webhook-recovery-core.mjs`, `server/sms-ownership.mjs`, `server/sms-consent-core.mjs` are canonical: preserve provider IDs, send-once decisions, human takeover and STOP/CONTROL boundaries.
+
+**Sequenced Phase 3 execution:**
+1. **3A — No-send status inventory.** Verify same deployment/env as intended; get masked/read-only status, record only booleans and state labels: `outboundConfigured`, `webhookConfigured`, `missingWebhook` names, `senderReady`, `connected`, `subscriptionHealth.state`, `subscriptionHealth.active`, `recovery.lastRecoveryStatus` if returned, `maintenance.status` if returned. Determine what is missing, without changing settings. Existing account history of `sender_ready_webhook_unconfigured` is not evidence of today's state.
+2. **3B — Deterministic simulation and exact-path tests.** Cover webhook authentication failures; repeated message IDs; inbound/outbound ordering and no duplicate; OPT_OUT/STOP and wrong-number; CONTROL/unknown-owner holds; manual producer takeover; ambiguous outbound result `delivery_review`; retry-safe recovery across a failed event; stale revision and send-once; profile evidence/due commitment refreshed on inbound. Do not manufacture real RingCentral events.
+3. **3C — Separate provider readiness authorization.** If webhook URL/token, provider subscription, Preview binding or external provider changes are missing, present a **single approval packet** (what changes, exact environments, impact, rollback, provider costs, no customer recipients) before any POST or configuration mutation.
+4. **3D — Controlled end-to-end canary.** Only after proper consent/registered sender and explicit separate owner approval: operator-controlled/test numbers and isolated relationships; receipt → actual inbound → durable history → current SIGNAL → actionable producer follow-up → outcome. Prove no duplicate after webhook replay/recovery and truthful status on timeout; verify AgencyZoom remains current cadence owner. No unrelated customer communications.
+5. **3E — Release decision.** Capture real provider acknowledgement, history/recovery records, evidence/renewal projection and producer-minute measurements. Until canary/authority checks pass, Phase 3 remains **not live-certified** and no automatic purchased-list messaging is authorized.
+
+**Parallel no-send product work:** Ready-to-review Today/Inbox/Approval UX, Prospect 360 and renewal evidence schema, and permissioned SMS automation SHADOW simulation may advance on draft branches without expanding send or CRM authority.
+
+---
+
+
 > **Integration update (2026-10-12):** This checklist is now included in the canonical PR #12 development lane with Master Roadmap 2.0. The seven-day age assertion was separately corrected already on PR #7; do not reapply it from draft PR #11. Producer Action Quality/Attention confirmation regressions now cover tentative or unknown calendar evidence. GitHub CI on runtime head `01915b41bbb2b8c1d6d9ce0943dc411b3c02ee29` passed **480/480 tests**, but this is **not** hosted Preview certification. Current Cloudflare PR #12 comment reports deployed build `30ad4ca` (historical Preview) rather than this newer runtime head. Re-check exact deployment SHA, Preview/Production D1 isolation, flags, and authenticated browser behavior before turning on anything. Separate approval is still required for merge/deploy/config/external action.\n\n
 **Date:** 2026-10-12  
 **Status:** Review-only execution gate; **not** production or district launch authorization  
