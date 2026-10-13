@@ -4,7 +4,7 @@ const MAX=10;
 const safe=x=>typeof x==='string'?x:'';
 export function selectedIds(raw){
  if(typeof raw!=='string'||raw.length>1800)throw Error('invalid_selection');
- const values=raw.split(',').filter(Boolean);
+ const values=raw.split(',');
  if(!values.length||values.length>MAX||new Set(values).size!==values.length
   ||values.some(x=>x.length>128||!/^[a-zA-Z0-9._:-]+$/.test(x)))throw Error('invalid_selection');
  return values;
