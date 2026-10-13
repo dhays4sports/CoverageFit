@@ -1,5 +1,28 @@
 # CoverageFit Current State
 
+## Phase 2 Producer Action Quality accepted; Phase 3 now active — 2026-10-12
+
+**Decision:** Phase 2 **HOSTED-CERTIFIED (operator-attested Preview)** for the existing **Producer Action Quality** surface. The principal explicitly confirmed all remaining visual checks passed on the tested Preview: desktop layout, mobile viewport, correctly presented WHY NOW / DO / EVIDENCE, STOP and opt-out suppression, CONTROL isolation, and synthetic TEST exclusion. This closes the Phase 2 **functional/visual acceptance gate** and advances the program execution focus to Phase 3.
+
+**Evidence chain:**
+- Hosted immutable Preview: `https://ee3f966a.coveragefit.pages.dev/agent/workspace/`; tested deployment head `1bb773debb339b595e5b39a9f53f35ac0f1850a5` (the browser runner contained this expected head and Cloudflare's PR deployment notification identified `1bb773d` at this Preview). A constant embedded in the browser checker is not independent cryptographic proof of served content.
+- Operator-run console checker: `COVERAGEFIT_PHASE2_RESULT` `status=PASS`, `passed=9`, `checked=9`, `failures=[]`, `authorization=401_verified`, `sends=0`; the intentionally unauthenticated API request returned HTTP 401.
+- Nine scenarios: `ask_one_question`, `call`, `due_callback`, `due_appointment`, `stop`, `opt_out`, `control`, `test_excluded`, `tentative_calendar`; list/detail agreement and provenance were checked using fictional fixtures.
+- Principal's visual acceptance: direct user attestation that **desktop, mobile, STOP, CONTROL and synthetic TEST exclusion passed**, October 12, 2026.
+- D1 isolation is **operator-attested only** through the browser confirmation prompt and prior manual steps; database binding UUIDs have **not** been independently observed by ChatGPT. This evidentiary qualification remains in the release record.
+- Full CI at PR #12 head before this note: `03e1a5355d7c3f7a99177d61fe45a9fcf2dbc36a` passed. New documentation revisions require separate exact-head checks.
+
+**Scope of acceptance:** hosted **read-only producer decision display and governed interpretation** in the isolated Preview, *not* RingCentral inbound/outbound live delivery, provider webhook subscription, durable end-to-end customer conversion, external message approval, calendar/API writes, production database binding review, auth redesign, or district rollout. This decision **does not** authorize merging PR #7/#12 or changing flags/secrets/deployments in Production. The code remains on review branches until a separate integration and release decision.
+
+**Phase 3 active — RINGCENTRAL-INBOUND + LEAD-TO-FOLLOW-UP-LOOP:** Continue the verified current code rather than reimplement transport. First obtain read-only provider/configuration/status evidence (without exposing credentials or customer information). Audit RingCentral `GET` status vs actual subscription, webhook validation and durable inbound projection. Then certify simulated duplicate/out-of-order messages, STOP and takeover, delivery acknowledgment, failure/timeout/reconciliation, commitments and AgencyZoom ownership. Only after separate explicit permission and proper Preview isolation should any subscription creation/renewal (`POST`), recovery replay (`POST`), controlled real operator SMS or live-config mutation be attempted. Capture one end-to-end trace:
+`source intake → identity/consent/cohort → inbound/provider event → profile evidence → SIGNAL → Attention/Action Quality → producer-reviewed action → provider receipt → durable follow-up → verified outcome`.
+
+**North Star priority:** maintain Today/Inbox/Approvals, Prospect 360/renewal, bulk acquisition and permissioned SMS SHADOW engineering as the agreed product target; don't pause safe parallel design. Actual autonomous sends remain off pending owner/provider approval and separate positive eligibility evidence.
+
+**Next operator request:** None for the completed Phase 2 functional gate. Phase 3 should start with read-only inspection/tests and batch any genuinely consequential provider/configuration decisions into one approval packet.
+
+---
+
 ## Phase 2 hosted acceptance: nine synthetic scenarios PASS — 2026-10-12
 
 **Operator-supplied browser evidence (17:30 PDT):** In Chrome DevTools on immutable Cloudflare Pages Preview `https://ee3f966a.coveragefit.pages.dev/agent/workspace/`, the authenticated synthetic certification checker printed `COVERAGEFIT_PHASE2_RESULT` with `status: PASS`, `passed: 9`, `checked: 9`, `failures: []`, `sends: 0`. The browser displayed PASS for: `ask_one_question`, `call`, `due_callback`, `due_appointment`, `stop`, `opt_out`, `control`, `test_excluded`, and `tentative_calendar`.
