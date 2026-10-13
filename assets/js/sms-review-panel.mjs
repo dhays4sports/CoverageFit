@@ -7,7 +7,7 @@ export function selectableReview(items,selected=new Set()){
  <div class="cc-review-pick">${items.filter(r=>r.category==='DRAFT_REVIEW').map(r=>`<label class="cc-review-option">
  <input type="checkbox" data-cc-select="${esc(r.opportunity_id)}" ${selected.has(r.opportunity_id)?'checked':''}>
  <span><strong>${esc(r.name)}</strong><small>${esc(r.decision_2)} · ${esc(r.latest_inbound)}</small></span></label>`).join('')||'<p class="muted">No draft reviews in this linked SIGNAL snapshot.</p>'}</div>
- <div class="cc-actions"><button type="button" data-cc-review disabled>Review selected (no send)</button>
+ <div class="cc-actions"><button type="button" data-cc-review ${selected.size===0?'disabled':''}>Review selected (no send)</button>
  <button type="button" data-cc-clear>Clear</button><small data-cc-selected-count>${selected.size}/10 selected</small></div>
  <div id="cc-selected-preview" role="status" aria-live="polite"></div>
  </section>`;
