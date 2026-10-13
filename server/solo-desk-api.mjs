@@ -3,6 +3,7 @@ import {continueAnalytics} from './signal-continue-analytics.mjs';
 import {signalContinue} from './signal-continue-service.mjs';
 import {pilotReconciliation} from './pilot-reconciliation.mjs';
 import {producerWorkspace} from './producer-workspace.mjs';
+import {commandCenterPreview} from './producer-command-center.mjs';
 import {rawImporter,syntheticRawRehearsalBatch} from './agencyzoom-import.mjs';
 import {districtPilot} from './district-pilot.mjs';
 import {authorizeProducer} from './consultation-inbox-core.mjs';
@@ -52,6 +53,10 @@ export async function handleSoloDesk(context){
       if(route==='fiv-calibration'){const acq=acquisitionMeasurement(repo,env),cal=fivCalibration(repo);try{await acq.ready();await cal.ready();}catch{fail(503,'fiv_calibration_setup_required','FIV calibration needs migration 0015 before it can compare queue performance.');}await acq.reconcile(300);return json({ok:true,...await cal.summary(url.searchParams)});}
       if(route==='priority-calibration'){const acq=acquisitionMeasurement(repo,env),cal=opportunityPriorityCalibration(repo);try{await acq.ready();await cal.ready();}catch{fail(503,'priority_calibration_setup_required','Opportunity priority calibration needs migration 0019 before it can compare score-band performance.');}await acq.reconcile(300);return json({ok:true,...await cal.summary(url.searchParams)});}
       if(route==='producer-work')return json({ok:true,...await producerWorkspace(repo,env).list(url.searchParams)});
+      if(route==='producer-command-center'){
+        if(env.CF_COMMAND_CENTER_READONLY_ENABLED!=='1')fail(404,'feature_disabled','Command Center Preview is not enabled.');
+        return json({ok:true,...await commandCenterPreview(repo,env)});
+      }
       if(route==='producer-pending-sms')return json({ok:true,...await producerWorkspace(repo,env).pendingSms()});
       if(route==='producer-detail')return json({ok:true,...await producerWorkspace(repo,env).detail(url.searchParams.get('id'))});
       if(route==='district-pilot')return json({ok:true,...await districtPilot(repo,env).report()});
