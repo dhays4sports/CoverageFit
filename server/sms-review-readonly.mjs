@@ -1,4 +1,5 @@
 // SMS-REVIEW-READONLY-0.1 — selected review without permission inference or sends.
+import {producerWorkspace} from './producer-workspace.mjs';
 const MAX=10;
 const safe=x=>typeof x==='string'?x:'';
 export function selectedIds(raw){
@@ -38,7 +39,6 @@ export function projectSelectedReview(detail){
  };
 }
 export async function selectedReviewSnapshot(repo,env,ids){
- const {producerWorkspace}=await import('./producer-workspace.mjs');
  const p=producerWorkspace(repo,env);
  const out=[];
  // Re-fetch each selected item independently, preserving the canonical identity,
