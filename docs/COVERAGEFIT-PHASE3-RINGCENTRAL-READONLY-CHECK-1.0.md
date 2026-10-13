@@ -113,3 +113,35 @@ This GET reads live provider/account readiness using the **configured Preview en
 **Exit for Phase 3A:** a bounded non-sensitive status line with timestamp, exact Preview origin and account realm, plus an explicit next action. This alone is **not** Phase 3 complete.
 
 **Next:** Phase 3B deterministic inbound ordering, duplicate-event recovery, ownership/STOP, delivery ambiguity, Prospect 360 evidence and confirmed follow-up tests; Phase 3C separate approval for any external provider change or canary.
+
+
+## Phase 3A observed result and Phase 3C decision packet — 2026-10-12
+
+**Operator-submitted no-send status** from the isolated Preview:
+- `outbound_configured=true`, `sender_ready=true`
+- `webhook_configured=false`, `connected=false`
+- `connection_state=sender_ready_webhook_unconfigured`
+- `subscription_active=false`, `subscription_health=missing`, `recovery_status=unknown`
+- `provider_environment=production`
+- `missing_config_keys=[RINGCENTRAL_WEBHOOK_URL, RINGCENTRAL_WEBHOOK_VALIDATION_TOKEN]`
+- `sends=0`
+
+**Result: PHASE3A_CONFIG_BLOCKED.** This closes status discovery, not inbound/provider certification. Credentials and the assigned SMS sender work; inbound notification registration is absent. No new send or provider mutation occurred.
+
+### The decision that precedes Cloudflare configuration
+
+**Default recommended lane: isolate RingCentral account too.** Use a separately authorized RingCentral sandbox/test account and test sender/campaign where supported, with Preview-only secrets and an externally reachable test webhook that cannot ingest production messages. Confirm capability/limits of that account before treating it as a meaningful deliverability test. A sandbox test does not certify production carrier throughput.
+
+**Alternative, requiring explicit separate approval:** Carefully scoped production-RingCentral-account canary using operator-controlled recipients, after inspecting existing active subscriptions and account/extension scope and understanding whether a new subscription routes **all real account SMS events** to Preview. RingCentral subscription creation requires publicly reachable HTTPS and validation handshake. The existing `handleRingCentralSubscription` **always invokes `createOrRenewRingCentralSmsWebhook` with forceRenew**, and on success invokes `recoveryAfterReconnect`: this may trigger provider-side changes and replay real recent history into the configured D1. Do not invoke it merely to see if the fields are filled in.
+
+**Needed Cloudflare settings, only after the selected lane is approved:**
+1. `RINGCENTRAL_WEBHOOK_URL`: full, externally reachable HTTPS callback URL whose path is `/api/sms/ringcentral/webhook`, wired to the intended isolated environment. Choosing a stable hostname vs immutable deployment depends on whether the callback remains live during subsequent deployments; neither should silently switch to an unreviewed build.
+2. `RINGCENTRAL_WEBHOOK_VALIDATION_TOKEN`: independent strong random secret for subscription validation, configured as encrypted Cloudflare Preview-only secret and supplied to the RingCentral subscription **by the existing code**. This is **not** the RingCentral JWT, producer bearer or the distinct provider Verification-Token.
+3. Preview account credentials: for the recommended sandbox lane, client ID, client secret, JWT, server URL, from-number and conversation hash secret must all belong to/isolate that sandbox account; never assume a production from-number works in sandbox.
+4. Verify correct Preview/Production D1 binding UUIDs and whether the selected webhook endpoint is accessible by RingCentral without browser authentication challenge, within the 3-second webhook validation deadline.
+5. After separate approval, redeploy Preview, check `GET /api/sms/ringcentral/status` again. **Do not click Create/Renew** until a second explicit authorization specifies expected history recovery and live-account impact.
+
+**Phase 3B can proceed without this decision:** automated tests covering invalid webhook validation, replaying identical IDs, STOP/CONTROL, manual takeover, out-of-order provider history, bounded recovery on partial failure, and ambiguous delivery. The provider canary and integration into Prospect 360/renewal remain gated.
+
+**Owner attention request (one choice only):** isolate provider via sandbox/test account where supported (recommended), or request an explicit risk review of existing production account integration. No secrets, phone numbers or webhook URLs should be pasted into chat.
+
