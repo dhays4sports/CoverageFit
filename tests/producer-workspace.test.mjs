@@ -239,3 +239,45 @@ test('Command Center Preview route uses existing Attention and Signal and does n
   assert.equal(JSON.stringify(v).includes('COVERAGEFIT_PRODUCER_ACCESS_TOKEN'),false);
  }finally{f.sql.close();}
 });
+
+test('Prospect 360 is producer-authenticated and default-off; source renewal is unverified',async()=>{
+ const f=prepared();try{
+  const auth={Authorization:'Bearer '+f.env.COVERAGEFIT_PRODUCER_ACCESS_TOKEN};
+  const base='https://coveragefit.test/api/solo-desk/prospect-360?id=one';
+  const disabled=await handleSoloDesk({request:new Request(base,{headers:auth}),env:f.env});
+  assert.equal(disabled.status,404);
+  f.env.CF_PROSPECT_360_READONLY_ENABLED='1';
+  source(f,'one','lead',{rawFacts:{renewal_date:'2026-11-15'}});
+  const unauth=await handleSoloDesk({request:new Request(base),env:f.env});assert.equal(unauth.status,401);
+  const response=await handleSoloDesk({request:new Request(base,{headers:auth}),env:f.env,now:new Date('2026-10-12T12:00:00Z')});
+  assert.equal(response.status,200);const view=await response.json();
+  assert.equal(view.facts.renewal.verification,'imported_unverified');
+  assert.equal(view.facts.renewal.lifecycle,'CANDIDATE');
+  assert.equal(view.facts.renewal.sms_send_authorized,false);
+  assert.equal(view.limitations.no_new_identity_merge,true);
+ }finally{f.sql.close();}
+});
+test('SMS selected review API stays default-off, rejects malformed sets and never grants sending',async()=>{
+ const f=prepared();try{
+  const base='https://coveragefit.test/api/solo-desk/producer-approval-preflight?ids=one';
+  const auth={Authorization:'Bearer '+f.env.COVERAGEFIT_PRODUCER_ACCESS_TOKEN};
+  const req=x=>new Request(x,{headers:auth});
+  f.env.CF_ATTENTION_ENABLED='1';
+  f.env.CF_COMMAND_CENTER_READONLY_ENABLED='1';
+  assert.equal((await handleSoloDesk({request:req(base),env:f.env})).status,404);
+  f.env.CF_SMS_REVIEW_READONLY_ENABLED='1';
+  assert.equal((await handleSoloDesk({request:req(base+'%2C'),env:f.env})).status,422);
+  source(f,'one','district_pilot_v1',pilot('SIGNAL'));
+  await f.store.setJSON('sms-live-conversations/'+cid,{id:cid,signal:signal(),transcript:[]});
+  const result=await handleSoloDesk({request:req(base),env:f.env});
+  assert.equal(result.status,200);
+  const data=await result.json();
+  assert.equal(data.items.length,1);
+  assert.equal(data.items[0].can_review,true);
+  assert.equal(data.items[0].current_revision,1);
+  assert.equal(data.items[0].can_send,false);
+  assert.equal(data.items[0].can_approve,false);
+  const noAuth=await handleSoloDesk({request:new Request(base),env:f.env});
+  assert.equal(noAuth.status,401);
+ }finally{f.sql.close();}
+});
