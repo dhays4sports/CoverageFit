@@ -5,7 +5,9 @@
 */
 (async () => {
  'use strict';
- const HOST='__PREVIEW_HOST__',HEAD='__EXPECTED_HEAD__',RUN='__RUN_ID__';
+ const HOST='__PREVIEW_HOST__';
+ const HEAD='__EXPECTED_HEAD__';
+ const RUN='__RUN_ID__';
  const id=k=>'qa-'+RUN+'-'+k,cc=k=>'qa-'+RUN+'-cc_'+k;
  const names=['ask_one_question','call','due_callback','due_appointment','stop','opt_out','control','test_excluded','tentative_calendar'];
  const ccNames=['review_pending','renewal_verified','renewal_conflict'];
