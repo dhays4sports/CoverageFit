@@ -3,7 +3,7 @@
 // This script never calls Cloudflare, RingCentral, a database or any provider.
 import {generatePreviewFixturePackage} from './prepare-producer-action-preview-fixtures.mjs';
 import {createHash,randomUUID} from 'node:crypto';
-import {writeFile,mkdir} from 'node:fs/promises';
+import {writeFile,mkdir,readFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 const q=v=>"'"+String(v).replaceAll("'","''")+"'";
@@ -73,8 +73,16 @@ async function main(){
  await mkdir(out,{recursive:true,mode:0o700});
  await writeFile(resolve(out,'command-center-unified-fixtures.sql'),result.sql,{mode:0o600});
  await writeFile(resolve(out,'command-center-unified-manifest.json'),JSON.stringify(result.manifest,null,2)+'\n',{mode:0o600});
+ if(args['preview-host']){
+  if(!/^[a-f0-9]{8}\\.coveragefit\\.pages\\.dev$/.test(args['preview-host']))throw Error('invalid_immutable_preview_host');
+  const template=await readFile(new URL('./command-center-combined-browser-check.template.js',import.meta.url),'utf8');
+  const filled=template.replaceAll('__PREVIEW_HOST__',args['preview-host'])
+   .replaceAll('__EXPECTED_HEAD__',args.head).replaceAll('__RUN_ID__',result.runId);
+  await writeFile(resolve(out,'command-center-browser-check.txt'),filled,{mode:0o600});
+ }
  console.log(JSON.stringify({status:'OFFLINE_FIXTURE_READY',records:Object.keys(result.fixtures).length,
   sql_path:resolve(out,'command-center-unified-fixtures.sql'),manifest_path:resolve(out,'command-center-unified-manifest.json'),
+  browser_check:args['preview-host']?resolve(out,'command-center-browser-check.txt'):'requires_exact_preview_hostname',
   provider_calls:0,database_changes:0},null,2));
 }
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url))main().catch(e=>{
