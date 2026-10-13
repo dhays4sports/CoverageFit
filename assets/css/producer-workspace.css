@@ -19,3 +19,18 @@
 @media(max-width:760px){.command-center{padding:12px}.cc-top{align-items:stretch;flex-direction:column}
 .cc-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.cc-list{grid-template-columns:1fr}
 .cc-row{min-height:88px}.cc-tabs button{min-height:44px;flex:1}}
+
+
+/* PROSPECT360 + SMS-REVIEW-READONLY-0.1 — no-send, accessible small panels. */
+.cc-prospect-preview{margin:14px 0;border:1px solid #cbd7e0;border-radius:10px;padding:14px;background:#f8fbfe;overflow-wrap:anywhere}
+.cc-prospect-preview h3{margin:0 0 8px}.cc-prospect-preview details{margin:8px 0}
+.cc-review{grid-column:1/-1;border-top:1px solid #dce5ec;padding-top:14px}
+.cc-review h3{margin:0 0 6px}.cc-review-pick{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0}
+.cc-review-option{display:flex;align-items:flex-start;gap:9px;border:1px solid #dbe3ea;border-radius:8px;margin:0;padding:10px}
+.cc-review-option input{width:19px;height:19px;flex-shrink:0;margin:3px 0 0}.cc-review-option strong,.cc-review-option small{display:block;overflow-wrap:anywhere}
+.cc-review-option small{font-size:12px;color:#536879;font-weight:400}.cc-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.cc-reviewed{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:16px 0}
+.cc-reviewed>p{grid-column:1/-1}.cc-reviewed-item{background:#f7f9fc;border:1px solid #dce5ec;border-radius:8px;padding:12px;min-width:0}
+.cc-reviewed-item label{font-size:13px;font-weight:700}
+.cc-reviewed-item textarea{font-size:14px;width:100%;min-height:92px;margin-top:8px}
+@media(max-width:760px){.cc-review-pick,.cc-reviewed{grid-template-columns:1fr}.cc-actions button{min-height:44px}}

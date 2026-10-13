@@ -91,5 +91,5 @@ export async function commandCenterPreview(repo,env){
   new URLSearchParams({population:'ALL',status:'open',sort:'recommended'}),
   {allRecords:true}
  );
- return projectCommandCenter(work);
+ return {...projectCommandCenter(work), review_readonly_enabled:env.CF_SMS_REVIEW_READONLY_ENABLED==='1'};
 }

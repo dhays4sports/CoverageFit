@@ -1,5 +1,22 @@
 # CoverageFit Current State
 
+## Command Center 0.2 — Prospect 360, SMS review and SHADOW implemented — 2026-10-12
+
+**Active development branch/PR:** Draft PR #15 (`feature/prospect360-sms-review-shadow-20261012`) is stacked on draft Command Center PR #14, itself stacked on accepted-Preview Action Quality draft PR #12. **No merges, production releases, SMS sends, provider subscription mutations or Cloudflare setting changes were performed.**
+
+**Ordered delivery:**
+1. **Prospect 360 / Renewal Intelligence 0.1** — source-linked read-only fact projection (`server/prospect-360-readonly.mjs`) and optional existing-Workspace detail rail. Existing UCP identity links are reused without phone-based auto-merge; structured verification evidence can mark date confirmed, raw imports/SMS remain provisional, conflicts do not auto-resolve, dates in the past go stale and no timing establishes contact permission. Default-OFF `CF_PROSPECT_360_READONLY_ENABLED`, authenticated `GET /api/solo-desk/prospect-360?id=...`.
+2. **Selected SMS Review 0.1** — bounded 1–10 current SIGNAL draft snapshots with revision, STOP/CONTROL/takeover/delivery review guards, local multi-edit textarea; **no save, send, bulk send or approval POST endpoint**. Default-OFF `CF_SMS_REVIEW_READONLY_ENABLED` plus existing Command Center flag; authenticated `GET /api/solo-desk/producer-approval-preflight?ids=...`. Every snapshot explicitly lacks send authority.
+3. **Engagement SHADOW 0.1** — pure deterministic qualification/follow-up proposal simulator, including 100-synthetic-prospect exercise. TEST, CONTROL, STOP, third-party/purchased acquisition, unverified campaign route and permission block any SMS proposal. Even eligible synthetic scenarios never call a provider, write state or send; this is **not an operational background worker**.
+
+**Validation:** Final implementation including the escaped-HTML review regression passed **536/536 tests, zero failures**, on head `dbaaa82f1aabaf917b00d3930d9dc399875902f5` (GitHub Actions [38333749315](https://github.com/dhays4sports/CoverageFit/actions/runs/38333749315)). This documentation-only update will have a separate exact-head CI result.
+
+**Outstanding gates:** No hosted acceptance of new 0.1 views or newly wired Preview flags; no durable customer-confirmed renewal correction/write process; no positive message-specific consent ledger; no end-to-end live provider inbox, delivery receipt or send idempotency certification for batch approvals. Existing Phase 3 webhook blocker (`RINGCENTRAL_WEBHOOK_URL` and `RINGCENTRAL_WEBHOOK_VALIDATION_TOKEN` absent on accepted Preview with production RingCentral realm) is **deferred for a consolidated separately approved setup**. Neither this development nor a SHADOW simulation lifts it.
+
+**Contract/details:** `docs/COVERAGEFIT-PROSPECT360-REVIEW-SHADOW-0.1.md`. No owner action required for this draft implementation; continue test-only engineering and batch consequential decisions.
+
+---
+
 ## Command Center Today + Inbox 0.1 implemented as default-off read-only draft — 2026-10-12
 
 **Parallel Phase 3 product slice:** Draft PR #14 (`feature/command-center-today-inbox-readonly-20261012`) is **stacked on draft PR #12** and adds a small, real Today/Inbox panel inside canonical `/agent/workspace/`. This is development, **not production activation**. It reuses existing governed `producerWorkspace.list`, Attention, Producer Action Quality, Signal SMS drafts and identity; no second CRM, message transport or profile database. The default-off flag is `CF_COMMAND_CENTER_READONLY_ENABLED=1` (absent/off by default), and Attention must be enabled for meaningful output.

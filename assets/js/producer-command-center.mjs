@@ -1,4 +1,5 @@
 // COMMAND-CENTER-TODAY-INBOX-0.1 — small read-only view in canonical Workspace.
+import {selectableReview,selectedReviewHTML} from './sms-review-panel.mjs?v=0.1';
 const esc=v=>String(v??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));
 const label={NOW:'Now',TODAY:'Today',HIGH:'High intent',UPCOMING:'Upcoming',WAITING:'Waiting',NORMAL:'Review'};
 function row(r,mode){
@@ -18,7 +19,8 @@ function row(r,mode){
 }
 export function mountCommandCenter(root,api,open){
  if(!root)return {refresh:async()=>{}};
- let state=null,active='today',request=0,attempted=false;
+ let state=null,active='today',request=0,attempted=false,reviewRequest=0;
+ const selected=new Set();
  function render(){
   if(!state?.enabled){root.hidden=true;return;}
   root.hidden=false;
@@ -40,6 +42,7 @@ export function mountCommandCenter(root,api,open){
    </div>
    <div class="cc-list" aria-live="polite">${rows.length?rows.map(r=>row(r,active)).join(''):
       '<p class="muted">No matching governed actions in this preview.</p>'}</div>
+   ${active==='inbox'&&state.review_readonly_enabled?selectableReview(state.inbox,selected):''}
    <p class="cc-note">Source: existing CoverageFit Work. Inbox shows linked SIGNAL decisions only;
    <b>live RingCentral inbound synchronization is not certified.</b>
    Drafts shown here cannot be sent from this panel. Consent and sender eligibility are not evaluated.</p>
@@ -51,7 +54,30 @@ export function mountCommandCenter(root,api,open){
   if(button.dataset.ccId){open(button.dataset.ccId);return;}
   if(button.dataset.ccTab){active=button.dataset.ccTab;render();return;}
   if(button.hasAttribute('data-cc-refresh'))refresh();
+  if(button.hasAttribute('data-cc-clear')){selected.clear();render();}
+  if(button.hasAttribute('data-cc-review')){void reviewSelected();}
  });
+ root.addEventListener('change',e=>{
+  const box=e.target.closest('[data-cc-select]');if(!box)return;
+  const id=box.dataset.ccSelect;
+  if(box.checked){if(selected.size>=10){box.checked=false;return;}selected.add(id);}else selected.delete(id);
+  const counter=root.querySelector('[data-cc-selected-count]');if(counter)counter.textContent=selected.size+'/10 selected';
+  const button=root.querySelector('[data-cc-review]');if(button)button.disabled=selected.size===0;
+ });
+ async function reviewSelected(){
+  const button=root.querySelector('[data-cc-review]');
+  const output=root.querySelector('#cc-selected-preview');
+  if(!state?.review_readonly_enabled||!selected.size||selected.size>10||!output||!button)return;
+  const ticket=++reviewRequest;
+  button.disabled=true;output.textContent='Checking current drafts; no send will occur…';
+  try{
+   const ids=[...selected].sort().join(',');
+   const snapshot=await api('producer-approval-preflight?ids='+encodeURIComponent(ids));
+   if(ticket!==reviewRequest||!root.contains(output))return;
+   output.innerHTML=selectedReviewHTML(snapshot);
+  }catch{if(ticket===reviewRequest&&root.contains(output))output.textContent='Review unavailable. No drafts saved or messages sent.';}
+  finally{if(ticket===reviewRequest&&root.contains(button))button.disabled=false;}
+ }
  async function refresh(){
   attempted=true;
   const ticket=++request;
