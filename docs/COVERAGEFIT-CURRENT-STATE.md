@@ -1,5 +1,170 @@
 # CoverageFit Current State
 
+## Phase 3A observed RingCentral status: webhook configuration blocked — 2026-10-12
+
+**Operator-observed sanitized authenticated GET** from the accepted immutable CoverageFit Preview (reported 2026-10-12):
+
+```json
+{
+  "outbound_configured": true,
+  "webhook_configured": false,
+  "sender_ready": true,
+  "connected": false,
+  "connection_state": "sender_ready_webhook_unconfigured",
+  "subscription_active": false,
+  "subscription_health": "missing",
+  "recovery_status": "unknown",
+  "provider_environment": "production",
+  "missing_config_keys": [
+    "RINGCENTRAL_WEBHOOK_URL",
+    "RINGCENTRAL_WEBHOOK_VALIDATION_TOKEN"
+  ],
+  "sends": 0
+}
+```
+
+**Phase 3A finding:** outbound credentials and the configured RingCentral sender's SMS capability are present, but the Preview environment has **neither a webhook URL nor a webhook validation token**. No matching active subscription can be established from this state, so inbound events, recovery, and end-to-end bidirectional synchronization are **NOT CERTIFIED**. This is a configuration/subscription blocker, not an instruction to rebuild the transport.
+
+**Critical account boundary:** `provider_environment=production` is the **RingCentral API account realm** used by Preview. It does **not** mean CoverageFit itself is deployed to Production, but creating a subscription from Preview in this realm may affect real account events, historical data and automatic recovery. Prefer separate sandbox/test RingCentral credentials and a publicly accessible isolated webhook endpoint, or prepare a separately approved production-account canary plan. Do not change the existing production sender/subscriptions or blindly register an unreviewed Preview URL.
+
+**Existing implementation:** `RINGCENTRAL_WEBHOOK_URL` must be a publicly reachable absolute HTTPS endpoint handled at `/api/sms/ringcentral/webhook`. The configured `RINGCENTRAL_WEBHOOK_VALIDATION_TOKEN` is an operator-generated **server secret used as RingCentral's developer validation token**, not the RingCentral JWT, producer access key or the provider's separate Verification-Token header. Never print token values. RingCentral validates new webhooks by pinging the URL and requiring a prompt HTTP 200 with echoed `Validation-Token`. Existing `handleRingCentralSubscription` is a **POST that may create/renew a real provider subscription and start history recovery**; do not invoke it from a read-only diagnosis.
+
+**Next Phase 3B/3C actions:**
+1. Run local deterministic security/regression checks for webhook validation, replay/idempotent inbound, STOP/CONTROL/ownership, missing/out-of-order history and no blind outbound retry.
+2. Prepare **one operator decision**: isolated RingCentral sandbox/test account vs approved controlled production-account integration, webhook hostname/route and sender identity, current subscriptions collision review, whether history recovery needs to be disabled/bounded for an initial canary, rollback procedure, and Cloudflare Preview-only binding/secret plan.
+3. After explicit approval, configure only the intended environment, redeploy, use read-only status to reconfirm the newly configured sender and webhook; then separately approve provider subscription POST and an operator-controlled SMS canary.
+4. Until then: **NO SEND, NO SUBSCRIPTION MUTATION, NO SECRET CHANGE, NO PRODUCTION MERGE**, and no claim that live inbound sync is operational.
+
+**Operator workload:** no further Cloudflare verification work requested until the single account/sender-route decision is resolved. Source: user's redacted Phase 3A status JSON in conversation, not independently observed external dashboard state.
+
+---
+
+## Phase 3A RingCentral no-send preflight prepared — 2026-10-12
+
+**Current state:** Phase 2 Producer Action Quality hosted functional and desktop/mobile visual acceptance is operator-accepted. Phase 3 is ACTIVE. GitHub code audit confirms existing `handleRingCentralStatus`, `handleRingCentralSubscription`, `handleRingCentralWebhook`, `runRingCentralRecovery`, `sms-outbound-gateway` and safety/ownership code must be preserved, not reimplemented.
+
+**New no-send engineering slice:** `scripts/phase3-ringcentral-readiness.mjs` projects a bounded, secret-free status from the existing authorized `GET /api/sms/ringcentral/status`; `tests/phase3-ringcentral-readiness.test.mjs` checks redaction, config gaps, sender/subscription mismatch, and unusable API status. The operator procedure and self-contained Chrome console GET snippet are in `docs/COVERAGEFIT-PHASE3-RINGCENTRAL-READONLY-CHECK-1.0.md`.
+
+**What has NOT happened:** No Preview RingCentral account/status GET has yet been observed in this phase, no subscription renewal/creation, no provider recovery replay, no controlled sender/inbound canary, no real message, no Cloudflare provider/secret setting change, and no PR merge. Existing historical `sender_ready_webhook_unconfigured` is not today's status. The Phase 3A operator should check the **same immutable authenticated Preview** used for Phase 2, `ee3f966a.coveragefit.pages.dev`, and share only the sanitized report fields.
+
+**Next**: obtain operator's read-only Phase 3A status snapshot, triage missing webhook/subscription/provider configuration; then run deterministic Phase 3B replay/STOP/ownership/recovery tests before asking for any provider writes or live canary.
+
+---
+
+## Phase 2 Producer Action Quality accepted; Phase 3 now active — 2026-10-12
+
+**Decision:** Phase 2 **HOSTED-CERTIFIED (operator-attested Preview)** for the existing **Producer Action Quality** surface. The principal explicitly confirmed all remaining visual checks passed on the tested Preview: desktop layout, mobile viewport, correctly presented WHY NOW / DO / EVIDENCE, STOP and opt-out suppression, CONTROL isolation, and synthetic TEST exclusion. This closes the Phase 2 **functional/visual acceptance gate** and advances the program execution focus to Phase 3.
+
+**Evidence chain:**
+- Hosted immutable Preview: `https://ee3f966a.coveragefit.pages.dev/agent/workspace/`; tested deployment head `1bb773debb339b595e5b39a9f53f35ac0f1850a5` (the browser runner contained this expected head and Cloudflare's PR deployment notification identified `1bb773d` at this Preview). A constant embedded in the browser checker is not independent cryptographic proof of served content.
+- Operator-run console checker: `COVERAGEFIT_PHASE2_RESULT` `status=PASS`, `passed=9`, `checked=9`, `failures=[]`, `authorization=401_verified`, `sends=0`; the intentionally unauthenticated API request returned HTTP 401.
+- Nine scenarios: `ask_one_question`, `call`, `due_callback`, `due_appointment`, `stop`, `opt_out`, `control`, `test_excluded`, `tentative_calendar`; list/detail agreement and provenance were checked using fictional fixtures.
+- Principal's visual acceptance: direct user attestation that **desktop, mobile, STOP, CONTROL and synthetic TEST exclusion passed**, October 12, 2026.
+- D1 isolation is **operator-attested only** through the browser confirmation prompt and prior manual steps; database binding UUIDs have **not** been independently observed by ChatGPT. This evidentiary qualification remains in the release record.
+- Full CI at PR #12 head before this note: `03e1a5355d7c3f7a99177d61fe45a9fcf2dbc36a` passed. New documentation revisions require separate exact-head checks.
+
+**Scope of acceptance:** hosted **read-only producer decision display and governed interpretation** in the isolated Preview, *not* RingCentral inbound/outbound live delivery, provider webhook subscription, durable end-to-end customer conversion, external message approval, calendar/API writes, production database binding review, auth redesign, or district rollout. This decision **does not** authorize merging PR #7/#12 or changing flags/secrets/deployments in Production. The code remains on review branches until a separate integration and release decision.
+
+**Phase 3 active — RINGCENTRAL-INBOUND + LEAD-TO-FOLLOW-UP-LOOP:** Continue the verified current code rather than reimplement transport. First obtain read-only provider/configuration/status evidence (without exposing credentials or customer information). Audit RingCentral `GET` status vs actual subscription, webhook validation and durable inbound projection. Then certify simulated duplicate/out-of-order messages, STOP and takeover, delivery acknowledgment, failure/timeout/reconciliation, commitments and AgencyZoom ownership. Only after separate explicit permission and proper Preview isolation should any subscription creation/renewal (`POST`), recovery replay (`POST`), controlled real operator SMS or live-config mutation be attempted. Capture one end-to-end trace:
+`source intake → identity/consent/cohort → inbound/provider event → profile evidence → SIGNAL → Attention/Action Quality → producer-reviewed action → provider receipt → durable follow-up → verified outcome`.
+
+**North Star priority:** maintain Today/Inbox/Approvals, Prospect 360/renewal, bulk acquisition and permissioned SMS SHADOW engineering as the agreed product target; don't pause safe parallel design. Actual autonomous sends remain off pending owner/provider approval and separate positive eligibility evidence.
+
+**Next operator request:** None for the completed Phase 2 functional gate. Phase 3 should start with read-only inspection/tests and batch any genuinely consequential provider/configuration decisions into one approval packet.
+
+---
+
+## Phase 2 hosted acceptance: nine synthetic scenarios PASS — 2026-10-12
+
+**Operator-supplied browser evidence (17:30 PDT):** In Chrome DevTools on immutable Cloudflare Pages Preview `https://ee3f966a.coveragefit.pages.dev/agent/workspace/`, the authenticated synthetic certification checker printed `COVERAGEFIT_PHASE2_RESULT` with `status: PASS`, `passed: 9`, `checked: 9`, `failures: []`, `sends: 0`. The browser displayed PASS for: `ask_one_question`, `call`, `due_callback`, `due_appointment`, `stop`, `opt_out`, `control`, `test_excluded`, and `tentative_calendar`.
+
+**Auth boundary:** The browser's `401 Unauthorized` for an intentionally unauthenticated `GET /api/solo-desk/producer-work` is **expected** and the checker recorded `authorization: 401_verified`. This is evidence the route denied a request without the producer bearer credential, not an application failure.
+
+**Provenance and deployment:** The run's embedded expected head was `1bb773debb339b595e5b39a9f53f35ac0f1850a5`, matching the then-reported PR #12 Cloudflare deployment on `ee3f966a.coveragefit.pages.dev`. The checker validated fixture source/run markers, fictional names, reserved test contacts, list/detail parity and positive Attention flag. Preview D1 isolation is **operator-attested** by the confirmation prompt, **not independently inspected by ChatGPT**; treat exact D1-binding UUID evidence separately.
+
+**Scope limits:** This was GET-only browser API certification; the existing GET handlers can refresh internal Workspace projections. No outbound SMS, calendar writes, AgencyZoom writes or production activation was tested or authorized. The result does **not** certify RingCentral bidirectional live webhook/delivery, autonomous messages, purchased-lead outreach, or the proposed Today/Inbox/Bulk Approval UI.
+
+**Remaining Phase 2 release gate:** Brief operator visual review of the existing `/agent/workspace/` Work UI on the **same immutable Preview URL** in desktop and mobile widths: WHY NOW / DO / EVIDENCE visible and readable; CALL / ASK_ONE_QUESTION / due actions correct; STOP/opt-out lack send controls, CONTROL has no SIGNAL guidance, TEST excluded; error/empty states, focus/navigation and manual/AI-OFF fallback. If the UI acceptance passes, Phase 2 **Action Quality hosted acceptance** may be marked complete with the operator-isolation qualification. Production merge/flag changes remain separately authorized. Next engineering gate: RingCentral inbound and lead-to-follow-up reliability, followed by approved Today/Inbox UI work.
+
+**Record source:** User-provided screenshot of Chrome console PASS (9/9), October 12, 2026. Do not interpret a browser-side `deployed_commit_operator_verified` constant as a server-origin cryptographic attestation.
+
+---
+
+## Producer Command Center North Star locked — 2026-10-12
+
+**Product-level decision approved by principal:** `docs/COVERAGEFIT-PRODUCER-COMMAND-CENTER-UX-1.0.md` now governs the intended user experience: Today, unified Inbox, efficient multi-message approval, Prospect 360 evidence memory, verified Renewal Intelligence and progressively automated engagement. **Bulk purchased-lead acquisition and permissioned automated SMS are core product requirements**, not optional or indefinitely deferred features. The project remains CoverageFit + SIGNAL; no new competing CRM or SMS sender is authorized.
+
+**Practical engineering interpretation:** continue Phase 2 hosted Producer Action Quality gate and Phase 3 RingCentral inbound reliability. In parallel, allow bounded code/design/testing for purchaser/source lineage, consent/contact authority, import qualification, renewal capture, and no-send SHADOW messaging workflows. Minimize owner interruptions via automated classification and exception-only review. Separately certify provider route/TCR campaign requirements before any live messaging. RingCentral's published current SMS policy disallows purchased/third-party lead list SMS for its SMS solutions; do not assume lead-vendor opt-in bypasses sender restrictions, and do not obscure lead origin. Eligible first-party or otherwise actually authorized contact routes may be pursued under documented provider rules and agency approvals.
+
+**Authority distinction:** This locks the product direction; it does **not** merge PRs, modify Cloudflare/D1 bindings, purchase lead lists, send texts, alter AgencyZoom campaign ownership, or expand production autonomous sending. Latest code state, hosted Preview environment isolation, consent records, sender approvals and performance economics still require independent verification.
+
+---
+
+## Producer Command Center 1.0 UX implementation proposal — 2026-10-12
+
+A review-only design has been added at `docs/COVERAGEFIT-PRODUCER-COMMAND-CENTER-UX-1.0.md` in the active PR #12 development lane. It specifies Today, Inbox, multi-select **individually governed** SMS approvals, the Prospect 360 evidence/renewal substrate, mobile/desktop interactions, feature-flag sequence, and release gates. It reuses existing Producer Workspace, Opportunity/Attention/Action Quality, Signal Decision 2, consent/ownership and the current SMS gateway; **no new sender, production route, mutation endpoint or automation activation is implemented by this document**.
+
+Important product decision for review: RingCentral US SMS policy prohibits purchased and third-party-generated lead lists for SMS, even where vendors assert opt-in. Buying/importing leads is distinct from documented recipient permission and sender/campaign authority; default unknown permission to NO_SEND for new selected approvals/automation. Batch approvals must recheck consent, source provenance, STOP, ownership and revisions independently for every item. These controls and user testing must be certified before external write authority expands.
+
+**Execution order unchanged:** complete isolated Phase 2 Action Quality acceptance, certify inbound provider state, then build Today/Inbox as read-only and finally propose separately approved SMS batch writes. Prospect/renewal fact projection can proceed in parallel without provider authority expansion. Source of truth remains Master Roadmap 2.0 and current repository/provider evidence. This design is NOT live.
+
+---
+
+## Phase 2 Step 3 fixture package — 2026-10-12
+
+**Code prepared, not remotely executed.** PR #12 now contains `scripts/prepare-producer-action-preview-fixtures.mjs` and `tests/producer-action-preview-fixtures.test.mjs`. The offline generator emits replay-safe INSERT-only SQL and a private manifest (schema 1.1) for nine controlled synthetic scenarios. It requires an explicit workspace ID and exact 40-character Preview deployment SHA; the SQL does not call providers, create real calendar events, or send communications.
+
+**Validation:** The generated SQL was executed twice against real repository migrations in an in-memory SQLite integration test and the authentic `producerWorkspace` list/detail produced all nine expected certification outputs. GitHub CI on `2ffaf42e7d7164e9df7592c478268d12fd62d436` passed **497/497**, zero failures ([run 38313729386](https://github.com/dhays4sports/CoverageFit/actions/runs/38313729386)). Documentation commits afterward require fresh exact-head checks.
+
+**Operator-only next step:** Use `docs/PRODUCER-ACTION-PREVIEW-FIXTURES-STEP3.md` to paste the generated SQL into the *verified isolated Preview D1 Console only*, checking database UUID and workspace ID first. Obtain a marker count of 9. The authenticated Preview acceptance runner remains **unexecuted against Cloudflare**, and Phase 2 remains **BLOCKED** until isolated hosted PASS plus UI review. A successful Cloudflare build or in-memory test does not substitute for D1-console insertion/certification. Do not ask ChatGPT to bypass Cloudflare's verification checkpoint.
+
+---
+
+## Phase 2 synthetic fixture-provenance gate — 2026-10-12
+
+**Certification-tool safeguard added on PR #12, after the previous 488-test head:** The preview runner must not accept the manifest's `synthetic_only` declaration as evidence that an opportunity is synthetic. It now requires an explicit per-record `preview_cert_fixture_v1` source marker matching a `run_id` and scenario, a fictional contact name and test-only phone/email values. It additionally checks true TEST provenance for the excluded fixture and actual DISTRICT_CONTROL classification. Only immutable 8-hex Pages Preview hosts are accepted. Nine fixture detail records are provenance-checked before scanning the broader Work list.
+
+**Validation:** Current runtime changes at `4bfc9c74a042932e626e41127e68b39022e6323e` passed **492/492** Node.js tests, with no failures ([GitHub run 38311795821](https://github.com/dhays4sports/CoverageFit/actions/runs/38311795821)). Subsequent documentation changes are not automatically covered by that historical exact head; consult the newest workflow run.
+
+**Remaining blocker:** Independent Cloudflare D1 Preview/Production isolation verification and operator-controlled Preview fixture construction are still required before the runner's hosted acceptance can be claimed. The per-record marker is **not** cryptographic authorization or proof of isolation. `main` is unchanged; no live customer activity was performed. Follow `docs/COVERAGEFIT-PRODUCER-ACTION-QUALITY-1.0.md` for the manifest schema 1.1 and safe operator procedure.
+
+---
+
+## Phase 2 Preview acceptance automation — 2026-10-12
+
+**Master Roadmap 2.0:** Phase 1 runtime integration and Phase 2 producer-decision certification remain the active lane. The canonical release checklist is `docs/COVERAGEFIT-SIGNAL-OPERATIONAL-GATES-1.0.md`; Producer Action Quality contract and hosted runner instructions are in `docs/COVERAGEFIT-PRODUCER-ACTION-QUALITY-1.0.md`.
+
+**Latest independently reviewed evidence:**
+- Draft PR #12 on `ops/producer-action-quality-parity-20261012` now includes `scripts/certify-producer-action-preview.mjs` and `tests/producer-action-preview-certification.test.mjs`; no second roadmap or separate test repository was created.
+- The runner permits only Cloudflare Pages **Preview subdomains**, blocks redirects and changed/unverified deployment heads, requires explicit recorded Preview/Production D1 isolation, uses a producer credential supplied at execution time and never prints the token, verifies public denial (HTTP 401), and checks list/detail agreement on **nine synthetic-only scenarios**. It sends no SMS or external writes. Its authenticated GET endpoints may refresh internal projection/classification state; **isolation must be confirmed before running**.
+- Exact runtime commit `eb09c66395d5b83651fe3967952ec49efef1444d` passed the Node 24 GitHub Actions suite **488 passed, 0 failed, 0 skipped** ([run 38309924317](https://github.com/dhays4sports/CoverageFit/actions/runs/38309924317)).
+- GitHub's Cloudflare Pages PR comment reports a successful immutable Preview deployment for `eb09c66`: `https://d3c3521f.coveragefit.pages.dev`. This is deployment-event evidence **only**, not authenticated environment/configuration certification.
+
+**Blocking operator evidence:** current Preview D1 database identifier and Production D1 identifier are independently verified distinct, actual Preview flags are known, appropriate synthetic noncustomer fixture IDs exist, and the authenticated acceptance runner plus browser keyboard/mobile review complete on the exact deployed SHA. Neither the assistant's public web access nor the available connected tools can inspect those private Cloudflare settings or establish a logged-in browser session. No customer data, real messages, production configuration or live control cohorts were used here.
+
+**Next action:** Complete isolated Cloudflare Preview verification and one certified run of the existing script against nine controlled fixture identities; capture only its redacted PASS/NO_GO evidence and manual UI checks. If blocked, report the missing condition explicitly and do not attempt unsafe production fallbacks. Then return to Phase 3 RingCentral inbound/lead-to-follow-up certification. PR #12 remains draft and unmerged until release authority is separately granted.
+
+---
+
+## Master Roadmap 2.0 execution handoff — 2026-10-12
+
+**Canonical plan:** [docs/COVERAGEFIT-NEAR-TERM-PRODUCER-ROADMAP-1.0.md](COVERAGEFIT-NEAR-TERM-PRODUCER-ROADMAP-1.0.md), see **Executive execution map — CoverageFit + SIGNAL Master Roadmap 2.0 (2026-10-12)** at the top. It is the approved reference for phase order; later architectural detail in that same file remains valid unless explicitly reconciled. Do not create a separate competing roadmap.
+
+**Current release lane:** Phase 1 consolidation -> Phase 2 hosted Producer Action Quality certification -> Phase 3 lead/communication/commitment reliability -> Phase 4 daily producer dogfood -> Phase 5 SIGNAL economics -> conditional Phase 6 scale and Phase 7 enrichment.
+
+- Production `main` last verified at `5f47f2b7367110ca04ff03cc189983f136ab32fa`, unchanged on the 2026-10-12 audit. Recheck before any integration.
+- Draft PR #7 `signal-copilot` at `ad2915a7889637580505293ce38ab4db66f0a9b3` supplies current Copilot/Attention/Action Quality, including already reconciled district-promotion CAS safety.
+- Draft PR #12 is stacked on #7, at least through **runtime head `83a6bd1faaed94a8aba57623711e8500eaf9c864`**, where Node 24 full CI passed **475/475**, 0 failed, 0 skipped ([run 38307468735](https://github.com/dhays4sports/CoverageFit/actions/runs/38307468735)). Its later roadmap documentation commits are **not** automatically included in that historical test claim.
+- Draft PR #11 on `main` is retained as a historical duplicate: its operational certification checklist has now been incorporated into PR #12 as `docs/COVERAGEFIT-SIGNAL-OPERATIONAL-GATES-1.0.md`, and its seven-day assertion was already corrected on PR #7. Do **not** merge PR #11 separately.
+- Draft PR #8 is an old stacked base. The read-only Commitment and Attention portions have been ported/reconciled into #7; calendar write surfaces remain separately gated.
+- Draft PR #9 is a separate off-by-default producer email notification integration; PR #10 is isolated Desktop Copilot, not critical path.
+- GitHub-only review has **not** certified the newest code in Cloudflare hosted isolated Preview, current RingCentral inbound subscription, production flags/bindings, or real producer economics. Remain **NO-GO** for live activation/district rollout.
+- Approved seven-day fresh lead window, AgencyZoom cadence ownership, explicit-send review, CONTROL/STOP suppression, and producer attention budget remain mandatory.
+
+**Resume instruction:** Check current refs and exact hosted/config state; read the canonical executive roadmap; execute the earliest unmet certification gate. Do not confuse a green suite with a deployed, production-authorized loop.
+
+---
+
 ## Desktop Copilot parallel-coordination audit — 2026-10-08
 
 CoverageFit canonical development continues on draft PR #7 / `signal-copilot`. The separate Desktop Copilot initiative is visible as draft PR #10 on `feature/coveragefit-desktop-copilot-1.0`.

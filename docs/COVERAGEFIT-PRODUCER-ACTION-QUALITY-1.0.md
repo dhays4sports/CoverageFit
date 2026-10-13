@@ -212,3 +212,119 @@ After the projection is clean, improve **action specificity** without adding new
 - NBA fallback → tighten labels where they remain generic.
 
 Do not add calendar mutation, AgencyZoom mutation, autonomous send, or new provider authority as part of this slice.
+
+## Hosted Preview certification runner — 2026-10-12
+
+**Status:** Implemented and tested as a repeatable acceptance harness; **hosted certification is NOT yet complete**. Run only in an authenticated, confirmed **database-isolated Cloudflare Preview** against synthetic operator-controlled fixtures. The harness does not provision fixtures, inspect Cloudflare secrets/bindings, authenticate the operator, or prove isolation by itself.
+
+### What was added
+
+- `scripts/certify-producer-action-preview.mjs`: Preview-host allowlist and strict fail-closed preconditions; bounded authenticated GETs for the current `producer-work` list (including pagination) and `producer-detail` fixtures; list/detail parity of exact action and why-now evidence; machine-readable redacted PASS/NO_GO results.
+- `tests/producer-action-preview-certification.test.mjs`: offline Node tests for target/origin rejection, exact SHA and isolation attestation, nine required scenarios, STOP/opt-out, CONTROL and TEST safety, unknown calendar behavior, wrong action and mismatched evidence.
+
+**The checker has no POST/PUT/PATCH/DELETE support, makes no AI or SMS requests, and never logs a bearer credential.** However, some existing producer GET handlers can update internal population/projection records as they read. Therefore even these GETs **must not run until D1 Preview/Production isolation has been independently verified**. Calling them "read-only" refers to HTTP methods only, not guaranteed zero internal database mutations.
+
+### Preflight — operator evidence, not an assertion from CI
+
+1. In Cloudflare project `coveragefit`, confirm **exact immutable Preview deployment commit** from Cloudflare deployment detail, and separately confirm Preview D1 database **identifier** differs from Production. A branch alias or successful build is not sufficient.
+2. Confirm Preview contains **no real customer information** and only explicitly approved synthetic fixtures for this run. Never copy production data into Preview to make the tests pass.
+3. Confirm `CF_ATTENTION_ENABLED=1` only in the intended isolated Preview. Retain manual fallback; do not activate customer-facing automation to test recommendations.
+4. Confirm normal producer authorization is available to the operator; do not paste tokens into GitHub, chat, shell history, filenames, or evidence logs.
+5. Record the deployment evidence reference and isolation evidence reference in the local manifest. These are operator attestations; the script will enforce their presence and matching SHA but cannot fetch Cloudflare binding IDs itself.
+
+### Fixture contract
+
+Create or identify **nine distinct, synthetic, Preview-only** opportunities, each with verified provenance and a stable opportunity ID (no real names, phone numbers, or customer messages). Some must be visible in ordinary Work to test parity; the `test_excluded` fixture must use TEST/synthetic pilot provenance and remain excluded. Never mark a visible cohort fixture as real production evidence, and never count these in any real pilot denominators.
+
+| Manifest key | Expected behavior |
+| --- | --- |
+| `ask_one_question` | Action `ASK_ONE_QUESTION`, question evidence, list/detail agree |
+| `call` | Current explicit call → `CALL_CUSTOMER`, consistent action/reason |
+| `due_callback` | Confirmed due callback → `CALL_BACK` |
+| `due_appointment` | Confirmed scheduled appointment due → `PREPARE_OR_HOLD_APPOINTMENT` |
+| `stop` | STOP → `DO_NOT_CONTACT`, `SUPPRESSED` |
+| `opt_out` | Stored consent opt-out → `DO_NOT_CONTACT`, `SUPPRESSED` |
+| `control` | DISTRICT_CONTROL has no Action Quality or Attention guidance |
+| `test_excluded` | TEST/synthetic excluded from list; direct detail auditable with no guidance |
+| `tentative_calendar` | Unconfirmed calendar cannot create a due callback/appointment or NOW/TODAY attention |
+
+### 1.1 synthetic-source verification (mandatory)
+
+The hosted harness no longer trusts `synthetic_only: true` by itself. Each opportunity's authenticated detail response must contain a source record with:
+
+```json
+{
+  "kind": "preview_cert_fixture_v1",
+  "source_id": "qa-marker-unique-to-fixture",
+  "summary": {
+    "suite": "PRODUCER_ACTION_QUALITY_1",
+    "run_id": "qa-certification-20261012",
+    "scenario": "call",
+    "synthetic": true
+  }
+}
+```
+
+The `scenario` must match that fixture's manifest key and `run_id` must match the manifest's run ID. The actual opportunity contact name must begin with `Synthetic QA` or `Synthetic Certification`. Any contact phone must be within reserved `202-555-0100`–`202-555-0199` (with optional +1); any contact email must use `example.invalid` or `example.test`. Prefer empty phone/email wherever possible. A TEST-excluded fixture must also have original `district_pilot_v1` source provenance marked `pilot_phase: TEST`, `is_test: true`, or `synthetic: true`. A CONTROL fixture must have `DISTRICT_CONTROL` classification in both list and detail.
+
+**Important fixture-design distinction:** Most ordinary TEST pilot opportunities are intentionally excluded from the Work list. To test visible scenarios without silently making real opportunities, the operator must create **explicitly marked fictional fixture records inside the verified, isolated Preview database only**, using existing evidence/CRM contracts plus the separate `preview_cert_fixture_v1` source. Do not change production cohort rules to make TEST records appear. No fixture creation, migrations, provider sends or customer contact are authorized by the checker itself.
+
+Before running, independently verify that the target isolated Preview database contains no real customer records. The source marker verifies test intent, **not** a cryptographic guarantee that the record is safe; the operator's D1 isolation check remains mandatory. The checker preflights the nine direct details and validates marker/contact fields **before** scanning the general Work inventory. Its authenticated GETs may still update internal projections, so a production database remains prohibited.
+
+The target URL must be the **immutable 8-hex deployment host**, such as `https://d3c3521f.coveragefit.pages.dev/`, not a branch alias; the exact SHA is separately attested against Cloudflare's deployment record.
+
+### Local manifest (never commit it)
+
+Place a local file such as `preview-qa-private.json` **outside the repository** containing this structure, replacing placeholders with actual Preview fixture IDs and the exact 40-character SHA:
+
+```json
+{
+  "schema_version": "1.1",
+  "synthetic_only": true,
+  "run_id": "qa-certification-20261012",
+  "head": "<exact-40-character-hex-deployment-sha>",
+  "isolation_evidence": "Cloudflare Preview/Production D1 identifiers visually verified different; internal change record ...",
+  "deployment_evidence": "Cloudflare immutable Preview build record and exact commit ...",
+  "fixtures": {
+    "ask_one_question": "qa-cert-ask",
+    "call": "qa-cert-call",
+    "due_callback": "qa-cert-callback",
+    "due_appointment": "qa-cert-appointment",
+    "stop": "qa-cert-stop",
+    "opt_out": "qa-cert-optout",
+    "control": "qa-cert-control",
+    "test_excluded": "qa-cert-test-excluded",
+    "tentative_calendar": "qa-cert-tentative"
+  }
+}
+```
+
+Values above are **illustrative**; the script refuses missing or invalid identities and cannot create them.
+
+### Run in an operator-controlled environment
+
+Set these variables privately without printing their values or putting tokens on the command line:
+
+```text
+CF_PREVIEW_URL=https://<immutable-build>.coveragefit.pages.dev/
+CF_PREVIEW_EXPECTED_HEAD=<exact-40-character-hex-head>
+CF_PREVIEW_DEPLOYED_HEAD=<same-exact-head-as-Cloudflare-deployment-detail>
+CF_PREVIEW_ISOLATION_VERIFIED=1
+CF_PREVIEW_PRODUCER_TOKEN=<Preview-producer-only-secret>
+```
+
+Then execute:
+
+```sh
+node scripts/certify-producer-action-preview.mjs /private/path/preview-qa-private.json
+```
+
+Do **not** run it against `coveragefit.com`, Production D1, an unverified Preview alias, or actual prospect records. The script rejects production hosts, redirects, changed SHA, unverified isolation, missing fixtures, and an off Attention flag. Store the redacted JSON result with the exact deployment evidence. PASS reports that those **synthetic fixtures** met the defined list/detail checks, not that provider writes or customer workflows were exercised.
+
+### Gate decisions
+
+- **PASS**: all nine cases are witnessed on the exact Preview deployed head, with independent operator evidence of D1 isolation, plus manual browser checks for UI presentation, keyboard/mobile, no mistaken permission language and disabled/manual fallback. Only then mark this part of Phase 2 `HOSTED-CERTIFIED`.
+- **NO_GO/BLOCKED**: any unknown binding, missing fixture, unconfirmed deployed SHA, non-401 unauthorized access, inconsistent case, missing/unsafe suppression, unexpected runtime write, or no accessible Preview producer login. Keep draft, do not activate live features.
+- **Out of scope:** sending SMS, receiving RingCentral webhook traffic, creating events, applying migrations, enabling Copilot, turning off AgencyZoom, or merging PRs. Those retain separate release gates.
+
+The latest synthetic CI at first introduction of the runner passed **487 tests**; recheck its latest GitHub Actions run and commit before citing it as current evidence.

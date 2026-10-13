@@ -5,6 +5,30 @@
 **Status:** Product North Star / long-range architectural reference  
 **Date:** 2026-09-20
 
+## Unified Product North Star — 2026-10-12 (principal-approved)
+
+> **CoverageFit is an evidence-driven insurance acquisition and relationship operating system.**
+>
+> **SIGNAL continuously interprets permitted lead and conversation evidence, maintains durable Prospect Profiles, detects buying intent and renewal opportunities, orchestrates compliant engagement, and presents the producer with the highest-value decisions and actions.**
+>
+> **The system maximizes useful conversations, qualified opportunities and written premium while minimizing producer attention, repetitive work and unnecessary customer contact.**
+
+This is the **authoritative operating North Star** for CoverageFit + SIGNAL implementation. It was approved by the principal on October 12, 2026. Preserve the existing long-range consumer-protection vision below as **the consumer-facing projection of the same durable relationship and evidence model**; the producer command center and consumer protection experience are complementary, not competing platforms or divergent profiles.
+
+### Product interpretation — one intelligence spine
+
+- **Acquire:** support repeatable bulk and first-party lead sources, vendor lineage, attribution, deduplication, source economics and unattended exception handling. Buying a lead is not itself permission to contact through every messaging provider.
+- **Accumulate:** build one durable Prospect Profile / Universal Customer Profile using source-linked evidence from leads, SMS, phone-call transcripts, screenshots, documents, email, manual notes and verified outcomes. Unknown and conflicting facts remain explicit.
+- **Remember renewal timing:** distinguish imported/unverified dates, confirmed exact dates, approximate months, stale dates and follow-up commitments. Re-engage only through an eligible contact route.
+- **Prioritize and act:** SIGNAL + Opportunity Priority + Attention + Producer Action Quality answer *who, why now, exact next action and why it is justified*, without confusing lead quality with contact permission.
+- **Operate with minimal owner attention:** a mobile-friendly **Today → Inbox → Approvals → Prospect 360** experience; fast review/edit of multiple drafts with an explicit confirmation and a separate guarded send per eligible recipient. Over time, bounded, authorized automation handles routine qualification and follow-ups; humans focus on exceptions, valuable conversations and binding.
+- **Measure actual business value:** producer minutes per useful conversation; verified renewal coverage; quote/bind conversion and written premium per productive producer hour; cost per eligible, qualified opportunity by source.
+- **Govern safely and visibly:** preserve STOP/suppression, consent and provider-campaign restrictions, identity provenance, AgencyZoom cadence ownership, RingCentral delivery reconciliation and Farmers coverage authority. RingCentral's current US messaging rules bar purchased/third-party lead list SMS; build vendor/route-compatible acquisition without concealing list origin or treating claimed vendor opt-in as universal send permission.
+
+**Implementation source of truth:** `docs/COVERAGEFIT-PRODUCER-COMMAND-CENTER-UX-1.0.md` is the principal-approved producer experience; `docs/COVERAGEFIT-NEAR-TERM-PRODUCER-ROADMAP-1.0.md` defines phase gates; `docs/COVERAGEFIT-CURRENT-STATE.md` tracks verified code and hosted status. This document is authoritative for product intent, **not** blanket authorization to merge PRs, deploy, change provider settings or send customers messages.
+
+---
+
 ## North Star
 
 CoverageFit should ultimately become a **persistent consumer protection-intelligence platform**: a place where a person or household can understand what insurance protection they have, what has changed, what may deserve attention, and what useful action to take next.
