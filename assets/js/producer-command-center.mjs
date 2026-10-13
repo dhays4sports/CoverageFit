@@ -18,7 +18,7 @@ function row(r,mode){
 }
 export function mountCommandCenter(root,api,open){
  if(!root)return {refresh:async()=>{}};
- let state=null,active='today',request=0;
+ let state=null,active='today',request=0,attempted=false;
  function render(){
   if(!state?.enabled){root.hidden=true;return;}
   root.hidden=false;
@@ -53,6 +53,7 @@ export function mountCommandCenter(root,api,open){
   if(button.hasAttribute('data-cc-refresh'))refresh();
  });
  async function refresh(){
+  attempted=true;
   const ticket=++request;
   try{
    const response=await api('producer-command-center');
@@ -65,5 +66,5 @@ export function mountCommandCenter(root,api,open){
    state=null;root.hidden=true;
   }
  }
- return {refresh};
+ return {refresh,ensureLoaded:()=>{if(!attempted)return refresh();}};
 }
