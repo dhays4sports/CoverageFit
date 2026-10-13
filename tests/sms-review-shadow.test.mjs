@@ -12,7 +12,6 @@ const detail=()=>({
 test('selection is bounded to 10 unique, opaque opportunity identifiers',()=>{
  assert.deepEqual(selectedIds('abc,def'),['abc','def']);
  for(const s of ['',null,'one,one',Array.from({length:11},(_,i)=>'s'+i).join(','),'../etc','a'.repeat(200),'x,,y']){
-  if(s==='x,,y')continue; // an empty comma element is ignored, but no item receives authority.
   assert.throws(()=>selectedIds(s),/invalid_selection/);
  }
 });
