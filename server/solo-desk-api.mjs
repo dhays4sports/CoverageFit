@@ -5,6 +5,7 @@ import {pilotReconciliation} from './pilot-reconciliation.mjs';
 import {producerWorkspace} from './producer-workspace.mjs';
 import {commandCenterPreview} from './producer-command-center.mjs';
 import {projectProspect360,readProspectIdentity} from './prospect-360-readonly.mjs';
+import {selectedIds,selectedReviewSnapshot} from './sms-review-readonly.mjs';
 import {rawImporter,syntheticRawRehearsalBatch} from './agencyzoom-import.mjs';
 import {districtPilot} from './district-pilot.mjs';
 import {authorizeProducer} from './consultation-inbox-core.mjs';
@@ -60,6 +61,12 @@ export async function handleSoloDesk(context){
       }
       if(route==='producer-pending-sms')return json({ok:true,...await producerWorkspace(repo,env).pendingSms()});
       if(route==='producer-detail')return json({ok:true,...await producerWorkspace(repo,env).detail(url.searchParams.get('id'))});
+      if(route==='producer-approval-preflight'){
+        if(env.CF_COMMAND_CENTER_READONLY_ENABLED!=='1'||env.CF_SMS_REVIEW_READONLY_ENABLED!=='1')fail(404,'feature_disabled','Selected message review is disabled.');
+        let ids;try{ids=selectedIds(url.searchParams.get('ids'));}
+        catch{fail(422,'invalid_selection','Select between one and ten distinct opportunities.');}
+        return json({ok:true,...await selectedReviewSnapshot(repo,env,ids)});
+      }
       if(route==='prospect-360'){
         if(env.CF_PROSPECT_360_READONLY_ENABLED!=='1')fail(404,'feature_disabled','Prospect 360 preview is disabled.');
         const id=url.searchParams.get('id');
