@@ -1,5 +1,44 @@
 # CoverageFit Current State
 
+## Phase 3A observed RingCentral status: webhook configuration blocked — 2026-10-12
+
+**Operator-observed sanitized authenticated GET** from the accepted immutable CoverageFit Preview (reported 2026-10-12):
+
+```json
+{
+  "outbound_configured": true,
+  "webhook_configured": false,
+  "sender_ready": true,
+  "connected": false,
+  "connection_state": "sender_ready_webhook_unconfigured",
+  "subscription_active": false,
+  "subscription_health": "missing",
+  "recovery_status": "unknown",
+  "provider_environment": "production",
+  "missing_config_keys": [
+    "RINGCENTRAL_WEBHOOK_URL",
+    "RINGCENTRAL_WEBHOOK_VALIDATION_TOKEN"
+  ],
+  "sends": 0
+}
+```
+
+**Phase 3A finding:** outbound credentials and the configured RingCentral sender's SMS capability are present, but the Preview environment has **neither a webhook URL nor a webhook validation token**. No matching active subscription can be established from this state, so inbound events, recovery, and end-to-end bidirectional synchronization are **NOT CERTIFIED**. This is a configuration/subscription blocker, not an instruction to rebuild the transport.
+
+**Critical account boundary:** `provider_environment=production` is the **RingCentral API account realm** used by Preview. It does **not** mean CoverageFit itself is deployed to Production, but creating a subscription from Preview in this realm may affect real account events, historical data and automatic recovery. Prefer separate sandbox/test RingCentral credentials and a publicly accessible isolated webhook endpoint, or prepare a separately approved production-account canary plan. Do not change the existing production sender/subscriptions or blindly register an unreviewed Preview URL.
+
+**Existing implementation:** `RINGCENTRAL_WEBHOOK_URL` must be a publicly reachable absolute HTTPS endpoint handled at `/api/sms/ringcentral/webhook`. The configured `RINGCENTRAL_WEBHOOK_VALIDATION_TOKEN` is an operator-generated **server secret used as RingCentral's developer validation token**, not the RingCentral JWT, producer access key or the provider's separate Verification-Token header. Never print token values. RingCentral validates new webhooks by pinging the URL and requiring a prompt HTTP 200 with echoed `Validation-Token`. Existing `handleRingCentralSubscription` is a **POST that may create/renew a real provider subscription and start history recovery**; do not invoke it from a read-only diagnosis.
+
+**Next Phase 3B/3C actions:**
+1. Run local deterministic security/regression checks for webhook validation, replay/idempotent inbound, STOP/CONTROL/ownership, missing/out-of-order history and no blind outbound retry.
+2. Prepare **one operator decision**: isolated RingCentral sandbox/test account vs approved controlled production-account integration, webhook hostname/route and sender identity, current subscriptions collision review, whether history recovery needs to be disabled/bounded for an initial canary, rollback procedure, and Cloudflare Preview-only binding/secret plan.
+3. After explicit approval, configure only the intended environment, redeploy, use read-only status to reconfirm the newly configured sender and webhook; then separately approve provider subscription POST and an operator-controlled SMS canary.
+4. Until then: **NO SEND, NO SUBSCRIPTION MUTATION, NO SECRET CHANGE, NO PRODUCTION MERGE**, and no claim that live inbound sync is operational.
+
+**Operator workload:** no further Cloudflare verification work requested until the single account/sender-route decision is resolved. Source: user's redacted Phase 3A status JSON in conversation, not independently observed external dashboard state.
+
+---
+
 ## Phase 3A RingCentral no-send preflight prepared — 2026-10-12
 
 **Current state:** Phase 2 Producer Action Quality hosted functional and desktop/mobile visual acceptance is operator-accepted. Phase 3 is ACTIVE. GitHub code audit confirms existing `handleRingCentralStatus`, `handleRingCentralSubscription`, `handleRingCentralWebhook`, `runRingCentralRecovery`, `sms-outbound-gateway` and safety/ownership code must be preserved, not reimplemented.
