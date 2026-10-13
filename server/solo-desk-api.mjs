@@ -4,6 +4,7 @@ import {signalContinue} from './signal-continue-service.mjs';
 import {pilotReconciliation} from './pilot-reconciliation.mjs';
 import {producerWorkspace} from './producer-workspace.mjs';
 import {commandCenterPreview} from './producer-command-center.mjs';
+import {projectProspect360,readProspectIdentity} from './prospect-360-readonly.mjs';
 import {rawImporter,syntheticRawRehearsalBatch} from './agencyzoom-import.mjs';
 import {districtPilot} from './district-pilot.mjs';
 import {authorizeProducer} from './consultation-inbox-core.mjs';
@@ -59,6 +60,13 @@ export async function handleSoloDesk(context){
       }
       if(route==='producer-pending-sms')return json({ok:true,...await producerWorkspace(repo,env).pendingSms()});
       if(route==='producer-detail')return json({ok:true,...await producerWorkspace(repo,env).detail(url.searchParams.get('id'))});
+      if(route==='prospect-360'){
+        if(env.CF_PROSPECT_360_READONLY_ENABLED!=='1')fail(404,'feature_disabled','Prospect 360 preview is disabled.');
+        const id=url.searchParams.get('id');
+        const detail=await producerWorkspace(repo,env).detail(id);
+        const identity=await readProspectIdentity(repo,id);
+        return json({ok:true,...projectProspect360(detail,{now:context.now||new Date(),identity})});
+      }
       if(route==='district-pilot')return json({ok:true,...await districtPilot(repo,env).report()});
       if(route==='raw-promotion-preview')return json({ok:true,...await rawImporter(repo,env).promotionPreview()});
       if(route==='raw-intake-receipts')return json({ok:true,...await rawImporter(repo,env).receipts({limit:url.searchParams.get('limit')})});
