@@ -99,7 +99,7 @@ export function producerWorkspace(repo,env){
    }
    return {...data,commitments,attention,actionQuality,contactSafety,continuation:await continuation(id,ss,pop.population),population:pop,pilot:['DISTRICT_SIGNAL','DISTRICT_CONTROL'].includes(pop.population)?pilot:null,sms:state,copilot_enabled:copilotEnabled,sms_enabled:enabled(env)};
   },
-  async list(params){
+  async list(params,{allRecords=false}={}){
    const selected=params.get('population')||'DISTRICT_SIGNAL';if(![...POPULATIONS,'ALL'].includes(selected))fail(422,'population','Select a work population.');
    const q=(params.get('q')||'').trim().toLowerCase().slice(0,120),status=params.get('status')||'open';if(!['open','closed','all'].includes(status))fail(422,'status','Select open, closed or all.');
    const attentionEnabled=env.CF_ATTENTION_ENABLED==='1',sort=params.get('sort')||'baseline';
@@ -132,7 +132,7 @@ export function producerWorkspace(repo,env){
    const offset=Number(params.get('offset')||0);if(!Number.isInteger(offset)||offset<0)fail(422,'offset','Invalid page');
    const attentionSummary={NOW:0,TODAY:0,HIGH:0,UPCOMING:0,WAITING:0,NORMAL:0,SUPPRESSED:0,actionable:0};
    if(attentionEnabled)for(const r of records){const a=r.attention;if(!a)continue;if(Object.hasOwn(attentionSummary,a.band))attentionSummary[a.band]++;if(a.actionable!==false)attentionSummary.actionable++;}
-   return {attention_enabled:attentionEnabled,attention_summary:attentionSummary,test_excluded,sort:attentionEnabled?sort:'baseline',counts,records:records.slice(offset,offset+40),total:records.length,nextOffset:offset+40<records.length?offset+40:null,status,searchAcrossPopulations:!!q};
+   return {attention_enabled:attentionEnabled,attention_summary:attentionSummary,test_excluded,sort:attentionEnabled?sort:'baseline',counts,records:allRecords?records:records.slice(offset,offset+40),total:records.length,nextOffset:allRecords?null:offset+40<records.length?offset+40:null,status,searchAcrossPopulations:!!q};
   }
  };
 }

@@ -205,3 +205,37 @@ test('fresh CALL request outranks unrelated future appointment consistently in l
   assert.ok(row.action_quality.evidence.some(e=>e.kind==='commitment'));
  }finally{f.sql.close();}
 });
+
+test('Command Center API is default-off and never unlocks unauthenticated preview',async()=>{
+ const f=prepared();try{
+  const r=await handleSoloDesk({request:new Request('https://coveragefit.test/api/solo-desk/producer-command-center',{headers:{Authorization:'Bearer '+f.env.COVERAGEFIT_PRODUCER_ACCESS_TOKEN}}),env:f.env});
+  assert.equal(r.status,404);
+  const noAuth=await handleSoloDesk({request:new Request('https://coveragefit.test/api/solo-desk/producer-command-center'),env:{...f.env,CF_COMMAND_CENTER_READONLY_ENABLED:'1'}});
+  assert.equal(noAuth.status,401);
+ }finally{f.sql.close();}
+});
+test('Command Center Preview route uses existing Attention and Signal and does not grant SMS send authority',async()=>{
+ const f=prepared();try{
+  f.env.CF_ATTENTION_ENABLED='1';
+  f.env.CF_COMMAND_CENTER_READONLY_ENABLED='1';
+  source(f,'one','district_pilot_v1',pilot('SIGNAL'));
+  source(f,'two','district_pilot_v1',pilot('CONTROL',otherCid));
+  await f.store.setJSON('sms-live-conversations/'+cid,{
+   id:cid,signal:{...signal(),latest_inbound:'Please help with renewal',draft_status:'pending'},
+   transcript:[{id:'incoming-qa',direction:'inbound',body:'Please help with renewal',occurredAt:new Date(Date.now()-60000).toISOString()}]
+  });
+  const req=new Request('https://coveragefit.test/api/solo-desk/producer-command-center',{headers:{Authorization:'Bearer '+f.env.COVERAGEFIT_PRODUCER_ACCESS_TOKEN}});
+  const r=await handleSoloDesk({request:req,env:f.env});
+  assert.equal(r.status,200);
+  const v=await r.json();
+  assert.equal(v.enabled,true);
+  assert.equal(v.coverage.read_only,true);
+  assert.equal(v.coverage.provider_inbound_live_certified,false);
+  assert.equal(v.inbox.length,1);
+  assert.equal(v.inbox[0].category,'DRAFT_REVIEW');
+  assert.equal(v.inbox[0].can_bulk_approve,false);
+  assert.equal(v.inbox[0].sms_send_eligible,false);
+  assert.equal(v.today.every(x=>x.population!=='DISTRICT_CONTROL'),true);
+  assert.equal(JSON.stringify(v).includes('COVERAGEFIT_PRODUCER_ACCESS_TOKEN'),false);
+ }finally{f.sql.close();}
+});

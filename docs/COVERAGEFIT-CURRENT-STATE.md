@@ -1,5 +1,17 @@
 # CoverageFit Current State
 
+## Command Center Today + Inbox 0.1 implemented as default-off read-only draft — 2026-10-12
+
+**Parallel Phase 3 product slice:** Draft PR #14 (`feature/command-center-today-inbox-readonly-20261012`) is **stacked on draft PR #12** and adds a small, real Today/Inbox panel inside canonical `/agent/workspace/`. This is development, **not production activation**. It reuses existing governed `producerWorkspace.list`, Attention, Producer Action Quality, Signal SMS drafts and identity; no second CRM, message transport or profile database. The default-off flag is `CF_COMMAND_CENTER_READONLY_ENABLED=1` (absent/off by default), and Attention must be enabled for meaningful output.
+
+The first preview shows (a) ranked actionable NOW/TODAY/HIGH opportunities, (b) narrow linked SIGNAL `DRAFT_REVIEW`, `NEEDS_PRODUCER_ATTENTION`, and `DELIVERY_REVIEW` buckets, (c) explicit warning that RingCentral **live inbound synchronization remains unverified**, and (d) no send or batch-approval controls. Record deadlines are labeled unverified, not confirmed policy renewal. Every SMS item declares `sms_send_eligible=false`, `can_bulk_approve=false` and contact authority NOT_EVALUATED. STOP/CONTROL/suppressed items cannot be promoted; TEST fixtures are excluded by existing Work.
+
+**Evidence:** GitHub Actions run [38332527408](https://github.com/dhays4sports/CoverageFit/actions/runs/38332527408) passed **514/514** tests, zero failures, on implementation head `5928b55643c7c2c2e7fa550458d76f1a2e8adc72`. Design/implementation contract at `docs/COVERAGEFIT-COMMAND-CENTER-TODAY-INBOX-0.1.md`.
+
+**Release conditions:** This remains an off-by-default, review-only feature. Before enabling in isolated hosted Preview, independently certify D1 isolation, UI keyboard/mobile usability, Performance and STOP/CONTROL parity; before any bulk SMS sending, implement a separate durable positively verified consent/route and individual action-authority gate. No Cloudflare intervention, provider subscription, external SMS, CRM write or main merge is requested during the development phase. Phase 3 RingCentral webhook `sender_ready_webhook_unconfigured` remains separately unresolved.
+
+---
+
 ## Phase 3A observed RingCentral status: webhook configuration blocked — 2026-10-12
 
 **Operator-observed sanitized authenticated GET** from the accepted immutable CoverageFit Preview (reported 2026-10-12):
