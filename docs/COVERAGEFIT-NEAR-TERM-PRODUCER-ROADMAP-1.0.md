@@ -6,6 +6,14 @@
 **Repository:** dhays4sports/CoverageFit  
 **Scope:** Producer OS, Signal Copilot, attention orchestration, commitments, and calendar actions
 
+## DATA USE GOVERNANCE — optional market insights, never individual profile resale
+
+**Principal-locked preference:** Protect private Prospect 360 relationships; **do not build individual enriched-profile resale**. Reserve **optional later** de-identified aggregate market-intelligence products (only source-rights-permitted, genuinely de-identified and legal/privacy reviewed) and **possibly individually authorized direct CoverageFit inquiries**. The latter does not include an assumed right to resell purchased/AgencyZoom/Farmers or 408FARMERS records. See [Data Rights and Optional Market Intelligence 1.0](CF-DATA-RIGHTS-AND-MARKET-INTELLIGENCE-OPTIONAL-1.0.md).
+
+**Execution priority:** At P1, preserve source rights, data-use purpose, privacy/retention and transferability metadata in the **existing evidence spine**, default-deny unauthorized external sharing, and establish future aggregate suppression/risk-review requirements. Do **not** schedule a resale marketplace, de-identification product, broker registration, payments or new separate business as part of the acquisition-to-conversation critical path. Commercial activation always requires distinct agency/contract/privacy/licensing evidence, economic validation and principal approval.
+
+---
+
 ## P1 EVIDENCE FLYWHEEL FOUNDATION — cross-phase mandate (2026-10-13)
 
 **Principal-approved design dependency:** [Continuous Evidence Accumulation / CF-CONTINUOUS-EVIDENCE-1.0](CF-CONTINUOUS-EVIDENCE-1.0.md) is P1 foundational to [Roadmap 3.0](COVERAGEFIT-AUTONOMOUS-GROWTH-ROADMAP-3.0.md), not optional enrichment after acquisition or a new independent phase. Source ingestion, durable Prospect 360/UCP evidence and SIGNAL SHADOW must use **one event → sourced assertion → conflict/verification/temporal reconciliation → versioned current-profile → next-decision feedback** contract. Existing importer, SMS stores, UCP links and read-only Prospect 360 are starting points; a durable shared history is not yet built and cannot be claimed as deployed.
