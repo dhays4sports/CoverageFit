@@ -1,10 +1,25 @@
 # COVERAGEFIT-COMMAND-CENTER-UNIFIED-PREVIEW-CERT-1.0
 
-**Status:** Integration review / one-session hosted certification PREPARED — NOT YET HOSTED ACCEPTED.  
+**Status:** HOSTED PREVIEW ACCEPTED — operator-attested immutable deployment and D1 isolation; integration/Production authority NOT granted.  
 **Date:** 2026-10-12  
 **Program:** CoverageFit + SIGNAL.  
 **Aggregate review:** Draft PR #16 `integration/command-center-unified-certification-20261012`, based on Signal Copilot PR #7; contains exact fast-forward ancestry from PR #12 → #14 → #15.  
 **Goal:** One acceptance for Producer Action Quality, Today, linked SIGNAL Inbox, Prospect 360, selected draft review and offline SHADOW. No provider/campaign activation.
+
+## Certification result and final principal signoff — 2026-10-13
+
+**Final disposition: `HOSTED_PREVIEW_ACCEPTED`, restricted to the reviewed read-only Command Center.**
+
+- **Source code:** exact tested deployed head `d8083570c0425371c67b1bae74813ec6c50a9be6`; GitHub Actions [38334953705](https://github.com/dhays4sports/CoverageFit/actions/runs/38334953705) **544 tests passed, 0 failed** and critical module syntax passed. Immutable host: `https://ece607a0.coveragefit.pages.dev/agent/workspace/`, associated to tested SHA by **operator attestation**.
+- **Automated hosted checks:** principal shared `COVERAGEFIT_UNIFIED_RESULT` `status=PASS`, `checked=19`, `passed=19`, `failures=[]`, `http_actions=GET_ONLY`, `sms_sends=0`, `original_call_stop_preserved=true`, `replacement_call_run=qa-20261013-replacement-call-499d2e80`, `live_ringcentral_inbound=NOT_CERTIFIED`. Expected unauthenticated GET returned HTTP **401**.
+- **Synthetic data:** original 9 Producer Action Quality records, 3 Command Center records, and 1 separate replacement CALL (necessary because the original CALL's real stored synthetic conversation had independently transitioned to **STOP**). Both cases remained linked to their own distinct conversation IDs; the old CALL stayed **suppressed**. No records were overwritten to reverse an opt-out or STOP.
+- **Owner's final visual attestation:** all four checks passed **on the same immutable Preview**: synthetic replacement CALL appears correctly in Today; linked Inbox and no-send multi-select review work; Prospect 360 shows correct verified versus conflicted renewal evidence; desktop/mobile and keyboard navigation are readable and operable without overlap. This **closes** the manual visual requirement noted as `STILL_REQUIRED` in the automated report; the report itself was not rerun, and the accepted evidence is the subsequent explicit principal attestation.
+- **Confidence boundary:** Preview/Production D1 binding UUID separation and immutable deployment SHA were **operator-attested**; ChatGPT did not inspect Cloudflare configuration independently. These observations are not a security cryptographic attestation.
+- **Excluded:** actual RingCentral inbound webhook/subscription/recovery/delivery, full provider Inbox, send or batch approval, per-recipient consent, autonomous engagement, AgencyZoom mutation, Calendar writes, real-data producer dogfood, district/economic rollout, production feature activation or production deployment.
+
+**Next decision:** The aggregate is ready for a *separate* #7 → #16 integration/merge review with fresh SHA/CI, branch protection, diff/security and rollback packet. PR #12/#14/#15 remain audit layers not standalone merge candidates. No merge has been approved by this Preview acceptance. No additional SQL or repeated desktop/mobile hosted confirmation is needed for unchanged reviewed runtime.
+
+---
 
 ## Reconciliation finding
 
