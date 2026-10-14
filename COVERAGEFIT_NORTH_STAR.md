@@ -19,6 +19,16 @@
 **Status:** Product North Star / long-range architectural reference  
 **Date:** 2026-09-20
 
+## PRIVACY-FIRST INTELLIGENCE MONETIZATION BOUNDARY — FUTURE OPTIONAL (principal-approved 2026-10-13)
+
+**Locked principal preference:** Private enriched **Prospect 360 profiles, individual evidence histories, messages, quotes, producer notes and insurance relationship records are not a third-party lead-resale product.** Do not create or prioritize sale/rental/license of identifiable profiles. The only optional future monetization directions the principal wants preserved are (1) **aggregated, genuinely de-identified insurance market intelligence**, contingent on proven original source/agency/vendor contractual rights, de-identification/re-identification risk assessment, privacy law and explicit business launch approval, and (2) **possibly certain directly originated CoverageFit consumer inquiries** with specific legally sufficient authorization, independent agency/licensing/referral compensation review and minimal scope. This does **not** extend automatically to purchased leads, AgencyZoom/Farmers/agency inventory or 408FARMERS records.
+
+**P1 now / commercial later:** Continuous Evidence Accumulation must capture original use/secondary-analysis rights, source ownership, retention/correction limits and an independent **default-NOT-TRANSFERABLE rights determination**. This is internal governance infrastructure, not permission to expose/sell data or a mandate to build a market-intelligence marketplace. A genuinely de-identified aggregate output must not permit reasonable reconstruction or linkage to individuals, especially through small cohorts, rare attributes, fine geography, repeated queries or auxiliary datasets. **Removing names is insufficient.** These optional concepts remain below acquisition, Prospect Memory, SIGNAL economics and provider reliability.
+
+**Authoritative scope and future decision gates:** [CF-DATA-RIGHTS-AND-MARKET-INTELLIGENCE-OPTIONAL-1.0](docs/CF-DATA-RIGHTS-AND-MARKET-INTELLIGENCE-OPTIONAL-1.0.md). No actual resale, sharing, data processing expansion, vendor purchase, agency/producer compensation, exports or deployment is approved.
+
+---
+
 ## CONTINUOUS EVIDENCE ACCUMULATION — P1 FOUNDATIONAL PRODUCT PRINCIPLE (principal-approved 2026-10-13)
 
 **Priority:** **P1 foundational** — the intelligence mechanism that binds source-linked acquisition, durable Prospect 360/renewal memory and evidence-aware multi-step SIGNAL qualification into **one compounding relationship system**. The full product+acceptance contract is [CF-CONTINUOUS-EVIDENCE-1.0](docs/CF-CONTINUOUS-EVIDENCE-1.0.md), incorporated directly into [Autonomous Growth Roadmap 3.0](docs/COVERAGEFIT-AUTONOMOUS-GROWTH-ROADMAP-3.0.md).
