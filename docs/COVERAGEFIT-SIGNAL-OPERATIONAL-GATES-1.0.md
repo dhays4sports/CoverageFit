@@ -1,5 +1,11 @@
 # CoverageFit + SIGNAL — Operational Consolidation Certification Gates 1.0
 
+## Roadmap 3.0 priority integration (principal-approved 2026-10-13)
+
+[Autonomous Insurance Growth Roadmap 3.0](COVERAGEFIT-AUTONOMOUS-GROWTH-ROADMAP-3.0.md) is now the **high-priority economic product execution guide** for CoverageFit + SIGNAL. Its P0–P6 delivery sequence prioritizes source-traceable acquisition, durable Prospect/renewal memory and safe no-send SIGNAL qualification before nonessential UI work. This **does not weaken or bypass** any operational certification requirement below: PR merge/deployment effects, provider permissions, actual RingCentral inbound/receipt/recovery, verified opt-in, source provenance, STOP/CONTROL, AgencyZoom cadence owner and separate real-data/canary authorization remain independent hard gates. P1 test-only draft implementation can proceed while live provider changes remain blocked; no synthetic PASS grants authority to send.
+
+---
+
 ## Unified Command Center hosted acceptance complete; integration release still gated — 2026-10-13
 
 **Preview gate accepted:** The principal has now attested all four final visual checks for the combined Command Center on the verified immutable Preview: Today urgent replacement CALL, linked Inbox no-send multi-select draft review, Prospect 360 verified versus conflicted renewals, and desktop/mobile/keyboard layout. Operator's final combined GET-only report `COVERAGEFIT_UNIFIED_RESULT` = **PASS 19/19**, failures [], `sms_sends=0`, expected HTTP **401** on unauthenticated request, original synthetic CALL's later STOP `DO_NOT_CONTACT` preserved. Tested runtime SHA `d8083570c0425371c67b1bae74813ec6c50a9be6`, tested immutable host `ece607a0.coveragefit.pages.dev`; CI **544/544** at this code SHA. Served-deployment SHA and distinct Preview/Production D1 UUID **operator-attested only**, not independently observed through this connector. Scope is limited to the governed **read-only** UI, API and synthetic test behavior; prior Phase 2 Action Quality remains accepted.
