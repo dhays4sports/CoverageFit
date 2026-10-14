@@ -46,7 +46,7 @@ export function mountCommandCenter(root,api,open){
    <p class="cc-note">Source: existing CoverageFit Work. Inbox shows linked SIGNAL decisions only;
    <b>live RingCentral inbound synchronization is not certified.</b>
    Drafts shown here cannot be sent from this panel. Consent and sender eligibility are not evaluated.</p>
-   <p class="cc-note">${Number(state.coverage.scanned_work_records||0)} open Work records reviewed ·
+   <p class="cc-note">${Number(state.coverage.scanned_work_records||0)} open Work records reviewed${state.scope==='BOUNDED_PAGE_ONLY'?' in this bounded page':''} ·
    ${Number(state.coverage.test_excluded||0)} synthetic TEST records excluded.</p>`;
  }
  root.addEventListener('click',e=>{

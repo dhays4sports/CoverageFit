@@ -1,3 +1,4 @@
+import {reconcileProducerIntelligence} from './producer-intelligence-contract.mjs';
 // C3 LOCAL SYNTHETIC READ MODEL. No hosted route, queue mutation or provider adapter.
 import {createHash} from 'node:crypto';
 import {prospectMemoryLocal} from './prospect-memory-local.mjs';
@@ -12,7 +13,7 @@ const identifier=x=>{if(typeof x!=='string'||! /^[A-Za-z0-9][A-Za-z0-9._:-]{0,15
 export function projectCurrentDecision({id,now,profile,atDecision,policy,queue,result,decision,safety,sourceValid=true}){
  const output={build:CURRENT_DECISION_BUILD,id,as_of:now,status:'UNAVAILABLE',reason:'STORE_OR_IDENTITY_UNAVAILABLE',
   recommendation:null,evidence_refs:[],source_references:[],evidence_revision:profile?.revision??null,evidence_version:profile?.projection_version??null,
-  decision_version:result?.decision_id??null,context_version:policy?.version??null,workflow_owner:policy?.options?.workflowOwner??'UNKNOWN',
+  decision_version:result?.decision_id??null,context_version:policy?.version??null,workflow_owner:policy?.options?.workflowOwner??'UNKNOWN',population:policy?.options?.population??'OTHER',
   next_evaluation_at:queue?.state==='FAILED'?null:queue?.due_at??null,producer_attention:false,requires_human_review:true,
   restrictions:safety?.contact_restrictions||[],execution_eligibility:eligibility(),
   evaluation:queue?{state:queue.state,generation:queue.generation,target_revision:queue.target_revision,due:['READY','LEASED'].includes(queue.state)&&!!queue.due_at&&queue.due_at<=now,
@@ -73,17 +74,10 @@ export function signalCurrentDecisionLocal(db,{syntheticOnly=false}={}){
    return {items,next_cursor:keys.length>limit?items.at(-1).id:null,limit,as_of:now};
   });
  }
- return {current,page};
+ return {current,page,currentInSnapshot(workspace,prospect,{now}={}){
+  if(!db.isTransaction)throw Error('read_snapshot_required');identifier(workspace);identifier(prospect);return read(workspace,prospect,clock(now));
+ }};
 }
 // Contract-only bridge for existing Producer Workspace / Today / Prospect 360 vocabulary.
 // Caller must discard prior action fields; no fallback to old action_quality or sms.decision_2.
-export function currentDecisionProducerRecord(value){
- const codes={'CALL':'CALL_CUSTOMER','ASK ONE QUESTION':'ASK_ONE_QUESTION','QUOTE PREPARATION':'PREPARE_OR_REVIEW_QUOTE',
-  'HUMAN REVIEW':'PRODUCER_REVIEW_AND_RESPOND','LATER':'WAIT_UNTIL_RECORDED_TIME','CLOSE':'CLOSE_NO_OUTREACH','NO ACTION':'NO_ACTION'};
- const current=value.status==='CURRENT'?value.recommendation:null;
- return {id:value.id,current_decision:value,action_quality:{version:CURRENT_DECISION_BUILD,actionable:false,
-  action:{code:codes[current?.action]||'NO_ACTION',label:current?.reason||value.reason,channel:null,due_at:null,actionable:false,source:'signal_current_decision'},
-  why_now:{text:current?.reason||value.reason,source_ref:{kind:'signal_current_decision',id:value.decision_version}},
-  evidence:value.source_references.map(e=>({kind:'prospect_memory',text:'Source-backed evidence',source_ref:e.source_ref,event_id:e.event_id}))},
-  attention:{actionable:false,requires_human_review:value.requires_human_review,producer_attention:value.producer_attention}};
-}
+export function currentDecisionProducerRecord(value){return reconcileProducerIntelligence({id:value.id,population:value.population},value)}

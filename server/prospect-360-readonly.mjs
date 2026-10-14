@@ -1,3 +1,4 @@
+import {reconcileProducerIntelligence} from './producer-intelligence-contract.mjs';
 // PROSPECT-360-RENEWALS-0.1 — bounded read-only evidence projection.
 // Do not infer household links, verified renewal timing or messaging permission.
 import {dueWindow,actionableCommitment} from './commitment-projection.mjs';
@@ -45,6 +46,7 @@ function renewalEvidence(d){
  return uniqueClaims(out);
 }
 export function projectProspect360(d,{now=new Date(),identity=null}={}){
+ if(d&&Object.hasOwn(d,'current_decision'))d=reconcileProducerIntelligence(d,d.current_decision);
  if(!d?.opportunity||!d?.population)throw Error('prospect_detail_required');
  const op=d.opportunity;const sources=Array.isArray(d.sources)?d.sources:[];
  const claims=renewalEvidence(d);
@@ -65,7 +67,7 @@ export function projectProspect360(d,{now=new Date(),identity=null}={}){
  const commitmentRows=(d.commitments||[]).filter(x=>x&&x.status==='open')
   .slice(0,30).map(x=>({id:txt(x.id,130),type:txt(x.type,40),title:txt(x.title,160),
    due_at:x.due_at||null,due_date:x.due_date||null,
-   confirmation:txt(x.confirmation,45),actionable:actionableCommitment(x),source_ref:x.source_ref||null}));
+   confirmation:txt(x.confirmation,45),actionable:d.current_decision?false:actionableCommitment(x),source_ref:x.source_ref||null}));
  const evidence=claims.map(x=>({...x}));
  const safeIdentity=identity?.status==='linked'?{
   status:'linked',customer_id:identity.customer_id,household_id:identity.household_id,
@@ -74,6 +76,7 @@ export function projectProspect360(d,{now=new Date(),identity=null}={}){
  return {
   version:'PROSPECT-360-RENEWALS-0.1',opportunity_id:op.id,population:d.population.population,
   identity:safeIdentity,
+  ...(d.current_decision?{current_decision:d.current_decision,human_attention_eligible:d.human_attention_eligible,execution_authority:d.execution_authority,review_context:d.review_context}:{}),
   product_line:txt(op.products,90)||'Unknown',
   source_count:sources.length,
   facts:{

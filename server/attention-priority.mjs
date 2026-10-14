@@ -1,9 +1,11 @@
+import {reconcileProducerIntelligence} from './producer-intelligence-contract.mjs';
 import {actionableCommitment} from './commitment-projection.mjs';
 // Deterministic read-only orchestration; never a contact permission or bind score.
 export const ATTENTION_VERSION='SIGNAL-ATTENTION-1.0';
 const time=v=>v&&Number.isFinite(Date.parse(v))?Date.parse(v):null;
 const day=(n,tz)=>new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(n));
-export function deriveAttention({population,opportunity={},sms={},commitments=[],priority=null,suppressed=false,now=Date.now(),timeZone='America/Los_Angeles'}={}){
+export function deriveAttention({population,opportunity={},sms={},commitments=[],priority=null,suppressed=false,now=Date.now(),timeZone='America/Los_Angeles',currentDecision}={}){
+ if(currentDecision!==undefined)return reconcileProducerIntelligence({id:opportunity.id||currentDecision?.id,population,sms,contactSafety:{suppressed}},currentDecision).attention;
  if(population==='DISTRICT_CONTROL')return null;
  const n=typeof now==='number'?now:Date.parse(now),today=day(n,timeZone),s=sms||{},facts=s.facts||{};
  const result=(band,rank,text,ref,extra={})=>({version:ATTENTION_VERSION,band,rank,actionable:band!=='SUPPRESSED',reasons:[{text,source_ref:ref}],intent_rank:0,due_at:null,...extra});
