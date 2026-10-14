@@ -12,6 +12,70 @@
 
 This is a **priority overlay and execution guide** to the approved CoverageFit North Star and existing Master Roadmap 2.0, **not a rival product, standalone system, fresh CRM, or blanket release authorization**. It changes the relative emphasis from component/UX delivery toward measurable acquisition-to-conversation economics. It preserves long-range consumer protection intelligence as a future projection of the **same** relationship/evidence spine.
 
+## P1 FOUNDATION — Continuous Evidence Accumulation / Evidence Flywheel (principal-approved 2026-10-13)
+
+**Work package:** `CF-CONTINUOUS-EVIDENCE-1.0` · **P1 foundational and cross-cutting** · [detailed engineering contract](CF-CONTINUOUS-EVIDENCE-1.0.md).
+
+> **Continuous Evidence Accumulation:** Every *permitted* acquisition event and meaningful customer/producer interaction is an opportunity to improve CoverageFit's understanding of a prospect. SIGNAL extracts and reconciles relevant evidence into the **same durable, source-linked Prospect Profile**, preserving uncertainty, timestamps, verification, identity boundaries, conflicts, contact restrictions, correction and retention rules. Every subsequent decision uses the best currently justified facts, asks only for necessary missing information and seeks the smallest useful next action. **Intelligence accumulates continuously; communication happens only when separately justified and authorized.**
+
+**Strategic priority:** This is **the mechanism connecting** Phase 1 acquisition, Phase 2 Prospect Memory/renewals, and Phase 3 SIGNAL orchestration. Without it, bulk acquisition is merely loading contacts, Prospect 360 is a static display and SMS automation is an outreach sequence. With it, authorized replies and source corrections **compound** into more accurate context, less redundant questioning, better renewal timing, sharper human handoffs and, when proven, better economic outcomes. Do **not** create an eighth phase, rival CRM or separate evidence silo. P1 workstreams must all consume the same shared evidence contract.
+
+### Continuous evidence flywheel
+
+`ADMIT source with permitted use and retention → RESOLVE reliable identity (or HOLD conflict) → EXTRACT typed, source-traced assertions → RECONCILE contradictory and stale facts → PROJECT versioned current Prospect Intelligence → DECIDE minimal justified SIGNAL action → RECORD actual reply/outcome and repeat`.
+
+**Independent states:** Received event ≠ verified assertion ≠ correct identity match ≠ consent ≠ action authority ≠ provider-delivered communication ≠ useful conversation/verified premium. No stage may manufacture approval or truth for the next one.
+
+### Three-layer canonical intelligence model
+
+| Layer | Data and responsibility | Hard requirement |
+| --- | --- | --- |
+| **1. Source/evidence event** | Vendor or first-party lead, inbound SMS, actual permitted interaction, document/producer correction or verified outcome; original source/time, record key, batch, data rights and retention | Admit only authorized/useful data; replay-safe; protect raw contents and purge/withhold under policy |
+| **2. Sourced fact assertions** | Typed claim and insurance line/context, value/precision, original evidence reference, when observed/effective, verification, extractor version, supersession and contradiction | Newer is not always truer; vendor-supplied or SMS-sourced date is not inherently document-verified; never silently overwrite |
+| **3. Current relationship projection** | One current profile of usable/missing/stale/contradictory facts, renewal windows, stated intent, commitments, last meaningful event, identity link and safety reference | Prospect 360, SIGNAL and Today consume the same derived facts; channel/contact authority is an independent gate |
+
+The existing source rows (`cf_solo_sources`), permitted SMS state, UCP links (`cf_ucp_opportunity_links`), commitment projection and `server/prospect-360-readonly.mjs` are **reuse targets**; the current Preview does **not** prove a persistent FactAssertion ledger exists. Reconcile schema ownership before any proposed D1 table/migration. The existing `server/engagement-shadow-simulator.mjs` is pure no-send simulation, not a durable live automation worker.
+
+### What users should experience
+
+An authorized imported lead reports an insurer and a tentative December renewal: retain these as *vendor assertions*, not verified truth or contact permission. A later **separately authorized** exchange provides three vehicles and a customer-reported December 18 renewal; the profile records source and precision, while history remains traceable. A follow-up confirms homeownership and a preference to wait; SIGNAL should not ask again about vehicles or renewal if sufficiently known. At the correct justified time, it can propose a bounded follow-up **only after checking the specific channel authority**. An explicit "please call me" should reach the producer rather than trigger more qualifying questions. If STOP arrives, all prohibited contact ceases even if other evidence suggests high value.
+
+**No-send is a legitimate cycle outcome:** On a purchased/vendor batch with no eligible route, the engine may lawfully organize permitted evidence and rank opportunities, but must not send RingCentral purchased-list SMS, launder source identity or treat an imported number/vendor opt-in as positive per-message sender permission.
+
+### Mandatory P1 engineering behavior
+
+- **Provenance and idempotency:** original source/actor, immutable event reference, observed/received/effective times, workspace, source-rights, extractor version, retention class and dedupe key. Same source event cannot create multiple independent claims; contradictory same-key payload must be held for investigation.
+- **Typed assertions and authority:** field precision, per-policy/per-line context, source class, `customer_reported` vs `producer_confirmed` vs `document_verified` vs `carrier_confirmed` (only if actually evidenced), uncertainty, revisions and explicit conflict links. Extractor confidence alone never verifies a claim or contact permission.
+- **Identity safety:** only genuinely verified links join evidence from several sources. Shared phone, home address, name or presumed household association does not justify auto-merge; ambiguous profile links go to a focused exception queue.
+- **Temporal memory:** track raw observation date vs when CoverageFit learned it; renewal month vs exact day; historical dates vs current dates; field-level stale/expiry behavior. Do not roll an expired date into next year without evidence.
+- **Reconciliation and correction:** retain legitimate contradictory assertions, mark disputed current field UNKNOWN/CONFLICTED until justified resolution, append corrected/verified evidence, allow authorized retraction and recalculate the derived projection. Do not erase an old fact invisibly to make a test pass.
+- **Privacy, minimization and erasure:** collect only relevant authorized data, enforce retention and access roles, prevent cross-workspace leakage, propagate deletion/withholding to derived profile/caches and avoid indefinite transcript or attachment hoarding. Untrusted import/SMS/document text cannot instruct the agent to take privileged actions.
+- **Decision feedback:** every SIGNAL evaluation reads the current profile version, knows why a question is missing or redundant, and can update after a later actual permitted event. Compare latest revision before acting; a stale SMS draft or provider uncertainty must not create duplicate sends.
+- **Separate contact authority:** source right to store ≠ right to message. Respect opt-out, STOP, CONTROL, TEST, wrong number, owner/takeover, DNC, campaign/sender/provider restrictions and the RingCentral purchased-list prohibition at actual action time. Evidence accumulation never silently clears suppression.
+- **Economic relevance:** prefer meaningful verified evidence that reduces producer work and improves real conversations; do not reward messages sent, raw fact count or overcollection.
+
+### First P1 delivery slices and exit gates
+
+**E0 / Inventory:** Audit actual source rows, raw intake, UCP links, SMS state, retention obligations and current derived Prospect 360. Identify smallest compatible event/assertion data contract, source-rights and field whitelist. No schema mutation without review.
+
+**E1 / Admission + extraction:** In deterministic synthetic/tests, admit permitted intake events and simulated eligible replies, link only proven identities, append sourced typed assertions, quarantine unknown or conflicting links and implement idempotency. Exercise **at least 1,000 mixed synthetic records** plus duplicate/out-of-order message cases.
+
+**E2 / Versioned Prospect Memory:** Reconcile customer-reported vs verified dates, product-specific conflicts, stale renewal, retractions and source expiry; generate one repeatable current Profile with referenced evidence. Show same profile in the existing read-only Prospect 360 contract only after separate scoped runtime review/flag.
+
+**E3 / SIGNAL feedback SHADOW:** Feed that versioned Profile to persistent *test-only* multi-cycle qualification, make minimal missing-question proposals, then ingest newly simulated reply evidence and prove the next action changes appropriately. STOP/CONTROL, wrong number, unsupported contact route, manual takeover, stale revision and ambiguity must remain held; **zero sends**.
+
+**E4 / Gated real-event adapters:** After separate data/security/agency approvals, connect authorized first-party submission/actual inbound and producer corrections. Actual provider receipt and end-to-end messaging still require their independent certified provider canary.
+
+**E5 / Outcome measurement:** Pilot only when separately authorized, and report usable sourced facts, correctly verified renewal coverage, redundant question rate, manual profile correction minutes, false extraction/merge rate, verified useful conversations and premium per producer hour. Accurate *less data* may beat inaccurate *more data*.
+
+**Acceptance must prove:** two imports don't duplicate assertions; conflicting customer/document renewals remain visible; two individuals sharing a phone don't merge; repeated SMS doesn't duplicate question/action; prior reliable answer prevents repeat question; explicit CALL bypasses rote questions; STOP from a formerly CALL lead remains STOP; suppression and purchased-list route restrictions survive enriched profile; expiry/deletion invalidates derived knowledge; offline SHADOW changes decisions without sending. [Full P1 specification and negative tests](CF-CONTINUOUS-EVIDENCE-1.0.md).
+
+**Release classification:** This P1 is **PRINCIPAL-APPROVED DIRECTION / ENGINEERING CONTRACT**, **NOT** a deployed persistent accumulation engine, actual live SMS worker, D1 migration authorization, consent authority, permission to purchase lists, production release or automated quote/bind authority. Safe audit, synthetic tests and draft PRs may proceed; user-facing/real data/provider writes each need their own actual gate.
+
+**Binding architectural rules:** **No acquired source without provenance into the evidence spine. No lasting memory without reconciliation and source-backed assertions. No meaningful SIGNAL automation without consuming and feeding current Prospect Intelligence. No new UI merely to inflate profile completeness.**
+
+---
+
 ## 1. Constitutional priority and conflict resolution
 
 1. **Safety and authority are the floor, not a competing roadmap.** STOP, opt-out, wrong number, TEST exclusion, district CONTROL separation, source provenance, verified consent, message/sender/provider eligibility, producer takeover, identity conflict holds, and legal/agency/carrier constraints prevail over growth scoring. Unknown authority means no send. A verified renewal date never grants contact permission.
@@ -68,6 +132,8 @@ Time ranges are **planning horizons, not delivery promises**. Phases overlap in 
 | **5. Producer economics pilot** | Weeks 8–12+ | Prove more useful conversations per producer hour and honest premium outcome | Agency-approved small SIGNAL/CONTROL cohort and baseline |
 | **6. Economically justified autonomy and scale** | Months 3–6+ | Expand only proven automation families and source volume | Human-approved execution → separately authorized bounded autonomy |
 
+**P1 shared foundation:** `CF-CONTINUOUS-EVIDENCE-1.0` is the evidence-admission/reconciliation/projection contract **beneath acquisition, Prospect Memory and SIGNAL SHADOW**. P1 test-only work can run concurrently with P0 release review. A full live provider link remains separately gated.
+
 **Dependency principle:** Provider status cannot block independent no-send acquisition/memory/SHADOW engineering. It **must** block claims of real two-way messaging, unattended SMS or full lead-to-conversation automation. A read-only UI acceptance is a component gate, not a substitute for economic pilot evidence.
 
 ## 5. Phase 0 — Integrate without drifting backward
@@ -83,6 +149,8 @@ Time ranges are **planning horizons, not delivery promises**. Phases overlap in 
 **Exit:** Reconciled code with passing exact-head tests, a specific yes/no merge decision and no surprise production/provider side effects. **Not an authorization to enable live engagement.**
 
 ## 6. Phase 1 — Scalable acquisition intelligence
+
+**P1 EVIDENCE DEPENDENCY:** Every permitted import supplies source rights, immutable lineage, identity resolution/hold state and typed vendor-asserted evidence to [Continuous Evidence Accumulation](CF-CONTINUOUS-EVIDENCE-1.0.md); it is not merely a new CRM contact. No automatic identity merge, promotion of vendor claims to customer verification, or imported contact consent. Safe intake tests must demonstrate downstream profile facts remain source-linked.
 
 **Work package: `CF-ACQUISITION-INTELLIGENCE-1.0`**
 
@@ -119,6 +187,8 @@ Retain `cost per unique`, `cost per eligible`, `cost per useful conversation`, `
 
 ## 7. Phase 2 — Durable Prospect 360 and renewal intelligence
 
+**P1 FLYWHEEL FOUNDATION:** [`CF-CONTINUOUS-EVIDENCE-1.0`](CF-CONTINUOUS-EVIDENCE-1.0.md) is a **mandatory** shared event/assertion/reconciliation/projection capability **inside** Prospect Memory, not a later enrichment add-on. Current read-only Prospect 360 projects sourced renewal information but is not yet durable full fact-history infrastructure. Identity conflicts, temporal precision, verification, correction, expiry and deletion propagation require explicit tests.
+
 **Work package: `CF-PROSPECT-MEMORY-1.0`**
 
 ### 7.1 One relationship; durable evidence
@@ -148,6 +218,8 @@ Support configurable review windows (e.g. 0–30 and 31–90 days for relevant l
 - Report usable **verified renewal coverage** and renewal-to-useful-conversation conversion when actual outcomes become available.
 
 ## 8. Phase 3 — Stateful SIGNAL autonomous qualification
+
+**P1 FLYWHEEL EXECUTION:** Every SHADOW cycle must read the versioned current Prospect Intelligence projection, derive only a justified missing question or higher-value next action, and feed simulated new evidence back into the profile before the next cycle. A timed message sequence without evidence feedback is **not** an acceptable autonomous qualification engine. Preserve separate consent/STOP/CONTROL/provider gates and no-send semantics.
 
 **Work package: `CF-SIGNAL-AUTONOMY-SHADOW-1.0`**
 
@@ -187,6 +259,8 @@ Advance one family at a time: **permissioned, explicitly first-party inquiry qua
 
 ## 9. Phase 4 — Complete one actual operational loop
 
+**EVIDENCE LOOP CLOSURE:** A provider canary must prove that an **actual** authorized inbound event reaches the canonical profile, changes the source-backed state and consequently updates the producer action/commitment; an outbound receipt or drafted message alone is not evidence of a customer reply. This remains gated and not currently live-certified.
+
 **Work package: `CF-LEAD-TO-CONVERSATION-PILOT-1.0` (provider/agency canary portion)**
 
 Prove: `Eligible source lead → dedup/profile and documented channel authority → producer-approved action → provider acknowledgement and durable receipt → actual inbound update → persisted fact/commitment → correct SIGNAL action → producer resolution → documented result`.
@@ -200,6 +274,8 @@ When the provider path is unavailable, no-send qualification/intelligence contin
 **Exit:** One real, expressly authorized canary proves message and outcome causality with no duplicate send, no provider-state ambiguity silently resolved as delivered, no lost follow-up, and no false claim of a complete live inbox. Full rollout remains separately gated.
 
 ## 10. Phase 5 — SIGNAL economic pilot
+
+**EVIDENCE FLYWHEEL MEASURES:** In addition to end outcomes, assess relevant source-backed facts, verified renewal timing, redundant questions, manual reentry/correction minutes, false extraction/identity-link rates, valid conflict resolutions, privacy/retention compliance and whether known evidence materially improved useful conversations. More stored events is **not** an economic success metric.
 
 **Work package: `CF-LEAD-TO-CONVERSATION-PILOT-1.0` (business evidence portion)**
 
@@ -255,13 +331,14 @@ Inbox must be honest about whether provider inbound is live and complete; Prospe
 | Priority | Work package | Smallest independently reviewable deliverable | Mandatory stop/gate |
 | --- | --- | --- | --- |
 | P0 | `CF-INTEGRATION-RELEASE-REVIEW-1.0` | Exact #7/#16 diff, CI, Preview/Production flag/deployment impact and rollback packet | Explicit merge/publish approval |
+| **P1 FOUNDATION** | [`CF-CONTINUOUS-EVIDENCE-1.0`](CF-CONTINUOUS-EVIDENCE-1.0.md) | Reused source-event → fact assertion → safe reconciliation → durable Profile → SIGNAL feedback; 1,000 synthetic/multi-turn checks | No unauthorized data retention, profile auto-merge, D1 migration, live sends or new contact authority |
 | P1 | `CF-ACQUISITION-INTELLIGENCE-1.0` | Source, identity, consent and cost attribution extensions to existing resumable importer; 1,000 synthetic replay | No real vendor purchase, no contact send |
 | P1 | `CF-PROSPECT-MEMORY-1.0` | Durable source fact/renewal timeline + conflict-safe projection with test evidence | No ambiguous auto-merge or inferred permission |
 | P1 | `CF-SIGNAL-AUTONOMY-SHADOW-1.0` | Stateful no-send qualification/follow-up simulation and authority compatibility decisions | No live scheduler/provider send |
 | P2 | `CF-LEAD-TO-CONVERSATION-PILOT-1.0` | Controlled RingCentral provider path, then eligible small-cohort SIGNAL/CONTROL measurement | Separate provider/agency, real-data and outreach authorization |
 | P3 | `CF-AUTONOMY-SCALE-1.0` | One proven permissioned automation family with limits | Verified positive economics and explicit live autonomy approval |
 
-**Concurrency:** P1 acquisition, memory and SHADOW contracts can be developed in coordinated draft/test lanes while P0 release review proceeds; provider-independent work must not create another CRM, contradictory migrations or unresolved branch overlap. P2 provider testing may proceed only within its own authorized boundaries.
+**Concurrency:** Establish the shared `CF-CONTINUOUS-EVIDENCE-1.0` admission/projection contract first; P1 acquisition, memory and SHADOW can then proceed in coordinated draft/test lanes while P0 release review proceeds; provider-independent work must not create another CRM, contradictory migrations or unresolved branch overlap. P2 provider testing may proceed only within its own authorized boundaries.
 
 ## 14. Six-month success definition (illustrative April 2027 horizon)
 
@@ -304,6 +381,6 @@ Before accepting a feature or approving a PR, answer:
 
 ## 18. Immediate handoff instruction
 
-> Implement `CF-AUTONOMOUS-GROWTH-ROADMAP-3.0` as the **highest-priority economic product execution guide** beneath the adopted CoverageFit North Star and constitutional safety floor. Continue from the current verified code; do not restart. Preserve combined Command Center's operator-attested hosted Preview acceptance, STOP/CONTROL and default-off no-send behavior. Perform the bounded PR #7 → aggregate PR #16 merge/publish integrity review, without merging or deploying absent express approval. In parallel, advance the smallest reviewable test-only slices of acquisition source/provenance/identity/cost intelligence, durable Prospect Memory and renewal facts, and multi-step permission-aware SIGNAL SHADOW orchestration. Use one canonical profile and message authority model. No live purchased-list texting, no new autonomous sends, no unaudited identity merges, no provider changes, no real-data acquisitions or spending. Define each slice by its prospective contribution to useful conversations, verified premium and attributable producer minutes. Consolidate future consequential decisions into one owner packet, and move to an approved live provider canary/economic trial only when corresponding gates pass.
+> Implement `CF-AUTONOMOUS-GROWTH-ROADMAP-3.0` as the **highest-priority economic product execution guide**, and `CF-CONTINUOUS-EVIDENCE-1.0` as its **P1 compounding-intelligence foundation connecting Acquisition, Prospect Memory, renewal facts and multi-turn SIGNAL SHADOW** beneath the adopted CoverageFit North Star and constitutional safety floor. Continue from the current verified code; do not restart. Preserve combined Command Center's operator-attested hosted Preview acceptance, STOP/CONTROL and default-off no-send behavior. Perform the bounded PR #7 → aggregate PR #16 merge/publish integrity review, without merging or deploying absent express approval. In parallel, advance the smallest reviewable test-only slices of acquisition source/provenance/identity/cost intelligence, durable Prospect Memory and renewal facts, and multi-step permission-aware SIGNAL SHADOW orchestration. Use one canonical profile and message authority model. No live purchased-list texting, no new autonomous sends, no unaudited identity merges, no provider changes, no real-data acquisitions or spending. Define each slice by its prospective contribution to useful conversations, verified premium and attributable producer minutes. Consolidate future consequential decisions into one owner packet, and move to an approved live provider canary/economic trial only when corresponding gates pass.
 
 **North Star reminder:** We are not building a more elaborate producer dashboard. **We are building an evidence-driven autonomous insurance growth and relationship system that turns large amounts of permissible prospect evidence into fewer, better, producer-worthy conversations and measurable written premium—with much less producer effort.**
