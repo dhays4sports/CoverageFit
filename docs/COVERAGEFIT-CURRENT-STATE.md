@@ -1,5 +1,15 @@
 # CoverageFit Current State
 
+## FUTURE PRIVACY-FIRST MONETIZATION BOUNDARY ADOPTED — 2026-10-13
+
+**Principal preference recorded:** Do **not** sell or redistribute enriched individual Prospect 360 profiles and accumulated customer evidence as leads. Possible **future optional** monetization: (1) aggregated, genuinely de-identified insurance market intelligence **only** where original source/vendor/agency/carrier rights and privacy rules permit the analysis and external use; (2) perhaps minimal, specifically authorized **direct CoverageFit inquiry** introductions after separate consumer notice/authorization, licensing/agency and compensation reviews. No automatic rights for 408FARMERS, district/Farmers, purchased or vendor lead sources.
+
+**Current status:** [CF-DATA-RIGHTS-AND-MARKET-INTELLIGENCE-OPTIONAL-1.0](CF-DATA-RIGHTS-AND-MARKET-INTELLIGENCE-OPTIONAL-1.0.md) is a **product/data-rights decision record**, not an implemented resale/aggregation feature, lawful resale finding or authorized commercial launch. Within P1 [Continuous Evidence Accumulation](CF-CONTINUOUS-EVIDENCE-1.0.md), future data contracts should preserve provenance, data owner, rights to secondary analysis/commercial transfer, retention/withdrawal, minimum fields and a **default-deny external transfer state**. No new D1 schema, provider change, live data sharing, market-data exports, new monetization product or lead distribution approved.
+
+**Priority:** Prove CoverageFit's core acquisition-to-useful-conversation economics and preserve private relationship data first. Later market-intelligence commercialization is optional and must be supported by a new economic, contract/legal and reidentification-risk case before action. The already accepted 19/19 read-only Preview status remains unchanged.
+
+---
+
 ## P1 FOUNDATION ADOPTED — Continuous Evidence Accumulation (2026-10-13)
 
 **Principal decision:** Promote the [Evidence Flywheel / CF-CONTINUOUS-EVIDENCE-1.0](CF-CONTINUOUS-EVIDENCE-1.0.md) to **P1 foundational capability** within [Roadmap 3.0](COVERAGEFIT-AUTONOMOUS-GROWTH-ROADMAP-3.0.md). This is the shared contract linking bulk acquisition, Prospect 360 / verified renewal memory and SIGNAL's repeated evidence-aware qualification. It is not a secondary profile enrichment or separate system.
