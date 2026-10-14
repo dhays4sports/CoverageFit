@@ -1,0 +1,268 @@
+{
+  "checked_at": "2026-10-14T20:19:17.377Z",
+  "main": {
+    "sha": "5f47f2b7367110ca04ff03cc189983f136ab32fa",
+    "protected": false,
+    "protection": {
+      "enabled": false,
+      "required_status_checks": {
+        "enforcement_level": "off",
+        "contexts": [],
+        "checks": []
+      }
+    }
+  },
+  "rulesets": [],
+  "prs": [
+    {
+      "number": 7,
+      "head": "ad2915a7889637580505293ce38ab4db66f0a9b3",
+      "base": "5f47f2b7367110ca04ff03cc189983f136ab32fa",
+      "branch": "signal-copilot",
+      "base_branch": "main",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "runs": [
+        {
+          "id": 38305917703,
+          "sha": "ad2915a7889637580505293ce38ab4db66f0a9b3",
+          "event": "push",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/38305917703"
+        },
+        {
+          "id": 37896114359,
+          "sha": "ad2915a7889637580505293ce38ab4db66f0a9b3",
+          "event": "pull_request",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/37896114359"
+        },
+        {
+          "id": 37896110516,
+          "sha": "ad2915a7889637580505293ce38ab4db66f0a9b3",
+          "event": "push",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/37896110516"
+        }
+      ]
+    },
+    {
+      "number": 16,
+      "head": "5cfa79f4d01a8d9a3bf558c44d019064ca477f2a",
+      "base": "ad2915a7889637580505293ce38ab4db66f0a9b3",
+      "branch": "integration/command-center-unified-certification-20261012",
+      "base_branch": "signal-copilot",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "runs": [
+        {
+          "id": 38560019748,
+          "sha": "5cfa79f4d01a8d9a3bf558c44d019064ca477f2a",
+          "event": "pull_request",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/38560019748"
+        },
+        {
+          "id": 38560012191,
+          "sha": "5cfa79f4d01a8d9a3bf558c44d019064ca477f2a",
+          "event": "push",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/38560012191"
+        }
+      ]
+    },
+    {
+      "number": 17,
+      "head": "247b708d2615c0caa72d2a95402a59507ccf9b45",
+      "base": "5cfa79f4d01a8d9a3bf558c44d019064ca477f2a",
+      "branch": "feature/p1-continuous-evidence-shadow-20261014",
+      "base_branch": "integration/command-center-unified-certification-20261012",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "runs": [
+        {
+          "id": 38595331971,
+          "sha": "247b708d2615c0caa72d2a95402a59507ccf9b45",
+          "event": "pull_request",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/38595331971"
+        },
+        {
+          "id": 38595322944,
+          "sha": "247b708d2615c0caa72d2a95402a59507ccf9b45",
+          "event": "push",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/38595322944"
+        }
+      ]
+    },
+    {
+      "number": 18,
+      "head": "33d6a48b448e224b878d075a3348d9ae5caf5369",
+      "base": "247b708d2615c0caa72d2a95402a59507ccf9b45",
+      "branch": "engineering/adaptive-memory-e2-20261014",
+      "base_branch": "feature/p1-continuous-evidence-shadow-20261014",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "runs": [
+        {
+          "id": 38595837887,
+          "sha": "33d6a48b448e224b878d075a3348d9ae5caf5369",
+          "event": "pull_request",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/38595837887"
+        },
+        {
+          "id": 38595766936,
+          "sha": "33d6a48b448e224b878d075a3348d9ae5caf5369",
+          "event": "push",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/38595766936"
+        }
+      ]
+    },
+    {
+      "number": 19,
+      "head": "01a58c57857c63cbb5c7c426f8ebc38d73d96f2d",
+      "base": "33d6a48b448e224b878d075a3348d9ae5caf5369",
+      "branch": "engineering/c2-evaluation-queue-20261014",
+      "base_branch": "engineering/adaptive-memory-e2-20261014",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "runs": [
+        {
+          "id": 38600164028,
+          "sha": "01a58c57857c63cbb5c7c426f8ebc38d73d96f2d",
+          "event": "pull_request",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/38600164028"
+        },
+        {
+          "id": 38600082788,
+          "sha": "01a58c57857c63cbb5c7c426f8ebc38d73d96f2d",
+          "event": "push",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/38600082788"
+        }
+      ]
+    },
+    {
+      "number": 20,
+      "head": "0098c34b5dc25d1c35816ed8c9b30f606f48a76d",
+      "base": "01a58c57857c63cbb5c7c426f8ebc38d73d96f2d",
+      "branch": "engineering/c3-current-decision-20261014",
+      "base_branch": "engineering/c2-evaluation-queue-20261014",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "runs": [
+        {
+          "id": 38603599926,
+          "sha": "0098c34b5dc25d1c35816ed8c9b30f606f48a76d",
+          "event": "pull_request",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/38603599926"
+        },
+        {
+          "id": 38603518868,
+          "sha": "0098c34b5dc25d1c35816ed8c9b30f606f48a76d",
+          "event": "push",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/38603518868"
+        }
+      ]
+    },
+    {
+      "number": 21,
+      "head": "e40d0367921640cd40987d57073125d4921b3416",
+      "base": "0098c34b5dc25d1c35816ed8c9b30f606f48a76d",
+      "branch": "engineering/c4-producer-intelligence-20261014",
+      "base_branch": "engineering/c3-current-decision-20261014",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "runs": [
+        {
+          "id": 38610683536,
+          "sha": "e40d0367921640cd40987d57073125d4921b3416",
+          "event": "pull_request",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/38610683536"
+        },
+        {
+          "id": 38610674599,
+          "sha": "e40d0367921640cd40987d57073125d4921b3416",
+          "event": "push",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/38610674599"
+        }
+      ]
+    },
+    {
+      "number": 22,
+      "head": "80cb58ae7793d7bccabd084ffce1994f284cfdba",
+      "base": "e40d0367921640cd40987d57073125d4921b3416",
+      "branch": "engineering/global-producer-attention-20261014",
+      "base_branch": "engineering/c4-producer-intelligence-20261014",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "runs": [
+        {
+          "id": 38615380877,
+          "sha": "80cb58ae7793d7bccabd084ffce1994f284cfdba",
+          "event": "pull_request",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/38615380877"
+        },
+        {
+          "id": 38615342812,
+          "sha": "80cb58ae7793d7bccabd084ffce1994f284cfdba",
+          "event": "push",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/38615342812"
+        }
+      ]
+    },
+    {
+      "number": 23,
+      "head": "6276412d7c317d66283159b5f4edbd0ea883e020",
+      "base": "80cb58ae7793d7bccabd084ffce1994f284cfdba",
+      "branch": "engineering/hosted-read-integrity-20261014",
+      "base_branch": "engineering/global-producer-attention-20261014",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "runs": [
+        {
+          "id": 38628149799,
+          "sha": "6276412d7c317d66283159b5f4edbd0ea883e020",
+          "event": "pull_request",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/38628149799"
+        },
+        {
+          "id": 38628141934,
+          "sha": "6276412d7c317d66283159b5f4edbd0ea883e020",
+          "event": "push",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/38628141934"
+        }
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "id": 116072647476,
+      "head_sha": "6276412d7c317d66283159b5f4edbd0ea883e020",
+      "conclusion": "success",
+      "details_url": "https://dash.cloudflare.com/?to=/ac46c14627f1ad50d6f4c92b347c957c/pages/view/coveragefit/02ea6a76-a1e3-4185-90e0-b4294083e9cf",
+      "summary": "<table><tr><td><strong>Latest commit:</strong> </td><td>\n<code>6276412</code>\n</td></tr>\n<tr><td><strong>Status:</strong></td><td>&nbsp;✅&nbsp; Deploy successful!</td></tr>\n<tr><td><strong>Preview URL:</strong></td><td>\n<a href='https://02ea6a76.coveragefit.pages.dev'>https://02ea6a76.coveragefit.pages.dev</a>\n</td></tr>\n<tr><td><strong>Branch Preview URL:</strong></td><td>\n<a href='https://engineering-hosted-read-inte.coveragefit.pages.dev'>https://engineering-hosted-read-inte.coveragefit.pages.dev</a>\n</td></tr>\n</table>\n\n[View logs](https://dash.cloudflare.com/?to=/ac46c14627f1ad50d6f4c92b347c957c/pages/view/coveragefit/02ea6a76-a1e3-4185-90e0-b4294083e9cf)\n"
+    }
+  ]
+}
