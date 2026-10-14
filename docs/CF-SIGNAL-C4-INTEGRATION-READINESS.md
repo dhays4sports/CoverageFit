@@ -48,6 +48,8 @@ Actual E2/C1/C2/C3 file-backed fixtures verify:
 - Existing C2 concurrency/SIGKILL/recovery and C3 restart/freshness regressions remain passing. No new worker or execution mechanism is introduced.
 - UI gate tests consume real C4 records and verify mutation panels remain disabled; modified browser modules pass syntax checks. This is **not** a browser visual or hosted UI acceptance claim.
 
+The initial exact-head CI run exposed a scheduling-sensitive assertion in the pre-existing Copilot concurrency test: it assumed exactly one promise must reject, although a second request may legitimately return the completed cache. The test now holds a synthetic provider operation in flight, verifies duplicate rejection and one invocation, then explicitly verifies later cached reuse without another invocation. No Copilot runtime behavior or provider operation was changed.
+
 ## Measured read overhead
 
 Reproduce with `node --experimental-loader ./tests/json-loader.mjs scripts/benchmark-producer-intelligence-local.mjs`. Raw evidence: `docs/evidence/CF-C4-read-overhead.jsonl`. Each dataset uses real admission and committed C2 decisions. Paired measurements alternate C3 and C4 order over 100 reads of the same 25-record page; C4 includes authorization, schema checks, record hydration and contract reconciliation. A separate cursor traversal verifies every scoped identity, at most 25/page. One initial seed identity lacks context and correctly remains unavailable.
@@ -74,6 +76,6 @@ Measurements are local synthetic warm-process results, not hosted capacity or a 
 | Messages, calls, appointments, CRM writes, unattended execution | Not authorized; not implemented in C4 |
 | Producer minutes, useful conversations, quote/bind/premium improvement | Unmeasured; synthetic success is not economic progress |
 
-Keep #7, #16, #17, #18, #19, #20 and this C4 PR draft/unmerged. No deployment, hosted migration, Cloudflare setting, real-data expansion, provider operation, customer communication, CRM mutation, appointment or spending occurred. Automatic branch Preview builds confer no authority for hosted data operations.
+Keep #7, #16, #17, #18, #19, #20 and this C4 PR draft/unmerged. No production deployment or deliberate hosted deployment action, hosted migration, Cloudflare setting, real-data expansion, provider operation, customer communication, CRM mutation, appointment or spending occurred. Automatic branch Preview builds confer no authority for hosted data operations.
 
 Rollback: omit this stacked C4 branch; no schema or hosted state was changed. The next justified work is **integration readiness of this existing stack**, not another intelligence layer: review exact diffs and release effects, define/validate the production D1 snapshot and authorization mapping against this contract, then perform independently authorized hosted read-only/UI acceptance and rollback checks when access is available. No merge or principal intervention is requested by this engineering report.
