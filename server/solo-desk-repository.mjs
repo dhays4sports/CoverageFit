@@ -60,8 +60,8 @@ export function soloRepository(db,scope){
       }
       const opportunity=publicOpportunity(op),profile=await universalCustomerProfile(this).detail(id);
       const isControl=await control(id);
-      const possessionQuality=isControl?null:await persistFiv(id,derivePossessionQuality({opportunity,sources:projected,customerProfile:profile}));
-      const opportunityPriority=isControl?null:await persistPriority(id,deriveOpportunityPriority({opportunity,tasks,sources:projected,customerProfile:profile,possessionQuality}));
+      const possessionQuality=isControl?null:derivePossessionQuality({opportunity,sources:projected,customerProfile:profile});
+      const opportunityPriority=isControl?null:deriveOpportunityPriority({opportunity,tasks,sources:projected,customerProfile:profile,possessionQuality});
       const nextBestAction=isControl?null:deriveNextBestAction({opportunity,tasks,sources:projected,possessionQuality,opportunityPriority});
       const effortSummary=await opportunityEffortSummary(this,id);
       return {opportunity,tasks,sources:projected,customerProfile:profile,possessionQuality,opportunityPriority,nextBestAction,effortSummary,...timeline};

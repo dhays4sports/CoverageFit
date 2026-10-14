@@ -36,7 +36,9 @@ export function universalCustomerProfile(repo){
   }
   async function detail(opportunityId){
     if(!await available())return {status:'setup_required',schemaVersion:'1.0',customer:null,household:null,relatedOpportunities:[],candidates:[],identityAutoMerged:false};
-    const link=await ensure(opportunityId);
+    await repo.own(opportunityId);
+    const link=await sql('SELECT * FROM cf_ucp_opportunity_links WHERE workspace_id=? AND opportunity_id=?',workspace,opportunityId).first();
+    if(!link)return {status:'not_initialized',schemaVersion:'1.0',customer:null,household:null,relatedOpportunities:[],candidates:await candidates(opportunityId,{customer_id:''}),identityAutoMerged:false};
     const [customer,household,related,members]=await Promise.all([
       sql('SELECT * FROM cf_ucp_customers WHERE workspace_id=? AND id=?',workspace,link.customer_id).first(),
       sql('SELECT * FROM cf_ucp_households WHERE workspace_id=? AND id=?',workspace,link.household_id).first(),

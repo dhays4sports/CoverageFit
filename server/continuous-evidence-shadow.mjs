@@ -4,9 +4,9 @@
 import {simulateEngagement} from './engagement-shadow-simulator.mjs';
 
 export const EVIDENCE_SHADOW_BUILD='CF-CONTINUOUS-EVIDENCE-SHADOW-0.1';
-const SOURCE_TYPES=new Set(['vendor_import','first_party_form','sms_inbound','producer_confirmation']);
-const FIELDS=new Set(['carrier','vehicle_count','renewal_date','homeowner','shopping_reason','explicit_call_request']);
-const COMPARE_FIELDS=['carrier','vehicle_count','renewal_date','homeowner','shopping_reason','explicit_call_request'];
+const SOURCE_TYPES=new Set(['vendor_import','first_party_form','sms_inbound','producer_confirmation','document_verification','model_inference']);
+const FIELDS=new Set(['carrier','vehicle_count','renewal_date','homeowner','shopping_reason','explicit_call_request','explicit_quote_request']);
+const COMPARE_FIELDS=['carrier','vehicle_count','renewal_date','homeowner','shopping_reason','explicit_call_request','explicit_quote_request'];
 const text=(value,max=150)=>typeof value==='string'?value.trim().slice(0,max):'';
 const validId=value=>typeof value==='string'&&/^[A-Za-z0-9][A-Za-z0-9._:-]{0,159}$/.test(value);
 const validInstant=value=>typeof value==='string'&&Number.isFinite(Date.parse(value));
@@ -22,13 +22,14 @@ export const emptyEvidenceState=()=>({build:EVIDENCE_SHADOW_BUILD,events:[],held
 function normalizeClaim(raw,sourceType,eventId,occurredAt){
  if(!raw||!FIELDS.has(raw.field))return null;
  if(sourceType==='producer_confirmation'&&raw.producer_verified!==true)return null;
+ if(sourceType==='document_verification'&&(!validId(raw.verification_event_id)||!validId(raw.document_ref)))return null;
  const field=raw.field;
  let value=raw.value;
  if(field==='renewal_date'){
   if(typeof value!=='string'||!date(value)&&!month(value))return null;
  }else if(field==='vehicle_count'){
   if(!Number.isSafeInteger(value)||value<0||value>30)return null;
- }else if(field==='homeowner'||field==='explicit_call_request'){
+ }else if(field==='homeowner'||field==='explicit_call_request'||field==='explicit_quote_request'){
   if(typeof value!=='boolean')return null;
  }else{
   if(typeof value!=='string'||!value.trim()||value.length>150)return null;
@@ -37,10 +38,10 @@ function normalizeClaim(raw,sourceType,eventId,occurredAt){
  const policy=field==='renewal_date'?text(raw.policy_line,24).toUpperCase()||'UNSPECIFIED':null;
  if(policy&&!/^[A-Z][A-Z0-9_]{0,23}$/.test(policy))return null;
  const verification=sourceType==='producer_confirmation'&&raw.producer_verified===true?'producer_confirmed'
-  :sourceType==='vendor_import'?'imported_unverified':'customer_reported';
+  :sourceType==='document_verification'?'document_verified':sourceType==='model_inference'?'inference':sourceType==='vendor_import'?'imported_unverified':'customer_reported';
  return {assertion_id:eventId+':'+field+(policy?':'+policy:''),field,value,policy_line:policy,
   precision:field==='renewal_date'?(date(value)?'exact':'month'):null,
-  verification,source_event_id:eventId,observed_at:occurredAt,
+  verification,verification_event_id:sourceType==='document_verification'?raw.verification_event_id:null,document_ref:sourceType==='document_verification'?raw.document_ref:null,source_event_id:eventId,observed_at:occurredAt,
   supersedes_assertion_id:sourceType==='producer_confirmation'&&raw.producer_verified===true&&validId(raw.supersedes_source_event_id)
    ?raw.supersedes_source_event_id+':'+field+(policy?':'+policy:''):null};
 }
@@ -50,7 +51,7 @@ function normalizedEvent(event){
    ||!SOURCE_TYPES.has(event.source_type)||!validInstant(event.observed_at))return null;
  const raw=event.observations;
  if(!Array.isArray(raw)||raw.length<1||raw.length>12)return null;
- const claims=raw.map(x=>normalizeClaim(x,event.source_type,event.source_event_id,event.observed_at));
+ const claims=raw.map(x=>normalizeClaim(x,event.source_type,event.source_event_id,new Date(event.observed_at).toISOString()));
  if(claims.some(x=>!x)||new Set(claims.map(x=>x.assertion_id)).size!==claims.length)return null;
  claims.sort((a,b)=>a.assertion_id.localeCompare(b.assertion_id));
  return {workspace_id:event.workspace_id,profile_id:event.profile_id,source_type:event.source_type,
@@ -104,7 +105,7 @@ function comparable(a,b){
  }
  return a.value===b.value;
 }
-const rank=a=>(a.verification==='producer_confirmed'?3:a.verification==='customer_reported'?2:1)
+const rank=a=>(a.verification==='document_verified'?4:a.verification==='inference'?0:a.verification==='producer_confirmed'?3:a.verification==='customer_reported'?2:1)
   +(a.precision==='exact'?0.25:0);
 const fieldKey=x=>x.field+(x.policy_line?':'+x.policy_line:'');
 
@@ -130,10 +131,10 @@ export function projectEvidence(state,{workspace_id,profile_id,now='2026-10-14T0
   const sorted=[...claims].sort((a,b)=>rank(b)-rank(a)||b.observed_at.localeCompare(a.observed_at)
    ||a.source_event_id.localeCompare(b.source_event_id));
   const conflict=sorted.some(x=>!comparable(x,sorted[0]));
-  facts[key]={status:conflict?'CONFLICTED':'KNOWN',value:conflict?null:sorted[0].value,
+  facts[key]={status:conflict?'CONFLICTED':sorted[0].verification==='inference'?'INFERRED':'KNOWN',value:conflict?null:sorted[0].value,
    verification:conflict?'conflicted':sorted[0].verification,
    evidence:sorted.map(x=>({source_event_id:x.source_event_id,source_type:events.find(e=>e.source_event_id===x.source_event_id)?.source_type||'unknown',
-    value:x.value,verification:x.verification,precision:x.precision,observed_at:x.observed_at}))};
+    value:x.value,verification:x.verification,verification_event_id:x.verification_event_id,document_ref:x.document_ref,precision:x.precision,observed_at:x.observed_at}))};
  }
  const renewalKeys=[...groups.keys()].filter(x=>x.startsWith('renewal_date:'));
  if(renewalKeys.length===1)facts.renewal_date=facts[renewalKeys[0]];
