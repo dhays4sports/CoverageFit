@@ -9,7 +9,7 @@ const bounded=(x,min,max)=>{if(!Number.isSafeInteger(x)||x<min||x>max)throw Erro
 const id=x=>{if(typeof x!=='string'||!x.length||x.length>160||!/^[a-zA-Z0-9._:-]+$/.test(x))throw Error('invalid_identifier');return x};
 const minimum=values=>values.filter(Boolean).sort()[0]||null;
 const CONTEXT_KIND='signal_c2_context_v1';
-function normalizeContext(input){
+export function normalizeContext(input){
  if(!input||!['DISTRICT_SIGNAL','DISTRICT_CONTROL','CONTROL','TEST','WEB_DIRECT','OTHER'].includes(input.population)
    ||!['AGENCYZOOM','UNKNOWN','COVERAGEFIT_APPROVED'].includes(input.workflowOwner))throw Error('invalid_context');
  const c=input.contact||{},commitments=input.commitments||[];

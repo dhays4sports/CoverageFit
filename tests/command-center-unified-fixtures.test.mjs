@@ -1,3 +1,4 @@
+import {signalCurrentDecisionLocal} from '../server/signal-current-decision-local.mjs';
 import {seed as seedMemory,event as memoryEvent,NOW as memoryNow} from './helpers/prospect-memory-fixture.mjs';
 import {signalEvaluationQueueLocal} from '../server/signal-evaluation-queue-local.mjs';
 import test from 'node:test';
@@ -89,12 +90,14 @@ test('P0 designated GET endpoints preserve every stored row and SQLite change co
   seedMemory(f.sql,'read-only-queue-prospect',workspace);
   const queue=signalEvaluationQueueLocal(f.sql,{syntheticOnly:true});
   assert.equal(queue.memory.admit(memoryEvent('readonly-event',undefined,{workspace_id:workspace,profile_id:'read-only-queue-prospect'}),{now:memoryNow}).code,'ADMITTED');
+  queue.setContext(workspace,'read-only-queue-prospect',{population:'DISTRICT_SIGNAL',workflowOwner:'AGENCYZOOM'},{now:memoryNow,requestId:'read-context',authority:{actor:'synthetic-test',reference:'local-mandate'}});
   const p=generateCommandCenterFixturePackage({runId,workspaceId:workspace,head,now:new Date('2026-10-12T22:00:00Z')});
   f.sql.exec(p.sql);
   const snapshot=()=>Object.fromEntries(f.sql.prepare("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").all().map(({name})=>[name,f.sql.prepare('SELECT * FROM "'+name.replaceAll('"','""')+'"').all().map(r=>JSON.stringify(r)).sort()]));
   const id=p.fixtures.review_pending;
   for(const route of ['producer-work','producer-command-center','producer-detail?id='+id,'prospect-360?id='+id,'producer-approval-preflight?ids='+id,'profile?id='+id,'record?id='+id,'next-best-action?id='+id,'fiv-calibration','priority-calibration','acquisition-summary','economics-summary']){
    const before=snapshot(),changes=f.sql.prepare('SELECT total_changes() n').get().n;
+   const c3=signalCurrentDecisionLocal(f.sql,{syntheticOnly:true}).current(workspace,'read-only-queue-prospect',{now:memoryNow});assert.equal(c3.status,'PENDING');
    const response=await f.api(route);assert.equal(response.status,200,route+': '+JSON.stringify(response.body));
    assert.deepEqual(snapshot(),before,route+' mutated stored rows');
    assert.equal(f.sql.prepare('SELECT total_changes() n').get().n,changes,route+' executed a write');
