@@ -133,9 +133,9 @@ export function projectEvidence(state,{workspace_id,profile_id,now='2026-10-14T0
    evidence:sorted.map(x=>({source_event_id:x.source_event_id,source_type:events.find(e=>e.source_event_id===x.source_event_id)?.source_type||'unknown',
     value:x.value,verification:x.verification,precision:x.precision,observed_at:x.observed_at}))};
  }
- const renewalKeys=Object.keys(facts).filter(x=>x==='renewal_date'||x.startsWith('renewal_date:'));
+ const renewalKeys=[...groups.keys()].filter(x=>x.startsWith('renewal_date:'));
  if(renewalKeys.length===1)facts.renewal_date=facts[renewalKeys[0]];
- else if(renewalKeys.length>1)facts.renewal_date={status:'CONFLICTED',value:null,verification:'conflicted',
+ else if(renewalKeys.length>1)facts.renewal_date={status:'AMBIGUOUS',value:null,verification:'unknown',
   evidence:renewalKeys.flatMap(k=>facts[k].evidence)};
  const hasMaterialConflict=Object.values(facts).some(x=>x.status==='CONFLICTED');
  return {build:EVIDENCE_SHADOW_BUILD,mode:'TEST_ONLY',workspace_id,profile_id,
