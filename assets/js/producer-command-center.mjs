@@ -42,6 +42,8 @@ export function mountCommandCenter(root,api,open){
    </div>
    <div class="cc-list" aria-live="polite">${rows.length?rows.map(r=>row(r,active)).join(''):
       '<p class="muted">No matching governed actions in this preview.</p>'}</div>
+   ${state.selection_coverage?`<p class="cc-note">Current evaluated opportunities, ordered across this workspace. ${state.selection_coverage.completeness==='LIMITED'?'Evaluation or freshness gaps remain. ':''}This is a bounded page, not a complete inventory. Refresh to include newly prioritized work.</p>`:''}
+   ${state.next_cursor?'<button type="button" data-cc-next>Next attention page</button>':''}
    ${active==='inbox'&&state.review_readonly_enabled?selectableReview(state.inbox,selected):''}
    <p class="cc-note">Source: existing CoverageFit Work. Inbox shows linked SIGNAL decisions only;
    <b>live RingCentral inbound synchronization is not certified.</b>
@@ -54,6 +56,7 @@ export function mountCommandCenter(root,api,open){
   if(button.dataset.ccId){open(button.dataset.ccId);return;}
   if(button.dataset.ccTab){active=button.dataset.ccTab;render();return;}
   if(button.hasAttribute('data-cc-refresh'))refresh();
+  if(button.hasAttribute('data-cc-next')&&state?.next_cursor)refresh(state.next_cursor);
   if(button.hasAttribute('data-cc-clear')){selected.clear();render();}
   if(button.hasAttribute('data-cc-review')){void reviewSelected();}
  });
@@ -78,11 +81,11 @@ export function mountCommandCenter(root,api,open){
   }catch{if(ticket===reviewRequest&&root.contains(output))output.textContent='Review unavailable. No drafts saved or messages sent.';}
   finally{if(ticket===reviewRequest&&root.contains(button))button.disabled=false;}
  }
- async function refresh(){
+ async function refresh(after=''){
   attempted=true;
   const ticket=++request;
   try{
-   const response=await api('producer-command-center');
+   const response=await api('producer-command-center'+(after?'?after='+encodeURIComponent(after):''));
    if(ticket!==request)return;
    if(response?.enabled===true){state=response;render();}
    else {state=null;root.hidden=true;}

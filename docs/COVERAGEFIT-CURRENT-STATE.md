@@ -1,10 +1,10 @@
 # CoverageFit Current State
 
-## Latest verified integration snapshot — 2026-10-14
+## Latest verified global-attention correction — 2026-10-14
 
-The [Roadmap 3.0 integration-readiness report](CF-ROADMAP-3-INTEGRATION-READINESS.md) supersedes earlier implementation-status, test-count and next-engineering snapshots below. Main and #7 → #16 → #17 → #18 → #19 → #20 → #21 were refreshed; all PRs remain draft/unmerged. Reviewed #21 is `089cd3860247fc66e9cce0dd68c48368123342b1` (634/634 exact-head CI). E2 durable memory, C1 SHADOW planning, C2 fenced queue, Current Decision C3 and Producer Integration C4 are locally implemented/tested, not hosted-certified. This consolidation adds two test-only blocker characterizations (636/636 local), no runtime change; final package head/CI are in #21.
+The [global producer-attention acceptance package](CF-GLOBAL-ATTENTION-ACCEPTANCE.md) supersedes the earlier page-local ranking blocker. Stacked on draft #21 `e40d0367921640cd40987d57073125d4921b3416`, it adds transactionally published selection metadata to the existing local C2 queue and indexed, bounded, C3-revalidated Today selection. Local full suite: 653/653; actual synthetic scale receipts cover 1,000–50,000 prospects. Exact new draft head and CI are in its PR body. No existing PR was merged.
 
-Release gaps: page-local C4 ranking can omit urgent later-page work; no accepted D1 snapshot/auth adapter; local query fan-out/allowlist exceed direct-port D1 budgets; real-data authority and economic measurement remain unaccepted. Main reports unprotected/no rulesets, with detailed protection access denied. No merges/deployments or Cloudflare login request. **Producer Integration C4 is not Dynamic Cadence C4's live communication canary**, which remains unapproved/unimplemented. The earlier hosted Preview evidence remains scoped to its historical runtime.
+E2/C1/C2/C3/Producer Integration C4 remain locally implemented/tested, not hosted-certified. Candidate queries are bounded; C3 hydration still requires a separately accepted D1 implementation and query budget. Hosted persistence, authorization/consistency, deployment safety, provider readiness and real producer economics remain release gates. No new intelligence milestone follows this correction. **Producer Integration C4 is not Dynamic Cadence C4's live communication canary**, which remains unapproved/unimplemented. Prior historical snapshots below must not override this status.
 
 ## FUTURE PRIVACY-FIRST MONETIZATION BOUNDARY ADOPTED — 2026-10-13
 

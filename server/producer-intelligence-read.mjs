@@ -1,6 +1,6 @@
 // Trusted-server composition boundary; not installed in any HTTP route.
 // A future hosted adapter requires independent authorization/consistency acceptance.
-import {PRODUCER_INTELLIGENCE_CONTRACT,reconcileProducerIntelligence,unavailableDecision} from './producer-intelligence-contract.mjs';
+import {PRODUCER_INTELLIGENCE_CONTRACT,reconcileProducerIntelligence,unavailableDecision,decodeAttentionCursor,compareAttentionKeys} from './producer-intelligence-contract.mjs';
 import {projectCommandCenter} from './producer-command-center.mjs';
 import {projectProspect360} from './prospect-360-readonly.mjs';
 import {compareAttention} from './attention-priority.mjs';
@@ -56,7 +56,32 @@ export function producerIntelligenceRead({authorize,store,clock=()=>new Date().t
   for(const r of visible){if(Object.hasOwn(counts,r.population))counts[r.population]++;attention_summary[r.attention.band]++;if(r.human_attention_eligible)attention_summary.actionable++;}
   return {enabled:true,status:'AVAILABLE',attention_enabled:true,attention_summary,counts,sort:sort==='baseline'?'recommended':sort,test_excluded:0,nextOffset:null,records:visible,total:visible.length,total_scope:'PAGE_ONLY',next_cursor:page.next_cursor||null,limit,as_of:at};
  }
- return {detail,list,
-  async today(request,options){const work=await list(request,options);return {...projectCommandCenter(work),status:work.status,reason:work.reason,next_cursor:work.next_cursor,scope:'BOUNDED_PAGE_ONLY'}},
+ async function attention(request,{after='',limit=25,population='ALL',q=''}={}){
+  const a=await scope(request);let key;try{key=decodeAttentionCursor(after)}catch{deny(422,'INVALID_ATTENTION_CURSOR')}
+  if(!Number.isInteger(limit)||limit<1||limit>100||typeof q!=='string'||q.length>120||!['ALL','DISTRICT_SIGNAL','DISTRICT_CONTROL','WEB_DIRECT','OTHER'].includes(population))deny(422,'INVALID_PAGE');
+  const at=now(),blocked=readiness();
+  const empty=reason=>({enabled:false,status:'UNAVAILABLE',reason,attention_enabled:false,records:[],total:0,total_scope:'PAGE_ONLY',next_cursor:null,selection_coverage:{population_completeness:'UNAVAILABLE'}});
+  if(blocked)return empty(blocked);if(typeof store.attentionPage!=='function')return empty('ATTENTION_ADAPTER_UNAVAILABLE');
+  let page;try{page=await store.attentionPage({...a,after,limit,now:at})}catch{return empty('ATTENTION_STORE_UNAVAILABLE')}
+  if(page?.unavailable)return empty(page.unavailable);
+  if(!Array.isArray(page?.items)||page.items.length>limit)deny(503,'INVALID_ADAPTER_PAGE');
+  let previous=key,rejected=0;const records=[];q=q.trim().toLowerCase();
+  for(const item of page.items){
+   const k=item.candidate_key; // Validate the key syntax through the same cursor parser.
+   try{decodeAttentionCursor('attention:'+btoa(JSON.stringify(k)))}catch{deny(503,'INVALID_ADAPTER_PAGE')}
+   if(k[2]!==item.record?.id||previous&&compareAttentionKeys(k,previous)<=0)deny(503,'INVALID_ADAPTER_PAGE');previous=k;
+   const r=checked(a,item,at);
+   if(r.current_decision.status!=='CURRENT'||!r.human_attention_eligible||k[0]!==-r.attention.rank||k[1]!== (r.attention.due_at||'9999')){rejected++;continue}
+   const pop=r.population?.population||r.population||'OTHER';
+   if((population==='ALL'||pop===population)&&(!q||[r.name,r.products,r.source].join(' ').toLowerCase().includes(q)))records.push({...r,population:pop});
+  }
+  if(page.next_cursor){let next;try{next=decodeAttentionCursor(page.next_cursor)}catch{deny(503,'INVALID_ADAPTER_PAGE')}
+   if(!previous||compareAttentionKeys(next,previous)!==0)deny(503,'INVALID_ADAPTER_PAGE');}
+  return {enabled:true,status:'AVAILABLE',attention_enabled:true,records,total:records.length,total_scope:'PAGE_ONLY',next_cursor:page.next_cursor||null,as_of:at,
+   selection_coverage:{...page.coverage,rejected_candidates:rejected,returned_records:records.length,filtered_candidates:page.items.length-rejected-records.length,
+    completeness:page.coverage?.pending_evaluation||page.coverage?.failed_evaluation||page.coverage?.unpublished_candidates||rejected?'LIMITED':'EVALUATED_CANDIDATES_ONLY'},read_metrics:page.read_metrics};
+ }
+ return {detail,list,attention,
+  async today(request,options={}){if(options.limit>40)deny(422,'INVALID_PAGE');const work=await attention(request,options);return {...projectCommandCenter(work,{maxRows:options.limit||25}),status:work.status,reason:work.reason,next_cursor:work.next_cursor,selection_coverage:work.selection_coverage,read_metrics:work.read_metrics,scope:'GLOBAL_EVALUATED_CANDIDATES'}},
   async prospect360(request,id){const d=await detail(request,id);return projectProspect360(d,{now:d.current_decision.as_of})}};
 }

@@ -11,7 +11,7 @@ function admitted(f,id,call=false){
  seed(f.db,id);configure(f,context,id);
  assert.equal(f.queue.memory.admit(event('source-'+id,[{field:call?'explicit_call_request':'carrier',value:call?true:'AAA'}],{profile_id:id}),{now:NOW}).code,'ADMITTED');
 }
-test('readiness blocker: ID-first C4 pages omit a later CURRENT CALL from initial Today',async()=>{
+test('readiness regression: globally selected CURRENT CALL is no longer hidden by inventory ID paging',async()=>{
  const f=fixture(),original=globalThis.fetch;let external=0;
  globalThis.fetch=()=>{external++;throw Error('external operation forbidden')};
  try{
@@ -20,14 +20,11 @@ test('readiness blocker: ID-first C4 pages omit a later CURRENT CALL from initia
   const svc=views(f),before=f.db.prepare('SELECT total_changes() n').get().n;
   const urgent=await svc.detail(request(),'zzz-urgent');
   assert.equal(urgent.current_decision.status,'CURRENT');assert.equal(urgent.human_attention_eligible,true);
-  const first=await svc.today(request());assert.equal(first.today.length,0);assert.ok(first.next_cursor);
-  const second=await svc.today(request(),{after:first.next_cursor});
-  assert.equal(second.today[0].opportunity_id,'zzz-urgent');assert.equal(second.today[0].execution_authority.call,false);
+  const inventory=await svc.list(request());assert.ok(inventory.records.every(r=>r.id!=='zzz-urgent'));assert.ok(inventory.next_cursor);
+  const first=await svc.today(request());assert.equal(first.today[0].opportunity_id,'zzz-urgent');assert.equal(first.today[0].execution_authority.call,false);
   const center=await commandCenterPreview({scope:{workspace:W},db:f.db},{CF_COMMAND_CENTER_READONLY_ENABLED:'1'},{intelligence:svc,request:request()});
-  assert.equal(center.today.length,0);assert.equal(center.scope,'BOUNDED_PAGE_ONLY');
-  // Existing wrapper drops the service cursor. Do not mistake empty Today for
-  // an empty global attention queue; fix selection before any hosted activation.
-  assert.equal(center.next_cursor,undefined);
+  assert.equal(center.today[0].opportunity_id,'zzz-urgent');assert.equal(center.scope,'GLOBAL_EVALUATED_CANDIDATES');
+  assert.equal(center.next_cursor,null);assert.equal(center.selection_coverage.population_completeness,'NOT_CERTIFIED');
   assert.equal(f.db.prepare('SELECT total_changes() n').get().n,before);assert.equal(external,0);
  }finally{globalThis.fetch=original;f.cleanup()}
 });
