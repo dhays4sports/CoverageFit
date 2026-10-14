@@ -1,3 +1,5 @@
+import {seed as seedMemory,event as memoryEvent,NOW as memoryNow} from './helpers/prospect-memory-fixture.mjs';
+import {signalEvaluationQueueLocal} from '../server/signal-evaluation-queue-local.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {DatabaseSync} from 'node:sqlite';
@@ -83,6 +85,10 @@ test('combined browser checker is same-origin GET-only and reports sanitized acc
 
 test('P0 designated GET endpoints preserve every stored row and SQLite change counter',async()=>{
  const f=setup();try{
+  for(const file of ['0020_prospect_memory_e2.sql','0021_signal_evaluation_queue.sql'])f.sql.exec(readFileSync(new URL('./migrations/'+file,import.meta.url),'utf8'));
+  seedMemory(f.sql,'read-only-queue-prospect',workspace);
+  const queue=signalEvaluationQueueLocal(f.sql,{syntheticOnly:true});
+  assert.equal(queue.memory.admit(memoryEvent('readonly-event',undefined,{workspace_id:workspace,profile_id:'read-only-queue-prospect'}),{now:memoryNow}).code,'ADMITTED');
   const p=generateCommandCenterFixturePackage({runId,workspaceId:workspace,head,now:new Date('2026-10-12T22:00:00Z')});
   f.sql.exec(p.sql);
   const snapshot=()=>Object.fromEntries(f.sql.prepare("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").all().map(({name})=>[name,f.sql.prepare('SELECT * FROM "'+name.replaceAll('"','""')+'"').all().map(r=>JSON.stringify(r)).sort()]));
