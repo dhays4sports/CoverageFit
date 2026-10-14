@@ -128,3 +128,9 @@ test('portable read: page and response budgets are explicit at 1, 25, 40 and rej
   const before=v.db.receipts.length,r=await v.service.attention(request(),{limit:41});assert.equal(r.reason,'READ_BUDGET_EXCEEDED');assert.equal(v.db.receipts.length,before);
  }finally{f.cleanup()}
 });
+
+test('portable read: authorized existing record without evaluation state is UNAVAILABLE, not missing',async()=>{
+ const f=fixture();try{const v=portableViews(f);const r=await v.service.detail(request(),P);assert.equal(r.id,P);assert.equal(r.current_decision.status,'UNAVAILABLE');assert.equal(r.current_decision.recommendation,null);
+  await assert.rejects(v.service.detail(request(),'absent'),/RECORD_UNAVAILABLE/);
+ }finally{f.cleanup()}
+});

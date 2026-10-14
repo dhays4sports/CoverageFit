@@ -2,7 +2,7 @@
 
 ## Latest portable read engineering acceptance — 2026-10-14
 
-The [hosted-read integrity acceptance package](CF-HOSTED-READ-INTEGRITY-ACCEPTANCE.md) continues draft #22 `80cb58ae7793d7bccabd084ffce1994f284cfdba`. A synthetic-only, runtime-neutral reader hydrates bounded attention/detail state in one SQL statement with eight parameters, reusing canonical E2/C3 semantics. Local suite: 671/671; immutable #22 comparison: 11/11; actual synthetic benchmarks cover 1,000–50,000 prospects with material evidence history. Exact new draft head and CI are in its PR body. All existing PRs remain draft/unmerged.
+The [hosted-read integrity acceptance package](CF-HOSTED-READ-INTEGRITY-ACCEPTANCE.md) continues draft #22 `80cb58ae7793d7bccabd084ffce1994f284cfdba`. A synthetic-only, runtime-neutral reader hydrates bounded attention/detail state in one SQL statement with eight parameters, reusing canonical E2/C3 semantics. Local suite: 672/672; immutable #22 comparison: 11/11; actual synthetic benchmarks cover 1,000–50,000 prospects with material evidence history. Exact new draft head and CI are in its PR body. All existing PRs remain draft/unmerged.
 
 Hosted acceptance remains blocked: actual D1/runtime behavior, Workers tier/CPU/memory, Preview/Production isolation, authorization, write/bootstrap port and deployment/rollback evidence are unverified. Existing outer HTTP rate-limit accounting writes must be reconciled before claiming a fully mutation-free hosted GET. No hosted route, schema or provider was activated. Next is bounded hosted integration/release evidence and an independently authorized read-only producer dogfood, not a new intelligence layer. Producer Integration C4 remains distinct from the unapproved Dynamic Cadence C4 communication canary.
 

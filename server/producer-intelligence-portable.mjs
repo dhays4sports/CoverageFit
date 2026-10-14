@@ -29,7 +29,7 @@ export function producerIntelligencePortable(db,{syntheticOnly=false}={}){
      ||await hash([decision.profile_version,original])!==r.decision_id||r.context_version===policy.version&&await hash(normalizeContext(context_snapshot))!==r.context_version)throw Error('CORRUPT_DECISION');
    }
    const atDecision=r&&await profile(data,a.workspace,p,r.evaluated_at);
-   let v=projectCurrentDecision({id:p,now:a.now,profile:current,atDecision,policy,queue:q,result:r,decision,
+   let v=projectCurrentDecision({id:p,now:a.now,profile:current,atDecision,policy,queue:q.generation===null?null:q,result:r,decision,
     safety:planSignal(current,{...options,now:a.now}),sourceValid:rows.every(e=>e.source_prospect===p)});
    if(attention){const c=JSON.parse(q.attention_json);
     if(!c||c.build!==ATTENTION_SELECTION_BUILD||c.published_at>a.now||c.valid_until&&c.valid_until<=a.now

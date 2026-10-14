@@ -9,7 +9,8 @@ export function producerReadSQL({mode='attention',restricted=false,after=false}=
  const candidates=mode==='attention'?`SELECT q.* FROM ${table} WHERE q.workspace_id=?1 AND q.attention_eligible=1 AND ?8 IS NULL
  ${after?'AND (q.attention_order,q.attention_due,q.opportunity_id)>(?4,?5,?6)':''}
  ORDER BY q.attention_order,q.attention_due,q.opportunity_id LIMIT ?7`:
- `SELECT q.* FROM ${restricted?'scoped q':'cf_evaluation_queue q'} WHERE q.workspace_id=?1 AND q.opportunity_id=?8 LIMIT 1`;
+ `SELECT o.id AS opportunity_id,q.* FROM cf_solo_opportunities o LEFT JOIN cf_evaluation_queue q ON q.workspace_id=?1 AND q.opportunity_id=o.id
+ WHERE o.workspace_id=?1 AND o.id=?8 ${restricted?'AND o.id IN (SELECT id FROM scope)':''} LIMIT 1`;
  // Correlated CTEs hydrate only selected rows. Each event/claim lookup has an index + hard LIMIT.
  const payload=`WITH ev AS MATERIALIZED (
  SELECT e.*,s.opportunity_id AS source_prospect,

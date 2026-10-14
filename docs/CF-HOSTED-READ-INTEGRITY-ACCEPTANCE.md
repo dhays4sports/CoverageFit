@@ -18,6 +18,7 @@ Fresh review of #22's actual diff, SQL triggers and C2/C3 contracts found:
 | Selection/scope | Indexed rank/due/ID ordering, record-scoped access, bounded windows, empty-page continuation and honest backlog coverage. Preserved. |
 | Historical evidence | Local hydration was unbounded and repeated per event/fact, twice per record. Corrected in the portable path with explicit overflow rejection. |
 | Stored decision integrity | C3 checked trace action/reason category/profile, but altered decision text could survive those checks. Added complete canonical SHA-256 decision verification and context-snapshot validation when its context is current. Corrupt text now fails UNAVAILABLE; an outdated context still reports STALE. |
+| Missing evaluation state | Authorized existing detail records without a queue row explicitly return UNAVAILABLE, while genuinely absent/unauthorized records remain unavailable to the caller. No old action is substituted. |
 | HTTP read boundary | Existing outer Solo Desk rate-limit middleware writes accounting rows. It is not invoked by this isolated harness. A future hosted GET path must separately reconcile this with its read-only contract. No live route was modified. |
 
 The review is an engineering diff/contract review, not independent human release approval. The new read implementation is additionally compared against the immutable #22 code, rather than only comparing two paths sharing new functions.
@@ -68,7 +69,7 @@ The 64-event boundary is a conservative acceptance limit, not a new retention po
 
 ## 5. Acceptance evidence
 
-**671/671 local tests passed**, zero failures, cancellations or skips. Existing 653 tests are preserved; 18 portable-read cases add coverage for one-statement budgets, 25/40-record pages, 100-record allowlists, hashes, actual field supersession, conflicting renewals, row/byte overflow, tenant/record denial, invalid cursors, source retraction, expiry, pending/failure/identity states, unknown owner, STOP/CONTROL/takeover, stale acknowledgment, crashed lease recovery, concurrent writers, future timers, readonly reopen, driver failure and no runtime activation. All communication/calendar/CRM execution flags remain false.
+**672/672 local tests passed**, zero failures, cancellations or skips. Existing 653 tests are preserved; 19 portable-read cases add coverage for one-statement budgets, 25/40-record pages, 100-record allowlists, hashes, actual field supersession, conflicting renewals, row/byte overflow, tenant/record denial, invalid cursors, source retraction, expiry, pending/failure/identity states, unknown owner, STOP/CONTROL/takeover, stale acknowledgment, crashed lease recovery, concurrent writers, future timers, readonly reopen, driver failure and no runtime activation. All communication/calendar/CRM execution flags remain false.
 
 The [independent baseline receipt](evidence/CF-HOSTED-READ-baseline-parity.json) records 11 exact C3 comparisons against unchanged PR #22: CALL, quote, waiting, conflict, material history, STOP, CONTROL, unknown owner, future timer, expiry and retraction. Status, evidence version, decision version and other C3 fields matched. The intentional new corrupt-decision rejection is tested separately.
 
