@@ -19,6 +19,18 @@
 **Status:** Product North Star / long-range architectural reference  
 **Date:** 2026-09-20
 
+## CONTINUOUS EVIDENCE ACCUMULATION — P1 FOUNDATIONAL PRODUCT PRINCIPLE (principal-approved 2026-10-13)
+
+**Priority:** **P1 foundational** — the intelligence mechanism that binds source-linked acquisition, durable Prospect 360/renewal memory and evidence-aware multi-step SIGNAL qualification into **one compounding relationship system**. The full product+acceptance contract is [CF-CONTINUOUS-EVIDENCE-1.0](docs/CF-CONTINUOUS-EVIDENCE-1.0.md), incorporated directly into [Autonomous Growth Roadmap 3.0](docs/COVERAGEFIT-AUTONOMOUS-GROWTH-ROADMAP-3.0.md).
+
+> **Every permitted acquisition event and meaningful interaction should improve our understanding of the prospect when it provides relevant evidence.** Admit and reconcile evidence into a single source-linked relationship profile with explicit verification, uncertainty, conflict, freshness, correction, data rights and retention. SIGNAL must decide using this accumulating, versioned knowledge, avoid redundant questions, recognize actual buying intent/renewal timing and require producer attention only when justified. **Intelligence accumulates continuously; communication only occurs when separately authorized and useful.**
+
+**Constitutional safeguards:** Source data ≠ verified fact ≠ identity match ≠ consent/contact authority. Do not silently merge people, confirm vendor dates, reset STOP/CONTROL, violate DNC/provider SMS restrictions, over-retain personal messages or make unsupported calls/quotes/binds. Contact authority stays independent. The evidence ledger, fact assertions and current Prospect Intelligence should reuse canonical source/identity stores, not establish a second CRM. The consumer view and producer view share governed evidence but have different access/roles.
+
+**Economic criterion:** Accumulation is valuable when it yields **fewer repeat questions, fewer producer minutes, better verified renewal coverage, more useful conversations and ultimately verified premium**—not when it merely collects more facts or sends more messages. This principle is authoritative for every source adapter, Prospect 360 enhancement and SIGNAL automation work package.
+
+---
+
 ## Unified Product North Star — 2026-10-12 (principal-approved)
 
 > **CoverageFit is an evidence-driven insurance acquisition and relationship operating system.**
