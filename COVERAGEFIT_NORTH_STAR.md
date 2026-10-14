@@ -1,3 +1,5 @@
+# CoverageFit North Star
+
 ## HIGH-PRIORITY EXECUTION NORTH STAR — AUTONOMOUS INSURANCE GROWTH 3.0 (principal-approved 2026-10-13)
 
 **Authoritative detailed plan:** [CF-AUTONOMOUS-GROWTH-ROADMAP-3.0](docs/COVERAGEFIT-AUTONOMOUS-GROWTH-ROADMAP-3.0.md). **Status: HIGH PRIORITY; adopted to guide future CoverageFit + SIGNAL engineering and product decisions.** This is the *execution priority* within the Unified Product North Star below; it does **not** remove the long-term consumer protection vision or loosen STOP, identity, consent, agency/provider, real-data or release authority.
@@ -11,8 +13,6 @@
 **Canonical hierarchy:** This file = timeless product North Star; [Autonomous Growth Roadmap 3.0](docs/COVERAGEFIT-AUTONOMOUS-GROWTH-ROADMAP-3.0.md) = **highest-priority economic execution guide**; [Master Roadmap 2.0](docs/COVERAGEFIT-NEAR-TERM-PRODUCER-ROADMAP-1.0.md) = implementation/phase release sequencing; [Current State](docs/COVERAGEFIT-CURRENT-STATE.md) = verified evidence; [Producer Command Center UX](docs/COVERAGEFIT-PRODUCER-COMMAND-CENTER-UX-1.0.md) = approved human-facing surface. Never treat product direction as implicit permission to deploy, merge, send, buy leads or modify CRM/provider infrastructure.
 
 ---
-
-# CoverageFit North Star
 
 **Document:** CF-NORTH-STAR-1.0  
 **CoverageFit baseline:** v3.20.256  
@@ -486,6 +486,10 @@ Do not use protected or highly sensitive characteristics to prioritize service, 
 
 ### 10. Build the smallest durable primitive
 Prefer reusable identity, evidence, state, source and action primitives over one-off flows.
+
+### 11. Continuous Evidence Accumulation — compounding Prospect Intelligence
+
+Every **permitted** evidence-bearing source or interaction may improve the **same governed relationship profile**, through source-admission, verified identity linkage, typed fact assertions, reconciliation of time/uncertainty/conflict, and repeatable current Prospect Intelligence. SIGNAL must use current sourced knowledge to avoid redundant questions and change subsequent decisions based on legitimate new evidence. Unknown or conflicted facts are not verified truth; retention/correction/erasure and independent channel/contact permission are mandatory. This is the **P1 foundational [Evidence Flywheel](docs/CF-CONTINUOUS-EVIDENCE-1.0.md)**, not an optional extra, automated raw-text hoarder, new CRM or claim of live current functionality.
 
 ## Product evolution
 
