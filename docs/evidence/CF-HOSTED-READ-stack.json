@@ -1,0 +1,218 @@
+{
+  "date": "2026-10-14",
+  "main": "5f47f2b7367110ca04ff03cc189983f136ab32fa",
+  "refs": [
+    {
+      "pr": 7,
+      "head": "ad2915a7889637580505293ce38ab4db66f0a9b3",
+      "base": "5f47f2b7367110ca04ff03cc189983f136ab32fa",
+      "branch": "signal-copilot",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "changed_files": 39
+    },
+    {
+      "pr": 16,
+      "head": "5cfa79f4d01a8d9a3bf558c44d019064ca477f2a",
+      "base": "ad2915a7889637580505293ce38ab4db66f0a9b3",
+      "branch": "integration/command-center-unified-certification-20261012",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "changed_files": 49
+    },
+    {
+      "pr": 17,
+      "head": "247b708d2615c0caa72d2a95402a59507ccf9b45",
+      "base": "5cfa79f4d01a8d9a3bf558c44d019064ca477f2a",
+      "branch": "feature/p1-continuous-evidence-shadow-20261014",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "changed_files": 3
+    },
+    {
+      "pr": 18,
+      "head": "33d6a48b448e224b878d075a3348d9ae5caf5369",
+      "base": "247b708d2615c0caa72d2a95402a59507ccf9b45",
+      "branch": "engineering/adaptive-memory-e2-20261014",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "changed_files": 19
+    },
+    {
+      "pr": 19,
+      "head": "01a58c57857c63cbb5c7c426f8ebc38d73d96f2d",
+      "base": "33d6a48b448e224b878d075a3348d9ae5caf5369",
+      "branch": "engineering/c2-evaluation-queue-20261014",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "changed_files": 11
+    },
+    {
+      "pr": 20,
+      "head": "0098c34b5dc25d1c35816ed8c9b30f606f48a76d",
+      "base": "01a58c57857c63cbb5c7c426f8ebc38d73d96f2d",
+      "branch": "engineering/c3-current-decision-20261014",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "changed_files": 8
+    },
+    {
+      "pr": 21,
+      "head": "e40d0367921640cd40987d57073125d4921b3416",
+      "base": "0098c34b5dc25d1c35816ed8c9b30f606f48a76d",
+      "branch": "engineering/c4-producer-intelligence-20261014",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "changed_files": 29
+    },
+    {
+      "pr": 22,
+      "head": "80cb58ae7793d7bccabd084ffce1994f284cfdba",
+      "base": "e40d0367921640cd40987d57073125d4921b3416",
+      "branch": "engineering/global-producer-attention-20261014",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "changed_files": 18
+    }
+  ],
+  "ci": [
+    {
+      "pr": 7,
+      "head": "ad2915a7889637580505293ce38ab4db66f0a9b3",
+      "runs": [
+        {
+          "id": 38305917703,
+          "event": "push",
+          "conclusion": "success"
+        },
+        {
+          "id": 37896114359,
+          "event": "pull_request",
+          "conclusion": "success"
+        },
+        {
+          "id": 37896110516,
+          "event": "push",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "pr": 16,
+      "head": "5cfa79f4d01a8d9a3bf558c44d019064ca477f2a",
+      "runs": [
+        {
+          "id": 38560019748,
+          "event": "pull_request",
+          "conclusion": "success"
+        },
+        {
+          "id": 38560012191,
+          "event": "push",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "pr": 17,
+      "head": "247b708d2615c0caa72d2a95402a59507ccf9b45",
+      "runs": [
+        {
+          "id": 38595331971,
+          "event": "pull_request",
+          "conclusion": "success"
+        },
+        {
+          "id": 38595322944,
+          "event": "push",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "pr": 18,
+      "head": "33d6a48b448e224b878d075a3348d9ae5caf5369",
+      "runs": [
+        {
+          "id": 38595837887,
+          "event": "pull_request",
+          "conclusion": "success"
+        },
+        {
+          "id": 38595766936,
+          "event": "push",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "pr": 19,
+      "head": "01a58c57857c63cbb5c7c426f8ebc38d73d96f2d",
+      "runs": [
+        {
+          "id": 38600164028,
+          "event": "pull_request",
+          "conclusion": "success"
+        },
+        {
+          "id": 38600082788,
+          "event": "push",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "pr": 20,
+      "head": "0098c34b5dc25d1c35816ed8c9b30f606f48a76d",
+      "runs": [
+        {
+          "id": 38603599926,
+          "event": "pull_request",
+          "conclusion": "success"
+        },
+        {
+          "id": 38603518868,
+          "event": "push",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "pr": 21,
+      "head": "e40d0367921640cd40987d57073125d4921b3416",
+      "runs": [
+        {
+          "id": 38610683536,
+          "event": "pull_request",
+          "conclusion": "success"
+        },
+        {
+          "id": 38610674599,
+          "event": "push",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "pr22_ci": [
+    38615342812,
+    38615380877
+  ],
+  "main_protected": false,
+  "rulesets": [],
+  "detailed_protection": "403 Resource not accessible by integration",
+  "cloudflare_pr22_check": {
+    "conclusion": "success",
+    "deployment_id": "8d116137-008d-4cc5-a00a-c62495ed061b",
+    "project": "coveragefit",
+    "scope": "GitHub check only; environment bindings and production triggers unverified"
+  }
+}

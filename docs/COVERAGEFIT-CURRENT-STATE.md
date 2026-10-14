@@ -1,10 +1,10 @@
 # CoverageFit Current State
 
-## Latest verified global-attention correction — 2026-10-14
+## Latest portable read engineering acceptance — 2026-10-14
 
-The [global producer-attention acceptance package](CF-GLOBAL-ATTENTION-ACCEPTANCE.md) supersedes the earlier page-local ranking blocker. Stacked on draft #21 `e40d0367921640cd40987d57073125d4921b3416`, it adds transactionally published selection metadata to the existing local C2 queue and indexed, bounded, C3-revalidated Today selection. Local full suite: 653/653; actual synthetic scale receipts cover 1,000–50,000 prospects. Exact new draft head and CI are in its PR body. No existing PR was merged.
+The [hosted-read integrity acceptance package](CF-HOSTED-READ-INTEGRITY-ACCEPTANCE.md) continues draft #22 `80cb58ae7793d7bccabd084ffce1994f284cfdba`. A synthetic-only, runtime-neutral reader hydrates bounded attention/detail state in one SQL statement with eight parameters, reusing canonical E2/C3 semantics. Local suite: 672/672; immutable #22 comparison: 11/11; actual synthetic benchmarks cover 1,000–50,000 prospects with material evidence history. Exact new draft head and CI are in its PR body. All existing PRs remain draft/unmerged.
 
-E2/C1/C2/C3/Producer Integration C4 remain locally implemented/tested, not hosted-certified. Candidate queries are bounded; C3 hydration still requires a separately accepted D1 implementation and query budget. Hosted persistence, authorization/consistency, deployment safety, provider readiness and real producer economics remain release gates. No new intelligence milestone follows this correction. **Producer Integration C4 is not Dynamic Cadence C4's live communication canary**, which remains unapproved/unimplemented. Prior historical snapshots below must not override this status.
+Hosted acceptance remains blocked: actual D1/runtime behavior, Workers tier/CPU/memory, Preview/Production isolation, authorization, write/bootstrap port and deployment/rollback evidence are unverified. Existing outer HTTP rate-limit accounting writes must be reconciled before claiming a fully mutation-free hosted GET. No hosted route, schema or provider was activated. Next is bounded hosted integration/release evidence and an independently authorized read-only producer dogfood, not a new intelligence layer. Producer Integration C4 remains distinct from the unapproved Dynamic Cadence C4 communication canary.
 
 ## FUTURE PRIVACY-FIRST MONETIZATION BOUNDARY ADOPTED — 2026-10-13
 

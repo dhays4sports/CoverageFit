@@ -1,11 +1,12 @@
 // E2 LOCAL SYNTHETIC HARNESS ONLY. No route imports this module. Inject real SQLite.
 // D1-compatible SQL schema; transaction adapter is NOT a certified hosted D1 adapter.
+import {projectMemoryRows} from './prospect-memory-projection.mjs';
 import {createHash} from 'node:crypto';
-import {admitEvidence,emptyEvidenceState,projectEvidence} from './continuous-evidence-shadow.mjs';
+import {admitEvidence,emptyEvidenceState} from './continuous-evidence-shadow.mjs';
 const hash=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 const instant=x=>typeof x==='string'&&Number.isFinite(Date.parse(x));
 const validId=x=>typeof x==='string'&&/^[A-Za-z0-9][A-Za-z0-9._:-]{0,159}$/.test(x);
-export const MEMORY_BUILD='CF-PROSPECT-MEMORY-E2-1';
+export {MEMORY_BUILD} from './prospect-memory-projection.mjs';
 export function prospectMemoryLocal(db,{syntheticOnly=false}={}){
  if(!syntheticOnly)throw Error('synthetic_only_required');
  db.exec('PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000; PRAGMA secure_delete=ON;');
@@ -27,10 +28,6 @@ export function prospectMemoryLocal(db,{syntheticOnly=false}={}){
   }
   return {code};
  };
- function state(w,p,now){
-  const rows=all("SELECT * FROM cf_evidence_events WHERE workspace_id=? AND opportunity_id=? AND state='ACTIVE' ORDER BY observed_at,event_key",w,p);
-  return {...emptyEvidenceState(),events:rows.map(r=>({...JSON.parse(r.event_json),claims:all('SELECT assertion_json FROM cf_evidence_assertions WHERE workspace_id=? AND event_key=? AND (superseded_at IS NULL OR superseded_at>?) ORDER BY assertion_id',w,r.event_key,now).map(x=>JSON.parse(x.assertion_json))}))};
- }
  function admit(e,{now,interruptAfterEvent=false}={}){
   if(!instant(now))throw Error('invalid_clock');
   if(!validId(e?.workspace_id)||!validId(e?.profile_id)||!validId(e?.source_event_id))return {code:'HOLD_INVALID_EVENT'};
@@ -76,26 +73,13 @@ export function prospectMemoryLocal(db,{syntheticOnly=false}={}){
    bump(w,p,now);return {code:'ADMITTED',event_key:k};
   });
  }
- function projectSnapshot(w,p,{now,staleAfterDays={carrier:365,vehicle_count:180,homeowner:365,shopping_reason:90,explicit_call_request:7,explicit_quote_request:7}}={}){
-  if(!instant(now))throw Error('invalid_clock');
-  const s=state(w,p,now),projection=projectEvidence(s,{workspace_id:w,profile_id:p,now});
-  const identity=link(w,p);
-  const collisions=get("SELECT count(*) n FROM cf_evidence_holds h JOIN cf_evidence_events e USING(workspace_id,event_key) WHERE e.workspace_id=? AND e.opportunity_id=? AND h.code='HOLD_SOURCE_ID_CONFLICT'",w,p).n;
-  projection.material_conflicts ||= collisions>0;
-  projection.held_events=collisions;
-  const identityHeld=!identity||all("SELECT customer_id FROM cf_evidence_events WHERE workspace_id=? AND opportunity_id=? AND state='ACTIVE'",w,p).some(r=>r.customer_id!==identity.customer_id);
-  for(const [field,f] of Object.entries(projection.facts)){
-   if(f.status==='KNOWN'&&((staleAfterDays[field]&&f.evidence.every(e=>Date.parse(now)-Date.parse(e.observed_at)>staleAfterDays[field]*86400000))
-     ||field.startsWith('renewal_date')&&f.value.length===10&&f.value<now.slice(0,10)))f.status='STALE';
-   f.evidence=f.evidence.map(e=>({...e,source_ref:JSON.parse(get('SELECT source_ref_json FROM cf_evidence_events WHERE workspace_id=? AND event_key=?',w,e.source_event_id)?.source_ref_json||'null')}));
-  }
+ function projectSnapshot(w,p,options={}){
+  const rows=all("SELECT * FROM cf_evidence_events WHERE workspace_id=? AND opportunity_id=? AND state='ACTIVE' ORDER BY observed_at,event_key",w,p).map(r=>({...r,assertions:all('SELECT assertion_json,superseded_at FROM cf_evidence_assertions WHERE workspace_id=? AND event_key=? ORDER BY assertion_id',w,r.event_key)}));
+  const identity=link(w,p),collisions=get("SELECT count(*) n FROM cf_evidence_holds h JOIN cf_evidence_events e USING(workspace_id,event_key) WHERE e.workspace_id=? AND e.opportunity_id=? AND h.code='HOLD_SOURCE_ID_CONFLICT'",w,p).n;
   const revision=get('SELECT revision FROM cf_evidence_revisions WHERE workspace_id=? AND opportunity_id=?',w,p)?.revision||0;
-  const expiry=all("SELECT retain_until FROM cf_evidence_events WHERE workspace_id=? AND opportunity_id=? AND state='ACTIVE' AND retain_until>? ORDER BY retain_until LIMIT 1",w,p,now)[0]?.retain_until||null;
-  const renewalExpiry=Object.entries(projection.facts).filter(([field,f])=>field.startsWith('renewal_date')&&f.status==='KNOWN'&&f.value?.length===10).map(([,f])=>new Date(Date.parse(f.value+'T00:00:00Z')+86400000).toISOString());
-  const transitions=[expiry,...renewalExpiry,...s.events.map(e=>e.observed_at),...Object.entries(projection.facts).flatMap(([field,f])=>staleAfterDays[field]?(f.evidence||[]).map(e=>new Date(Date.parse(e.observed_at)+staleAfterDays[field]*86400000+1).toISOString()):[])].filter(t=>t&&t>now).sort();
-  return {...projection,build:MEMORY_BUILD,revision,as_of:now,next_change_at:transitions[0]||null,identity_status:identityHeld?'HOLD':'LINKED',next_expiration_at:expiry,
-   projection_version:hash([MEMORY_BUILD,w,p,revision,now,projection.facts,identityHeld,collisions])};
+  return projectMemoryRows({rows,identity,collisions,revision},w,p,options,hash);
  }
+
  const project=(w,p,options)=>tx(()=>projectSnapshot(w,p,options),true);
  function erase(w,k,reason,{now}={}){
   if(!instant(now)||!['RETRACTED','EXPIRED'].includes(reason))throw Error('invalid_erasure');
