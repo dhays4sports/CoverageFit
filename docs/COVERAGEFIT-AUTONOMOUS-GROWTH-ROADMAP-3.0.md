@@ -12,6 +12,21 @@
 
 This is a **priority overlay and execution guide** to the approved CoverageFit North Star and existing Master Roadmap 2.0, **not a rival product, standalone system, fresh CRM, or blanket release authorization**. It changes the relative emphasis from component/UX delivery toward measurable acquisition-to-conversation economics. It preserves long-range consumer protection intelligence as a future projection of the **same** relationship/evidence spine.
 
+## PRINCIPAL-LOCKED DATA MONETIZATION OPTIONALITY — privacy-first, not a new workstream
+
+**Priority treatment:** The owner wants **genuinely de-identified aggregate insurance-market intelligence as the preferred *optional long-term* data product**, and **possibly monetizing appropriately authorized direct CoverageFit inquiries later**. The owner **does not want a resale business for individual enriched Prospect 360 profiles**. These are **OPTIONAL / NOT ACTIVATED**, not P1 revenue execution workstreams. [Full product/privacy gates](CF-DATA-RIGHTS-AND-MARKET-INTELLIGENCE-OPTIONAL-1.0.md).
+
+**Two carefully separate possible future outcomes:**
+
+- **Aggregated, genuinely de-identified intelligence:** Source rights must permit the underlying analytics **and external commercial use**, even when statistics appear anonymous. Only appropriately coarsened, risk-assessed, source-rights-approved outputs may ever leave the protected environment. Cohort size, rare combinations, ZIP/time granularity, linkage/differencing across repeated releases, small-cell suppression, de-identification methods, retention/deletion and contractual reidentification prevention require a documented case-specific release review. No pseudonymized row-level exports, transcript examples or small-cohort statistics masquerading as de-identification.
+- **Direct CoverageFit inquiries:** Only original **direct CoverageFit** inquiries with verifiable source, permitted use, recipient/purpose-specific consumer authorization and independent insurance/agency/licensing/referral-compensation review may be considered for eventual introductions. Sharing must be purpose-limited and minimal. No automatic extension to 408FARMERS, imported, Farmers/AgencyZoom or vendor-derived populations, and no disclosure of a whole enriched history.
+
+**P1 Evidence Flywheel consequence:** Add source/collection-purpose, agency/vendor ownership, secondary analytical rights, commercial disclosure restrictions, subject authorization/opt-out, retention and recipient field-scope awareness to the **shared canonical source-rights contract**; the default is **NOT TRANSFERABLE / NOT ELIGIBLE** for third-party use. This is groundwork for lawful future flexibility, **not** authority to sell data, activate an API, buy lists, create a new domain/BusinessUnit, or deploy external analytics.
+
+**Economic order stays intact:** First prove scalable lead-to-useful-conversation performance and verified written premium with less producer attention. Later, only if supported by sufficient permitted data and actual market demand, present one separately reviewed de-identification/legal/business case. The direct-inquiry option remains a separate lower-priority concept. No client or carrier data transfer has been approved.
+
+---
+
 ## P1 FOUNDATION — Continuous Evidence Accumulation / Evidence Flywheel (principal-approved 2026-10-13)
 
 **Work package:** `CF-CONTINUOUS-EVIDENCE-1.0` · **P1 foundational and cross-cutting** · [detailed engineering contract](CF-CONTINUOUS-EVIDENCE-1.0.md).
