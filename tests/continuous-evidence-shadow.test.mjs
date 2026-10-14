@@ -82,6 +82,10 @@ test('E2: precise renewal month and exact date can agree; separate policy dates 
  assert.equal(p2.facts['renewal_date:HOME'].value,'2026-11-20');
  assert.equal(p2.facts.renewal_date.status,'AMBIGUOUS');
  assert.equal(p2.material_conflicts,false);
+ const proposed=cycle(s);
+ assert.equal(proposed.shadow_code,'PRODUCER_REVIEW');
+ assert.equal(proposed.proposed_message,null,'multiple policy renewals must not trigger a redundant generic renewal question');
+ safe(proposed);
 });
 test('E2: real same-line renewal contradictions hold current value, keep source trail',()=>{
  let s=add(emptyEvidenceState(),smsKnown());
@@ -148,6 +152,15 @@ test('E3: STOP, CONTROL, purchased route and unknown permission outrank learned 
   assert.equal(r.shadow_code,code);
   assert.equal(r.proposed_message,null);safe(r);
  }
+});
+test('E2: as-of projection excludes evidence not yet observed, even when already stored',()=>{
+ let s=add(emptyEvidenceState(),importCarrier());
+ s=add(s,event('future-carrier','sms_inbound',[a('homeowner',true)],{
+  observed_at:'2026-10-15T10:00:00Z'}));
+ const old=projectEvidence(s,{workspace_id:'qa-workspace',profile_id:'prospect-1',now:NOW});
+ assert.equal(old.facts.homeowner.status,'MISSING');
+ const future=projectEvidence(s,{workspace_id:'qa-workspace',profile_id:'prospect-1',now:'2026-10-16T00:00:00Z'});
+ assert.equal(future.facts.homeowner.value,true);
 });
 test('E1/E3: separate source event reuse in another profile is rejected, no cross-profile leakage',()=>{
  let s=add(emptyEvidenceState(),importCarrier());
