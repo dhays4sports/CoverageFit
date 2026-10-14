@@ -8,6 +8,16 @@
 
 > This is a **scoped UX and development specification**, NOT a new competing roadmap or permission to merge PRs, contact prospects, enable automatic sends, or alter Cloudflare/AgencyZoom/RingCentral configurations. Continue through the current Phase 2 hosted safety gate. Re-evaluate external providers' policy and agency/carrier approval before real campaigns.
 
+## Roadmap 3.0: Command Center is a control surface, not the terminal product
+
+**Principal-approved 2026-10-13 high-priority overlay:** [Autonomous Insurance Growth Roadmap 3.0](COVERAGEFIT-AUTONOMOUS-GROWTH-ROADMAP-3.0.md) governs the next economic development sequence. This document remains the approved **human-facing UX contract**, not a competing delivery priority list. The currently accepted hosted Preview supports Today, linked SIGNAL Inbox, read-only Prospect 360 renewal evidence and selected no-send draft review (19/19 automated and principal desktop/mobile/keyboard signoff, operator-attested isolation). Do **not** restart UI development for milestones already accepted.
+
+Future UX changes must serve one **economic operating loop**: high-volume documented acquisition → canonical relationship/evidence and verified renewal memory → permission-aware qualification/orchestration → fewer producer-worthy tasks → measured useful conversations, quotes/binds, verified written premium and producer minutes. Prioritize back-end intake, memory and no-send autonomous decision work ahead of additional controls or dashboards. No new live RingCentral, batch send, purchased-list outreach, merge or Production activation is implied by this directive.
+
+**Feature acceptance filter:** A producer-facing change should remove observable clicks, context switches, unnecessary questions, delayed high-intent action or manual correction in the qualified-conversation flow. If it does not, defer unless a real safety/reliability deficiency requires it. The single-source CRM/identity, AgencyZoom owner, STOP/CONTROL, source consent and independent provider send authority remain non-negotiable.
+
+---
+
 ## Product decision LOCK — 2026-10-12
 
 The principal explicitly adopted this **Command Center product architecture** as the durable product direction. This authorization **locks UX/architecture priorities only**, not main merges, deployment, regulatory decisions, provider account changes, purchased-lead SMS campaigns, real outreach, or financial commitments.
