@@ -113,6 +113,7 @@ export function projectEvidence(state,{workspace_id,profile_id,now='2026-10-14T0
   throw new TypeError('invalid_evidence_projection');
  const current=Date.parse(now);
  const events=state.events.filter(e=>e.workspace_id===workspace_id&&e.profile_id===profile_id
+   &&Date.parse(e.observed_at)<=current
    &&(!e.rights.retain_until||Date.parse(e.rights.retain_until)>current));
  const all=events.flatMap(e=>e.claims);
  const superseded=new Set(all.filter(x=>x.supersedes_assertion_id).map(x=>x.supersedes_assertion_id));
@@ -177,7 +178,11 @@ export function simulateEvidenceCycle(state,{
  });
  let next=probe.code,message=probe.proposed_message,why=probe.reason;
  if(['PROPOSE_ASK_RENEWAL','WAIT_FOR_TIMING','PRODUCER_REVIEW'].includes(probe.code)){
-  if(renewal.status==='MISSING'){
+  if(renewal.status==='AMBIGUOUS'){
+   next='PRODUCER_REVIEW';
+   message=null;
+   why='Multiple policy-specific renewal dates exist; avoid an unnecessary generic renewal question.';
+  }else if(renewal.status==='MISSING'){
    next='PROPOSE_ASK_RENEWAL';
    message='When does your current insurance policy renew?';
    why='Renewal timing is missing from the current sourced profile.';
