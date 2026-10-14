@@ -53,8 +53,8 @@ export function producerWorkspace(repo,env){
   // Source changes may promote OTHER; stages/scores/conversation state never do.
   if(old?.population==='WEB_DIRECT'&&next.population==='OTHER'&&!ss.some(s=>s.kind==='district_pilot_v1'))return old;
   if(old?.population===next.population&&old?.basis===next.basis)return old;
-  const value={...next,version:2,classified_at:new Date().toISOString()};
-  await repo.sql('INSERT INTO cf_solo_sources(workspace_id,kind,source_id,opportunity_id,summary_json,updated_at) VALUES(?,?,?,?,?,?) ON CONFLICT(workspace_id,kind,source_id) DO UPDATE SET summary_json=excluded.summary_json,updated_at=excluded.updated_at',w,POPULATION_KIND,id,id,JSON.stringify(value),value.classified_at).run();return value;
+  return {...next,version:2,classified_at:null}; // Pure projection; source ingestion owns persistence.
+
  }
  async function sms(pilot,pop){
   if(pop!=='DISTRICT_SIGNAL'||!pilot?.conversation_id)return null;

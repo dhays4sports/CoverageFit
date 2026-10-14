@@ -80,3 +80,18 @@ test('combined browser checker is same-origin GET-only and reports sanitized acc
  assert.doesNotMatch(text,/sessionStorage\.setItem\s*\(/);
  assert.doesNotMatch(text,/console\.log\s*\([^\n]*\b(?:token|data\.opportunity|data\.sources)\b/);
 });
+
+test('P0 designated GET endpoints preserve every stored row and SQLite change counter',async()=>{
+ const f=setup();try{
+  const p=generateCommandCenterFixturePackage({runId,workspaceId:workspace,head,now:new Date('2026-10-12T22:00:00Z')});
+  f.sql.exec(p.sql);
+  const snapshot=()=>Object.fromEntries(f.sql.prepare("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").all().map(({name})=>[name,f.sql.prepare('SELECT * FROM "'+name.replaceAll('"','""')+'"').all().map(r=>JSON.stringify(r)).sort()]));
+  const id=p.fixtures.review_pending;
+  for(const route of ['producer-work','producer-command-center','producer-detail?id='+id,'prospect-360?id='+id,'producer-approval-preflight?ids='+id,'profile?id='+id,'record?id='+id,'next-best-action?id='+id,'fiv-calibration','priority-calibration','acquisition-summary','economics-summary']){
+   const before=snapshot(),changes=f.sql.prepare('SELECT total_changes() n').get().n;
+   const response=await f.api(route);assert.equal(response.status,200,route+': '+JSON.stringify(response.body));
+   assert.deepEqual(snapshot(),before,route+' mutated stored rows');
+   assert.equal(f.sql.prepare('SELECT total_changes() n').get().n,changes,route+' executed a write');
+  }
+ }finally{f.sql.close()}
+});

@@ -47,6 +47,8 @@ test('real producer-workspace list/detail and synthetic fixture runner agree on 
  try{
   const p=generatePreviewFixturePackage({runId,workspaceId:workspace,head});
   f.sql.exec(p.sql);
+  // Fixture ingestion explicitly materializes scores; GET no longer warms the cache.
+  for(const id of Object.values(p.fixtures))await f.repo.refreshOpportunityPriority(id);
   const details={};
   for(const [kind,id] of Object.entries(p.fixtures))details[kind]=await f.work.detail(id);
   const list=await f.work.list(new URLSearchParams({population:'ALL',status:'all',sort:'recommended'}));
