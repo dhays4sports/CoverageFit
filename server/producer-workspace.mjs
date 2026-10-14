@@ -46,7 +46,7 @@ export function attentionRank(r){
  if(s?.decision_2==='LATER'||s?.decision_2==='CLOSE')return 100;
  return ({shoot_now:350,quick_play:300,develop:200,nurture:80,low_priority:50})[r.priority?.queue]||10;
 }
-export function producerWorkspace(repo,env){
+export function producerWorkspace(repo,env,{intelligence=null,request=null}={}){
  const w=repo.scope.workspace,store=createSmsConversationStore(repo.db);
  async function sources(id){return (await repo.rows('SELECT kind,source_id,summary_json FROM cf_solo_sources WHERE workspace_id=? AND opportunity_id=?',w,id)).map(s=>({...s,summary:parse(s.summary_json)}));}
  async function population(id,ss){const next=classifyPopulation(ss),old=ss.find(s=>s.kind===POPULATION_KIND)?.summary;
@@ -76,6 +76,7 @@ export function producerWorkspace(repo,env){
  }
  return {
   async pendingSms(){
+   if(intelligence)return {records:[],reason:'C4_HAS_NO_PROVIDER_INBOX_ADAPTER',truncated:false};
    const page=await store.list({prefix:'sms-live-conversations/',limit:500}),templates=await templatesFor(store),records=[];
    for(const entry of page.blobs||[]){const c=await store.get(entry.key);if(!c?.lastInboundAt)continue;
     const owner=await resolveSmsOwnership(c,{}, {env,store,templates});
@@ -85,7 +86,7 @@ export function producerWorkspace(repo,env){
    records.sort((a,b)=>b.updated_at.localeCompare(a.updated_at));
    return {records:records.slice(0,50),truncated:(page.blobs||[]).length>=500||records.length>50};
   },
-  async detail(id){await repo.own(id);const ss=await sources(id),pop=await population(id,ss),pilot=ss.find(s=>s.kind==='district_pilot_v1')?.summary||null;
+  async detail(id){if(intelligence)return intelligence.detail(request,id);await repo.own(id);const ss=await sources(id),pop=await population(id,ss),pilot=ss.find(s=>s.kind==='district_pilot_v1')?.summary||null;
    const data=await repo.detail(id),state=await sms(pilot,pop.population);
    if(['DISTRICT_CONTROL','OTHER'].includes(pop.population)){data.opportunityPriority=null;data.possessionQuality=null;data.nextBestAction=null;}
    const linkedCid=safetyConversationId(pilot,ss);const linked=linkedCid?await store.get('sms-live-conversations/'+linkedCid):null;const contactSafety=contactSafetyState(linked);
@@ -100,6 +101,7 @@ export function producerWorkspace(repo,env){
    return {...data,commitments,attention,actionQuality,contactSafety,continuation:await continuation(id,ss,pop.population),population:pop,pilot:['DISTRICT_SIGNAL','DISTRICT_CONTROL'].includes(pop.population)?pilot:null,sms:state,copilot_enabled:copilotEnabled,sms_enabled:enabled(env)};
   },
   async list(params,{allRecords=false}={}){
+   if(intelligence)return intelligence.list(request,{after:params.get('after')||'',limit:Number(params.get('limit')||25),population:params.get('population')||'ALL',status:params.get('status')||'open',q:params.get('q')||'',sort:params.get('sort')||'recommended'});
    const selected=params.get('population')||'DISTRICT_SIGNAL';if(![...POPULATIONS,'ALL'].includes(selected))fail(422,'population','Select a work population.');
    const q=(params.get('q')||'').trim().toLowerCase().slice(0,120),status=params.get('status')||'open';if(!['open','closed','all'].includes(status))fail(422,'status','Select open, closed or all.');
    const attentionEnabled=env.CF_ATTENTION_ENABLED==='1',sort=params.get('sort')||'baseline';

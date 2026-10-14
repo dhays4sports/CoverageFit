@@ -1,3 +1,4 @@
+import {reconcileProducerIntelligence} from './producer-intelligence-contract.mjs';
 // COMMAND-CENTER-TODAY-INBOX-0.1 — read-only projection of existing producer work.
 // Provides no new lead identity, contact permission, messaging transport, or send authority.
 // No source mutations or new database tables. Producer Workspace owns the underlying data.
@@ -27,10 +28,12 @@ function common(r){
   evidence_count:(r.action_quality?.evidence||[]).length,
   // Opportunity.deadline by itself is not a customer-confirmed renewal date.
   timing_hint:r.deadline?{raw:trim(r.deadline,40),verification:'UNVERIFIED_OPPORTUNITY_DEADLINE'}:null,
-  actionable:!isHeld(r)&&r.action_quality?.actionable===true
+  actionable:r.current_decision?false:!isHeld(r)&&r.action_quality?.actionable===true,
+  ...(r.current_decision?{current_decision:r.current_decision,human_attention_eligible:r.human_attention_eligible,execution_authority:r.execution_authority}: {})
  };
 }
 function messageCategory(r){
+ if(r.current_decision)return null; // Source intelligence does not fabricate an SMS thread/draft.
  if(r.population!=='DISTRICT_SIGNAL'||!r.sms)return null;
  if(isHeld(r))return null;
  if(r.sms.draft_status==='delivery_review'||r.sms.draft_status==='sending')return 'DELIVERY_REVIEW';
@@ -43,7 +46,7 @@ export function projectCommandCenter(work,{maxRows=30}={}){
  if(!work||!Array.isArray(work.records)||work.attention_enabled!==true)
   return {enabled:false,reason:'attention_not_certified',today:[],inbox:[],counts:{today:0,needs_attention:0,draft_review:0,delivery_review:0},coverage:{provider_inbound_live_certified:false,source:'producer_work'}};
  // The workspace already excludes TEST/synthetic and computes STOP/CONTROL guards.
- const records=work.records.filter(r=>r&&typeof r.id==='string');
+ const records=work.records.filter(r=>r&&typeof r.id==='string').map(r=>Object.hasOwn(r,'current_decision')?reconcileProducerIntelligence(r,r.current_decision):r);
  const today=records.filter(r=>!isHeld(r)&&r.action_quality?.actionable===true&&urgent.has(r.attention?.band))
   .map(common);
  const inbox=records.map(r=>{
@@ -65,6 +68,7 @@ export function projectCommandCenter(work,{maxRows=30}={}){
   enabled:true,
   version:'COMMAND-CENTER-TODAY-INBOX-0.1',
   today:today.slice(0,limit),
+  ...(records.some(r=>r.current_decision)?{exceptions:records.filter(r=>r.review_context).slice(0,limit).map(r=>({...common(r),review_context:r.review_context})),scope:'BOUNDED_PAGE_ONLY'}:{}),
   inbox:inbox.slice(0,limit),
   counts:{
    today:today.length,
@@ -84,10 +88,10 @@ export function projectCommandCenter(work,{maxRows=30}={}){
   }
  };
 }
-export async function commandCenterPreview(repo,env){
+export async function commandCenterPreview(repo,env,readOptions={}){
  if(env.CF_COMMAND_CENTER_READONLY_ENABLED!=='1')return {enabled:false,reason:'feature_disabled'};
  // Read-only command center consumes the canonical single producer projection.
- const work=await producerWorkspace(repo,env).list(
+ const work=await producerWorkspace(repo,env,readOptions).list(
   new URLSearchParams({population:'ALL',status:'open',sort:'recommended'}),
   {allRecords:true}
  );

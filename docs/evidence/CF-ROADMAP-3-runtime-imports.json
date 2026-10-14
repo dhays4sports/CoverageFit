@@ -1,0 +1,16 @@
+{
+  "server/solo-desk-api.mjs": {
+    "modules": 83,
+    "node_imports": [],
+    "local_adapters": [],
+    "unresolved": [],
+    "method": "literal import graph; URL query suffix removed; not a Cloudflare build"
+  },
+  "server/producer-intelligence-read.mjs": {
+    "modules": 44,
+    "node_imports": [],
+    "local_adapters": [],
+    "unresolved": [],
+    "method": "literal import graph; URL query suffix removed; not a Cloudflare build"
+  }
+}

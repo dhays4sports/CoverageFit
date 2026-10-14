@@ -1,3 +1,4 @@
+import {reconcileProducerIntelligence} from './producer-intelligence-contract.mjs';
 import {actionableCommitment} from './commitment-projection.mjs';
 // COVERAGEFIT-PRODUCER-ACTION-QUALITY-1.0
 // Deterministic reconciliation of existing governed projections.
@@ -68,8 +69,9 @@ function activeCommitment(commitments=[],attention){
 }
 
 export function deriveProducerActionQuality({
- population,attention=null,sms=null,commitments=[],opportunityPriority=null,nextBestAction=null,suppressed=false
+ population,attention=null,sms=null,commitments=[],opportunityPriority=null,nextBestAction=null,suppressed=false,currentDecision
 }={}){
+ if(currentDecision!==undefined)return reconcileProducerIntelligence({id:currentDecision?.id,population,sms,contactSafety:{suppressed}},currentDecision).actionQuality;
  if(population==='DISTRICT_CONTROL')return null;
  const reason=firstReason(attention);
  const support=[];
