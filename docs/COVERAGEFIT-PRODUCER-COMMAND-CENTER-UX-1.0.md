@@ -8,6 +8,16 @@
 
 > This is a **scoped UX and development specification**, NOT a new competing roadmap or permission to merge PRs, contact prospects, enable automatic sends, or alter Cloudflare/AgencyZoom/RingCentral configurations. Continue through the current Phase 2 hosted safety gate. Re-evaluate external providers' policy and agency/carrier approval before real campaigns.
 
+## Private Prospect 360 and optional market intelligence — disclosure boundary
+
+**Principal-locked boundary:** Prospect 360 is a private, source-scoped relationship intelligence view for authorized insurance services, **not** a prospect resale catalog, a list download, or an API offering individual enriched profiles to other agents. Evidence source rights, consent, contractual ownership and retention govern all disclosure. No new record-export UI should be built on the premise that CoverageFit's accumulated knowledge may be sold.
+
+**Separate future optionality:** Subject to new source-rights, legal/contract and reidentification-risk gates, genuinely de-identified **aggregate insurance demand/renewal insights** may later be evaluated outside the identifiable Prospect 360 experience. A distinct, consumer-initiated **direct CoverageFit inquiry** introduction concept may be evaluated only with specific authorized fields and permissions; never export a whole customer history or infer entitlement from 408FARMERS/vendor/agency records. Neither optional commercial path is currently a roadmap UX workstream or release authority.
+
+**Source-of-truth:** [CF-DATA-RIGHTS-AND-MARKET-INTELLIGENCE-OPTIONAL-1.0](CF-DATA-RIGHTS-AND-MARKET-INTELLIGENCE-OPTIONAL-1.0.md) and [CF-CONTINUOUS-EVIDENCE-1.0](CF-CONTINUOUS-EVIDENCE-1.0.md). P1 work may surface internal rights/retention review labels to authorized operators when relevant, but does not create a consumer sale consent UX or external data recipient access.
+
+---
+
 ## P1 continuous evidence flywheel — Prospect 360 UX contract
 
 The principal promoted [Continuous Evidence Accumulation / CF-CONTINUOUS-EVIDENCE-1.0](CF-CONTINUOUS-EVIDENCE-1.0.md) to the foundational mechanism linking acquisitions, SMS relationship cycles, Prospect 360 and SIGNAL. The Command Center should **present its results clearly**, not become another editing database or drive extra messaging.
