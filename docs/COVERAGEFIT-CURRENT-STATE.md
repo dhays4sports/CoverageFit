@@ -1,5 +1,17 @@
 # CoverageFit Current State
 
+## P1 FOUNDATION ADOPTED — Continuous Evidence Accumulation (2026-10-13)
+
+**Principal decision:** Promote the [Evidence Flywheel / CF-CONTINUOUS-EVIDENCE-1.0](CF-CONTINUOUS-EVIDENCE-1.0.md) to **P1 foundational capability** within [Roadmap 3.0](COVERAGEFIT-AUTONOMOUS-GROWTH-ROADMAP-3.0.md). This is the shared contract linking bulk acquisition, Prospect 360 / verified renewal memory and SIGNAL's repeated evidence-aware qualification. It is not a secondary profile enrichment or separate system.
+
+**Currently implemented:** Read-only Prospect 360 (`server/prospect-360-readonly.mjs`) projects sources, SMS renewal claims, structured `renewal_verification_v1` and existing UCP links with conflict/precision semantics; current SMS conversation/RAW import data and standalone offline no-send SHADOW simulator (`server/engagement-shadow-simulator.mjs`) exist. **Not implemented/certified:** canonical persistent cross-channel FactAssertion event history, auditable corrections and retention/deletion propagation, continuous admitted event-driven profile updates or stateful live SIGNAL feedback/workers. Do not describe this newly approved P1 as a deployed feature.
+
+**Next no-send work:** Existing schema/owner/retention audit; deterministic source/event-to-assertion mapping with identity conflict holds and replay keys; source-backed versioned profile/renewal projection; multi-turn evidence-driven SHADOW that uses existing facts to avoid repeated questions; operator time/quality instrumentation. Start with synthetic/test-only scope and draft reviews. No D1 migration, real data ingestion, Cloudflare flags, provider changes, actual outreach, merge or Production release is implied.
+
+**Required separation:** Retained evidence and a verified insurance fact **never confer** communication permission or overrule STOP/CONTROL/TEST, opted-out/wrong-number, source rights or restricted provider campaign routes. A suppressed original synthetic CALL from prior Preview remains suppressed. Evidence handling must comply with source-specific retention, minimization, correction and deletion requirements.
+
+---
+
 ## HIGH-PRIORITY ECONOMIC ROADMAP ADOPTED — 2026-10-13
 
 **Principal directive:** Bake the entire approved [Autonomous Insurance Growth Roadmap 3.0](COVERAGEFIT-AUTONOMOUS-GROWTH-ROADMAP-3.0.md) into CoverageFit and use it as the high-priority economic North Star for subsequent product/engineering decisions. The complete P0–P6 implementation roadmap, measurable acceptance criteria, source/identity/consent data contracts, permission-aware SIGNAL SHADOW, provider canary, SIGNAL/CONTROL economics, discretionary engineering allocation and Principal Attention Sovereignty governance now live in that canonical document.
