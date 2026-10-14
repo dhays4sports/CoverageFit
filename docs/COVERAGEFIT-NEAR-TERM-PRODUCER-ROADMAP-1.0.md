@@ -6,6 +6,20 @@
 **Repository:** dhays4sports/CoverageFit  
 **Scope:** Producer OS, Signal Copilot, attention orchestration, commitments, and calendar actions
 
+## PRIORITY OVERLAY — Autonomous Insurance Growth Roadmap 3.0 adopted 2026-10-13
+
+**Principal instruction:** Make [CF-AUTONOMOUS-GROWTH-ROADMAP-3.0](COVERAGEFIT-AUTONOMOUS-GROWTH-ROADMAP-3.0.md) the **high-priority economic execution and feature-selection guide** for all CoverageFit + SIGNAL work. This does not supersede this document's phase safety/release gates, the product North Star, 408FARMERS/AgencyZoom/RingCentral/Farmers authority boundaries or long-term consumer experience.
+
+**Reweighted delivery sequence:** **P0** approved Preview preservation + #7 → aggregate #16 release review (no merge until separate decision); **P1** acquisition source attribution and 1,000-record synthetic resumable import exercise; **P1** persistent sourced Prospect 360/renewal/identity memory; **P1** persistent multi-step qualification and channel-authority SHADOW; **P2** separately approved live provider closed-loop canary followed by small measurable California SIGNAL/CONTROL producer pilot; **P3** verified, positively authorized autonomy/volume scale. P1 safe draft work starts in parallel with P0 review; neither the Preview 19/19 nor CI 544/544 constitutes live messaging certification or economic uplift.
+
+**Engineering preference:** Approximately 80% of *discretionary new-feature* effort to acquisition (30%), Prospect Memory/renewals (25%) and SIGNAL qualification (25%); operational reliability (15%) and new UI (5%) are supporting investments. Required safety/release work is never de-scoped to meet this aspirational allocation. Do **not** create a rival CRM, data spine, send gateway, master roadmap, or domain/business; acquire → understand → orchestrate → valuable producer handoff → measure real economics.
+
+**Progress metric:** producer minutes per genuine useful conversation (primary), then useful conversations/producer hour, verified renewal coverage, quote/bind conversion, verified written premium/producer hour and actual source cost/useful conversation. Baseline and pilot proof precede claimed percentage improvements. Principal reviews one consequential release/authority packet per gate, not repeated SQL/Chrome acceptance for unchanged scopes.
+
+**Instruction when phase descriptions below seem UI-first:** The existing phases still govern dependencies, but apply the **Roadmap 3.0 product-priority order** within every safe engineering workstream. Do not wait for full RingCentral live webhook certification to build no-send source intelligence, memory or SHADOW qualification; do not treat these drafts as permission for provider action.
+
+---
+
 ## Combined Command Center Preview accepted — integration/release sequence (2026-10-13)
 
 **Operating status:** `HOSTED-CERTIFIED / OPERATOR-ATTESTED-ISOLATION` for the scoped read-only Command Center experience, NOT for live communications, full daily producer dogfood, premium economics, or Production. Principal explicitly confirmed **desktop + mobile + keyboard** visuals for Today, linked Inbox / no-send selected review, Prospect 360 renewal verification/conflicts, and correct original STOP safety; authenticated immutable Preview checker **19/19 PASS**, failures 0, outbound sends 0 (October 13, 2026). The intentional unauthenticated 401 passed; original synthetic CALL became STOP and remained suppressed, so a **new, independent fictional CALL** was added and tested instead. Exact reviewed runtime `d8083570c0425371c67b1bae74813ec6c50a9be6`, URL `ece607a0.coveragefit.pages.dev`, CI **544/544** on runtime head. Preview/Production D1 isolation and served-SHA linkage are **operator-attested, not independently inspected by ChatGPT**.
