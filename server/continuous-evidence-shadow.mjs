@@ -21,6 +21,7 @@ export const emptyEvidenceState=()=>({build:EVIDENCE_SHADOW_BUILD,events:[],held
 
 function normalizeClaim(raw,sourceType,eventId,occurredAt){
  if(!raw||!FIELDS.has(raw.field))return null;
+ if(sourceType==='producer_confirmation'&&raw.producer_verified!==true)return null;
  const field=raw.field;
  let value=raw.value;
  if(field==='renewal_date'){
@@ -40,8 +41,8 @@ function normalizeClaim(raw,sourceType,eventId,occurredAt){
  return {assertion_id:eventId+':'+field+(policy?':'+policy:''),field,value,policy_line:policy,
   precision:field==='renewal_date'?(date(value)?'exact':'month'):null,
   verification,source_event_id:eventId,observed_at:occurredAt,
-  supersedes_source_event_id:sourceType==='producer_confirmation'&&raw.producer_verified===true&&validId(raw.supersedes_source_event_id)
-   ?raw.supersedes_source_event_id:null};
+  supersedes_assertion_id:sourceType==='producer_confirmation'&&raw.producer_verified===true&&validId(raw.supersedes_source_event_id)
+   ?raw.supersedes_source_event_id+':'+field+(policy?':'+policy:''):null};
 }
 const eventKey=e=>e.workspace_id+'|'+e.source_type+'|'+e.source_event_id;
 function normalizedEvent(event){
@@ -114,8 +115,8 @@ export function projectEvidence(state,{workspace_id,profile_id,now='2026-10-14T0
  const events=state.events.filter(e=>e.workspace_id===workspace_id&&e.profile_id===profile_id
    &&(!e.rights.retain_until||Date.parse(e.rights.retain_until)>current));
  const all=events.flatMap(e=>e.claims);
- const superseded=new Set(all.filter(x=>x.supersedes_source_event_id).map(x=>x.supersedes_source_event_id));
- const active=all.filter(x=>!superseded.has(x.source_event_id));
+ const superseded=new Set(all.filter(x=>x.supersedes_assertion_id).map(x=>x.supersedes_assertion_id));
+ const active=all.filter(x=>!superseded.has(x.assertion_id));
  const facts={};
  for(const name of COMPARE_FIELDS)facts[name]={status:'MISSING',value:null,verification:'unknown',evidence:[]};
  const groups=new Map();
