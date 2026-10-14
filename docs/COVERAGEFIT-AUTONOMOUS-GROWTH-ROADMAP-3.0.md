@@ -147,7 +147,7 @@ Time ranges are **planning horizons, not delivery promises**. Phases overlap in 
 | **5. Producer economics pilot** | Weeks 8–12+ | Prove more useful conversations per producer hour and honest premium outcome | Agency-approved small SIGNAL/CONTROL cohort and baseline |
 | **6. Economically justified autonomy and scale** | Months 3–6+ | Expand only proven automation families and source volume | Human-approved execution → separately authorized bounded autonomy |
 
-**P1 shared foundation:** `CF-CONTINUOUS-EVIDENCE-1.0` is the evidence-admission/reconciliation/projection contract **beneath acquisition, Prospect Memory and SIGNAL SHADOW**. P1 test-only work can run concurrently with P0 release review. A full live provider link remains separately gated.
+**P1 shared foundation:** `CF-CONTINUOUS-EVIDENCE-1.0` is the evidence-admission/reconciliation/projection contract **beneath acquisition, Prospect Memory and SIGNAL SHADOW**. The next P1 child [Dynamic Cadence 1.0](CF-SIGNAL-DYNAMIC-CADENCE-1.0.md) turns that current evidence into **when the next evaluation is warranted and what to propose**, without equating a timer to permission to send. P1 test-only work can run concurrently with P0 release review. A full live provider link remains separately gated.
 
 **Dependency principle:** Provider status cannot block independent no-send acquisition/memory/SHADOW engineering. It **must** block claims of real two-way messaging, unattended SMS or full lead-to-conversation automation. A read-only UI acceptance is a component gate, not a substitute for economic pilot evidence.
 
@@ -234,6 +234,8 @@ Support configurable review windows (e.g. 0–30 and 31–90 days for relevant l
 
 ## 8. Phase 3 — Stateful SIGNAL autonomous qualification
 
+**P1 CADENCE OWNERSHIP:** [CF-SIGNAL-DYNAMIC-CADENCE-1.0](CF-SIGNAL-DYNAMIC-CADENCE-1.0.md) is the evidence-driven **dynamic evaluation/scheduling** component of this same SIGNAL autonomy workstream. AgencyZoom remains current owner of existing district cadence; CoverageFit becomes the single owner only for separately authorized eligible workflow families. **Next evaluation is not an outbound SMS commitment.** No live scheduled sender exists as a result of this roadmap addition.
+
 **P1 FLYWHEEL EXECUTION:** Every SHADOW cycle must read the versioned current Prospect Intelligence projection, derive only a justified missing question or higher-value next action, and feed simulated new evidence back into the profile before the next cycle. A timed message sequence without evidence feedback is **not** an acceptable autonomous qualification engine. Preserve separate consent/STOP/CONTROL/provider gates and no-send semantics.
 
 **Work package: `CF-SIGNAL-AUTONOMY-SHADOW-1.0`**
@@ -271,6 +273,83 @@ Advance one family at a time: **permissioned, explicitly first-party inquiry qua
 - STOP, TEST, CONTROL, opted-out, wrong number, unknown owner, prohibited list and ambiguous receipt scenarios all fail closed.
 - The producer sees only high-value handoffs and meaningful blocked exceptions, not every internal step.
 - No live sends simply because the SHADOW suite passes.
+
+### 8.6 P1 Evidence-Driven Dynamic Cadence — CoverageFit intelligence owner, AgencyZoom coexistence
+
+**Named work package:** [`CF-SIGNAL-DYNAMIC-CADENCE-1.0`](CF-SIGNAL-DYNAMIC-CADENCE-1.0.md). **Priority: P1 within existing `CF-SIGNAL-AUTONOMY-SHADOW-1.0`**, dependent on P1 `CF-CONTINUOUS-EVIDENCE-1.0`. This is **the operational decision loop that makes the Evidence Flywheel useful**, not a new roadmap phase, duplicated CRM, new lead marketplace, or commitment to activate live SMS.
+
+> **Vision:** CoverageFit/SIGNAL should be the intelligent cadence brain for **specifically authorized CoverageFit-owned workflow families**: decide what information is missing, if it is worth asking, when the **next evaluation** is warranted, and whether to wait, act internally, request a producer call, prepare a quote, propose one question or STOP. Existing district AgencyZoom cadences remain AgencyZoom-operated until the agency explicitly approves a safe family-level handoff. RingCentral (or an independently approved provider) is a permitted transport, not the cadence decision-maker.
+
+#### Owner-of-record boundaries
+
+| Responsibility | Existing owner/status | Desired narrow future state |
+| --- | --- | --- |
+| Existing district lead cadence, stages, assignments and authoritative CRM operations | **AgencyZoom**, active | Retain existing ownership until one scoped agency-approved cadence cutover; CoverageFit may observe/recommend and reconcile |
+| Canonical source-backed prospect knowledge, renewal state, intent, missing information and next action | **CoverageFit + SIGNAL**, some read-only/test-only today | Continue as the one evidence and decision intelligence spine |
+| New eligible first-party CoverageFit-native qualification cadence | **Not live** | **CoverageFit** can become the sole dynamic scheduler/decision owner **after** positive consent, workflow ownership, agency/provider, operational and release certification |
+| SMS delivery, actual inbound, receipt/recovery and registered campaign eligibility | **RingCentral for approved uses**, live inbound not certified | Reuse guarded gateway/provider receipt/consent; never a second independent cadence owner |
+| Coverage advice, calls, quote/bind and policy changes | Licensed producer / Farmers systems | Producer and existing systems remain authoritative |
+
+**One workflow family, one active owner.** Record `workflow_family_id` + workspace/verified profile/appropriate campaign, `cadence_owner`, owner version, AgencyZoom active-run/cancel receipt and future CoverageFit active approval, human takeover, current scheduled evaluation and any provider attempts. Unknown ownership, overlapping AgencyZoom family, unresolved outstanding send or stale cutover version ⇒ **NO_AUTOMATED_OUTBOUND**. Never run AgencyZoom and CoverageFit outbound cadences in parallel on the same prospect/family; do not silently disable AgencyZoom globally. AgencyZoom stage authority and cadence-family ownership are separate concerns. A proposed transfer requires explicit agency signoff, inventory of outstanding steps, scoped pause/disable, confirmation that duplicate sends cannot occur, canary, rollback and a separately approved release.
+
+#### The cadence runs an evaluation—not necessarily an SMS
+
+`Source-approved intake/new verified event/customer reply or justified due timer → read latest versioned Prospect Intelligence → classify known/missing/stale/conflicted facts, renewal timing, explicit intent and recorded commitments → evaluate family ownership and suppression/contact route → choose CALL / ASK ONE QUESTION / LATER / CLOSE / STOP / REVIEW / QUOTE_PREP as appropriate → schedule next evaluation if any, or create an approval-required proposal → only separately authorized execution → ingest actual provider and customer evidence → repeat`.
+
+**Event triggers:** actual authenticated/deduplicated inbound, first-party intake, newly admitted source assertion, customer/producer correction, explicit CALL/QUOTE, changed commitment, STOP/opt-out/wrong number, owner/takeover change, provider delivery uncertainty, approved CRM status/agency override.
+
+**Time triggers:** confirmed callback, promised follow-up, source-backed product/renewal quote window, material evidence aging/expiry, allowed no-response check, provider receipt review. Each has a reason and bounded next time; timers never confer consent or justify a text by themselves. A future renewal date may permit internal planning while outbound stays blocked.
+
+**Timing policy:** customer preference, verified next step, line-specific quote lead time, past real interaction, local business/quiet hours, source/recipient-specific sending limits, cooldown, jurisdictional/carrier and agency restrictions, campaign approval and whether the last approved question is still unanswered. No mandatory Day 1/3/7/14 sequence or automatic escalation just because a prospect stayed silent. Positive message permission and delivery result are separately checked **at action time**, not cached forever.
+
+#### Durable internal state and action precedence
+
+Minimum conceptual fields, reconciled with existing stores before any migration: `workflow_id`, `family_id/version`, `workspace/profile/opportunity`, `agency_cadence_owner/version`, `source_and_retention_refs`, `profile_projection_version`, `latest_evidence_watermark`, `last_real_inbound/outbound`, `pending_question_intent`, `question_answered_by_source`, `last_decision_reason/evidence_refs`, `state_revision`, `next_evaluation_at`, `reason_for_next_evaluation`, `cooldown_until`, `consent_sender_campaign_provider_policy_refs`, `producer_takeover`, `approval_action_id`, `idempotency_key`, `provider_receipt_state`, `pause_or_stop_reason` and auditable retention class. `next_evaluation_at` is **not** `next_sms_send_at`.
+
+Internal progression: `EVIDENCE_READY → EVALUATED → WAITING_FOR_EVIDENCE / WAITING_FOR_TIME / AWAITING_REVIEW / PRODUCER_HANDOFF / PENDING_APPROVED_EXECUTION / PROVIDER_RECONCILIATION / HELD / STOPPED / COMPLETE`. These are **not** new AgencyZoom lifecycle stages.
+
+**Highest-priority gates, in order:**
+
+1. STOP, opt-out, DNC, wrong number, TEST, CONTROL, known prohibition or suppression ⇒ STOP/HOLD.
+2. Unknown/ambiguous identity, expired source rights, unclear/dual AgencyZoom ownership, human takeover, missing actual positive sender/channel/campaign consent or provider route incompatible with source ⇒ HOLD, manual permissible work only.
+3. Ambiguous pending provider send/recovery ⇒ DELIVERY_REVIEW, **never blindly repeat**.
+4. Verified explicit customer CALL/QUOTE or due producer callback ⇒ **producer handoff**, no redundant SMS qualification.
+5. Proven future renewal/explicit preference to wait ⇒ **WAIT / next evaluation**, not automatically an outbound follow-up.
+6. Material conflict ⇒ producer review or a specifically justified verification question where communication is independently authorized.
+7. Decision-critical missing fact ⇒ **one minimal relevant question**, only if not sufficiently answered and if route permits; otherwise no SMS.
+8. Sufficient facts or no useful authorized action ⇒ WAIT, producer quote preparation or NO_ACTION, rather than a generic "checking in."
+
+**Status truth:** Draft/question proposed ≠ producer approved ≠ provider accepted ≠ delivered ≠ customer actually replied ≠ verified quote/bind. Keep separate IDs, revisions, receipts and risk states across crashes, resumes and provider timeouts.
+
+#### Concrete dynamic behavior, synthetic illustration
+
+| New evidence | What the same Prospect 360 now knows | Resulting reevaluation |
+| --- | --- | --- |
+| Intake with auto interest, AAA imported, renewal missing | Source-backed carrier, date UNKNOWN | Propose one renewal question **only for a hypothetical eligible first-party route**; otherwise HOLD |
+| Actual eligible reply: "Nov 20" | Customer-reported renewal saved with source | **Never ask renewal again** while reliable/relevant |
+| Next reply: "Two cars, and I own a home" | Vehicle count and homeowner status sourced | Skip both questions; find only a material missing item or wait |
+| "Please call tomorrow" | Express call request and callback evidence | **CALL producer**; pause robot qualification |
+| Unresolved different date for same policy | Evidence conflict preserved | REVIEW/verify, no fabricated confirmed date |
+| STOP/opt-out during any interval | Suppressed contact | Cancel affected pending outreach; future re-evaluations do not override STOP |
+| Distant renewal with no eligible route | Retained relationship context within data rights | Future internal review may become due; **zero automatic SMS** |
+
+#### Delivery gates and dependency order
+
+- **C0 — Read-only ownership/route audit:** Current AgencyZoom cadence families, ownership/active scheduled steps, CRM write authority, RingCentral sender/source compatibility, positive consent and actual P1 Evidence Flywheel data contract.
+- **C1 — Pure dynamic planner (SHADOW):** Given a versioned profile, missing/known/conflicted assertions, commitments, policy family/ownership, source rights and synthetic clock, return `action_code`, `why_now`, evidence refs, `next_evaluation_at|null`, proposed question and an explicit hold/producer-review reason. Never schedule real time or send.
+- **C2 — Test-isolated durable state + due-evaluation queue:** **After E2 evidence persistence**, prove revision-safe single owner, crash/replay, same-event dedup, quiet-hour/cooldown, out-of-order inbound, family cutover race and scheduler idempotence. No Production D1 or actual AgencyZoom changes.
+- **C3 — Multi-turn evidence-feedback integration:** Reconcile synthetic new replies to the **same** Prospect Memory, change relevant next action/timer, skip known questions, surface only valuable producer exceptions; count avoided duplicate questions and misleading contact proposals.
+- **C4 — Controlled authorized provider/human-approved canary:** Requires independent P0 release and Phase 4 live RingCentral inbound/receipt certification, specific agency workflow owner/cutover approval, actual source/recipient/sender/campaign permission and test recipient. No purchased-list RingCentral SMS, no unrelated customers.
+- **C5 — Later bounded autonomy:** Only one proven eligible first-party family after measurable SIGNAL/CONTROL economics, agency and principal approval, recipient/daily caps, takeover/kill switch, receipts, rollback and continuous policy checks.
+
+**Exact next new-feature priority:** The **P1 Evidence Flywheel durable/replay-safe storage** remains first; C1 can be developed as a **test-only pure decision planner** alongside it. Do not build a persistent live scheduler before E2 or claim C1/C3 are a running operational cadence. PR #17 proves an initial synthetic changed-question/CALL mechanism; it is not a live cadence, and the accepted 19/19 Preview cannot certify it.
+
+**Acceptance:** known answer eliminates repeated question; explicit CALL outranks SMS; policy-specific renewal conflict/future date waits or asks only essential question; one active owner, never concurrent AgencyZoom and CoverageFit sends; STOP/CONTROL/TEST, purchased list, no route, incorrect identity and takeover fail closed; due evaluation during quiet hours cannot silently contact; duplicate/replayed SMS or timer yields one state transition; stale revision or provider timeout cannot resend; restart reconstructs exactly one planned reevaluation; retention/correction invalidates stale decisions. **All SHADOW runs must report 0 real provider calls/sends/writes.**
+
+**Economics:** fewer producer minutes/useful conversation, fewer redundant questions, fewer unnecessary contacts, lower exception burden and missed commitments, better verified renewal capture, higher genuine qualified handoffs and eventually verified written premium/hour. Do not optimize for messages sent or the number of queued cadence steps.
+
+**Non-authorization:** No AgencyZoom family pause/disable, source/recipient transfer, D1 migration, provider subscription, live scheduler, customer SMS, autonomous campaign, GitHub merge or Cloudflare release approved by this section. [Full engineering/spec and gate matrix](CF-SIGNAL-DYNAMIC-CADENCE-1.0.md).
+
 
 ## 9. Phase 4 — Complete one actual operational loop
 
@@ -350,6 +429,7 @@ Inbox must be honest about whether provider inbound is live and complete; Prospe
 | P1 | `CF-ACQUISITION-INTELLIGENCE-1.0` | Source, identity, consent and cost attribution extensions to existing resumable importer; 1,000 synthetic replay | No real vendor purchase, no contact send |
 | P1 | `CF-PROSPECT-MEMORY-1.0` | Durable source fact/renewal timeline + conflict-safe projection with test evidence | No ambiguous auto-merge or inferred permission |
 | P1 | `CF-SIGNAL-AUTONOMY-SHADOW-1.0` | Stateful no-send qualification/follow-up simulation and authority compatibility decisions | No live scheduler/provider send |
+| **P1 — SIGNAL autonomy child** | [`CF-SIGNAL-DYNAMIC-CADENCE-1.0`](CF-SIGNAL-DYNAMIC-CADENCE-1.0.md) | Evidence/permission/ownership-aware C1 SHADOW decision planner, next **evaluation** timing, then post-E2 isolated idempotent scheduler; a single Family owner | No competing AgencyZoom cadence, real job, provider send or family transfer absent separate approval |
 | P2 | `CF-LEAD-TO-CONVERSATION-PILOT-1.0` | Controlled RingCentral provider path, then eligible small-cohort SIGNAL/CONTROL measurement | Separate provider/agency, real-data and outreach authorization |
 | P3 | `CF-AUTONOMY-SCALE-1.0` | One proven permissioned automation family with limits | Verified positive economics and explicit live autonomy approval |
 
@@ -359,7 +439,7 @@ Inbox must be honest about whether provider inbound is live and complete; Prospe
 
 1. **High-volume intake:** CoverageFit reliably reconciles meaningful multi-source batches into attributed, deduplicated, contact-classified opportunities.
 2. **Compounding relationship memory:** prospects preserve verified renewal timing, history, evidence and commitments across touchpoints.
-3. **One approved autonomous qualification family:** a genuinely eligible and authorized workflow handles routine steps without producer involvement in each step; provider and opt-out safety remain demonstrable.
+3. **One approved autonomous qualification family:** a genuinely eligible, evidence-driven cadence handles routine steps without producer involvement in each step; AgencyZoom/CoverageFit family owner remains unambiguous, next evaluations are differentiated from actual SMS sends, and provider and opt-out safety remain demonstrable.
 4. **Producer attention sovereignty:** Today/Inbox primarily surfaces real ready conversations and exceptions; routine triage consumes materially fewer measured minutes.
 5. **Measured economics:** actual useful conversations, quote/bind progression, written premium and producer time/cost can be compared to a baseline. Report uncertainty and negative results honestly.
 
@@ -396,6 +476,6 @@ Before accepting a feature or approving a PR, answer:
 
 ## 18. Immediate handoff instruction
 
-> Implement `CF-AUTONOMOUS-GROWTH-ROADMAP-3.0` as the **highest-priority economic product execution guide**, and `CF-CONTINUOUS-EVIDENCE-1.0` as its **P1 compounding-intelligence foundation connecting Acquisition, Prospect Memory, renewal facts and multi-turn SIGNAL SHADOW** beneath the adopted CoverageFit North Star and constitutional safety floor. Continue from the current verified code; do not restart. Preserve combined Command Center's operator-attested hosted Preview acceptance, STOP/CONTROL and default-off no-send behavior. Perform the bounded PR #7 → aggregate PR #16 merge/publish integrity review, without merging or deploying absent express approval. In parallel, advance the smallest reviewable test-only slices of acquisition source/provenance/identity/cost intelligence, durable Prospect Memory and renewal facts, and multi-step permission-aware SIGNAL SHADOW orchestration. Use one canonical profile and message authority model. No live purchased-list texting, no new autonomous sends, no unaudited identity merges, no provider changes, no real-data acquisitions or spending. Define each slice by its prospective contribution to useful conversations, verified premium and attributable producer minutes. Consolidate future consequential decisions into one owner packet, and move to an approved live provider canary/economic trial only when corresponding gates pass.
+> Implement `CF-AUTONOMOUS-GROWTH-ROADMAP-3.0` as the **highest-priority economic product execution guide**, and `CF-CONTINUOUS-EVIDENCE-1.0` as its **P1 compounding-intelligence foundation connecting Acquisition, Prospect Memory, renewal facts and multi-turn SIGNAL SHADOW** beneath the adopted CoverageFit North Star and constitutional safety floor. Continue from the current verified code; do not restart. Preserve combined Command Center's operator-attested hosted Preview acceptance, STOP/CONTROL and default-off no-send behavior. Perform the bounded PR #7 → aggregate PR #16 merge/publish integrity review, without merging or deploying absent express approval. In parallel, advance the smallest reviewable test-only slices of acquisition source/provenance/identity/cost intelligence, durable Prospect Memory and renewal facts, and multi-step permission-aware SIGNAL SHADOW orchestration, including `CF-SIGNAL-DYNAMIC-CADENCE-1.0` **C1 pure next-evaluation decision logic** under existing AgencyZoom cadence ownership until a separately approved family cutover. Use one canonical profile and message authority model. No live purchased-list texting, no new autonomous sends, no unaudited identity merges, no provider changes, no real-data acquisitions or spending. Define each slice by its prospective contribution to useful conversations, verified premium and attributable producer minutes. Consolidate future consequential decisions into one owner packet, and move to an approved live provider canary/economic trial only when corresponding gates pass.
 
 **North Star reminder:** We are not building a more elaborate producer dashboard. **We are building an evidence-driven autonomous insurance growth and relationship system that turns large amounts of permissible prospect evidence into fewer, better, producer-worthy conversations and measurable written premium—with much less producer effort.**

@@ -29,6 +29,8 @@
 
 ## Immediate working direction
 
+**DYNAMIC CADENCE P1 — workflow ownership is exclusive:** [CF-SIGNAL-DYNAMIC-CADENCE-1.0](docs/CF-SIGNAL-DYNAMIC-CADENCE-1.0.md) is the **P1 SIGNAL autonomy child**, depending on source-linked Prospect Memory. **CoverageFit decides the next useful evaluation/action for approved CoverageFit-owned families; AgencyZoom remains active owner of existing district cadence families unless a separately authorized, safe, family-level transfer occurs.** RingCentral is transport, not cadence brain. Never let two systems schedule/sends for one prospect/family. Evaluate evidence, current fact gaps, customer intent, preferred timing, cooldown, agency owner, STOP/CONTROL, consent and provider compatibility. `next_evaluation_at` is not a message send time. Implement only pure C1 no-send planning in parallel with durable P1 evidence storage; C2 real scheduler state awaits isolated persistence and approvals, and any live family awaits independent agency/provider/Production release approval. No generic Day 1/3/7 drip logic as the product North Star.
+
 Complete bounded merge-trigger/deployment impact review for PR #7 → aggregate PR #16 without merging; concurrently implement independently reviewable synthetic/test-only steps for **CF-ACQUISITION-INTELLIGENCE-1.0**, **CF-PROSPECT-MEMORY-1.0** and **CF-SIGNAL-AUTONOMY-SHADOW-1.0** using one identity/evidence spine. Do not stall no-send acquisition and memory development on the unfinished RingCentral webhook/provider canary. Measure actual value before increasing volume, autonomy or spending.
 
 **Rule:** The Command Center is the producer control surface. The product is the **autonomous acquisition-to-qualified-conversation-to-premium operating loop**.

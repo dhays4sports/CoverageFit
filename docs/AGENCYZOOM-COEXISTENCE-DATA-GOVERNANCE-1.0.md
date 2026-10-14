@@ -19,6 +19,14 @@ CoverageFit should earn additional operational authority only after the relevant
 
 ## System roles during coexistence
 
+### P1 Dynamic Cadence ownership and reversible family cutover (2026-10-14)
+
+[CF-SIGNAL-DYNAMIC-CADENCE-1.0](CF-SIGNAL-DYNAMIC-CADENCE-1.0.md) refines **who owns the scheduler**, not current agency write authority. **AgencyZoom owns active district cadence workflows** (including any already queued messages) until the agency separately authorizes a specific family-level transition. CoverageFit/SIGNAL owns evidence intelligence and recommendations now, and may later own *one specifically approved* cadence family. RingCentral provides allowed message delivery/inbound only after provider/consent certification.
+
+**Non-overlap:** For each verified prospect/workspace/channel/campaign/family, store or derive one authorized active cadence owner and revision; unknown owner, competing scheduled AgencyZoom messages, producer takeover, STOP/CONTROL, unsupported provider route or consent unknown ⇒ **no CoverageFit automatic outbound**. A family handoff requires agency approval, inventory of queued messages, scoped stop/disable of the exact legacy family, verified no duplicate pending action, versioned CoverageFit takeover, rollback and canary. Never silently disable AgencyZoom campaigns globally, invent AgencyZoom stages or send twice. No new AgencyZoom write is authorized by the design decision.
+
+**Dynamic scheduling semantics:** SIGNAL calculates the *next evaluation* based on current source-linked prospect facts, explicit intent, verified renewal and recorded callbacks. Timers do **not** grant outreach eligibility, and silence alone does not authorize another message. C0/C1 audit and pure no-send planner work can advance without changing the CRM or live provider; later automatic scheduling and outbound are independently gated.
+
 ### AgencyZoom
 Treat AgencyZoom as the current agency CRM / operational record for agency-owned lifecycle state that other staff and district processes depend on, including:
 - CRM contact/opportunity lifecycle state;

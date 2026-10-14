@@ -96,6 +96,12 @@ When SIGNAL proposes an action, link `decision_id` → `profile_projection_versi
 
 ## F. SIGNAL SMS and relationship-cycle semantics
 
+### F.1 Dynamic evidence-driven cadence — next evaluation, not automatic SMS
+
+[CF-SIGNAL-DYNAMIC-CADENCE-1.0](CF-SIGNAL-DYNAMIC-CADENCE-1.0.md) is the P1 **downstream decision/scheduling child** of this evidence foundation, within existing SIGNAL Autonomy. New permitted evidence and independently justified time triggers cause a **re-evaluation** of the latest versioned profile, not automatically an SMS send. SIGNAL should determine what is meaningfully missing, already answered, conflicted, stale or ready for a producer; return minimal next action, evidence references, reason and `next_evaluation_at|null`, while independently gating source rights, STOP, CONTROL, actual channel/provider/sender authority, agency owner, human takeover, cooldown and real provider delivery. Zero-message outcomes are correct when no useful communication is justified.
+
+**AgencyZoom is the current cadence owner** for district lead follow-up. Dynamic CoverageFit scheduling is limited to future **specifically approved families**, with one active owner and audited cutover; RingCentral is an eligible transport only when approved. Do not create duplicate cadence or a new messaging gateway. C1 pure test-only planner can advance with E2 durable evidence work; C2 durable evaluation queue, active provider jobs, family cutover and any real outbound require separate gates. The existing synthetic Evidence SHADOW demonstration proves *changed questions*, not a persistently scheduled or live cadence.
+
 A "cycle" is an **evidence evaluation loop**, not a scheduled outbound campaign by default:
 
 `New authorized input → event dedup/link → extraction/reconciliation → current profile → check terminal/hold states → derive next minimal question/action → positive contact authority check → propose/human review/authorized execute OR wait/hold → actual result/reply → next cycle`.
