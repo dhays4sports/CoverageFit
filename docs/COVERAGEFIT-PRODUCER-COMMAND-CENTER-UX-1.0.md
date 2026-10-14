@@ -8,6 +8,18 @@
 
 > This is a **scoped UX and development specification**, NOT a new competing roadmap or permission to merge PRs, contact prospects, enable automatic sends, or alter Cloudflare/AgencyZoom/RingCentral configurations. Continue through the current Phase 2 hosted safety gate. Re-evaluate external providers' policy and agency/carrier approval before real campaigns.
 
+## P1 continuous evidence flywheel — Prospect 360 UX contract
+
+The principal promoted [Continuous Evidence Accumulation / CF-CONTINUOUS-EVIDENCE-1.0](CF-CONTINUOUS-EVIDENCE-1.0.md) to the foundational mechanism linking acquisitions, SMS relationship cycles, Prospect 360 and SIGNAL. The Command Center should **present its results clearly**, not become another editing database or drive extra messaging.
+
+**Producer experience requirements:** Prospect 360 must distinguish **Known / Customer-reported / Verified / Conflicted / Stale / Missing**, show only useful insurance facts by default, and offer accessible source/time/evidence provenance when inspected. A fact correction must be captured as sourced history, not silent field replacement. Renewal date/month precision and policy context are essential; no confidence badge implies independent carrier verification.
+
+**Today/Inbox behavior:** WHY NOW and recommended action should have traceable current profile/interaction evidence, without duplicate questions for sufficiently known facts. When a genuine call/quote request arrives, use high-value human handoff instead of completing a scripted sequence. A new inbound message can enrich memory without making any response eligible; STOP, CONTROL, unknown owner and provider restrictions remain dominant.
+
+**No UI theater:** Do not build timeline dashboards or extra completion-score widgets ahead of the persisted, tested evidence/projection/feedback contract. Verify lower profile-entry burden, reduced repeated questions, accessible conflict correction and producer decisions supported by known evidence in a real pilot. The currently accepted read-only Preview does **not** already implement persistent autonomous evidence accumulation.
+
+---
+
 ## Roadmap 3.0: Command Center is a control surface, not the terminal product
 
 **Principal-approved 2026-10-13 high-priority overlay:** [Autonomous Insurance Growth Roadmap 3.0](COVERAGEFIT-AUTONOMOUS-GROWTH-ROADMAP-3.0.md) governs the next economic development sequence. This document remains the approved **human-facing UX contract**, not a competing delivery priority list. The currently accepted hosted Preview supports Today, linked SIGNAL Inbox, read-only Prospect 360 renewal evidence and selected no-send draft review (19/19 automated and principal desktop/mobile/keyboard signoff, operator-attested isolation). Do **not** restart UI development for milestones already accepted.
