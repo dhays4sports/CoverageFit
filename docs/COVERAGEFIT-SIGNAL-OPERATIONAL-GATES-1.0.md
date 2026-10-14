@@ -1,5 +1,17 @@
 # CoverageFit + SIGNAL — Operational Consolidation Certification Gates 1.0
 
+## P1 Continuous Evidence Accumulation — additional data and execution gates
+
+[CF-CONTINUOUS-EVIDENCE-1.0](CF-CONTINUOUS-EVIDENCE-1.0.md) is the principal-approved **P1 foundational evidence engine** beneath Roadmap 3.0. Safe synthetic/test-only work may progress while production RingCentral inbound is blocked, but each source or action must retain hard safety gates.
+
+**Evidence-specific gates:** workspace- and owner-scoped permitted data rights; documented event time/source; deterministic dedup/replay; conservative identity linking; assertion precision/verification/conflict/staleness; correction and deletion/retraction propagation into derived profiles; privacy/security retention and untrusted-source instruction handling; independent positive channel/consent/provider eligibility. Unknown/held source material never upgrades identity or permission. A high-intent fact/renewal never permits messaging on its own.
+
+**Workflow gates:** every proposed SIGNAL next question consumes the current versioned profile and justified missing-field state. Every simulated new reply must update evidence and alter later SHADOW decisions when warranted. Never send in SHADOW or falsely mark a delivery/customer reply. TEST/CONTROL/STOP, opted-out/wrong-number, changed revision, producer takeover, purchased RingCentral list and uncertain provider receipt cases must fail closed.
+
+**Release boundary:** Existing 19/19 accepted read-only Preview does not certify the future durable Evidence Flywheel. Data/migration changes, actual customer evidence processing, hosted worker execution, producer workflow writes and any external provider/customer actions require their own separate review and authorization, including any Cloudflare auto-deploy risk.
+
+---
+
 ## Roadmap 3.0 priority integration (principal-approved 2026-10-13)
 
 [Autonomous Insurance Growth Roadmap 3.0](COVERAGEFIT-AUTONOMOUS-GROWTH-ROADMAP-3.0.md) is now the **high-priority economic product execution guide** for CoverageFit + SIGNAL. Its P0–P6 delivery sequence prioritizes source-traceable acquisition, durable Prospect/renewal memory and safe no-send SIGNAL qualification before nonessential UI work. This **does not weaken or bypass** any operational certification requirement below: PR merge/deployment effects, provider permissions, actual RingCentral inbound/receipt/recovery, verified opt-in, source provenance, STOP/CONTROL, AgencyZoom cadence owner and separate real-data/canary authorization remain independent hard gates. P1 test-only draft implementation can proceed while live provider changes remain blocked; no synthetic PASS grants authority to send.
