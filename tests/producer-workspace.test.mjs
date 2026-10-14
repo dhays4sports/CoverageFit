@@ -76,3 +76,208 @@ test('synthetic NEW_LEAD pilot fixtures are excluded from normal Producer Work b
 
 
 test('CONTROL receives no Producer Action Quality projection',async()=>{const f=prepared();try{source(f,'two','district_pilot_v1',pilot('CONTROL',otherCid));f.env.CF_ATTENTION_ENABLED='1';const r=await f.work.list(new URLSearchParams({population:'ALL',status:'all',sort:'recommended'}));const two=r.records.find(x=>x.id==='two');assert.equal(two.action_quality,null);assert.equal((await f.work.detail('two')).actionQuality,null);}finally{f.sql.close();}});
+
+test('Producer Action Quality CALL agrees across Work list and detail with provenance',async()=>{
+ const f=prepared();try{
+  source(f,'one','district_pilot_v1',pilot('SIGNAL'));f.env.CF_ATTENTION_ENABLED='1';
+  const transcript=[{id:'incoming-call-1',direction:'inbound',body:'Please call me',occurredAt:new Date().toISOString()}];
+  await f.store.setJSON('sms-live-conversations/'+cid,{
+   id:cid,signal:{...signal(),decision_2:'CALL',latest_inbound:'Please call me',new_facts:{explicit_call_request:true},facts:{line:'AUTO',explicit_call_request:true}},transcript
+  });
+  const listed=(await f.work.list(new URLSearchParams({population:'ALL',sort:'recommended'}))).records.find(r=>r.id==='one');
+  const detailed=await f.work.detail('one');
+  assert.equal(listed.action_quality.action.code,'CALL_CUSTOMER');
+  assert.equal(listed.action_quality.action.channel,'CALL');
+  assert.equal(detailed.actionQuality.action.code,listed.action_quality.action.code);
+  assert.equal(detailed.actionQuality.action.label,listed.action_quality.action.label);
+  assert.deepEqual(detailed.actionQuality.why_now,listed.action_quality.why_now);
+  assert.equal(listed.action_quality.why_now.source_ref.id,'incoming-call-1');
+ }finally{f.sql.close();}
+});
+
+test('confirmed due appointment produces the same action in Work list and detail',async()=>{
+ const f=prepared();try{
+  f.env.CF_ATTENTION_ENABLED='1';
+  source(f,'one','lead',{permission:{basis:'Explicit request'},context:{signalHome:{}}});
+  const due=new Date(Date.now()+2*60*1000).toISOString();
+  source(f,'one','calendar',{eventId:'synthetic-calendar-qa',status:'scheduled',start:due,title:'Insurance review'});
+  const listed=(await f.work.list(new URLSearchParams({population:'WEB_DIRECT',sort:'due_now'}))).records.find(r=>r.id==='one');
+  const detailed=await f.work.detail('one');
+  assert.equal(listed.attention.band,'NOW');
+  assert.equal(listed.action_quality.action.code,'PREPARE_OR_HOLD_APPOINTMENT');
+  assert.equal(listed.action_quality.action.due_at,due);
+  assert.deepEqual(detailed.actionQuality.action,listed.action_quality.action);
+  assert.deepEqual(detailed.actionQuality.why_now,listed.action_quality.why_now);
+  assert.ok(listed.action_quality.evidence.some(e=>e.kind==='commitment'));
+  assert.ok(detailed.actionQuality.evidence.some(e=>e.kind==='commitment'));
+ }finally{f.sql.close();}
+});
+
+test('WEB_DIRECT opt-out via continued conversation suppresses both list and detail',async()=>{
+ const f=prepared();try{
+  f.env.CF_ATTENTION_ENABLED='1';
+  source(f,'one','lead',{permission:{basis:'Prior contact request'},context:{signalHome:{}}});
+  source(f,'one','signal_continue_v1',{conversation_id:cid});
+  await f.store.setJSON('sms-live-conversations/'+cid,{
+   id:cid,smsConsent:{status:'opted_out'},signal:{managed:true,decision_2:'CALL',facts:{line:'AUTO'}}
+  });
+  const listed=(await f.work.list(new URLSearchParams({population:'WEB_DIRECT',sort:'recommended'}))).records.find(r=>r.id==='one');
+  const detailed=await f.work.detail('one');
+  assert.equal(listed.attention.band,'SUPPRESSED');
+  assert.equal(detailed.attention.band,'SUPPRESSED');
+  assert.equal(listed.action_quality.action.code,'DO_NOT_CONTACT');
+  assert.equal(detailed.actionQuality.action.code,'DO_NOT_CONTACT');
+  assert.equal(listed.action_quality.actionable,false);
+  assert.equal(detailed.actionQuality.actionable,false);
+  assert.equal(detailed.contactSafety.suppressed,true);
+ }finally{f.sql.close();}
+});
+
+test('WEB_DIRECT distributor conversation suppression agrees in Work list and detail',async()=>{
+ const f=prepared();try{
+  f.env.CF_ATTENTION_ENABLED='1';
+  source(f,'one','lead',{permission:{basis:'Explicit request'},context:{distribution:{phase:'producer_handoff',conversation_id:cid}}});
+  await f.store.setJSON('sms-live-conversations/'+cid,{id:cid,signal:{contact_suppressed:true,decision_2:'STOP'}});
+  const listed=(await f.work.list(new URLSearchParams({population:'WEB_DIRECT'}))).records.find(r=>r.id==='one');
+  const detailed=await f.work.detail('one');
+  assert.equal(listed.action_quality.action.code,'DO_NOT_CONTACT');
+  assert.equal(detailed.actionQuality.action.code,'DO_NOT_CONTACT');
+  assert.equal(detailed.contactSafety.suppressed,true);
+ }finally{f.sql.close();}
+});
+
+test('synthetic TEST detail is auditable but cannot expose actionable quality guidance',async()=>{
+ const f=prepared();try{
+  f.env.CF_ATTENTION_ENABLED='1';
+  source(f,'one','district_pilot_v1',{...pilot('SIGNAL'),pilot_phase:'TEST',is_test:true});
+  const listed=await f.work.list(new URLSearchParams({population:'ALL',status:'all',sort:'recommended'}));
+  const detailed=await f.work.detail('one');
+  assert.equal(listed.records.some(r=>r.id==='one'),false);
+  assert.equal(detailed.attention,null);
+  assert.equal(detailed.actionQuality,null);
+ }finally{f.sql.close();}
+});
+
+test('with Attention disabled the Producer Action Quality surface remains off',async()=>{
+ const f=prepared();try{
+  source(f,'one','district_pilot_v1',pilot('SIGNAL'));
+  const listed=(await f.work.list(new URLSearchParams({population:'ALL'}))).records.find(r=>r.id==='one');
+  const detailed=await f.work.detail('one');
+  assert.equal(listed.action_quality,null);
+  assert.equal(detailed.actionQuality,null);
+ }finally{f.sql.close();}
+});
+
+test('completed high-priority task does not resurrect a proceed recommendation in Work list',async()=>{
+ const f=prepared();try{
+  f.env.CF_ATTENTION_ENABLED='1';
+  source(f,'one','district_pilot_v1',pilot('SIGNAL'));
+  const at=new Date().toISOString();
+  f.sql.prepare("INSERT INTO cf_solo_tasks(id,workspace_id,opportunity_id,assignee_id,work_type,title,due_at,state,priority,source_key,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)")
+   .run('completed-task','qa','one','qa','outreach','Customer requested proceed',at,'completed',100,'test:completed',at);
+  // Give list and detail the same existing canonical priority projection.
+  await f.repo.detail('one');
+  const row=(await f.work.list(new URLSearchParams({population:'DISTRICT_SIGNAL'}))).records.find(r=>r.id==='one');
+  const detail=await f.work.detail('one');
+  const listNba=row.action_quality.evidence.find(e=>e.kind==='nba');
+  assert.notEqual(detail.nextBestAction.action,'RESPOND_TO_PROCEED');
+  assert.equal(listNba.action,detail.nextBestAction.action);
+  assert.notEqual(listNba.action,'RESPOND_TO_PROCEED');
+ }finally{f.sql.close();}
+});
+
+test('fresh CALL request outranks unrelated future appointment consistently in list and detail',async()=>{
+ const f=prepared();try{
+  f.env.CF_ATTENTION_ENABLED='1';
+  source(f,'one','district_pilot_v1',pilot('SIGNAL'));
+  source(f,'one','calendar',{eventId:'future-app',status:'scheduled',start:new Date(Date.now()+21*86400000).toISOString(),title:'Future insurance review'});
+  const transcript=[{id:'urgent-inbound',direction:'inbound',body:'Please call me',occurredAt:new Date().toISOString()}];
+  await f.store.setJSON('sms-live-conversations/'+cid,{
+   id:cid,signal:{...signal(),decision_2:'CALL',latest_inbound:'Please call me',new_facts:{explicit_call_request:true},facts:{line:'AUTO',explicit_call_request:true}},transcript
+  });
+  const row=(await f.work.list(new URLSearchParams({population:'DISTRICT_SIGNAL'}))).records.find(r=>r.id==='one');
+  const detail=await f.work.detail('one');
+  assert.equal(row.attention.band,'NOW');
+  assert.equal(detail.attention.band,'NOW');
+  assert.equal(row.action_quality.action.code,'CALL_CUSTOMER');
+  assert.equal(detail.actionQuality.action.code,'CALL_CUSTOMER');
+  assert.equal(row.action_quality.action.source,'signal_decision_2');
+  assert.ok(row.action_quality.evidence.some(e=>e.kind==='commitment'));
+ }finally{f.sql.close();}
+});
+
+test('Command Center API is default-off and never unlocks unauthenticated preview',async()=>{
+ const f=prepared();try{
+  const r=await handleSoloDesk({request:new Request('https://coveragefit.test/api/solo-desk/producer-command-center',{headers:{Authorization:'Bearer '+f.env.COVERAGEFIT_PRODUCER_ACCESS_TOKEN}}),env:f.env});
+  assert.equal(r.status,404);
+  const noAuth=await handleSoloDesk({request:new Request('https://coveragefit.test/api/solo-desk/producer-command-center'),env:{...f.env,CF_COMMAND_CENTER_READONLY_ENABLED:'1'}});
+  assert.equal(noAuth.status,401);
+ }finally{f.sql.close();}
+});
+test('Command Center Preview route uses existing Attention and Signal and does not grant SMS send authority',async()=>{
+ const f=prepared();try{
+  f.env.CF_ATTENTION_ENABLED='1';
+  f.env.CF_COMMAND_CENTER_READONLY_ENABLED='1';
+  source(f,'one','district_pilot_v1',pilot('SIGNAL'));
+  source(f,'two','district_pilot_v1',pilot('CONTROL',otherCid));
+  await f.store.setJSON('sms-live-conversations/'+cid,{
+   id:cid,signal:{...signal(),latest_inbound:'Please help with renewal',draft_status:'pending'},
+   transcript:[{id:'incoming-qa',direction:'inbound',body:'Please help with renewal',occurredAt:new Date(Date.now()-60000).toISOString()}]
+  });
+  const req=new Request('https://coveragefit.test/api/solo-desk/producer-command-center',{headers:{Authorization:'Bearer '+f.env.COVERAGEFIT_PRODUCER_ACCESS_TOKEN}});
+  const r=await handleSoloDesk({request:req,env:f.env});
+  assert.equal(r.status,200);
+  const v=await r.json();
+  assert.equal(v.enabled,true);
+  assert.equal(v.coverage.read_only,true);
+  assert.equal(v.coverage.provider_inbound_live_certified,false);
+  assert.equal(v.inbox.length,1);
+  assert.equal(v.inbox[0].category,'DRAFT_REVIEW');
+  assert.equal(v.inbox[0].can_bulk_approve,false);
+  assert.equal(v.inbox[0].sms_send_eligible,false);
+  assert.equal(v.today.every(x=>x.population!=='DISTRICT_CONTROL'),true);
+  assert.equal(JSON.stringify(v).includes('COVERAGEFIT_PRODUCER_ACCESS_TOKEN'),false);
+ }finally{f.sql.close();}
+});
+
+test('Prospect 360 is producer-authenticated and default-off; source renewal is unverified',async()=>{
+ const f=prepared();try{
+  const auth={Authorization:'Bearer '+f.env.COVERAGEFIT_PRODUCER_ACCESS_TOKEN};
+  const base='https://coveragefit.test/api/solo-desk/prospect-360?id=one';
+  const disabled=await handleSoloDesk({request:new Request(base,{headers:auth}),env:f.env});
+  assert.equal(disabled.status,404);
+  f.env.CF_PROSPECT_360_READONLY_ENABLED='1';
+  source(f,'one','lead',{rawFacts:{renewal_date:'2026-11-15'}});
+  const unauth=await handleSoloDesk({request:new Request(base),env:f.env});assert.equal(unauth.status,401);
+  const response=await handleSoloDesk({request:new Request(base,{headers:auth}),env:f.env,now:new Date('2026-10-12T12:00:00Z')});
+  assert.equal(response.status,200);const view=await response.json();
+  assert.equal(view.facts.renewal.verification,'imported_unverified');
+  assert.equal(view.facts.renewal.lifecycle,'CANDIDATE');
+  assert.equal(view.facts.renewal.sms_send_authorized,false);
+  assert.equal(view.limitations.no_new_identity_merge,true);
+ }finally{f.sql.close();}
+});
+test('SMS selected review API stays default-off, rejects malformed sets and never grants sending',async()=>{
+ const f=prepared();try{
+  const base='https://coveragefit.test/api/solo-desk/producer-approval-preflight?ids=one';
+  const auth={Authorization:'Bearer '+f.env.COVERAGEFIT_PRODUCER_ACCESS_TOKEN};
+  const req=x=>new Request(x,{headers:auth});
+  f.env.CF_ATTENTION_ENABLED='1';
+  f.env.CF_COMMAND_CENTER_READONLY_ENABLED='1';
+  assert.equal((await handleSoloDesk({request:req(base),env:f.env})).status,404);
+  f.env.CF_SMS_REVIEW_READONLY_ENABLED='1';
+  assert.equal((await handleSoloDesk({request:req(base+'%2C'),env:f.env})).status,422);
+  source(f,'one','district_pilot_v1',pilot('SIGNAL'));
+  await f.store.setJSON('sms-live-conversations/'+cid,{id:cid,signal:signal(),transcript:[]});
+  const result=await handleSoloDesk({request:req(base),env:f.env});
+  assert.equal(result.status,200);
+  const data=await result.json();
+  assert.equal(data.items.length,1);
+  assert.equal(data.items[0].can_review,true);
+  assert.equal(data.items[0].current_revision,1);
+  assert.equal(data.items[0].can_send,false);
+  assert.equal(data.items[0].can_approve,false);
+  const noAuth=await handleSoloDesk({request:new Request(base),env:f.env});
+  assert.equal(noAuth.status,401);
+ }finally{f.sql.close();}
+});

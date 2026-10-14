@@ -92,3 +92,79 @@ test('NBA supplies exact action when no current Signal or commitment owns it',()
 test('CONTROL receives no Producer Action Quality projection',()=>{
  assert.equal(deriveProducerActionQuality({population:'DISTRICT_CONTROL',attention:attention()}),null);
 });
+
+test('future commitment cannot hijack current Signal CALL while Attention is NOW for inbound',()=>{
+ const q=deriveProducerActionQuality({
+  population:'DISTRICT_SIGNAL',
+  attention:{band:'NOW',rank:120,actionable:true,reasons:[{text:'Explicit call request',source_ref:{kind:'sms',id:'latest'}}]},
+  sms:{decision_2:'CALL',new_facts:{explicit_call_request:true}},
+  commitments:[{id:'future-appointment',type:'APPOINTMENT',status:'open',confirmation:'confirmed',due_at:'2026-11-20T18:00:00Z',source_ref:{kind:'calendar',id:'cal-future'}}],
+  nextBestAction:{action:'PREPARE_SCHEDULED_CONVERSATION',label:'Prepare'}
+ });
+ assert.equal(q.action.code,'CALL_CUSTOMER');
+ assert.equal(q.action.source,'signal_decision_2');
+ assert.equal(q.actionable,true);
+});
+
+test('fresh governed micro-question survives unrelated upcoming follow-up',()=>{
+ const q=deriveProducerActionQuality({
+  population:'DISTRICT_SIGNAL',attention:attention('NOW','Unanswered meaningful inbound'),
+  sms:{decision_2:'ASK_ONE_QUESTION',reply:'When does your policy renew?'},
+  commitments:[{type:'CALLBACK',status:'open',confirmation:'producer_recorded',due_at:'2026-11-10T18:00:00Z',source_ref:{kind:'task',id:'future-task'}}],
+  nextBestAction:{action:'CONNECT_OR_BOOK',label:'Connect'}
+ });
+ assert.equal(q.action.code,'ASK_ONE_QUESTION');
+ assert.equal(q.action.label,'When does your policy renew?');
+});
+
+test('Attention-matched due commitment retains authority over generic Signal decision',()=>{
+ const q=deriveProducerActionQuality({
+  population:'DISTRICT_SIGNAL',
+  attention:{band:'TODAY',rank:90,actionable:true,reasons:[{text:'Recorded callback due today',source_ref:{kind:'task',id:'callback'}}]},
+  commitments:[{type:'CALLBACK',status:'open',confirmation:'producer_recorded',due_at:'2026-10-12T22:00:00Z',source_ref:{kind:'task',id:'callback'}}],
+  sms:{decision_2:'ASK_ONE_QUESTION',reply:'When does your policy renew?'}
+ });
+ assert.equal(q.action.code,'CALL_BACK');
+ assert.equal(q.action.source,'commitment');
+});
+
+test('completed or evidence-only commitment never becomes an active exact action',()=>{
+ for(const c of [
+  {type:'CALLBACK',status:'completed',confirmation:'producer_recorded',source_ref:{kind:'task',id:'callback'}},
+  {type:'CALLBACK',status:'open',confirmation:'evidence_only',source_ref:{kind:'task',id:'callback'}}
+ ]){
+  const q=deriveProducerActionQuality({
+   population:'DISTRICT_SIGNAL',
+   attention:{band:'TODAY',rank:90,actionable:true,reasons:[{text:'Recorded callback',source_ref:{kind:'task',id:'callback'}}]},
+   commitments:[c],
+   sms:{decision_2:'ASK_ONE_QUESTION',reply:'What is your renewal date?'}
+  });
+  assert.equal(q.action.code,'ASK_ONE_QUESTION');
+  assert.equal(q.evidence.some(e=>e.kind==='commitment'),false);
+ }
+});
+
+test('unconfirmed calendar cannot become a confirmed action when Attention mentions it',()=>{
+ const q=deriveProducerActionQuality({
+  population:'WEB_DIRECT',
+  attention:{band:'TODAY',rank:80,actionable:true,reasons:[{text:'Tentative appointment time',source_ref:{kind:'calendar',id:'maybe'}}]},
+  commitments:[{type:'APPOINTMENT',status:'open',confirmation:'unknown',due_at:'2026-10-12T18:00:00Z',source_ref:{kind:'calendar',id:'maybe'}}],
+  sms:{decision_2:'ASK_ONE_QUESTION',reply:'When does your coverage renew?'}
+ });
+ assert.equal(q.action.code,'ASK_ONE_QUESTION');
+ assert.equal(q.evidence.some(e=>e.kind==='commitment'),false);
+});
+
+test('confirmed callback wins when matched to the Attention reason, not unrelated tentative calendar',()=>{
+ const q=deriveProducerActionQuality({
+  population:'WEB_DIRECT',
+  attention:{band:'TODAY',rank:90,actionable:true,reasons:[{text:'Callback due',source_ref:{kind:'task',id:'ready'}}]},
+  commitments:[
+   {type:'APPOINTMENT',status:'open',confirmation:'unknown',due_at:'2026-10-01T18:00:00Z',source_ref:{kind:'calendar',id:'maybe'}},
+   {type:'CALLBACK',status:'open',confirmation:'producer_recorded',due_at:'2026-10-12T18:00:00Z',source_ref:{kind:'task',id:'ready'}}
+  ],
+  nextBestAction:{action:'CONNECT_OR_BOOK',label:'Connect or book'}
+ });
+ assert.equal(q.action.code,'CALL_BACK');
+ assert.equal(q.action.due_at,'2026-10-12T18:00:00Z');
+});

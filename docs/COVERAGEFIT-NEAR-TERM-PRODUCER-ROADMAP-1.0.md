@@ -6,6 +6,153 @@
 **Repository:** dhays4sports/CoverageFit  
 **Scope:** Producer OS, Signal Copilot, attention orchestration, commitments, and calendar actions
 
+## DATA USE GOVERNANCE — optional market insights, never individual profile resale
+
+**Principal-locked preference:** Protect private Prospect 360 relationships; **do not build individual enriched-profile resale**. Reserve **optional later** de-identified aggregate market-intelligence products (only source-rights-permitted, genuinely de-identified and legal/privacy reviewed) and **possibly individually authorized direct CoverageFit inquiries**. The latter does not include an assumed right to resell purchased/AgencyZoom/Farmers or 408FARMERS records. See [Data Rights and Optional Market Intelligence 1.0](CF-DATA-RIGHTS-AND-MARKET-INTELLIGENCE-OPTIONAL-1.0.md).
+
+**Execution priority:** At P1, preserve source rights, data-use purpose, privacy/retention and transferability metadata in the **existing evidence spine**, default-deny unauthorized external sharing, and establish future aggregate suppression/risk-review requirements. Do **not** schedule a resale marketplace, de-identification product, broker registration, payments or new separate business as part of the acquisition-to-conversation critical path. Commercial activation always requires distinct agency/contract/privacy/licensing evidence, economic validation and principal approval.
+
+---
+
+## P1 EVIDENCE FLYWHEEL FOUNDATION — cross-phase mandate (2026-10-13)
+
+**Principal-approved design dependency:** [Continuous Evidence Accumulation / CF-CONTINUOUS-EVIDENCE-1.0](CF-CONTINUOUS-EVIDENCE-1.0.md) is P1 foundational to [Roadmap 3.0](COVERAGEFIT-AUTONOMOUS-GROWTH-ROADMAP-3.0.md), not optional enrichment after acquisition or a new independent phase. Source ingestion, durable Prospect 360/UCP evidence and SIGNAL SHADOW must use **one event → sourced assertion → conflict/verification/temporal reconciliation → versioned current-profile → next-decision feedback** contract. Existing importer, SMS stores, UCP links and read-only Prospect 360 are starting points; a durable shared history is not yet built and cannot be claimed as deployed.
+
+**P1 sequencing:** Audit source/identity/retention contracts → bounded synthetic admission and extraction (including 1,000 mixed sources and duplicate/out-of-order events) → repeatable derived Prospect/renewal memory with conflicts, correction and expiry → multi-turn no-send SIGNAL SHADOW that consumes current memory, avoids answered questions, produces genuine next-action changes and never overrides contact restrictions. P1 engineering may be prepared on reviewable branches alongside the PR #7/#16 release gate. Live inbound, real data, migrations, new provider/CRM writes and autonomous sends remain separately gated.
+
+**Release/economic proof:** Count relevant verified knowledge, fewer redundant questions and manual corrections, legitimate renewal lifecycle accuracy and real useful-conversation productivity (when authorized); raw data or message volume is not success. Preserve STOP/CONTROL/TEST, positive sender/channel permission, data minimization/retention, uncertain identity holds, and the RingCentral purchased/third-party list restriction.
+
+---
+
+## PRIORITY OVERLAY — Autonomous Insurance Growth Roadmap 3.0 adopted 2026-10-13
+
+## DYNAMIC SIGNAL CADENCE — P1 child of evidence-aware autonomy (2026-10-14)
+
+**Principal-approved execution detail:** [CF-SIGNAL-DYNAMIC-CADENCE-1.0](CF-SIGNAL-DYNAMIC-CADENCE-1.0.md) is a **P1 child of SIGNAL Autonomy**, downstream of [P1 Continuous Evidence Accumulation](CF-CONTINUOUS-EVIDENCE-1.0.md). Dynamic cadence is a **governed schedule of evidence-dependent evaluations and next-step proposals**, not a fixed marketing drip or a guarantee to send SMS when a timer fires. The decision may be `ASK ONE QUESTION`, `CALL`, `LATER`, `CLOSE`, `STOP`, quote preparation, human review or no action. Questions already sufficiently answered in Prospect 360 should be skipped.
+
+**Existing owner:** AgencyZoom's district campaign/stage/cadence remains authoritative. **Future narrow owner:** CoverageFit may only become sole automated cadence owner for specific agency/provider/consent-approved families after reversible, auditable family-level handoff and duplicate-send protection. RingCentral stays an allowed transport only for compatible sources/senders/campaigns. Provider receipt/inbound recovery and live sends remain uncertified. Explicit positive contact rights cannot be inferred from a verified renewal or imported lead.
+
+**Order:** During P1 Evidence Flywheel E2 durable synthetic/replay work, implement C0 ownership mapping and C1 **pure no-send dynamic planner**; later C2 test-isolated transactional due-evaluation queue, C3 profile-feedback SHADOW, then separately approved actual provider/agency canary and narrowly justified autonomy. Maintain STOP/CONTROL/TEST, ownership/takeover, cooldown, quiet hours, recipient/campaign caps, robust idempotency and correct source provenance. **No active scheduler or external provider action is authorized.**
+
+---
+
+**Principal instruction:** Make [CF-AUTONOMOUS-GROWTH-ROADMAP-3.0](COVERAGEFIT-AUTONOMOUS-GROWTH-ROADMAP-3.0.md) the **high-priority economic execution and feature-selection guide** for all CoverageFit + SIGNAL work. This does not supersede this document's phase safety/release gates, the product North Star, 408FARMERS/AgencyZoom/RingCentral/Farmers authority boundaries or long-term consumer experience.
+
+**Reweighted delivery sequence:** **P0** approved Preview preservation + #7 → aggregate #16 release review (no merge until separate decision); **P1** acquisition source attribution and 1,000-record synthetic resumable import exercise; **P1** persistent sourced Prospect 360/renewal/identity memory; **P1** persistent multi-step qualification and channel-authority SHADOW; **P2** separately approved live provider closed-loop canary followed by small measurable California SIGNAL/CONTROL producer pilot; **P3** verified, positively authorized autonomy/volume scale. P1 safe draft work starts in parallel with P0 review; neither the Preview 19/19 nor CI 544/544 constitutes live messaging certification or economic uplift.
+
+**Engineering preference:** Approximately 80% of *discretionary new-feature* effort to acquisition (30%), Prospect Memory/renewals (25%) and SIGNAL qualification (25%); operational reliability (15%) and new UI (5%) are supporting investments. Required safety/release work is never de-scoped to meet this aspirational allocation. Do **not** create a rival CRM, data spine, send gateway, master roadmap, or domain/business; acquire → understand → orchestrate → valuable producer handoff → measure real economics.
+
+**Progress metric:** producer minutes per genuine useful conversation (primary), then useful conversations/producer hour, verified renewal coverage, quote/bind conversion, verified written premium/producer hour and actual source cost/useful conversation. Baseline and pilot proof precede claimed percentage improvements. Principal reviews one consequential release/authority packet per gate, not repeated SQL/Chrome acceptance for unchanged scopes.
+
+**Instruction when phase descriptions below seem UI-first:** The existing phases still govern dependencies, but apply the **Roadmap 3.0 product-priority order** within every safe engineering workstream. Do not wait for full RingCentral live webhook certification to build no-send source intelligence, memory or SHADOW qualification; do not treat these drafts as permission for provider action.
+
+---
+
+## Combined Command Center Preview accepted — integration/release sequence (2026-10-13)
+
+**Operating status:** `HOSTED-CERTIFIED / OPERATOR-ATTESTED-ISOLATION` for the scoped read-only Command Center experience, NOT for live communications, full daily producer dogfood, premium economics, or Production. Principal explicitly confirmed **desktop + mobile + keyboard** visuals for Today, linked Inbox / no-send selected review, Prospect 360 renewal verification/conflicts, and correct original STOP safety; authenticated immutable Preview checker **19/19 PASS**, failures 0, outbound sends 0 (October 13, 2026). The intentional unauthenticated 401 passed; original synthetic CALL became STOP and remained suppressed, so a **new, independent fictional CALL** was added and tested instead. Exact reviewed runtime `d8083570c0425371c67b1bae74813ec6c50a9be6`, URL `ece607a0.coveragefit.pages.dev`, CI **544/544** on runtime head. Preview/Production D1 isolation and served-SHA linkage are **operator-attested, not independently inspected by ChatGPT**.
+
+**Canonical integration/merge review path (not merge authorization):**
+1. **Freeze and reconcile the actual graph:** `main` → **draft PR #7** (`signal-copilot`) → **draft PR #16** (`integration/command-center-unified-certification-20261012`). PR #16 includes linear fast-forward history **#12 → #14 → #15**, plus unified certification. These earlier draft PRs must not be merged again as separate redundant changes. Review new upstream commits, CI, 43-file aggregate diff vs #7, routing/auth boundaries, remaining Preview debug/fixture scripts, default-OFF production flags, migrations/secrets and rollback.
+2. **Prepare one consequential principal approval packet**, not a stream of requests: request authorization **only** for integration merges **#7 then #16**, with exact SHAs/base and GitHub branch protections, what reaches main, remaining feature flags and rollback plan. Do not infer authority to deploy Production, enable feature flags, send SMS, edit D1/Cloudflare, update AgencyZoom, or create calendar events.
+3. **On separate merge authorization only:** merge #7 first with protections; refresh/rebase or retarget #16 as needed, rerun exact-head CI and safety checks, merge #16, verify `main` content. Mark #12/#14/#15 superseded only after verifying the aggregate is integrated and without losing their audit history. Otherwise leave everything as drafts.
+4. **Controlled read-only operator dogfood gate:** only on a separately approved isolated/test or properly assessed producer environment, measure time to next right action, useful conversations per producer hour, stale work, draft review burden, explicit STOP/CONTROL, contact-provenance exceptions, page performance/mobile usability and AgencyZoom ownership. Establish manual fallback and stop conditions. The Preview 19/19 test does **not** prove productive operation on real records.
+5. **Provider-coupled Phase 3 still open in parallel:** RingCentral sender ready but Preview webhook URL/token missing at last verified status; Preview used production RingCentral realm. Subscription POST may trigger live provider changes and message-history recovery. Keep live webhook/recovery and outbound approval as separate explicitly reviewed provider/campaign/consent canaries. Do not send to purchased third-party lead lists through RingCentral in violation of its published SMS restrictions.
+6. **Economic pilot and scale after gates:** prospect evidence, permissioned acquisition qualification, measurable premium / producer-attention leverage; no blind autonomous sends or district expansion on mere Preview acceptance.
+
+**Exit of this handoff:** Code is `HOSTED-CERTIFIED IN ISOLATED PREVIEW` for the enumerated UI/review scope. **Integration READY FOR OWNER MERGE DECISION** after fresh exact-head CI and final diff/infrastructure review. Phase 3 external communications, Phase 4 real-data dogfood and Phase 5 SIGNAL economic evidence are independently gated. No additional Cloudflare SQL or repeated hosted visual certification requested for unchanged accepted scope.
+
+---
+
+## Executive execution map — CoverageFit + SIGNAL Master Roadmap 2.0 (2026-10-12)
+
+> **Product North Star adoption (2026-10-12):** The principal approved the CoverageFit Producer Command Center UX 1.0 product direction as the roadmap's operating target: **Today → Inbox / Bulk Approvals → Prospect 360 / Renewal Intelligence → permissioned SMS workflow autonomy and large-scale purchased-lead acquisition**. Purchased lead ingestion and automated SMS are **core goals, not optional features**. Build send-free acquisition/consent data contracts and SHADOW automation in parallel with Phase 2/3 integration, but do not grant live send authority until sender/campaign permission and provider-specific constraints are verified. The RingCentral route is not authorized for purchased or third-party-generated SMS lead lists under its published policy; the acquisition objective should not be abandoned, nor should list provenance be masked. See `docs/COVERAGEFIT-PRODUCER-COMMAND-CENTER-UX-1.0.md` for locked UX details and escalation rules.
+>
+> **Governance:** This adopts the product plan, **not** approval to merge code, change Cloudflare, ingest live purchases, send messages or activate automation. Keep Phase 2 hosted certification and the existing release gates; avoid making consent/provider evidence a recurring principal task by using auditable import receipts, automatic eligibility classification and consolidated exception reviews.
+
+**Purpose:** Give the principal and every implementation thread **one short, phase-gated reference** for what to build next. This is the executive execution map within the **existing canonical near-term roadmap**, not a second roadmap or a replacement for the architectural details below. The detailed Milestones 0–10 describe capabilities; **the seven phases here set operating order and release gates**. Read the latest `docs/COVERAGEFIT-CURRENT-STATE.md` and current repository/provider evidence before relying on any recorded SHA, flag, test count, or hosted environment claim.
+
+**North Star:** CoverageFit is the insurance producer command center; SIGNAL is its governed decision/attention engine; 408FARMERS and its acquisition satellites are entry surfaces; AgencyZoom retains existing district cadence ownership, RingCentral transports communications, Google Calendar executes approved appointments, and Farmers retains underwriting/binding/policy administration. The target is **fewer producer minutes per useful, compliant conversation and more verified premium per productive hour**, not the largest feature list.
+
+### Seven-phase progress map
+
+| Phase | Outcome | Current disposition (updated 2026-10-13) | Evidence required to exit |
+| --- | --- | --- | --- |
+| **1. Consolidate the foundation** | One tested, safe, reviewable producer runtime | **INTEGRATION GRAPH RECONCILED, MERGE AUTHORIZATION PENDING.** PR #16 aggregates #12/#14/#15, based on draft #7; 19/19 hosted UI PASS and 544/544 runtime CI; main remains unchanged. Do not merge without separate approval. | Reconcile overlapping PRs deliberately; exact-head CI green; preserve cohort, ownership, consent, race-safety, flags-off manual fallback; document release and rollback; separate merge approval |
+| **2. Certify producer decisions** | Work list and detail agree on **Why now / Do / Evidence** | **HOSTED PREVIEW FUNCTIONAL + VISUAL ACCEPTED (operator-attested), 2026-10-12.** 9/9 synthetic cases passed on immutable `ee3f966a` Preview at tested head `1bb773d`; operator confirmed desktop/mobile, STOP, CONTROL and TEST behavior. D1 UUID isolation remains operator-attested, not independently verified. | **Met for scoped Preview Producer Action Quality.** Production merge/config/send gates remain separate; evidence captured in CURRENT-STATE |
+| **3. Close the operational loop** | One qualified lead travels safely from source to documented next outcome | **ACTIVE ENGINEERING GATE.** RingCentral inbound webhook/subscription and end-to-end receipt/recovery remain unverified in authorized isolated environment; review read-only status first. | One traced controlled `intake → dedupe/population → evidence → approved action → provider receipt → inbound → confirmed follow-up → outcome`; provider healthy, no duplicate send, no missing/ambiguous state; 408FARMERS handoff and AgencyZoom coexistence |
+| **4. Daily producer dogfood** | Producer opens CoverageFit and can work a small real queue without reconstructing context | **READ-ONLY COMMAND CENTER HOSTED PREVIEW ACCEPTED; REAL PRODUCER DOGFOOD NOT YET MEASURED.** Today, linked Inbox, Prospect 360 and selected no-send review passed one combined 19/19 hosted check plus desktop/mobile/keyboard signoff; full live inbox and real-data operations remain out of scope | Useful Today/Inbox/Opportunity views, reliable commitments and follow-ups, accurate exceptions, suppressed leads kept out of action queue, low app switching and a documented manual fallback |
+| **5. Prove SIGNAL economics** | SIGNAL beats or is honestly compared with the existing district workflow | **NOT YET DEMONSTRATED.** Measurement/data structures exist; no verified uplift | Approved small fresh California personal-lines pilot with stable SIGNAL/CONTROL cohorts, predefined useful-conversation definition, producer-time accounting, quotes/binds/verified premium, and observed comparison |
+| **6. Scale safely** | Higher lead volume and selectively reduced manual work without losing ownership or trust | **CONDITIONAL.** Do not treat draft automation as authorized | Gate one automation family through OBSERVE → SHADOW → separately approved LIVE, one owner per family, consent/STOP checks at execution, no ambiguous retry sends, measurable positive economics |
+| **7. Expand intelligence** | Calls, documents, screenshots, cross-channel evidence and advanced actions add incremental leverage | **LATER / SEPARATE.** Desktop Copilot #10 exists as an isolated draft installer, not production; call/document intelligence is not a prerequisite for phases 1–5 | Scoped authorization, canonical evidence provenance, cost/latency measurements, privacy/vendor approvals, Action Quality compatibility, no duplicate reasoning/sending authority |
+
+**Current focus (updated 2026-10-13):** Scoped Phase 2 Action Quality and unified Phase 4 Command Center read-only UI are **HOSTED PREVIEW ACCEPTED with operator-attested isolation**, including one 19/19 combined API test and principal desktop/mobile/keyboard signoff. **Integration merge review now leads:** PR #7 followed by aggregate #16, requiring a single separately authorized merge decision. **Phase 3 actual RingCentral inbound/receipt/recovery remains NOT CERTIFIED**, and Phase 4 real producer dogfood and Phase 5 economic pilot are NOT YET MEASURED. Safe evidence/consent and shadow simulation engineering may proceed, but no added live send authority follows from this acceptance.
+
+### What each phase concretely means
+
+**Phase 1 — integrate, don't rebuild.** PR #7 contains the newest producer Copilot/Attention/Action Quality work, including the guarded district-promotion pattern already present in PR #6. PR #12 is stacked on #7 and adds list/detail suppression/evidence/next-action parity and regression checks. PR #11 is a narrow main-based seven-day assertion/release-gate draft; its release-gate document has now been carried into PR #12 and its assertion already exists on #7. Do not merge PR #11 separately or reapply stale code. PR #8 is based on a stale #7 revision: retain already ported read-only commitment/attention primitives, defer calendar write surfaces until the appropriate gate, and **do not merge #8 wholesale**. PR #9 (producer notifications) has an independent provider/secret/hosted-canary gate. PR #10 (Desktop Copilot) is parallel and nonblocking. Before a merge, explicitly record retained source of truth per overlapping file, test coverage, flag defaults, release and rollback instructions. Draft PRs and green CI alone are not deployment approval.
+
+**Phase 2 — trust the action.** The governing signal is:
+`Why now → exact governed action → evidence reference → producer judgment`.
+CoverageFit must not promote a stale, completed, cancelled, unconfirmed, or unrelated future task over a fresh governed reply. It must not turn a high Opportunity Priority score into a contact permission, let Attention outrank STOP/CONTROL, invent a completed call from calendar presence, or show actionable instructions for synthetic TEST records. Certify on the **exact deployed SHA with verified Preview/Production database separation**; if isolation cannot be established, record a blocker and use deterministic non-mutating tests rather than production data.
+
+**Phase 3 — one closed loop.** A lead arrives from district raw intake or 408FARMERS; strict provenance, normalization and deduplication keep it in the correct population. SIGNAL determines current evidence/priority; the Workspace presents action and why. If communications are permitted, Copilot may draft but **only explicit producer approval sends**. Provider acknowledgements and inbound webhook events reconcile by stable identity; ambiguous external acceptance never triggers blind resends. A confirmed follow-up or appointment becomes durable work, and a real outcome is recorded. Preserve AgencyZoom existing district cadence/automation ownership. Prior controlled RingCentral outbound Preview delivery is **not** proof that inbound subscriptions are ready.
+
+**Phase 4 — the producer-day product.** Favor **Today → Inbox → Opportunity detail → Action → Outcome** over additional screens. Today surfaces actionable commitments/high-signal people with succinct why-now reasons; Inbox shows inbound and failed-delivery exceptions; detail shows what is known, missing, disputed, promised and last done. Prioritize reliable one-question, call, reply, follow-up and quote-preparation flows. Google Calendar create/invite/reschedule/cancel may enter only behind its distinct explicit-action provider gate, with duplicate-safe writes and truthful invite status. The producer must be able to work the manual path if AI or external services are unavailable.
+
+**Phase 5 — measure before district expansion.** Preserve the canonical **seven-day** fresh-lead eligibility policy and immutable assignment/override audit. Before real comparison, lock definitions for *useful conversation*, producer minutes, cohort eligibility, policy/bind evidence and observation window; never count synthetic data or equate a drafted SMS with a useful conversation. The **primary unit economic metric** is **Producer Minutes per Useful Conversation** = total attributable producer effort minutes / number of qualified useful conversations, reported as undefined if denominator is zero. Count triage, exception handling, conversation, correction, follow-up and administrative effort in the numerator; don't cherry-pick only the speaking minutes. Report quotes, binds, verified written premium, premium/producer hour and missed commitments as secondary measures. If evidence does not demonstrate improvement, revise the process rather than invent ROI.
+
+**Phase 6 — autonomy must earn its authority.** Start with read-only analysis and no-send SHADOW evaluation. An automation family has a single explicitly identified owner (AgencyZoom or CoverageFit, never both), durable version/step identity, consent and suppression rechecks at execution, retry-idempotency, manual pause/takeover, audit and rollback. Do not cut over a live family merely because templates or a scheduler compile. Integrate 408FARMERS, MortgageProtectionCA.com, BayAreaLandlordInsurance.com, RentalInsuranceCA.com and other approved acquisition satellites through shared CoverageFit/SIGNAL intake; they are **distribution surfaces of the existing insurance operation, not independent producer operating systems**. Scale distribution only when the workflow is reliable and measured.
+
+**Phase 7 — reuse the intelligence spine.** RingCentral call transcripts, documents, screenshots/Desktop Copilot, email and manual notes can propose evidence. Each channel must use the same provenance, consent, identity, commitment, Attention and Producer Action Quality contracts. Do not create a second lead scoring engine or give desktop/visual inference independent CRM or external-send power. Evaluate each input by added usable conversations or reduced producer time, subject to privacy/agency/carrier authorization.
+
+### Dependency and release map
+
+```text
+[1 Integration & safety baseline]
+                |
+                v
+[2 Action Quality hosted certification]
+                |
+                v
+[3 Reliable lead ↔ communication ↔ commitment loop]
+                |
+                +----> [4 Daily producer dogfood] ----> [5 SIGNAL economic pilot]
+                |                                            |
+                |                                            v
+                +----------------------------------> [6 Selective scale / automation]
+                |
+                +----> [7 Advanced evidence inputs, individually justified]
+```
+
+The work inside phases 3–4 may be engineered in parallel **only** where provider, authority and testing boundaries are isolated. Phase 6 activation depends on the economic proof and distinct external-action approvals; advanced inputs are optional.
+
+### Evidence standard at every release gate
+
+A phase is not DONE based on implementation or test-count claims alone. The release note must identify: **exact repository head; diff/overlap decision; passing relevant checks; exact deployed head when hosted; data and secrets/environment isolation; synthetic/provider canary results; deny/STOP/CONTROL cases; manual fallback and rollback; remaining risks; specific approval for every external change**. If an item is unavailable, label it **BLOCKED** rather than inferring success.
+
+Operational statuses use **NOT STARTED → IMPLEMENTED → TESTED → HOSTED-CERTIFIED → PILOT-MEASURED → PRODUCTION-AUTHORIZED**, and should not be compressed into a generic "done" label.
+
+### Principal Attention Sovereignty
+
+The owner should be interrupted only for a consequential approval or a real operational risk. Development should proceed with automated CI, bounded read-only audits, synthetic tests, draft PRs, and one consolidated decision packet per gate. The packet states **recommended decision, evidence, risk, reversible fallback, attention/cost impact, and the exact permission requested**. No silent merges, live AI enablement, D1/secret mutations, customer sends, appointments/invitations, AgencyZoom family cutover, district outreach, or production deploys.
+
+### Reference index and handoff
+
+- This file: **canonical implementation roadmap and seven-phase execution map**.
+- `docs/COVERAGEFIT-CURRENT-STATE.md`: latest operational audit, branch and provider status; update whenever materially changed.
+- `docs/COVERAGEFIT-PRODUCER-ACTION-QUALITY-1.0.md`: exact deterministic decision and evidence contract.
+- `docs/COVERAGEFIT-PRODUCER-COMMAND-CENTER-UX-1.0.md`: **design proposal under review** for Today / Inbox / selected SMS approvals, Prospect 360 and renewal intelligence. It does not reorder the current Phase 2 certification gate or authorize any sends.
+- `docs/PR8-RECONCILIATION-2026-10-07.md`: why historical PR #8 cannot be blindly merged.
+- `docs/COVERAGEFIT-SIGNAL-OPERATIONAL-GATES-1.0.md`: explicit near-term certification/release checklist, **now incorporated into draft PR #12**. PR #11 is superseded for integration purposes.
+- PR #7 → PR #12: current read-only producer-action development lane. Production `main` is not assumed to include either.
+
+**Implementation priority refinement:** Develop permissioned acquisition source evidence, renewal/Prospect 360 projections and the automated qualification SHADOW runner *alongside* Today/Inbox engineering. Keep batch approvals human-governed until their separate send gate passes. Do not treat the last phases of the seven-phase executive map as a requirement to wait before designing or coding safe shadow automation.
+
+**Resume instruction for future work:** *Re-audit current repo and deployment state, read this execution map and CURRENT-STATE, identify the earliest unmet gate, and deliver only the smallest reviewable slice that measurably advances it. Do not start another workstream merely because a later-phase capability is technically interesting.*
+
+---
+
 ## Purpose
 
 This document converts the current CoverageFit Producer OS and Producer Copilot direction into a concrete near-term implementation sequence.
@@ -893,22 +1040,14 @@ Do not use this roadmap as permission to:
 
 ## Canonical near-term sequence
 
-The recommended sequence is:
+**Execution order is the seven-phase Master Roadmap 2.0 at the top of this file.** The detailed Milestones 0–10 remain capability specifications and acceptance guidance, not a competing run order. Proceed now through:
 
-1. **PHASE-0-STABILIZE — finish hosted safety, reconcile PR #6/#7/#8, rerun the full suite, clean CURRENT-STATE**
-2. **Producer OS foundation alignment — preserve identity, provenance, ownership and promotion safety**
-3. **AGENCYZOOM-COEXISTENCE-DATA-GOVERNANCE-1.0 — authority, sync, retention, security, export/recovery**
-4. **COVERAGEFIT-SECURITY-DATA-GATE-1.0 — auth, environment isolation, secret review, webhook security, retention classes**
-5. **RAW-LEAD-INTAKE / evidence normalization — safely ingest more lead volume without expanding action authority**
-6. **SIGNAL-COPILOT-1.1 — durable conversation state and commitments**
-7. **SIGNAL-ATTENTION-1.0 — Recommended / High Intent / Due Now**
-8. **CALENDAR-ACTIONS-1.0 — create / invite / reschedule / cancel in CoverageFit**
-9. **Attention + Calendar convergence**
-10. **RINGCENTRAL-INBOUND-1.0 — authenticated webhook/subscription, replay protection and durable inbound evidence**
-11. **SIGNAL-COPILOT-1.2 — call intelligence**
-12. **Document / Visual evidence expansion**
-13. **PRODUCER-CONTEXT-1.0 — governed cross-channel evidence**
-14. **Mature Signal — smallest effective next action**
-15. **PRODUCER-ACTION-1.0 — bounded approved actions; no broad CRM autonomy**
+1. **Phase 1 — Integration and safety:** consolidate PR #7/#12, reconcile PR #6/#8/#11 overlap, keep PR #9 and #10 behind their own gates, green exact-head CI and configuration audit.
+2. **Phase 2 — Action Quality certification:** isolated hosted Work list/detail, CALL / ASK_ONE_QUESTION / due work / STOP/CONTROL cases, known evidence and flags-off fallback.
+3. **Phase 3 — Closed communication loop:** RingCentral inbound webhook/subscription, explicit approved send and idempotent delivery, valid follow-up projection, 408FARMERS lead notifications only after separate canary.
+4. **Phase 4 — Producer daily use:** trusted Today/Inbox/work detail, explainable tasks and commitments, governed calendar actions when certified.
+5. **Phase 5 — Controlled SIGNAL economics:** fixed cohorts, correct numerator/denominator, usefulness and premium per productive hour.
+6. **Phase 6 — Scale only by evidence and approval:** capacity, one owner per automation family, shadow evaluation, acquisition satellite routing.
+7. **Phase 7 — Optional enrichment:** call, document, visual/desktop and cross-channel context without duplicating trust/authority.
 
-The reason for moving attention and calendar earlier is practical: CoverageFit already has the Opportunity Priority, NBA, producer-workspace ordering and Google Calendar rails required to make them useful. They close immediate producer-operating gaps without waiting for every future evidence channel to exist.
+**Next exact release gate (updated 2026-10-13):** Refresh #7/#16 SHAs, full aggregate diff, exact-head CI, feature flags, auth and STOP/CONTROL/no-send regressions; prepare one **separate merge approval** for #7 then #16, with rollback and no production feature activation implied. After permitted merge, stage controlled read-only producer dogfood and measure attention economics. In parallel, the RingCentral provider webhook/receipt/recovery canary remains independently BLOCKED on configuration, provider realm and explicit send/notification approvals. The scoped combined Preview acceptance remains valid for unchanged tested runtime `d808357`; changed runtime requires relevant revalidation.

@@ -1,9 +1,69 @@
 # CoverageFit North Star
 
+## HIGH-PRIORITY EXECUTION NORTH STAR — AUTONOMOUS INSURANCE GROWTH 3.0 (principal-approved 2026-10-13)
+
+**Authoritative detailed plan:** [CF-AUTONOMOUS-GROWTH-ROADMAP-3.0](docs/COVERAGEFIT-AUTONOMOUS-GROWTH-ROADMAP-3.0.md). **Status: HIGH PRIORITY; adopted to guide future CoverageFit + SIGNAL engineering and product decisions.** This is the *execution priority* within the Unified Product North Star below; it does **not** remove the long-term consumer protection vision or loosen STOP, identity, consent, agency/provider, real-data or release authority.
+
+**Primary result:** More real, useful, compliant insurance conversations and verified written premium per producer hour; fewer producer minutes per useful conversation. Technology is valuable when it directly advances acquisition volume/quality, durable prospect+renewal evidence, governed autonomous qualification, reliable follow-through, or proven economic conversion. The accepted Command Center is the human control surface **of** that engine, not the engine's final deliverable.
+
+**Default priority order:** (0) protect accepted read-only Preview and reconcile PR #7 → aggregate #16 under a **separate** merge/Cloudflare release decision; (1) high-volume source-traceable acquisition/intake and honest eligibility; (2) durable Prospect 360/UCP facts, identity and renewal memory; (3) stateful no-send SIGNAL qualification SHADOW; (4) independently authorized live provider/commitment loop; (5) measured producer SIGNAL/CONTROL economics; (6) bounded autonomy and scale only with positive evidence. Draft/test-only engineering on (1)–(3) can overlap release review. Do not launch purchased-list SMS, new live provider routes or autonomous contact without actual positive authority.
+
+**Feature test:** Every significant development cycle must demonstrate an expected effect on useful conversations, verified premium, attributable producer effort, or an evidenced blocker. Implement the smallest durable reusable primitive. Protect **Principal Attention Sovereignty** by doing routine engineering autonomously and escalating a single consolidated consequential approval packet per gate.
+
+**Canonical hierarchy:** This file = timeless product North Star; [Autonomous Growth Roadmap 3.0](docs/COVERAGEFIT-AUTONOMOUS-GROWTH-ROADMAP-3.0.md) = **highest-priority economic execution guide**; [Master Roadmap 2.0](docs/COVERAGEFIT-NEAR-TERM-PRODUCER-ROADMAP-1.0.md) = implementation/phase release sequencing; [Current State](docs/COVERAGEFIT-CURRENT-STATE.md) = verified evidence; [Producer Command Center UX](docs/COVERAGEFIT-PRODUCER-COMMAND-CENTER-UX-1.0.md) = approved human-facing surface. Never treat product direction as implicit permission to deploy, merge, send, buy leads or modify CRM/provider infrastructure.
+
+---
+
 **Document:** CF-NORTH-STAR-1.0  
 **CoverageFit baseline:** v3.20.256  
 **Status:** Product North Star / long-range architectural reference  
 **Date:** 2026-09-20
+
+## PRIVACY-FIRST INTELLIGENCE MONETIZATION BOUNDARY — FUTURE OPTIONAL (principal-approved 2026-10-13)
+
+**Locked principal preference:** Private enriched **Prospect 360 profiles, individual evidence histories, messages, quotes, producer notes and insurance relationship records are not a third-party lead-resale product.** Do not create or prioritize sale/rental/license of identifiable profiles. The only optional future monetization directions the principal wants preserved are (1) **aggregated, genuinely de-identified insurance market intelligence**, contingent on proven original source/agency/vendor contractual rights, de-identification/re-identification risk assessment, privacy law and explicit business launch approval, and (2) **possibly certain directly originated CoverageFit consumer inquiries** with specific legally sufficient authorization, independent agency/licensing/referral compensation review and minimal scope. This does **not** extend automatically to purchased leads, AgencyZoom/Farmers/agency inventory or 408FARMERS records.
+
+**P1 now / commercial later:** Continuous Evidence Accumulation must capture original use/secondary-analysis rights, source ownership, retention/correction limits and an independent **default-NOT-TRANSFERABLE rights determination**. This is internal governance infrastructure, not permission to expose/sell data or a mandate to build a market-intelligence marketplace. A genuinely de-identified aggregate output must not permit reasonable reconstruction or linkage to individuals, especially through small cohorts, rare attributes, fine geography, repeated queries or auxiliary datasets. **Removing names is insufficient.** These optional concepts remain below acquisition, Prospect Memory, SIGNAL economics and provider reliability.
+
+**Authoritative scope and future decision gates:** [CF-DATA-RIGHTS-AND-MARKET-INTELLIGENCE-OPTIONAL-1.0](docs/CF-DATA-RIGHTS-AND-MARKET-INTELLIGENCE-OPTIONAL-1.0.md). No actual resale, sharing, data processing expansion, vendor purchase, agency/producer compensation, exports or deployment is approved.
+
+---
+
+## CONTINUOUS EVIDENCE ACCUMULATION — P1 FOUNDATIONAL PRODUCT PRINCIPLE (principal-approved 2026-10-13)
+
+**Priority:** **P1 foundational** — the intelligence mechanism that binds source-linked acquisition, durable Prospect 360/renewal memory and evidence-aware multi-step SIGNAL qualification into **one compounding relationship system**. The full product+acceptance contract is [CF-CONTINUOUS-EVIDENCE-1.0](docs/CF-CONTINUOUS-EVIDENCE-1.0.md), incorporated directly into [Autonomous Growth Roadmap 3.0](docs/COVERAGEFIT-AUTONOMOUS-GROWTH-ROADMAP-3.0.md).
+
+> **Every permitted acquisition event and meaningful interaction should improve our understanding of the prospect when it provides relevant evidence.** Admit and reconcile evidence into a single source-linked relationship profile with explicit verification, uncertainty, conflict, freshness, correction, data rights and retention. SIGNAL must decide using this accumulating, versioned knowledge, avoid redundant questions, recognize actual buying intent/renewal timing and require producer attention only when justified. **Intelligence accumulates continuously; communication only occurs when separately authorized and useful.**
+
+**Constitutional safeguards:** Source data ≠ verified fact ≠ identity match ≠ consent/contact authority. Do not silently merge people, confirm vendor dates, reset STOP/CONTROL, violate DNC/provider SMS restrictions, over-retain personal messages or make unsupported calls/quotes/binds. Contact authority stays independent. The evidence ledger, fact assertions and current Prospect Intelligence should reuse canonical source/identity stores, not establish a second CRM. The consumer view and producer view share governed evidence but have different access/roles.
+
+**Economic criterion:** Accumulation is valuable when it yields **fewer repeat questions, fewer producer minutes, better verified renewal coverage, more useful conversations and ultimately verified premium**—not when it merely collects more facts or sends more messages. This principle is authoritative for every source adapter, Prospect 360 enhancement and SIGNAL automation work package.
+
+---
+
+## Unified Product North Star — 2026-10-12 (principal-approved)
+
+> **CoverageFit is an evidence-driven insurance acquisition and relationship operating system.**
+>
+> **SIGNAL continuously interprets permitted lead and conversation evidence, maintains durable Prospect Profiles, detects buying intent and renewal opportunities, orchestrates compliant engagement, and presents the producer with the highest-value decisions and actions.**
+>
+> **The system maximizes useful conversations, qualified opportunities and written premium while minimizing producer attention, repetitive work and unnecessary customer contact.**
+
+This is the **authoritative operating North Star** for CoverageFit + SIGNAL implementation. It was approved by the principal on October 12, 2026. Preserve the existing long-range consumer-protection vision below as **the consumer-facing projection of the same durable relationship and evidence model**; the producer command center and consumer protection experience are complementary, not competing platforms or divergent profiles.
+
+### Product interpretation — one intelligence spine
+
+- **Acquire:** support repeatable bulk and first-party lead sources, vendor lineage, attribution, deduplication, source economics and unattended exception handling. Buying a lead is not itself permission to contact through every messaging provider.
+- **Accumulate:** build one durable Prospect Profile / Universal Customer Profile using source-linked evidence from leads, SMS, phone-call transcripts, screenshots, documents, email, manual notes and verified outcomes. Unknown and conflicting facts remain explicit.
+- **Remember renewal timing:** distinguish imported/unverified dates, confirmed exact dates, approximate months, stale dates and follow-up commitments. Re-engage only through an eligible contact route.
+- **Prioritize and act:** SIGNAL + Opportunity Priority + Attention + Producer Action Quality answer *who, why now, exact next action and why it is justified*, without confusing lead quality with contact permission.
+- **Operate with minimal owner attention:** a mobile-friendly **Today → Inbox → Approvals → Prospect 360** experience; fast review/edit of multiple drafts with an explicit confirmation and a separate guarded send per eligible recipient. Over time, bounded, authorized automation handles routine qualification and follow-ups; humans focus on exceptions, valuable conversations and binding.
+- **Measure actual business value:** producer minutes per useful conversation; verified renewal coverage; quote/bind conversion and written premium per productive producer hour; cost per eligible, qualified opportunity by source.
+- **Govern safely and visibly:** preserve STOP/suppression, consent and provider-campaign restrictions, identity provenance, AgencyZoom cadence ownership, RingCentral delivery reconciliation and Farmers coverage authority. RingCentral's current US messaging rules bar purchased/third-party lead list SMS; build vendor/route-compatible acquisition without concealing list origin or treating claimed vendor opt-in as universal send permission.
+
+**Implementation source of truth:** `docs/COVERAGEFIT-PRODUCER-COMMAND-CENTER-UX-1.0.md` is the principal-approved producer experience; `docs/COVERAGEFIT-NEAR-TERM-PRODUCER-ROADMAP-1.0.md` defines phase gates; `docs/COVERAGEFIT-CURRENT-STATE.md` tracks verified code and hosted status. This document is authoritative for product intent, **not** blanket authorization to merge PRs, deploy, change provider settings or send customers messages.
+
+---
 
 ## North Star
 
@@ -436,6 +496,10 @@ Do not use protected or highly sensitive characteristics to prioritize service, 
 
 ### 10. Build the smallest durable primitive
 Prefer reusable identity, evidence, state, source and action primitives over one-off flows.
+
+### 11. Continuous Evidence Accumulation — compounding Prospect Intelligence
+
+Every **permitted** evidence-bearing source or interaction may improve the **same governed relationship profile**, through source-admission, verified identity linkage, typed fact assertions, reconciliation of time/uncertainty/conflict, and repeatable current Prospect Intelligence. SIGNAL must use current sourced knowledge to avoid redundant questions and change subsequent decisions based on legitimate new evidence. Unknown or conflicted facts are not verified truth; retention/correction/erasure and independent channel/contact permission are mandatory. This is the **P1 foundational [Evidence Flywheel](docs/CF-CONTINUOUS-EVIDENCE-1.0.md)**, not an optional extra, automated raw-text hoarder, new CRM or claim of live current functionality.
 
 ## Product evolution
 

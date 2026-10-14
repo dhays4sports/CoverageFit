@@ -3,6 +3,9 @@ import {continueAnalytics} from './signal-continue-analytics.mjs';
 import {signalContinue} from './signal-continue-service.mjs';
 import {pilotReconciliation} from './pilot-reconciliation.mjs';
 import {producerWorkspace} from './producer-workspace.mjs';
+import {commandCenterPreview} from './producer-command-center.mjs';
+import {projectProspect360,readProspectIdentity} from './prospect-360-readonly.mjs';
+import {selectedIds,selectedReviewSnapshot} from './sms-review-readonly.mjs';
 import {rawImporter,syntheticRawRehearsalBatch} from './agencyzoom-import.mjs';
 import {districtPilot} from './district-pilot.mjs';
 import {authorizeProducer} from './consultation-inbox-core.mjs';
@@ -52,8 +55,25 @@ export async function handleSoloDesk(context){
       if(route==='fiv-calibration'){const acq=acquisitionMeasurement(repo,env),cal=fivCalibration(repo);try{await acq.ready();await cal.ready();}catch{fail(503,'fiv_calibration_setup_required','FIV calibration needs migration 0015 before it can compare queue performance.');}await acq.reconcile(300);return json({ok:true,...await cal.summary(url.searchParams)});}
       if(route==='priority-calibration'){const acq=acquisitionMeasurement(repo,env),cal=opportunityPriorityCalibration(repo);try{await acq.ready();await cal.ready();}catch{fail(503,'priority_calibration_setup_required','Opportunity priority calibration needs migration 0019 before it can compare score-band performance.');}await acq.reconcile(300);return json({ok:true,...await cal.summary(url.searchParams)});}
       if(route==='producer-work')return json({ok:true,...await producerWorkspace(repo,env).list(url.searchParams)});
+      if(route==='producer-command-center'){
+        if(env.CF_COMMAND_CENTER_READONLY_ENABLED!=='1')fail(404,'feature_disabled','Command Center Preview is not enabled.');
+        return json({ok:true,...await commandCenterPreview(repo,env)});
+      }
       if(route==='producer-pending-sms')return json({ok:true,...await producerWorkspace(repo,env).pendingSms()});
       if(route==='producer-detail')return json({ok:true,...await producerWorkspace(repo,env).detail(url.searchParams.get('id'))});
+      if(route==='producer-approval-preflight'){
+        if(env.CF_COMMAND_CENTER_READONLY_ENABLED!=='1'||env.CF_SMS_REVIEW_READONLY_ENABLED!=='1')fail(404,'feature_disabled','Selected message review is disabled.');
+        let ids;try{ids=selectedIds(url.searchParams.get('ids'));}
+        catch{fail(422,'invalid_selection','Select between one and ten distinct opportunities.');}
+        return json({ok:true,...await selectedReviewSnapshot(repo,env,ids)});
+      }
+      if(route==='prospect-360'){
+        if(env.CF_PROSPECT_360_READONLY_ENABLED!=='1')fail(404,'feature_disabled','Prospect 360 preview is disabled.');
+        const id=url.searchParams.get('id');
+        const detail=await producerWorkspace(repo,env).detail(id);
+        const identity=await readProspectIdentity(repo,id);
+        return json({ok:true,...projectProspect360(detail,{now:context.now||new Date(),identity})});
+      }
       if(route==='district-pilot')return json({ok:true,...await districtPilot(repo,env).report()});
       if(route==='raw-promotion-preview')return json({ok:true,...await rawImporter(repo,env).promotionPreview()});
       if(route==='raw-intake-receipts')return json({ok:true,...await rawImporter(repo,env).receipts({limit:url.searchParams.get('limit')})});

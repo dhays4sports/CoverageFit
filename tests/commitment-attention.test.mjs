@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {projectCommitments,dueWindow,validateCommitmentProposal,COMMITMENT_TYPES} from '../server/commitment-projection.mjs';
+import {projectCommitments,dueWindow,validateCommitmentProposal,COMMITMENT_TYPES,actionableCommitment} from '../server/commitment-projection.mjs';
 import {deriveAttention,compareAttention} from '../server/attention-priority.mjs';
 const now=Date.parse('2026-10-02T17:00:00Z'),incoming=(body='Please send quote',at='2026-10-02T16:00:00Z')=>({id:'in',direction:'inbound',body,occurredAt:at});
 const base=()=>({population:'DISTRICT_SIGNAL',opportunity:{id:'one'},now,sms:{latest_inbound:'Please send quote',transcript:[incoming()],facts:{}}});
@@ -54,4 +54,41 @@ test('attention canaries cover NOW TODAY HIGH SUPPRESSED and CONTROL',()=>{
  const high=deriveAttention({population:'DISTRICT_SIGNAL',opportunity:base,sms:{priority:'HIGH',latest_inbound:'Interested',transcript:[{id:'m2',direction:'inbound',body:'Interested',occurredAt:'2026-10-08T16:30:00Z'},{id:'m3',direction:'outbound',body:'Thanks — I am reviewing this now.',occurredAt:'2026-10-08T16:40:00Z'}]},now});assert.equal(high.band,'HIGH');assert.equal(high.actionable,true);
  const stop=deriveAttention({population:'DISTRICT_SIGNAL',opportunity:base,sms:{decision_2:'STOP'},now});assert.equal(stop.band,'SUPPRESSED');assert.equal(stop.actionable,false);
  const control=deriveAttention({population:'DISTRICT_CONTROL',opportunity:base,now});assert.equal(control,null);
+});
+
+test('unknown calendar status cannot fabricate due producer work',()=>{
+ const due='2026-10-02T16:55:00Z';
+ const commitments=projectCommitments({
+  opportunity:{id:'unconfirmed-calendar'},
+  sources:[{kind:'calendar',source_id:'tentative-1',summary:{eventId:'tentative-1',status:'tentative',start:due,title:'Tentative conversation'}}]
+ });
+ assert.equal(commitments[0].confirmation,'unknown');
+ assert.equal(actionableCommitment(commitments[0]),false);
+ const a=deriveAttention({population:'WEB_DIRECT',opportunity:{id:'unconfirmed-calendar',status:'open'},commitments,now:Date.parse('2026-10-02T17:00:00Z')});
+ assert.equal(a.band,'NORMAL');
+ assert.equal(a.actionable,false);
+});
+
+test('confirmed calendar and producer-recorded task are actionable; future timing is narrowly allowed',()=>{
+ for(const c of [
+  {type:'APPOINTMENT',status:'open',confirmation:'confirmed'},
+  {type:'CALLBACK',status:'open',confirmation:'producer_recorded'},
+  {type:'FUTURE_BIND',status:'open',confirmation:'recorded_timing'}
+ ])assert.equal(actionableCommitment(c),true);
+ for(const c of [
+  {type:'APPOINTMENT',status:'open',confirmation:'recorded_timing'},
+  {type:'APPOINTMENT',status:'open',confirmation:'unknown'},
+  {type:'CALLBACK',status:'proposed',confirmation:'confirmed'},
+  {type:'CALLBACK',status:'completed',confirmation:'producer_recorded'}
+ ])assert.equal(actionableCommitment(c),false);
+});
+
+test('unknown calendar status never outranks confirmed upcoming callback',()=>{
+ const commitments=[
+  {type:'APPOINTMENT',status:'open',confirmation:'unknown',due_at:'2026-10-02T16:00:00Z',source_ref:{kind:'calendar',id:'tentative'}},
+  {type:'CALLBACK',status:'open',confirmation:'producer_recorded',due_at:'2026-10-03T18:00:00Z',source_ref:{kind:'task',id:'verified'}}
+ ];
+ const a=deriveAttention({population:'WEB_DIRECT',opportunity:{status:'open'},commitments,now:Date.parse('2026-10-02T17:00:00Z')});
+ assert.equal(a.band,'UPCOMING');
+ assert.equal(a.reasons[0].source_ref.id,'verified');
 });
