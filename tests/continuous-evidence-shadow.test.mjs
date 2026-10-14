@@ -102,6 +102,7 @@ test('E2: explicit producer correction can supersede an earlier source; original
  assert.equal(p.facts.renewal_date.status,'KNOWN');
  assert.equal(p.facts.renewal_date.value,'2026-12-19');
  assert.equal(p.facts.renewal_date.verification,'producer_confirmed');
+ assert.equal(p.facts.vehicle_count.value,3,'a correction of renewal must not erase an unrelated vehicle assertion');
  assert.equal(s.events.length,2,'previous source event retained in synthetic audit state');
 });
 test('E2: workspace boundaries and expiry protect projections, and pruning removes expired payload',()=>{
