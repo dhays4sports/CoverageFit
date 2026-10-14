@@ -1,5 +1,17 @@
 # CoverageFit Current State
 
+## HIGH-PRIORITY ECONOMIC ROADMAP ADOPTED — 2026-10-13
+
+**Principal directive:** Bake the entire approved [Autonomous Insurance Growth Roadmap 3.0](COVERAGEFIT-AUTONOMOUS-GROWTH-ROADMAP-3.0.md) into CoverageFit and use it as the high-priority economic North Star for subsequent product/engineering decisions. The complete P0–P6 implementation roadmap, measurable acceptance criteria, source/identity/consent data contracts, permission-aware SIGNAL SHADOW, provider canary, SIGNAL/CONTROL economics, discretionary engineering allocation and Principal Attention Sovereignty governance now live in that canonical document.
+
+**Priority shift:** Preserve the already accepted read-only Command Center. Invest incremental product engineering first in scalable source-traceable intake, persistent profile/renewal memory and resumable qualification orchestration; use the UI only as a high-value producer handoff. Every material cycle must target genuine useful conversations, written premium or producer minutes saved, or remove an evidenced blocker. New screens/agents/integration complexity without that connection are deferred.
+
+**Scope of authorization:** Adoption is **product direction and reviewable draft/test-only engineering approval**, **not** a merge, Production deployment, direct live customer data acquisition, vendor purchase, AgencyZoom/calendar write, provider configuration, SMS execution or autonomous live contact. Existing STOP/CONTROL/TEST and purchased-list provider restrictions are unchanged. Current PR #7 → #16 integration gate remains open; accepted Preview 19/19 and visual signoff remain valid for the unchanged runtime. Live RingCentral inbound and producer economic benefits are still unverified.
+
+**Next implementation handoff:** Complete one #7/#16 merge-triggered Cloudflare effect/rollback review, while designing/slicing `CF-ACQUISITION-INTELLIGENCE-1.0`, `CF-PROSPECT-MEMORY-1.0` and `CF-SIGNAL-AUTONOMY-SHADOW-1.0` in test-only drafts with shared data contracts, and prepare a single consequential owner decision packet when genuinely needed.
+
+---
+
 ## Combined Command Center HOSTED-CERTIFIED in isolated Preview — 2026-10-13
 
 **Principal visual signoff (October 13, 2026):** The owner explicitly attested that all four final checks passed **on the verified immutable Preview**: (1) Today displays the new synthetic replacement CALL with the correct recommended action; (2) Inbox displays the draft and multi-select review without a send action; (3) Prospect 360 distinguishes source-confirmed renewal and conflicting dates; (4) desktop, mobile and keyboard navigation are usable without overlapping controls. This completes the previously outstanding manual visual acceptance gate.
