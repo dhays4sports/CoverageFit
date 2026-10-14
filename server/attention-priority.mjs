@@ -1,4 +1,4 @@
-import {reconcileProducerIntelligence} from './producer-intelligence-contract.mjs';
+import {reconcileProducerIntelligence,compareAttentionIds} from './producer-intelligence-contract.mjs';
 import {actionableCommitment} from './commitment-projection.mjs';
 // Deterministic read-only orchestration; never a contact permission or bind score.
 export const ATTENTION_VERSION='SIGNAL-ATTENTION-1.0';
@@ -40,5 +40,5 @@ export function compareAttention(a,b,mode='recommended'){
  if(mode==='newest')return String(b.received_at||b.created_at||'').localeCompare(String(a.received_at||a.created_at||''))||a.id.localeCompare(b.id);
  const safe=v=>v?.actionable===false?0:v?1:0;
  const rank=v=>mode==='high_intent'?(v?.intent_rank||0):mode==='due_now'?(['NOW','TODAY'].includes(v?.band)?v.rank:0):(v?.rank||0);
- return safe(y)-safe(x)||rank(y)-rank(x)||String(x?.due_at||'9999').localeCompare(String(y?.due_at||'9999'))||a.id.localeCompare(b.id);
+ return safe(y)-safe(x)||rank(y)-rank(x)||String(x?.due_at||'9999').localeCompare(String(y?.due_at||'9999'))||(a.current_decision&&b.current_decision?compareAttentionIds(a.id,b.id):a.id.localeCompare(b.id));
 }

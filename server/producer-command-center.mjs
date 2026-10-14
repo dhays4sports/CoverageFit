@@ -90,6 +90,10 @@ export function projectCommandCenter(work,{maxRows=30}={}){
 }
 export async function commandCenterPreview(repo,env,readOptions={}){
  if(env.CF_COMMAND_CENTER_READONLY_ENABLED!=='1')return {enabled:false,reason:'feature_disabled'};
+ if(readOptions.intelligence){
+  const params=new URL(readOptions.request.url).searchParams;
+  return {...await readOptions.intelligence.today(readOptions.request,{after:params.get('after')||'',limit:Number(params.get('limit')||25),population:params.get('population')||'ALL',q:params.get('q')||''}),review_readonly_enabled:false};
+ }
  // Read-only command center consumes the canonical single producer projection.
  const work=await producerWorkspace(repo,env,readOptions).list(
   new URLSearchParams({population:'ALL',status:'open',sort:'recommended'}),

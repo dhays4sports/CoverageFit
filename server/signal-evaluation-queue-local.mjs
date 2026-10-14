@@ -2,6 +2,7 @@
 import {createHash,randomUUID} from 'node:crypto';
 import {prospectMemoryLocal} from './prospect-memory-local.mjs';
 import {planSignal} from './signal-dynamic-planner.mjs';
+import {currentProducerAttention,decisionAttentionDue,ATTENTION_SELECTION_BUILD} from './producer-intelligence-contract.mjs';
 export const QUEUE_BUILD='CF-SIGNAL-C2-1';
 const digest=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 const iso=x=>{if(typeof x!=='string'||!Number.isFinite(Date.parse(x)))throw Error('invalid_clock');return new Date(x).toISOString()};
@@ -28,6 +29,7 @@ export function signalEvaluationQueueLocal(db,{syntheticOnly=false,maxAttempts=5
  const memory=prospectMemoryLocal(db,{syntheticOnly:true});
  const get=(q,...a)=>db.prepare(q).get(...a),all=(q,...a)=>db.prepare(q).all(...a),run=(q,...a)=>db.prepare(q).run(...a);
  if(!get("SELECT 1 FROM sqlite_master WHERE name='cf_evaluation_queue'"))throw Error('local_c2_migration_required');
+ const attentionReady=all('PRAGMA table_info(cf_evaluation_queue)').some(c=>c.name==='attention_json');
  const tx=(fn,read=false)=>{if(db.isTransaction)throw Error('queue_operation_requires_own_transaction');db.exec(read?'BEGIN':'BEGIN IMMEDIATE');try{const v=fn();db.exec('COMMIT');return v}catch(e){db.exec('ROLLBACK');throw e}};
  const row=(w,p)=>get('SELECT * FROM cf_evaluation_queue WHERE workspace_id=? AND opportunity_id=?',w,p);
  const revision=(w,p)=>get('SELECT revision FROM cf_evidence_revisions WHERE workspace_id=? AND opportunity_id=?',w,p)?.revision||0;
@@ -120,6 +122,14 @@ export function signalEvaluationQueueLocal(db,{syntheticOnly=false,maxAttempts=5
    if(interruptAfterDecision)throw Error('simulated_ack_interruption');
    const dueAt=minimum([current.next_change_at,decision.next_evaluation_at]);
    run("UPDATE cf_evaluation_queue SET state=?,generation=generation+?,due_at=?,enqueued_at=?,reason_mask=?,claim_token=NULL,worker_id=NULL,claimed_generation=NULL,lease_until=NULL,attempts=0,last_error=NULL,last_decision_id=? WHERE workspace_id=? AND opportunity_id=?",dueAt?'READY':'IDLE',dueAt?1:0,dueAt,now,dueAt?16:0,decisionId,w,p);
+   if(attentionReady){
+    const restricted=decision.held||policy.options.workflowOwner==='UNKNOWN'||get('SELECT status FROM cf_solo_opportunities WHERE workspace_id=? AND id=?',w,p)?.status==='closed';
+    const a=currentProducerAttention({status:restricted?'HELD':'CURRENT',recommendation:decision,reason:decision.reason_category,producer_attention:decision.producer_attention});
+    const candidate={build:ATTENTION_SELECTION_BUILD,decision_id:decisionId,evidence_revision:current.revision,context_version:policy.version,
+     profile_version:current.projection_version,result_generation:c.generation,queue_generation:c.generation+(dueAt?1:0),
+     band:a.band,rank:a.rank,human_attention_eligible:a.human,valid_until:validUntil,published_at:now};
+    run('UPDATE cf_evaluation_queue SET attention_eligible=?,attention_order=?,attention_due=?,attention_json=? WHERE workspace_id=? AND opportunity_id=?',a.human?1:0,-a.rank,decisionAttentionDue(decision.reason_category,policy.options.commitments)||'9999',JSON.stringify(candidate),w,p);
+   }
    return {code:'ACKNOWLEDGED',decision_id:decisionId,action:decision.action,next_evaluation_at:dueAt};
   });
  }

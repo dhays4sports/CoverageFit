@@ -1,5 +1,7 @@
 # Roadmap 3.0 — consolidated integration readiness
 
+**Follow-up:** the [global-attention correction package](CF-GLOBAL-ATTENTION-ACCEPTANCE.md) resolves the demonstrated page-local Today selection defect in the isolated local implementation. This report remains the historical audit; hosted and economic gates remain open.
+
 Audit: 2026-10-14. Program: CF-ADAPTIVE-INTELLIGENCE-3.0. Reviewed implementation: draft #21, `089cd3860247fc66e9cce0dd68c48368123342b1`. This package adds documentation and two test-only blocker reproductions to that existing draft; no runtime, schema, deployment configuration or intelligence architecture changes. Final package commit and CI receipt are in #21's PR body.
 
 **Disposition: ready for engineering integration review; NOT ready for merge/release or real producer dogfood.** The locally accepted E2 → C1 → C2 → C3 → Producer Integration C4 chain is intact. Global attention selection, hosted read consistency/authorization, actual source-authority mapping and measured producer outcomes remain incomplete. Green tests certify their scoped properties, not the missing capabilities. No consequential approval is requested while the release packet has unresolved gates.

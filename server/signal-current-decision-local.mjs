@@ -1,4 +1,4 @@
-import {reconcileProducerIntelligence} from './producer-intelligence-contract.mjs';
+import {reconcileProducerIntelligence,decisionAttentionDue} from './producer-intelligence-contract.mjs';
 // C3 LOCAL SYNTHETIC READ MODEL. No hosted route, queue mutation or provider adapter.
 import {createHash} from 'node:crypto';
 import {prospectMemoryLocal} from './prospect-memory-local.mjs';
@@ -36,7 +36,7 @@ export function projectCurrentDecision({id,now,profile,atDecision,policy,queue,r
   return finish('STALE','SUPERSEDED_EVIDENCE_CONTEXT_GENERATION_OR_TIME',{requires_human_review:false});
  return finish('CURRENT',decision.reason_category,{recommendation:{action:decision.action,reason:decision.reason,question_field:decision.question_field,missing:decision.missing},
   evidence_refs:decision.evidence_refs,source_references:Object.values(profile.facts).flatMap(f=>f.evidence||[]).map(e=>({event_id:e.source_event_id,source_ref:e.source_ref,observed_at:e.observed_at})),decision_profile_version:decision.profile_version,producer_attention:decision.producer_attention,
-  requires_human_review:decision.action==='HUMAN REVIEW'});
+  attention_due_at:decisionAttentionDue(decision.reason_category,policy.options.commitments),requires_human_review:decision.action==='HUMAN REVIEW'});
 }
 export function signalCurrentDecisionLocal(db,{syntheticOnly=false}={}){
  if(!syntheticOnly)throw Error('synthetic_only_required');

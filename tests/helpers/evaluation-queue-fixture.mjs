@@ -8,6 +8,7 @@ export const authority={actor:'synthetic-test',reference:'local-mandate'};
 export const context={population:'DISTRICT_SIGNAL',workflowOwner:'AGENCYZOOM',contact:{sms_permission:false}};
 export function fixture(options={}){
  const f=e2Fixture();f.db.exec(readFileSync(new URL('../migrations/0021_signal_evaluation_queue.sql',import.meta.url),'utf8'));
+ f.db.exec(readFileSync(new URL('../migrations/0022_global_producer_attention.sql',import.meta.url),'utf8'));
  return {...f,queue:signalEvaluationQueueLocal(f.db,{syntheticOnly:true,...options})};
 }
 export function reopen(path,options={}){const db=new DatabaseSync(path);return {db,queue:signalEvaluationQueueLocal(db,{syntheticOnly:true,...options})};}
