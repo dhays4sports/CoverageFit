@@ -6,6 +6,20 @@
 **Governing:** [CoverageFit North Star](../COVERAGEFIT_NORTH_STAR.md) · [Roadmap 3.0](COVERAGEFIT-AUTONOMOUS-GROWTH-ROADMAP-3.0.md) · [Master Roadmap 2.0](COVERAGEFIT-NEAR-TERM-PRODUCER-ROADMAP-1.0.md) · [Current State](COVERAGEFIT-CURRENT-STATE.md)  
 **Scope:** Future canonical, lawful, source-linked prospect knowledge accumulated from authorized lead sources and relationship interactions; not a separate CRM or independent agent platform.
 
+## P1 DATA RIGHTS / TRANSFERABILITY — private-profile default, future aggregate optionality
+
+**Principal decision:** Continuous Evidence Accumulation must remain a **private, access-controlled relationship memory**. Never treat accumulation as permission to sell individual enriched Prospect 360 histories, customer messages or imported agency/vendor leads. The only optional later concepts are (a) **genuinely de-identified aggregated insurance market intelligence** whose *source rights actually permit that secondary/commercial use*, and (b) **specifically authorized direct CoverageFit consumer inquiries**, not automatic transfer of existing agency, 408FARMERS, district or purchased leads. [Detailed option/rights specification](CF-DATA-RIGHTS-AND-MARKET-INTELLIGENCE-OPTIONAL-1.0.md).
+
+**Build the rights architecture now, not the marketplace:** Proposed source/evidence contracts must distinguish internal insurance use, analytics rights, third-party commercial analysis rights, individual sharing restrictions, originating data owner/controller, agency/carrier/source/vendor agreements, permitted retention, consent/withdrawal evidence, recipient/purpose/field scope and request-time eligibility. **Default `external_transfer=NOT_AUTHORIZED` and `secondary_commercial_use=UNKNOWN/INELIGIBLE` until positively established.** Rights/eligibility can be revoked and derived data re-evaluated; no new independent CRM. Do not imply a contract/consent is valid just because imported metadata says so.
+
+**Aggregate path requirements if evaluated later:** disclosure-risk assessment beyond names removed; avoid record-level pseudo-anonymous products, small cells, rare attributes, fine-grained locality/time, query differencing/linkage and reidentification. Risk mitigation may involve domain-specific cohort thresholds, suppression/generalization, controlled query budgets or differential privacy depending on the dataset. Verify law, contracts, collection notices, independent ownership authority and prospective commercial use before any external report/API/export. Consider correction/erasure propagation, output provenance and the possibility that even aggregates derived from restricted sources cannot be sold.
+
+**Direct-inquiry path requirements if considered later:** verified direct CoverageFit origin and separate authorized distribution purpose, specific recipient/category, minimal authorized fields, applicable opt-out/withdrawal, agency/licensing/referral compensation counsel review and a separate sender/channel contact authority gate. No full profile export.
+
+**Engineering acceptance:** rights metadata travels with any derived fact; rights changes can prohibit a source from a future aggregate or transfer without deleting otherwise lawfully retained relationship history; a denied source does not leak into a derivative export. These are conceptual future tests and no live commercialization/export implementation is approved.
+
+---
+
 ## A. Product mandate and rationale
 
 > **Continuous Evidence Accumulation:** Every *permitted* acquisition event and meaningful interaction is an opportunity to improve CoverageFit's understanding of a prospect. SIGNAL must admit, extract, reconcile and preserve relevant evidence within the canonical Prospect Profile, retaining uncertainty, verification, time, identity boundaries and contact restrictions. Each subsequent decision should use the best currently justified evidence, avoid redundant questions, identify genuine readiness and seek the smallest valuable next step. **Intelligence can accumulate continuously; communication happens only when separately justified and authorized.**
