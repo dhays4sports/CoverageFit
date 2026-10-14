@@ -6,6 +6,16 @@
 **Repository:** dhays4sports/CoverageFit  
 **Scope:** Producer OS, Signal Copilot, attention orchestration, commitments, and calendar actions
 
+## P1 EVIDENCE FLYWHEEL FOUNDATION — cross-phase mandate (2026-10-13)
+
+**Principal-approved design dependency:** [Continuous Evidence Accumulation / CF-CONTINUOUS-EVIDENCE-1.0](CF-CONTINUOUS-EVIDENCE-1.0.md) is P1 foundational to [Roadmap 3.0](COVERAGEFIT-AUTONOMOUS-GROWTH-ROADMAP-3.0.md), not optional enrichment after acquisition or a new independent phase. Source ingestion, durable Prospect 360/UCP evidence and SIGNAL SHADOW must use **one event → sourced assertion → conflict/verification/temporal reconciliation → versioned current-profile → next-decision feedback** contract. Existing importer, SMS stores, UCP links and read-only Prospect 360 are starting points; a durable shared history is not yet built and cannot be claimed as deployed.
+
+**P1 sequencing:** Audit source/identity/retention contracts → bounded synthetic admission and extraction (including 1,000 mixed sources and duplicate/out-of-order events) → repeatable derived Prospect/renewal memory with conflicts, correction and expiry → multi-turn no-send SIGNAL SHADOW that consumes current memory, avoids answered questions, produces genuine next-action changes and never overrides contact restrictions. P1 engineering may be prepared on reviewable branches alongside the PR #7/#16 release gate. Live inbound, real data, migrations, new provider/CRM writes and autonomous sends remain separately gated.
+
+**Release/economic proof:** Count relevant verified knowledge, fewer redundant questions and manual corrections, legitimate renewal lifecycle accuracy and real useful-conversation productivity (when authorized); raw data or message volume is not success. Preserve STOP/CONTROL/TEST, positive sender/channel permission, data minimization/retention, uncertain identity holds, and the RingCentral purchased/third-party list restriction.
+
+---
+
 ## PRIORITY OVERLAY — Autonomous Insurance Growth Roadmap 3.0 adopted 2026-10-13
 
 **Principal instruction:** Make [CF-AUTONOMOUS-GROWTH-ROADMAP-3.0](COVERAGEFIT-AUTONOMOUS-GROWTH-ROADMAP-3.0.md) the **high-priority economic execution and feature-selection guide** for all CoverageFit + SIGNAL work. This does not supersede this document's phase safety/release gates, the product North Star, 408FARMERS/AgencyZoom/RingCentral/Farmers authority boundaries or long-term consumer experience.
