@@ -2,6 +2,8 @@
 
 2026-10-14 · CF-ADAPTIVE-INTELLIGENCE-3.0
 
+**Follow-up:** [portable read engineering acceptance](CF-HOSTED-READ-INTEGRITY-ACCEPTANCE.md) addresses the local hydration/query-budget gap. This report remains the #22 historical acceptance snapshot; no hosted certification is implied.
+
 **Disposition: the demonstrated global-selection defect is corrected and locally accepted; ready for engineering review, NOT authorized for merge, deployment or real producer use.** This is a bounded correction to Producer Integration C4, not another intelligence layer. The new draft is stacked on #21 at `e40d0367921640cd40987d57073125d4921b3416`. Its exact implementation commit and exact-head Actions receipt are recorded in the draft PR body, avoiding a self-referential commit in this file.
 
 ## Verified stack and preserved scope

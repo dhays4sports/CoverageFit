@@ -1,0 +1,72 @@
+{
+  "baseline": "80cb58ae7793d7bccabd084ffce1994f284cfdba",
+  "passed": 11,
+  "cases": [
+    {
+      "mode": "call",
+      "status": "CURRENT",
+      "evidence_version": "aaf31794d634414ff61a35bd473e02a581b63480a625a5b7046b869e1302e99d",
+      "decision_version": "866d1a379a03f6f7464e9f5fce38576fb1ad0fa06b2c3e84ec84f7775924be04"
+    },
+    {
+      "mode": "quote",
+      "status": "CURRENT",
+      "evidence_version": "90d91e9ddca038e4dfc7fcea01fa6976d066aa69ec5d80a3212eb45c35d9ec95",
+      "decision_version": "d6a7888b50b8de8cad17eec76864b613c62af83a97fd25a6ce1fa81d4e96aa67"
+    },
+    {
+      "mode": "waiting",
+      "status": "CURRENT",
+      "evidence_version": "d8ae4768459744c662a00197e030e63ddc53b509dfcaf92959997fc717108c41",
+      "decision_version": "a4d324b2e2137b2174a5123db5955dddae7aba2e859bb5e64a9b6e08387134b6"
+    },
+    {
+      "mode": "conflict",
+      "status": "HELD",
+      "evidence_version": "6e53899d4345272c70aba23a4fd372878a037c3176bdbf43778317d68d2ce291",
+      "decision_version": "224b61701d221a6a4ef3a3c1b1710fedd5ef3a36874bfb08600c9ed0d2dab08c"
+    },
+    {
+      "mode": "history",
+      "status": "CURRENT",
+      "evidence_version": "7bea4e18961221fcdfb13caf2d4672deea237d412abe4cdb49560eac5a22d0bf",
+      "decision_version": "11a3a2959c5debe088e2cf618585dd797cd0d3a3879ea5ffde7a5b86b456cb62"
+    },
+    {
+      "mode": "STOP",
+      "status": "HELD",
+      "evidence_version": "aaf31794d634414ff61a35bd473e02a581b63480a625a5b7046b869e1302e99d",
+      "decision_version": "23b1d710a10a92b9a06202c03cd3cb0522ff378211515556b961fb12bae54121"
+    },
+    {
+      "mode": "CONTROL",
+      "status": "HELD",
+      "evidence_version": "aaf31794d634414ff61a35bd473e02a581b63480a625a5b7046b869e1302e99d",
+      "decision_version": "1c80493a5bf90a648ea3cc594d629b18002d1cc60b6312a5007be3ffbac99209"
+    },
+    {
+      "mode": "unknown",
+      "status": "HELD",
+      "evidence_version": "aaf31794d634414ff61a35bd473e02a581b63480a625a5b7046b869e1302e99d",
+      "decision_version": "4100a15f18ec6d816d3388005ff1080f6ef78e37ebc4396ac0249cce90b5b865"
+    },
+    {
+      "mode": "future",
+      "status": "CURRENT",
+      "evidence_version": "38d25528e81f7bbffd6bf8480a737dbc8575bc5818f0a26bac72593331e3dce1",
+      "decision_version": "866d1a379a03f6f7464e9f5fce38576fb1ad0fa06b2c3e84ec84f7775924be04"
+    },
+    {
+      "mode": "expired",
+      "status": "STALE",
+      "evidence_version": "73cc3eea9dd2eb540133c9ed0da25bce3fd2d095d39350205bde702a3810a764",
+      "decision_version": "866d1a379a03f6f7464e9f5fce38576fb1ad0fa06b2c3e84ec84f7775924be04"
+    },
+    {
+      "mode": "retracted",
+      "status": "PENDING",
+      "evidence_version": "2f2557bb4fb3f8e8121293ca983f599c11e5849e94bedb3187648f2b1070b370",
+      "decision_version": null
+    }
+  ]
+}

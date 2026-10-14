@@ -19,8 +19,8 @@ export function producerIntelligenceRead({authorize,store,clock=()=>new Date().t
  function readiness(){
   if(!store)return 'DECISION_STORE_UNAVAILABLE';
   if(store.contract!==PRODUCER_INTELLIGENCE_CONTRACT)return 'INCOMPATIBLE_DECISION_STORE';
-  if(store.runtime!=='LOCAL_SYNTHETIC')return 'HOSTED_ADAPTER_NOT_ACCEPTED';
-  if(store.initialized!==true||store.consistency!=='SQLITE_READ_TRANSACTION'||typeof store.read!=='function'||typeof store.page!=='function')return 'ADAPTER_NOT_INITIALIZED';
+  if(!['LOCAL_SYNTHETIC','D1_COMPATIBLE_SYNTHETIC'].includes(store.runtime))return 'HOSTED_ADAPTER_NOT_ACCEPTED';
+  if(store.initialized!==true||store.consistency!==(store.runtime==='LOCAL_SYNTHETIC'?'SQLITE_READ_TRANSACTION':'SINGLE_STATEMENT')||typeof store.read!=='function'||typeof store.page!=='function')return 'ADAPTER_NOT_INITIALIZED';
   return null;
  }
  function now(){const n=clock();if(typeof n!=='string'||!Number.isFinite(Date.parse(n)))deny(503,'CLOCK_UNAVAILABLE');return new Date(n).toISOString()}
