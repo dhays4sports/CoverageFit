@@ -1,3 +1,17 @@
+## HIGH-PRIORITY EXECUTION NORTH STAR — AUTONOMOUS INSURANCE GROWTH 3.0 (principal-approved 2026-10-13)
+
+**Authoritative detailed plan:** [CF-AUTONOMOUS-GROWTH-ROADMAP-3.0](docs/COVERAGEFIT-AUTONOMOUS-GROWTH-ROADMAP-3.0.md). **Status: HIGH PRIORITY; adopted to guide future CoverageFit + SIGNAL engineering and product decisions.** This is the *execution priority* within the Unified Product North Star below; it does **not** remove the long-term consumer protection vision or loosen STOP, identity, consent, agency/provider, real-data or release authority.
+
+**Primary result:** More real, useful, compliant insurance conversations and verified written premium per producer hour; fewer producer minutes per useful conversation. Technology is valuable when it directly advances acquisition volume/quality, durable prospect+renewal evidence, governed autonomous qualification, reliable follow-through, or proven economic conversion. The accepted Command Center is the human control surface **of** that engine, not the engine's final deliverable.
+
+**Default priority order:** (0) protect accepted read-only Preview and reconcile PR #7 → aggregate #16 under a **separate** merge/Cloudflare release decision; (1) high-volume source-traceable acquisition/intake and honest eligibility; (2) durable Prospect 360/UCP facts, identity and renewal memory; (3) stateful no-send SIGNAL qualification SHADOW; (4) independently authorized live provider/commitment loop; (5) measured producer SIGNAL/CONTROL economics; (6) bounded autonomy and scale only with positive evidence. Draft/test-only engineering on (1)–(3) can overlap release review. Do not launch purchased-list SMS, new live provider routes or autonomous contact without actual positive authority.
+
+**Feature test:** Every significant development cycle must demonstrate an expected effect on useful conversations, verified premium, attributable producer effort, or an evidenced blocker. Implement the smallest durable reusable primitive. Protect **Principal Attention Sovereignty** by doing routine engineering autonomously and escalating a single consolidated consequential approval packet per gate.
+
+**Canonical hierarchy:** This file = timeless product North Star; [Autonomous Growth Roadmap 3.0](docs/COVERAGEFIT-AUTONOMOUS-GROWTH-ROADMAP-3.0.md) = **highest-priority economic execution guide**; [Master Roadmap 2.0](docs/COVERAGEFIT-NEAR-TERM-PRODUCER-ROADMAP-1.0.md) = implementation/phase release sequencing; [Current State](docs/COVERAGEFIT-CURRENT-STATE.md) = verified evidence; [Producer Command Center UX](docs/COVERAGEFIT-PRODUCER-COMMAND-CENTER-UX-1.0.md) = approved human-facing surface. Never treat product direction as implicit permission to deploy, merge, send, buy leads or modify CRM/provider infrastructure.
+
+---
+
 # CoverageFit North Star
 
 **Document:** CF-NORTH-STAR-1.0  
