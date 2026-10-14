@@ -26,6 +26,16 @@
 
 ## PRIORITY OVERLAY — Autonomous Insurance Growth Roadmap 3.0 adopted 2026-10-13
 
+## DYNAMIC SIGNAL CADENCE — P1 child of evidence-aware autonomy (2026-10-14)
+
+**Principal-approved execution detail:** [CF-SIGNAL-DYNAMIC-CADENCE-1.0](CF-SIGNAL-DYNAMIC-CADENCE-1.0.md) is a **P1 child of SIGNAL Autonomy**, downstream of [P1 Continuous Evidence Accumulation](CF-CONTINUOUS-EVIDENCE-1.0.md). Dynamic cadence is a **governed schedule of evidence-dependent evaluations and next-step proposals**, not a fixed marketing drip or a guarantee to send SMS when a timer fires. The decision may be `ASK ONE QUESTION`, `CALL`, `LATER`, `CLOSE`, `STOP`, quote preparation, human review or no action. Questions already sufficiently answered in Prospect 360 should be skipped.
+
+**Existing owner:** AgencyZoom's district campaign/stage/cadence remains authoritative. **Future narrow owner:** CoverageFit may only become sole automated cadence owner for specific agency/provider/consent-approved families after reversible, auditable family-level handoff and duplicate-send protection. RingCentral stays an allowed transport only for compatible sources/senders/campaigns. Provider receipt/inbound recovery and live sends remain uncertified. Explicit positive contact rights cannot be inferred from a verified renewal or imported lead.
+
+**Order:** During P1 Evidence Flywheel E2 durable synthetic/replay work, implement C0 ownership mapping and C1 **pure no-send dynamic planner**; later C2 test-isolated transactional due-evaluation queue, C3 profile-feedback SHADOW, then separately approved actual provider/agency canary and narrowly justified autonomy. Maintain STOP/CONTROL/TEST, ownership/takeover, cooldown, quiet hours, recipient/campaign caps, robust idempotency and correct source provenance. **No active scheduler or external provider action is authorized.**
+
+---
+
 **Principal instruction:** Make [CF-AUTONOMOUS-GROWTH-ROADMAP-3.0](COVERAGEFIT-AUTONOMOUS-GROWTH-ROADMAP-3.0.md) the **high-priority economic execution and feature-selection guide** for all CoverageFit + SIGNAL work. This does not supersede this document's phase safety/release gates, the product North Star, 408FARMERS/AgencyZoom/RingCentral/Farmers authority boundaries or long-term consumer experience.
 
 **Reweighted delivery sequence:** **P0** approved Preview preservation + #7 → aggregate #16 release review (no merge until separate decision); **P1** acquisition source attribution and 1,000-record synthetic resumable import exercise; **P1** persistent sourced Prospect 360/renewal/identity memory; **P1** persistent multi-step qualification and channel-authority SHADOW; **P2** separately approved live provider closed-loop canary followed by small measurable California SIGNAL/CONTROL producer pilot; **P3** verified, positively authorized autonomy/volume scale. P1 safe draft work starts in parallel with P0 review; neither the Preview 19/19 nor CI 544/544 constitutes live messaging certification or economic uplift.
