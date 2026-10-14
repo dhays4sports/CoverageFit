@@ -1,0 +1,371 @@
+{
+  "observed_at": "2026-10-14T17:47:21.941Z",
+  "prs": [
+    {
+      "number": 7,
+      "head": "signal-copilot",
+      "head_sha": "ad2915a7889637580505293ce38ab4db66f0a9b3",
+      "base": "main",
+      "base_sha": "5f47f2b7367110ca04ff03cc189983f136ab32fa",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "changed_files": 39
+    },
+    {
+      "number": 16,
+      "head": "integration/command-center-unified-certification-20261012",
+      "head_sha": "5cfa79f4d01a8d9a3bf558c44d019064ca477f2a",
+      "base": "signal-copilot",
+      "base_sha": "ad2915a7889637580505293ce38ab4db66f0a9b3",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "changed_files": 49
+    },
+    {
+      "number": 17,
+      "head": "feature/p1-continuous-evidence-shadow-20261014",
+      "head_sha": "247b708d2615c0caa72d2a95402a59507ccf9b45",
+      "base": "integration/command-center-unified-certification-20261012",
+      "base_sha": "5cfa79f4d01a8d9a3bf558c44d019064ca477f2a",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "changed_files": 3
+    },
+    {
+      "number": 18,
+      "head": "engineering/adaptive-memory-e2-20261014",
+      "head_sha": "33d6a48b448e224b878d075a3348d9ae5caf5369",
+      "base": "feature/p1-continuous-evidence-shadow-20261014",
+      "base_sha": "247b708d2615c0caa72d2a95402a59507ccf9b45",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "changed_files": 19
+    },
+    {
+      "number": 19,
+      "head": "engineering/c2-evaluation-queue-20261014",
+      "head_sha": "01a58c57857c63cbb5c7c426f8ebc38d73d96f2d",
+      "base": "engineering/adaptive-memory-e2-20261014",
+      "base_sha": "33d6a48b448e224b878d075a3348d9ae5caf5369",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "changed_files": 11
+    },
+    {
+      "number": 20,
+      "head": "engineering/c3-current-decision-20261014",
+      "head_sha": "0098c34b5dc25d1c35816ed8c9b30f606f48a76d",
+      "base": "engineering/c2-evaluation-queue-20261014",
+      "base_sha": "01a58c57857c63cbb5c7c426f8ebc38d73d96f2d",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "changed_files": 8
+    },
+    {
+      "number": 21,
+      "head": "engineering/c4-producer-intelligence-20261014",
+      "head_sha": "089cd3860247fc66e9cce0dd68c48368123342b1",
+      "base": "engineering/c3-current-decision-20261014",
+      "base_sha": "0098c34b5dc25d1c35816ed8c9b30f606f48a76d",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "changed_files": 18
+    }
+  ],
+  "ci": [
+    {
+      "pr": 7,
+      "head": "ad2915a7889637580505293ce38ab4db66f0a9b3",
+      "runs": [
+        {
+          "id": 38305917703,
+          "event": "push",
+          "head": "ad2915a7889637580505293ce38ab4db66f0a9b3",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/38305917703"
+        },
+        {
+          "id": 37896114359,
+          "event": "pull_request",
+          "head": "ad2915a7889637580505293ce38ab4db66f0a9b3",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/37896114359"
+        },
+        {
+          "id": 37896110516,
+          "event": "push",
+          "head": "ad2915a7889637580505293ce38ab4db66f0a9b3",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/37896110516"
+        }
+      ],
+      "checked_run": 38305917703,
+      "jobs": [
+        {
+          "id": 114999815678,
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ],
+      "summary": [
+        "2026-10-12T20:42:16.8552140Z ℹ tests 463",
+        "2026-10-12T20:42:16.8553220Z ℹ pass 463",
+        "2026-10-12T20:42:16.8553754Z ℹ fail 0",
+        "2026-10-12T20:42:16.8555681Z ℹ skipped 0"
+      ],
+      "checkout_contains_head": true
+    },
+    {
+      "pr": 16,
+      "head": "5cfa79f4d01a8d9a3bf558c44d019064ca477f2a",
+      "runs": [
+        {
+          "id": 38560019748,
+          "event": "pull_request",
+          "head": "5cfa79f4d01a8d9a3bf558c44d019064ca477f2a",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/38560019748"
+        },
+        {
+          "id": 38560012191,
+          "event": "push",
+          "head": "5cfa79f4d01a8d9a3bf558c44d019064ca477f2a",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/38560012191"
+        }
+      ],
+      "checked_run": 38560012191,
+      "jobs": [
+        {
+          "id": 115838462396,
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ],
+      "summary": [
+        "2026-10-14T11:55:37.2901974Z ℹ tests 544",
+        "2026-10-14T11:55:37.2902469Z ℹ pass 544",
+        "2026-10-14T11:55:37.2902647Z ℹ fail 0",
+        "2026-10-14T11:55:37.2903020Z ℹ skipped 0"
+      ],
+      "checkout_contains_head": true
+    },
+    {
+      "pr": 17,
+      "head": "247b708d2615c0caa72d2a95402a59507ccf9b45",
+      "runs": [
+        {
+          "id": 38595331971,
+          "event": "pull_request",
+          "head": "247b708d2615c0caa72d2a95402a59507ccf9b45",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/38595331971"
+        },
+        {
+          "id": 38595322944,
+          "event": "push",
+          "head": "247b708d2615c0caa72d2a95402a59507ccf9b45",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/38595322944"
+        }
+      ],
+      "checked_run": 38595322944,
+      "jobs": [
+        {
+          "id": 115960425867,
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ],
+      "summary": [
+        "2026-10-14T16:07:26.6826004Z ℹ tests 556",
+        "2026-10-14T16:07:26.6826766Z ℹ pass 556",
+        "2026-10-14T16:07:26.6827117Z ℹ fail 0",
+        "2026-10-14T16:07:26.6827855Z ℹ skipped 0"
+      ],
+      "checkout_contains_head": true
+    },
+    {
+      "pr": 18,
+      "head": "33d6a48b448e224b878d075a3348d9ae5caf5369",
+      "runs": [
+        {
+          "id": 38595837887,
+          "event": "pull_request",
+          "head": "33d6a48b448e224b878d075a3348d9ae5caf5369",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/38595837887"
+        },
+        {
+          "id": 38595766936,
+          "event": "push",
+          "head": "33d6a48b448e224b878d075a3348d9ae5caf5369",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/38595766936"
+        }
+      ],
+      "checked_run": 38595766936,
+      "jobs": [
+        {
+          "id": 115961969711,
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ],
+      "summary": [
+        "2026-10-14T16:10:29.3121099Z ℹ tests 569",
+        "2026-10-14T16:10:29.3122055Z ℹ pass 569",
+        "2026-10-14T16:10:29.3122459Z ℹ fail 0",
+        "2026-10-14T16:10:29.3123236Z ℹ skipped 0"
+      ],
+      "checkout_contains_head": true
+    },
+    {
+      "pr": 19,
+      "head": "01a58c57857c63cbb5c7c426f8ebc38d73d96f2d",
+      "runs": [
+        {
+          "id": 38600164028,
+          "event": "pull_request",
+          "head": "01a58c57857c63cbb5c7c426f8ebc38d73d96f2d",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/38600164028"
+        },
+        {
+          "id": 38600082788,
+          "event": "push",
+          "head": "01a58c57857c63cbb5c7c426f8ebc38d73d96f2d",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/38600082788"
+        }
+      ],
+      "checked_run": 38600082788,
+      "jobs": [
+        {
+          "id": 115976763661,
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ],
+      "summary": [
+        "2026-10-14T16:40:47.0162289Z ℹ tests 592",
+        "2026-10-14T16:40:47.0163133Z ℹ pass 592",
+        "2026-10-14T16:40:47.0163445Z ℹ fail 0",
+        "2026-10-14T16:40:47.0164230Z ℹ skipped 0"
+      ],
+      "checkout_contains_head": true
+    },
+    {
+      "pr": 20,
+      "head": "0098c34b5dc25d1c35816ed8c9b30f606f48a76d",
+      "runs": [
+        {
+          "id": 38603599926,
+          "event": "pull_request",
+          "head": "0098c34b5dc25d1c35816ed8c9b30f606f48a76d",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/38603599926"
+        },
+        {
+          "id": 38603518868,
+          "event": "push",
+          "head": "0098c34b5dc25d1c35816ed8c9b30f606f48a76d",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/38603518868"
+        }
+      ],
+      "checked_run": 38603518868,
+      "jobs": [
+        {
+          "id": 115988455292,
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ],
+      "summary": [
+        "2026-10-14T17:05:06.8317621Z ℹ tests 609",
+        "2026-10-14T17:05:06.8318529Z ℹ pass 609",
+        "2026-10-14T17:05:06.8318854Z ℹ fail 0",
+        "2026-10-14T17:05:06.8319660Z ℹ skipped 0"
+      ],
+      "checkout_contains_head": true
+    },
+    {
+      "pr": 21,
+      "head": "089cd3860247fc66e9cce0dd68c48368123342b1",
+      "runs": [
+        {
+          "id": 38608240339,
+          "event": "pull_request",
+          "head": "089cd3860247fc66e9cce0dd68c48368123342b1",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/38608240339"
+        },
+        {
+          "id": 38608230196,
+          "event": "push",
+          "head": "089cd3860247fc66e9cce0dd68c48368123342b1",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/dhays4sports/CoverageFit/actions/runs/38608230196"
+        }
+      ],
+      "checked_run": 38608230196,
+      "jobs": [
+        {
+          "id": 116004549339,
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ],
+      "summary": [
+        "2026-10-14T17:38:13.2504087Z ℹ tests 634",
+        "2026-10-14T17:38:13.2504700Z ℹ pass 634",
+        "2026-10-14T17:38:13.2504963Z ℹ fail 0",
+        "2026-10-14T17:38:13.2505519Z ℹ skipped 0"
+      ],
+      "checkout_contains_head": true
+    }
+  ],
+  "protection": {
+    "main_protected": false,
+    "rulesets": [],
+    "detailed_protection": "403 Resource not accessible by integration",
+    "allow_merge_commit": true,
+    "allow_squash_merge": true,
+    "allow_rebase_merge": true,
+    "allow_auto_merge": false
+  },
+  "local_acceptance": {
+    "tests": 636,
+    "pass": 636,
+    "fail": 0,
+    "skipped": 0,
+    "new_characterizations": 2,
+    "producer_page_records": 25,
+    "sqlite_statements": 583,
+    "max_bound_parameters": 103,
+    "sqlite_changes_during_probes": 0
+  }
+}

@@ -1,5 +1,7 @@
 # C4 producer intelligence integration — engineering acceptance and readiness
 
+**Subsequent consolidation:** [Roadmap 3.0 integration readiness](CF-ROADMAP-3-INTEGRATION-READINESS.md) verifies the full stack and reproduces the remaining global-priority selection and D1-portability blockers. This document retains C4's scoped local acceptance. Producer Integration C4 is not the unapproved Dynamic Cadence C4 communication canary.
+
 Base: draft #20, `0098c34b5dc25d1c35816ed8c9b30f606f48a76d`. Exact C4 commit, draft PR, tested tree and exact-head CI receipt are recorded in the accompanying PR body. This closes the local source → durable memory → queued evaluation → current decision → existing producer read-contract handoff. It does not certify a deployed intelligence service or economic uplift.
 
 ## Reconciled contract

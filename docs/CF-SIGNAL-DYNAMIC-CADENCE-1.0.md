@@ -1,5 +1,7 @@
 # CF-SIGNAL-DYNAMIC-CADENCE-1.0 — Evidence-Driven Engagement Orchestration
 
+**Terminology/status reconciliation — 2026-10-14:** [Verified integration report](CF-ROADMAP-3-INTEGRATION-READINESS.md). Local C1 planning and C2 durable evaluation are implemented/tested on #18/#19; feedback behavior is covered by the E2/C1/C2 spine. Current Decision Integrity C3 (#20) and **Producer Integration C4 (#21)** are separately named engineering slices. They do not complete this document's **Dynamic Cadence C4 authorized communication canary**, which remains **UNAPPROVED AND UNIMPLEMENTED**. The C3 feedback label below is historical roadmap terminology, not the #20 slice name. Earlier future/next-work language is superseded only for local engineering status; live agency/provider/Production authority gates remain unchanged.
+
 **Status:** PRINCIPAL-APPROVED P1 DESIGN / TEST-ONLY ENGINEERING CONTRACT — NOT A LIVE CADENCE  
 **Adopted:** 2026-10-14  
 **Priority:** **P1 child of SIGNAL Autonomy**, depending on P1 [Continuous Evidence Accumulation](CF-CONTINUOUS-EVIDENCE-1.0.md) and [Growth Roadmap 3.0](COVERAGEFIT-AUTONOMOUS-GROWTH-ROADMAP-3.0.md).  
@@ -107,7 +109,7 @@ Required tests: missing-then-known renewal never re-asked; vehicle/homeowner fac
 
 Measure producer minutes per useful conversation, useful handoffs per hour, redundant questions, unnecessary SMS contact attempts, missed callbacks, decision relevance, duplicate attempts/unsafe replays, eligible-to-engaged conversion, exceptions per producer day and later actual quote/bind/verified written premium. No score for sending more messages.
 
-**Release status:** C0/C1 design and deterministic no-send implementation only, no live agency/provider mutation. A working planner is **not** a certified scheduled SMS workflow.
+**Release status:** local E2/C1/C2 plus Current Decision C3 and Producer Integration C4 are tested; no live agency/provider mutation or scheduled SMS workflow is certified. The separately named Dynamic Cadence C4 canary remains unapproved/unimplemented.
 
 ## 10. Principal-attention handoff
 

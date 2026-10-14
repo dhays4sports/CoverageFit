@@ -1,5 +1,7 @@
 # CoverageFit Near-Term Producer Roadmap
 
+**Latest implementation status — 2026-10-14:** see [Roadmap 3.0 integration readiness](CF-ROADMAP-3-INTEGRATION-READINESS.md) for refreshed #7→#21 refs, tests and release gaps. Local E2/C1/C2/Current Decision C3/Producer Integration C4 are tested; global Today selection and hosted adapter acceptance remain incomplete. The older phase snapshots below retain their historical meaning and authority gates. No merge, live canary or measured producer economics is implied.
+
 **Document:** CF-NEAR-TERM-PRODUCER-ROADMAP-1.0  
 **Status:** Canonical near-term implementation sequence  
 **Date:** 2026-10-01  

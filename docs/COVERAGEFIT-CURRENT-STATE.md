@@ -1,5 +1,11 @@
 # CoverageFit Current State
 
+## Latest verified integration snapshot — 2026-10-14
+
+The [Roadmap 3.0 integration-readiness report](CF-ROADMAP-3-INTEGRATION-READINESS.md) supersedes earlier implementation-status, test-count and next-engineering snapshots below. Main and #7 → #16 → #17 → #18 → #19 → #20 → #21 were refreshed; all PRs remain draft/unmerged. Reviewed #21 is `089cd3860247fc66e9cce0dd68c48368123342b1` (634/634 exact-head CI). E2 durable memory, C1 SHADOW planning, C2 fenced queue, Current Decision C3 and Producer Integration C4 are locally implemented/tested, not hosted-certified. This consolidation adds two test-only blocker characterizations (636/636 local), no runtime change; final package head/CI are in #21.
+
+Release gaps: page-local C4 ranking can omit urgent later-page work; no accepted D1 snapshot/auth adapter; local query fan-out/allowlist exceed direct-port D1 budgets; real-data authority and economic measurement remain unaccepted. Main reports unprotected/no rulesets, with detailed protection access denied. No merges/deployments or Cloudflare login request. **Producer Integration C4 is not Dynamic Cadence C4's live communication canary**, which remains unapproved/unimplemented. The earlier hosted Preview evidence remains scoped to its historical runtime.
+
 ## FUTURE PRIVACY-FIRST MONETIZATION BOUNDARY ADOPTED — 2026-10-13
 
 ## P1 DYNAMIC CADENCE ARCHITECTURE ADOPTED — 2026-10-14
