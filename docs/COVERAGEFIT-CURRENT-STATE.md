@@ -2,6 +2,16 @@
 
 ## FUTURE PRIVACY-FIRST MONETIZATION BOUNDARY ADOPTED — 2026-10-13
 
+## P1 DYNAMIC CADENCE ARCHITECTURE ADOPTED — 2026-10-14
+
+**Principal direction:** Embed [CF-SIGNAL-DYNAMIC-CADENCE-1.0](CF-SIGNAL-DYNAMIC-CADENCE-1.0.md) directly in Growth Roadmap 3.0 as a **P1 child of SIGNAL Autonomy**. CoverageFit should eventually govern evidence-aware **next evaluation / next useful action** for specifically authorized first-party workflows, not operate a naive day-based drip. Existing district AgencyZoom cadences remain AgencyZoom-owned; **one active cadence owner per workflow family**, with explicit agency-approved cutover to CoverageFit if later justified. RingCentral's role is strictly policy-compatible transport/receipt/inbound.
+
+**Current actual code:** [draft PR #17](https://github.com/dhays4sports/CoverageFit/pull/17) demonstrated first source-to-fact-to-changed-SIGNAL-question simulation, in-memory and **test-only**, with 556/556 CI on its prior tested head. It did **not** implement a durable profile ledger, live scheduling, AgencyZoom cadence cutover or actual SMS automation. The approved Command Center 19/19 Preview continues to be read-only and its live inbound provider route uncertified. **No new runtime code in this documentation update.**
+
+**Next engineering:** keep P0 #7 → #16 merge/deployment-effects review bounded and unmerged. In P1, E2 safe durable/replayable evidence memory and C0 AgencyZoom ownership audit precede C2 durable cadence state; C1 pure no-send dynamic evaluation planner can be implemented in parallel. Send and provider authority, live D1/customer data, workflow family cutover, CRM mutations and Production activation require independent explicit approvals. The future aggregate market-intelligence option remains parked.
+
+---
+
 **Principal preference recorded:** Do **not** sell or redistribute enriched individual Prospect 360 profiles and accumulated customer evidence as leads. Possible **future optional** monetization: (1) aggregated, genuinely de-identified insurance market intelligence **only** where original source/vendor/agency/carrier rights and privacy rules permit the analysis and external use; (2) perhaps minimal, specifically authorized **direct CoverageFit inquiry** introductions after separate consumer notice/authorization, licensing/agency and compensation reviews. No automatic rights for 408FARMERS, district/Farmers, purchased or vendor lead sources.
 
 **Current status:** [CF-DATA-RIGHTS-AND-MARKET-INTELLIGENCE-OPTIONAL-1.0](CF-DATA-RIGHTS-AND-MARKET-INTELLIGENCE-OPTIONAL-1.0.md) is a **product/data-rights decision record**, not an implemented resale/aggregation feature, lawful resale finding or authorized commercial launch. Within P1 [Continuous Evidence Accumulation](CF-CONTINUOUS-EVIDENCE-1.0.md), future data contracts should preserve provenance, data owner, rights to secondary analysis/commercial transfer, retention/withdrawal, minimum fields and a **default-deny external transfer state**. No new D1 schema, provider change, live data sharing, market-data exports, new monetization product or lead distribution approved.
