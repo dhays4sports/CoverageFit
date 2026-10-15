@@ -1,7 +1,7 @@
 # CF-OUTCOME-FIRST-INTELLIGENCE-1.0 — Local adoption candidate
 
-**Status:** Documentation-only proposed Roadmap 3 operating lens. Not a release or live dogfood approval.  
-**Portfolio doctrine:** `the-mesh/docs/PORTFOLIO_OUTCOME_FIRST_INTELLIGENCE_1.0.md`.
+**Status:** Project-specific strategic operating lens; documentation only. Not a release, live dogfood, or provider approval.  
+**Portfolio doctrine:** [The Mesh canonical outcome-first standard](https://github.com/dhays4sports/the-mesh/blob/main/docs/PORTFOLIO_OUTCOME_FIRST_INTELLIGENCE_1.0.md).
 
 ## Customer outcome, not a generic CRM
 
