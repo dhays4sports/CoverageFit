@@ -1,0 +1,8 @@
+[
+ {"case":"A","inbound":"Auto.","known":{"line":"AUTO"},"expected_gap":"shopping_reason","expected_action":"ASK_ONE_QUESTION"},
+ {"case":"B","inbound":"I have Allstate now and got it about six months ago when I bought my 2026 Honda Ridgeline.","expected_proposals":{"current_carrier":"Allstate","vehicle":"2026 Honda Ridgeline"},"do_not_reask":["current_carrier","vehicle"],"note":"Approximate insured duration is a summary proposal; do not invent a renewal date."},
+ {"case":"C","direction":"ask if financed too","initial":"About how many miles a year do you drive?","expected_asks":["annual_mileage","vehicle_ownership"]},
+ {"case":"D","inbound":"It was a spam email I thought was real.","expected":"Recognize accidental origin, check whether comparison is still wanted; no pressure."},
+ {"case":"E","inbound":"STOP","expected_action":"STOP","expected_provider_calls":0},
+ {"case":"F","known":{"current_carrier":"Mercury"},"inbound":"I have Allstate now.","expected_conflict":"current_carrier","canonical_overwrite":false}
+]

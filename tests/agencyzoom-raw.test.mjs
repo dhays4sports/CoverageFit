@@ -1,6 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {DatabaseSync} from 'node:sqlite';import {readFileSync,readdirSync} from 'node:fs';
 import {parseRaw,fieldClass} from '../server/agencyzoom-raw.mjs';
-import {rawImporter} from '../server/agencyzoom-import.mjs';
+import {rawImporter,intakeTriage,syntheticRawRehearsalBatch} from '../server/agencyzoom-import.mjs';
 import {districtPilot,pilotAssignment} from '../server/district-pilot.mjs';
 function fixture(){const sql=new DatabaseSync(':memory:');for(const f of readdirSync(new URL('../migrations/',import.meta.url)).filter(f=>f.endsWith('.sql')).sort())sql.exec(readFileSync(new URL('../migrations/'+f,import.meta.url),'utf8'));const db={prepare(q){let args=[];const stmt={bind(...v){args=v;return stmt},async first(){return sql.prepare(q).get(...args)||null},async all(){return {results:sql.prepare(q).all(...args)}},async run(){return {meta:sql.prepare(q).run(...args)}}};return stmt},async batch(stmts){sql.exec('BEGIN');try{const result=[];for(const s of stmts)result.push(await s.run());sql.exec('COMMIT');return result}catch(e){sql.exec('ROLLBACK');throw e}}};const now=new Date().toISOString();for(const id of ['one','two'])sql.prepare('INSERT INTO cf_solo_opportunities(id,workspace_id,owner_id,contact_json,source,last_mutation_id,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?)').run(id,'qa','qa','{}','district','qa',now,now);const repo={db,scope:{workspace:'qa',actor:'qa'},sql:(q,...v)=>db.prepare(q).bind(...v),rows:async(q,...v)=>(await db.prepare(q).bind(...v).all()).results,own:async id=>{const r=sql.prepare('SELECT * FROM cf_solo_opportunities WHERE workspace_id=? AND id=?').get('qa',id);if(!r)throw new Error('unavailable');return r;}};return {sql,repo,pilot:districtPilot(repo),received:new Date(Date.now()-60000).toISOString()};}
 const file=(id='100',phone='2025550199')=>({name:'AWL-'+id+'.csv',text:'Lead ID,Date,Lead Type,State,Cell Phone,Name,Current Insurance Co,Experation Date,Credit Rating,DOB,Occupation,Needs Quote\n'+[id,new Date(Date.now()-60000).toISOString(),'Automobile','CA',phone,'Synthetic Tester','Mercury','2026-12-31','EXCLUDED_CREDIT','EXCLUDED_DOB','EXCLUDED_JOB','ASAP'].join(',')});
@@ -10,7 +10,7 @@ test('RAW allowlist keeps insurance evidence, excludes sensitive values and infe
 test('RAW parser accepts BOM and exact observed header defect; rejects malformed, oversized and empty headers',()=>{const f=file();assert.equal(parseRaw({...f,text:'\uFEFF'+f.text}).line,'AUTO');const observed={name:'AWL-test.csv',text:'_csv_"Lead ID","Date","Lead Type","State","Credit Rating",","Currently Insurance", ,\n"abc","'+new Date(Date.now()-60000).toISOString()+'","Auto","CA","discard","Yes", ,'};assert.equal(parseRaw(observed).facts.currently_insured,true);assert.throws(()=>parseRaw({...f,text:'"a,b\nx,y'}));assert.throws(()=>parseRaw({...f,text:'x'.repeat(65537)}),/OVERSIZED/);assert.throws(()=>parseRaw({...f,text:',,\n1,2,3'}),/INVALID RAW FILE/);});
 test('RAW batch creates one durable enrollment per stable key, retries dedupe, and only SIGNAL gets priority',async()=>{const f=setup();try{const files=Array.from({length:10},(_,i)=>file(String(1000+i),'20255501'+String(i+10)));const p=await f.importer.preview({files});assert.equal(p.rows.filter(r=>r.status==='READY').length,10);const v={files,fingerprint:p.fingerprint,confirmed:true,eligible:true};const result=await f.importer.commit(v);assert.equal(result.imported,10,JSON.stringify(result));assert.equal(f.refreshed.length,result.results.filter(r=>r.cohort==='SIGNAL').length);assert.equal((await f.importer.commit(v)).duplicates,10);assert.equal(f.sql.prepare('SELECT COUNT(*) n FROM cf_solo_sources WHERE kind=?').get('district_pilot_v1').n,10);const sources=f.sql.prepare('SELECT summary_json FROM cf_solo_sources').all();assert.ok(!JSON.stringify(sources).includes('EXCLUDED_'));assert.equal((await f.pilot.report()).records.length,10);}finally{f.sql.close()}});
 test('RAW one bad file does not drop good files; phone collision blocks both; TEST excluded from report',async()=>{const f=setup();try{let files=[file('valid'),{name:'bad.csv',text:'broken'}],p=await f.importer.preview({files,synthetic:true});assert.equal(p.rows[0].status,'READY');const r=await f.importer.commit({files,synthetic:true,fingerprint:p.fingerprint,eligible:true,confirmed:true});assert.equal(r.imported,1);assert.equal((await f.pilot.report()).records.length,0);files=[file('phone1','2025550188'),file('phone2','2025550188')];p=await f.importer.preview({files});assert.ok(p.rows.every(r=>r.status.startsWith('PHONE CONFLICT')));}finally{f.sql.close()}});
-test('RAW fingerprint prevents changed confirmation; old leads cannot be silently enrolled',async()=>{const f=setup();try{const files=[file()],p=await f.importer.preview({files});await assert.rejects(f.importer.commit({files,fingerprint:'changed',eligible:true,confirmed:true}),/Preview/);const old=file();old.text=old.text.replace(/20\d\d-\d\d-\d\dT[^,]+/,'2020-01-01T00:00:00Z');assert.match((await f.importer.preview({files:[old]})).rows[0].status,/48 hours/);assert.equal(f.sql.prepare('SELECT COUNT(*) n FROM cf_solo_sources').get().n,0);}finally{f.sql.close()}});
+test('RAW fingerprint prevents changed confirmation; old leads cannot be silently enrolled',async()=>{const f=setup();try{const files=[file()],p=await f.importer.preview({files});await assert.rejects(f.importer.commit({files,fingerprint:'changed',eligible:true,confirmed:true}),/Preview/);const old=file();old.text=old.text.replace(/20\d\d-\d\d-\d\dT[^,]+/,'2020-01-01T00:00:00Z');assert.match((await f.importer.preview({files:[old]})).rows[0].status,/outside 7 days/);assert.equal(f.sql.prepare('SELECT COUNT(*) n FROM cf_solo_sources').get().n,0);}finally{f.sql.close()}});
 import {soloRepository} from '../server/solo-desk-repository.mjs';
 import {signalInbound,signalOutbound} from '../server/sms-signal-service.mjs';
 test('real priority projection remains incomplete after RAW; CONTROL has no projection or priority queue',async()=>{const f=fixture();try{const repo=soloRepository(f.repo.db,f.repo.scope),imp=rawImporter(repo,env),files=Array.from({length:6},(_,i)=>file(String(2000+i),'20255502'+String(i+10))),p=await imp.preview({files});const r=await imp.commit({files,fingerprint:p.fingerprint,eligible:true,confirmed:true});assert.equal(r.imported,6);assert.ok(r.results.every(x=>!x.warning),JSON.stringify(r));for(const row of r.results){const detail=await repo.detail(row.opportunity_id);if(row.cohort==='CONTROL'){assert.equal(detail.opportunityPriority,null);assert.equal(detail.possessionQuality,null);assert.equal(detail.nextBestAction,null);}else{assert.ok(detail.opportunityPriority);assert.notEqual(detail.opportunityPriority.score,100);}}}finally{f.sql.close()}});
@@ -39,7 +39,7 @@ import {parseRawRows,csvRows} from '../server/agencyzoom-raw.mjs';
 import {normalizeAwlText} from '../server/awl-normalization.mjs';
 import {resolveSmsOwnership} from '../server/sms-ownership.mjs';
 import {classifyPopulation} from '../server/producer-workspace.mjs';
-import {rawPreviewRowHTML} from '../assets/js/agencyzoom-import.mjs';
+import {rawPreviewRowHTML,runChunkedRawImport} from '../assets/js/agencyzoom-import.mjs';
 const awlFixture=name=>({name:'AWL-'+name+'.csv',text:readFileSync(new URL('./fixtures/awl/'+name+'.csv',import.meta.url),'utf8')});
 const batchFile=files=>({name:'AWL-batch.csv',text:[files[0].text.split('\n')[0],...files.map(f=>f.text.split('\n').slice(1).join('\n'))].join('\n')});
 test('observed home placeholder and unlabeled padding align facts semantically, not just rectangularly',()=>{
@@ -118,4 +118,160 @@ test('six-day district leads remain eligible for NEW_LEAD while eight-day leads 
   assert.equal(p.rows[1].cohort,null);
   assert.match(p.rows[1].status,/outside 7 days/i);
  }finally{f.sql.close()}
+});
+
+// Reproduce legacy age-hold inventory without changing the approved seven-day policy.
+async function legacyPromotionFixture(cohort='SIGNAL') {
+ const f=setup();let key;
+ for(let n=40000;n<41000;n++)if((await pilotAssignment('awl:'+n)).cohort===cohort){key=String(n);break;}
+ const input=file(key);input.text=input.text.replace(/20\d\d-\d\d-\d\dT[^,]+/,new Date(Date.now()-8*86400000).toISOString());
+ const files=[input],p=await f.importer.preview({files});
+ const r=await f.importer.commit({files,fingerprint:p.fingerprint,confirmed:true,eligible:true});
+ f.id=r.results[0].opportunity_id;
+ const row=f.sql.prepare('SELECT * FROM cf_solo_sources WHERE kind=? AND opportunity_id=?').get('district_raw_v2',f.id);
+ f.record=JSON.parse(row.summary_json);f.record.received_at=new Date(Date.now()-3*86400000).toISOString();
+ f.sql.prepare('UPDATE cf_solo_sources SET summary_json=? WHERE kind=? AND source_id=?').run(JSON.stringify(f.record),'district_raw_v2',row.source_id);
+ f.linkKey='district-link/qa/'+f.record.conversation_id;
+ f.link=()=>JSON.parse(f.sql.prepare('SELECT data_json FROM sms_conversations WHERE record_key=?').get(f.linkKey).data_json);
+ f.audits=()=>f.sql.prepare("SELECT COUNT(*) n FROM cf_solo_activity WHERE kind='district_pilot_promotion'").get().n;
+ return f;
+}
+for(const cohort of ['SIGNAL','CONTROL'])test('promotion preserves identity and '+cohort+' assignment, retries never send',async()=>{
+ const f=await legacyPromotionFixture(cohort);try{
+  const preview=await f.importer.promotionPreview();assert.equal(preview.eligible,1);
+  const result=await f.importer.promote({confirmed:true,fingerprint:preview.fingerprint});
+  assert.equal(result.promoted,1);assert.equal(result.sms_sent,0);assert.equal(result.results[0].cohort,cohort);
+  assert.equal(f.link().opportunity_id,f.id);assert.equal(f.link().owner,'DISTRICT_'+cohort);assert.equal(f.audits(),1);
+  assert.equal(f.refreshed.length,cohort==='SIGNAL'?1:0);
+  await assert.rejects(f.importer.promote({confirmed:true,fingerprint:preview.fingerprint}),/Refresh promotion preview/);
+  const retry=await f.importer.promotionPreview();assert.equal(retry.eligible,0);
+  assert.equal((await f.importer.promote({confirmed:true,fingerprint:retry.fingerprint})).promoted,0);assert.equal(f.audits(),1);
+ }finally{f.sql.close();}
+});
+test('promotion rejects changed evidence after preview without changing ownership',async()=>{
+ const f=await legacyPromotionFixture();try{
+  const p=await f.importer.promotionPreview(),before=f.link();
+  f.sql.prepare('UPDATE cf_solo_sources SET summary_json=? WHERE kind=? AND opportunity_id=?').run(JSON.stringify({...f.record,raw_facts:{line:'HOME'}}),'district_raw_v2',f.id);
+  await assert.rejects(f.importer.promote({confirmed:true,fingerprint:p.fingerprint}),/Refresh promotion preview/);
+  assert.deepEqual(f.link(),before);assert.equal(f.audits(),0);
+ }finally{f.sql.close();}
+});
+test('promotion losing compare-and-swap has no ownership, audit or priority side effects',async()=>{
+ const f=await legacyPromotionFixture();try{
+  const p=await f.importer.promotionPreview(),before=f.link(),batch=f.repo.db.batch;
+  f.repo.db.batch=async statements=>{
+   f.sql.prepare('UPDATE cf_solo_sources SET summary_json=? WHERE kind=? AND opportunity_id=?').run(JSON.stringify({...f.record,version:2}),'district_raw_v2',f.id);
+   return batch(statements);
+  };
+  const r=await f.importer.promote({confirmed:true,fingerprint:p.fingerprint});
+  assert.equal(r.results[0].status,'SKIPPED_CHANGED');assert.equal(r.promoted,0);assert.equal(r.sms_sent,0);
+  assert.deepEqual(f.link(),before);assert.equal(f.audits(),0);assert.equal(f.refreshed.length,0);
+ }finally{f.sql.close();}
+});
+test('promotion transaction failure rolls back enrollment, audit and ownership together',async()=>{
+ const f=await legacyPromotionFixture();try{
+  const p=await f.importer.promotionPreview(),before=f.link();
+  f.sql.exec("CREATE TRIGGER reject_promotion_link BEFORE UPDATE ON sms_conversations BEGIN SELECT RAISE(ABORT,'synthetic storage failure'); END");
+  const r=await f.importer.promote({confirmed:true,fingerprint:p.fingerprint});
+  assert.equal(r.results[0].status,'CONFLICT');assert.equal(r.promoted,0);assert.deepEqual(f.link(),before);assert.equal(f.audits(),0);
+  assert.equal((await f.importer.promotionPreview()).eligible,1);assert.equal(f.refreshed.length,0);
+ }finally{f.sql.close();}
+});
+
+
+test('intake triage separates machine-safe rows from true exceptions',()=>{
+ assert.deepEqual(intakeTriage({import_status:'DUPLICATE',status:'DUPLICATE'}),{bucket:'DUPLICATE',needs_attention:false,reason:'Already represented by stable source identity'});
+ assert.equal(intakeTriage({import_status:'READY',pilot_status:'INELIGIBLE_AGE',status:'READY'}).bucket,'SAFE_HOLD');
+ assert.equal(intakeTriage({import_status:'READY',pilot_status:'ELIGIBLE_NEW_LEAD',status:'READY',contact:{mobile:''},phone_status:'MISSING'}).bucket,'READY_NO_SMS');
+ assert.equal(intakeTriage({import_status:'NEEDS_REVIEW',status:'PHONE CONFLICT: different lead keys share a phone'}).bucket,'REVIEW_IDENTITY');
+ assert.equal(intakeTriage({import_status:'NEEDS_REVIEW',status:'Combined AWL schema not safely recognized'}).bucket,'REVIEW_SCHEMA');
+ assert.equal(intakeTriage({import_status:'NEEDS_REVIEW',status:'FUTURE RECEIVED DATE: review source timestamp'}).bucket,'REVIEW_TIME');
+ assert.equal(intakeTriage({import_status:'NEEDS_REVIEW',status:'UNSUPPORTED PRODUCT: review'}).bucket,'REVIEW_FIELD');
+});
+
+test('preview returns aggregate intake triage so producer need not inspect every valid row',async()=>{
+ const f=setup();try{
+  const old=file('triage-old','2025550166');old.text=old.text.replace(/20\d\d-\d\d-\d\dT[^,]+/,new Date(Date.now()-8*86400000).toISOString());
+  const bad=file('triage-bad','2025550167');bad.text=bad.text.replace(',CA,',',NV,');
+  const p=await f.importer.preview({files:[file('triage-ready','2025550165'),old,bad]});
+  assert.equal(p.triage.ready,2);assert.equal(p.triage.needs_attention,1);assert.equal(p.triage.counts.READY,1);assert.equal(p.triage.counts.SAFE_HOLD,1);assert.equal(p.triage.counts.REVIEW_FIELD,1);
+  assert.equal(p.rows.find(r=>r.lead_key==='awl:triage-bad').triage.needs_attention,true);
+ }finally{f.sql.close();}
+});
+
+
+test('CONTROL enrollment pause routes only new eligible records to SIGNAL while preserving assignment evidence',async()=>{
+ const f=fixture();try{
+  f.repo.refreshOpportunityPriority=async()=>{};
+  let key;for(let n=50000;n<51000;n++){const a=await pilotAssignment('awl:'+n);if(a.cohort==='CONTROL'){key=String(n);break;}}
+  assert.ok(key);
+  const importer=rawImporter(f.repo,{...env,CF_DISTRICT_CONTROL_ENROLLMENT_PAUSED:'1'}),files=[file(key,'2025550144')],p=await importer.preview({files});
+  assert.equal(p.rows[0].assignment_cohort,'CONTROL');assert.equal(p.rows[0].cohort,'SIGNAL');assert.equal(p.rows[0].cohort_override_reason,'control_enrollment_paused');
+  const r=await importer.commit({files,fingerprint:p.fingerprint,confirmed:true,eligible:true});assert.equal(r.results[0].cohort,'SIGNAL');
+  const stored=JSON.parse(f.sql.prepare("SELECT summary_json FROM cf_solo_sources WHERE opportunity_id=? AND kind='district_pilot_v1'").get(r.results[0].opportunity_id).summary_json);
+  assert.equal(stored.assignment_cohort,'CONTROL');assert.equal(stored.cohort,'SIGNAL');assert.equal(stored.cohort_override_reason,'control_enrollment_paused');
+ }finally{f.sql.close();}
+});
+
+
+test('persistent exception queue and receipt survive import and support disposition',async()=>{
+ const f=setup();try{
+  const good=file('receipt-good','2025550131'),bad=file('receipt-bad','2025550132');bad.text=bad.text.replace(',CA,',',NV,');
+  const files=[good,bad],p=await f.importer.preview({files});assert.ok(Number.isInteger(p.preview_duration_ms)&&p.preview_duration_ms>=0);const r=await f.importer.commit({files,fingerprint:p.fingerprint,confirmed:true,eligible:true});
+  assert.equal(r.imported,1);assert.equal(r.needs_review,1);assert.equal(r.receipt.row_count,2);assert.equal(r.receipt.exceptions.length,1);assert.ok(Number.isInteger(r.receipt.prepare_duration_ms)&&r.receipt.prepare_duration_ms>=0);assert.ok(Number.isInteger(r.receipt.import_duration_ms)&&r.receipt.import_duration_ms>=0);
+  const receipts=await f.importer.receipts({limit:10});assert.equal(receipts.records[0].id,p.fingerprint);assert.equal(receipts.records[0].imported,1);assert.equal(receipts.records[0].needs_review,1);
+  let exceptions=await f.importer.exceptions({state:'OPEN'});assert.equal(exceptions.records.length,1);const x=exceptions.records[0];assert.equal(x.triage.bucket,'REVIEW_FIELD');assert.equal(x.state,'OPEN');assert.ok(!JSON.stringify(x).includes('+12025550132'));
+  const next=await f.importer.disposition({id:x.id,state:'DEFERRED',note:'Check original source tomorrow'});assert.equal(next.state,'DEFERRED');assert.equal(next.disposition_note,'Check original source tomorrow');
+  exceptions=await f.importer.exceptions({state:'OPEN'});assert.equal(exceptions.records.length,0);assert.equal((await f.importer.exceptions({state:'DEFERRED'})).records.length,1);
+ }finally{f.sql.close();}
+});
+
+
+test('100-row synthetic rehearsal exercises full importer path and records timings',async()=>{
+ const f=setup();try{
+  const batchId='12345678-1234-4234-9234-123456789abc',receivedAt=new Date(Date.now()-60000).toISOString(),files=syntheticRawRehearsalBatch({batchId,receivedAt});
+  assert.equal(files.length,1);assert.equal(files[0].text.split('\n').length,101);assert.ok(files[0].text.includes('2025550100'));assert.ok(files[0].text.includes('2025550199'));
+  const p=await f.importer.preview({files,synthetic:true});assert.equal(p.rows.length,100);assert.equal(p.triage.needs_attention,0);assert.equal(p.triage.ready,100);assert.ok(p.preview_duration_ms>=0);
+  const r=await f.importer.commit({files,synthetic:true,fingerprint:p.fingerprint,confirmed:true,eligible:true});assert.equal(r.imported,100);assert.equal(r.needs_review,0);assert.equal(r.receipt.row_count,100);assert.equal(r.receipt.sms_sent,0);assert.ok(r.receipt.import_duration_ms>=0);
+  assert.equal((await f.pilot.report()).records.length,0);
+ }finally{f.sql.close();}
+});
+
+
+test('synthetic rehearsal status reports completion without heavy preview and TEST skips priority refresh',async()=>{
+ const f=fixture();try{
+  f.refreshed=[];f.repo.refreshOpportunityPriority=async id=>f.refreshed.push(id);
+  const importer=rawImporter(f.repo,env),batchId='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee',receivedAt=new Date(Date.now()-60000).toISOString(),files=syntheticRawRehearsalBatch({batchId,receivedAt}),p=await importer.preview({files,synthetic:true});
+  assert.equal((await importer.rehearsalStatus({batch_id:batchId})).imported_test_rows,0);
+  const r=await importer.commit({files,synthetic:true,fingerprint:p.fingerprint,confirmed:true,eligible:true});assert.equal(r.imported,100);assert.equal(f.refreshed.length,0);
+  const s=await importer.rehearsalStatus({batch_id:batchId});assert.equal(s.imported_test_rows,100);assert.equal(s.complete,true);assert.equal(Object.values(s.cohorts).reduce((a,b)=>a+b,0),100);
+ }finally{f.sql.close();}
+});
+
+
+test('chunked rehearsal resumes safely from partial import and never duplicates completed rows',async()=>{
+ const f=setup();try{
+  const batchId='bbbbbbbb-cccc-4ddd-8eee-ffffffffffff',receivedAt=new Date(Date.now()-60000).toISOString(),files=syntheticRawRehearsalBatch({batchId,receivedAt}),p=await f.importer.preview({files,synthetic:true});
+  for(const start of [0,10,20]){const chunk=await f.importer.commitChunk({files,synthetic:true,fingerprint:p.fingerprint,confirmed:true,eligible:true,start,limit:10});assert.equal(chunk.imported,10);assert.equal(chunk.duplicates,0);assert.equal(chunk.row_count,10);assert.equal(chunk.complete,false);}
+  let s=await f.importer.rehearsalStatus({batch_id:batchId});assert.equal(s.imported_test_rows,30);assert.equal(s.next_missing,30);assert.deepEqual(s.missing_ordinals.slice(0,3),[30,31,32]);
+  const replay=await f.importer.commitChunk({files,synthetic:true,fingerprint:p.fingerprint,confirmed:true,eligible:true,start:20,limit:10});assert.equal(replay.imported,0);assert.equal(replay.duplicates,10);
+  for(let start=30;start<100;start+=10){const chunk=await f.importer.commitChunk({files,synthetic:true,fingerprint:p.fingerprint,confirmed:true,eligible:true,start,limit:10});assert.equal(chunk.imported,10);assert.equal(chunk.needs_review,0);}
+  s=await f.importer.rehearsalStatus({batch_id:batchId});assert.equal(s.imported_test_rows,100);assert.equal(s.complete,true);assert.equal(s.next_missing,null);assert.deepEqual(s.missing_ordinals,[]);
+ }finally{f.sql.close();}
+});
+
+
+test('chunked UI helper resumes from failed chunk without restarting completed work',async()=>{
+ let calls=[],failOnce=true;const api=async(route,body)=>{assert.equal(route,'raw-import-chunk');calls.push(body.start);if(body.start===10&&failOnce){failOnce=false;const e=Error('synthetic transient');e.resumeStart=10;throw e;}const next=body.start+10;return {chunk:{start:body.start,row_count:10,next_start:next>=30?null:next,complete:next>=30,imported:10,duplicates:0,needs_review:0,pilot_enrollments:10,outside_pilot:0,sms_linked:10,sms_sent:0}};};
+ await assert.rejects(runChunkedRawImport(api,{files:[]},'f'.repeat(64),30,{chunkSize:10}),e=>e.message==='synthetic transient');assert.deepEqual(calls,[0,10]);
+ const progress=[];const r=await runChunkedRawImport(api,{files:[]},'f'.repeat(64),30,{chunkSize:10,start:10,onProgress:x=>progress.push(x.nextStart)});assert.equal(r.complete,true);assert.deepEqual(calls,[0,10,10,20]);assert.deepEqual(progress,[20,30]);assert.equal(r.totals.imported,20);
+});
+
+test('chunked import finalizes durable receipt from completed chunk receipts',async()=>{
+ const f=setup();try{
+  const batchId='cccccccc-dddd-4eee-8fff-aaaaaaaaaaaa',receivedAt=new Date(Date.now()-60000).toISOString(),files=syntheticRawRehearsalBatch({batchId,receivedAt}),p=await f.importer.preview({files,synthetic:true});let last;
+  for(let start=0;start<100;start+=10)last=await f.importer.commitChunk({files,synthetic:true,fingerprint:p.fingerprint,confirmed:true,eligible:true,start,limit:10});
+  assert.equal(last.complete,true);assert.equal(last.receipt?.chunked,true);assert.equal(last.receipt?.row_count,100);assert.equal(last.receipt?.imported,100);assert.equal(last.receipt?.needs_review,0);assert.equal(last.receipt?.chunk_count,10);assert.equal(last.receipt?.sms_sent,0);
+  const receipts=await f.importer.receipts({limit:10});assert.ok(receipts.records.some(x=>x.id===p.fingerprint&&x.chunked===true&&x.imported===100));
+ }finally{f.sql.close();}
 });

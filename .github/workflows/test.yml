@@ -1,0 +1,32 @@
+name: CoverageFit test suite
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Check critical module syntax
+        run: |
+          node --check server/agencyzoom-import.mjs
+          node --check server/producer-workspace.mjs
+          node --check server/solo-desk-api.mjs
+          node --check assets/js/agencyzoom-import.mjs
+
+      - name: Run full test suite
+        run: node --test --test-isolation=none --experimental-loader ./tests/json-loader.mjs tests/*.test.mjs

@@ -1,5 +1,6 @@
+import {copilotService} from './signal-copilot-service.mjs';
 import {resolveSmsOwnership} from './sms-ownership.mjs';
-import {identity,parse} from './solo-desk-repository.mjs';
+import {identity,parse,soloRepository} from './solo-desk-repository.mjs';
 import {prepareControlRoster,saveControlRoster} from './district-control-roster.mjs';
 import {districtSmsCohort} from './district-pilot-sms.mjs';
 import {SIGNAL_SCENARIOS,simulateScenario} from './sms-signal-scenarios.mjs';
@@ -89,15 +90,18 @@ export async function handleSmsSignal(request,options={}) {
    if(b.followup_date){if(!/^\d{4}-\d{2}(?:-\d{2})?$/.test(b.followup_date))return fail('Use YYYY-MM or YYYY-MM-DD');s.future_timing_raw=b.followup_date;const value=b.followup_date.length===7?b.followup_date+'-01':b.followup_date;const date=new Date(value+'T00:00:00Z');if(!Number.isFinite(date.getTime())||date.toISOString().slice(0,10)!==value)return fail('Enter a valid calendar date.');s.future_month=b.followup_date.length===7?b.followup_date:null;s.future_date=b.followup_date.length===10?b.followup_date:null;s.future_opportunity={...(s.future_opportunity||{}),future_month:s.future_month,future_date:s.future_date,future_date_type:'requested_callback',reason:'Producer recorded follow-up timing',line:s.facts?.line||null,current_carrier:s.facts?.current_carrier||null,current_premium:s.facts?.current_premium??null,preferred_channel:s.facts?.preferred_channel||'UNKNOWN',last_quote:s.last_quote||null,last_objection:s.last_objection||null,conversation_summary:s.conversation_summary||''};}
    if(b.decision_2==='STOP'){c=applySmsConsentCommand(c,'stop',{occurredAt:at});c.signal=s;}
   }else if(b.action==='edit'){
-   const message=String(b.message||'').trim();if(!message||message.length>1000||(message.match(/\?/g)||[]).length>1)return fail('Use a short reply with at most one question.');
+   const message=String(b.message||'').trim();if(!message||message.length>1000||(!b.copilot_id&&(message.match(/\?/g)||[]).length>1))return fail('Use a short reply with at most one question, or select a reviewed Copilot discovery step.');
    if(s.decision_2==='STOP'||s.contact_suppressed||c.smsConsent?.status==='opted_out')return fail('Suppressed contact: no reply.',409);
    if(message.includes('?')&&(s.questions_sent||0)>=3)return fail('Question limit reached. Use producer follow-up.',409);
+   if(b.copilot_id){try{s.copilot_draft=await copilotService(soloRepository(options.env.COVERAGEFIT_DB,identity(options.env)),options.env).select(b.opportunity_id,b.copilot_id,message);}catch{return fail('Copilot suggestion changed or is unavailable. Refresh before selecting it.',409);}}
+   else if(s.copilot_draft){try{const cp=copilotService(soloRepository(options.env.COVERAGEFIT_DB,identity(options.env)),options.env);await cp.check(s.copilot_draft);await cp.edited(s.copilot_draft,message);}catch{delete s.copilot_draft;}}
    s.reply=message;s.reply_goal=String(b.reply_goal||s.reply_goal||'HUMAN_HANDOFF');s.draft_status='pending';s.edited=true;
   }else if(b.action==='approve_send'){
    if(s.continue_active&&Date.parse(s.continue_expires_at)>Date.parse(at))return fail('Signal Continue is active. Avoid competing qualification SMS.',409);
    if(!s.reply||s.draft_status!=='pending'||s.decision_2==='STOP'||s.contact_suppressed||c.smsConsent?.status==='opted_out')return fail('No eligible pending draft.',409);
    if(s.human_active||smsAutomationPaused(c))return fail('Human takeover active. Resolve ownership before sending.',409);
    const question=s.reply.includes('?');if(question&&(s.questions_sent||0)>=3)return fail('Question limit reached.',409);
+   if(s.copilot_draft){try{await copilotService(soloRepository(options.env.COVERAGEFIT_DB,identity(options.env)),options.env).check(s.copilot_draft);}catch{return fail('Copilot context changed. Refresh and review before sending.',409);}}
    // Hold on uncertain provider delivery. Never automatically retry an approval.
    s.draft_status='sending';await store.setJSON(key,c);
    const message=s.reply,goal=s.reply_goal,revision=s.revision;
@@ -106,6 +110,7 @@ export async function handleSmsSignal(request,options={}) {
     c=await store.get(key)||c;s=c.signal;s.draft_status='sent';s.response_message_id=sent.providerMessageId;s.sent_at=at;s.pending_goal=goal;s.previous_outbound=message;s.questions_sent=(s.questions_sent||0)+(question?1:0);s.asked_goals=[...new Set([...(s.asked_goals||[]),...(question?[goal]:[])])];
     const item=[...(c.transcript||[])].reverse().find(x=>x.id===`rc-${sent.providerMessageId}`);if(item)item.signalGoal=goal;
     const ekey=SIGNAL_PREFIX+'events/'+encodeURIComponent(s.inbound_message_id);const event=await store.get(ekey);if(event)await store.setJSON(ekey,{...event,response_message_id:sent.providerMessageId,reply_sent_at:at});
+    if(s.copilot_draft)try{await copilotService(soloRepository(options.env.COVERAGEFIT_DB,identity(options.env)),options.env).sent(s.copilot_draft,message,sent.providerMessageId);}catch{/* Delivery succeeded; telemetry failure must never trigger a resend. */}
    }catch(e){s.draft_status='delivery_review';s.reply='';await store.setJSON(key,c);await writeOpsAudit(store,'signal_delivery_review',{conversationId:c.id,detail:'Delivery outcome requires RingCentral verification. No automatic retry.'},options);return fail('Delivery needs review in RingCentral. Do not retry blindly.',502);}
   }else return fail('Unsupported signal action');
   s.revision=(s.revision||0)+1;c.signal=s;c.updatedAt=at;await store.setJSON(key,c,{metadata:{updatedAt:at,createdAt:c.createdAt||at}});
