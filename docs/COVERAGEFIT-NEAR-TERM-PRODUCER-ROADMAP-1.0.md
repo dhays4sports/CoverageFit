@@ -1,5 +1,19 @@
 # CoverageFit Near-Term Producer Roadmap
 
+## COMMITMENT-ORIENTED ENGAGEMENT — IMPLEMENTATION ORDER (PRINCIPAL-LOCKED 2026-10-16)
+
+[Governed engagement specification](CF-SIGNAL-COMMITMENT-ENGAGEMENT-1.0.md) applies **inside the existing seven-phase sequence**. It does not create another command center, CRM, messaging gateway or autonomous-agent platform.
+
+- **Preserve now:** complete #24 read-only Cloudflare inventory/hosted-read authorization, verified RingCentral campaign/automation/source restrictions and current provider-status/error evidence; do not alter provider, CRM or deployment configuration.
+- **Begin immediately in synthetic SHADOW:** reuse `signal-dynamic-planner.mjs` to propose commitment-first/choice-first/question-first as a non-authorizing *presentation/handoff strategy*, leaving Decision 2 and current C1/C2 results intact. Test STOP, CONTROL/TEST, ambiguous identity, purchased lists, existing commitments, real customer time/producer preference and explicit calls/quote requests. Never issue SMS.
+- **Next safe engineering:** 1k/5k overlapping cohorts, lead-source/permission segmentation, message and producer capacity forecasts, expiry/revision-safe scheduling, ambiguous receipt holds, AI-exception fallback, and vertical BUYER/HOME/AUTO/LIFE collision tests; SHADOW only.
+- **Future gated operation:** improve actual delivery reliability before live autonomous follow-up; resolve calendar confirmation and producer fulfillment; migrate one approved AgencyZoom cadence family at a time only after owner/agency approval, duplicate-job reconciliation and a reversible provider canary.
+
+**Economic acceptance:** useful held conversations / eligible attempted prospect, producer minutes / useful conversation, callback fulfillment, quote/bind/written premium, SMS error categories, redundant questions/booking prompts and suppression. Appointment *offered*, *confirmed* and *attended* are different outcomes. Real September–October SMS observations suggest both callback invitations and text assistance can produce traction, but do not prove causal uplift. There is no requirement to run a new experiment before fixing demonstrated workflow defects.
+
+---
+
+
 **Latest implementation status — 2026-10-14:** see [Roadmap 3.0 integration readiness](CF-ROADMAP-3-INTEGRATION-READINESS.md) for refreshed #7→#21 refs, tests and release gaps. Local E2/C1/C2/Current Decision C3/Producer Integration C4 are tested; global Today selection and hosted adapter acceptance remain incomplete. The older phase snapshots below retain their historical meaning and authority gates. No merge, live canary or measured producer economics is implied.
 
 **Document:** CF-NEAR-TERM-PRODUCER-ROADMAP-1.0  
