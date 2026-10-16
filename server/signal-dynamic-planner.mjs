@@ -53,3 +53,46 @@ export function planSignal(profile,{
  if(missing.length)return done('ASK ONE QUESTION','MISSING_FACT','One material fact remains unknown.',{question_field:missing[0]});
  return done('QUOTE PREPARATION','QUALIFICATION_FACTS_PRESENT','Review known facts for quote preparation; this does not establish quote eligibility.',{producer_attention:true});
 }
+
+// Commitment-oriented engagement is an advisory C1 projection, not Decision 2 or an SMS sender.
+export const ENGAGEMENT_PROPOSAL_BUILD='CF-SIGNAL-COMMITMENT-SHADOW-0.1';
+export function proposeSignalEngagement(plan,{profile,contact={},now}={}){
+  // Advisory on top of the current C1 action. Never execution authority or a new decision engine.
+  if(!plan||plan.mode!=='SHADOW_ONLY'||plan.execution_eligibility?.sms!==false||plan.execution_eligibility?.call!==false||plan.execution_eligibility?.external!==false)
+    throw Error('shadow_only_plan_required');
+  if(!profile?.projection_version||plan.profile_version!==profile.projection_version||profile.as_of!==now||!Number.isFinite(Date.parse(now))||!profile.facts)
+    throw Error('engagement_profile_revision_mismatch');
+  const base={build:ENGAGEMENT_PROPOSAL_BUILD,mode:'SHADOW_ONLY',profile_version:profile.projection_version,
+    source_action:plan.action,source_reason_category:plan.reason_category,strategy:'HOLD',next_step:'NONE',
+    rationale:'No automatic customer outreach is authorized.',requires_canonical_review:false,
+    producer_handoff:false,execution_eligibility:{sms:false,call:false,external:false,reason:'SHADOW_ONLY'},
+    messages_sent:0,provider_calls:0,calendar_actions:0,model_calls:0};
+  const result=(strategy,next_step,rationale,extra={})=>({...base,strategy,next_step,rationale,...extra});
+  if(plan.held||['STOP','CLOSE','NO ACTION','HUMAN REVIEW'].includes(plan.action))
+    return result('HOLD','NONE','Governed decision requires no outreach or a held producer review.');
+  if(plan.action==='LATER')
+    return result('WAIT','REEVALUATE_WHEN_DUE','Preserve the canonical wait/commitment instead of adding a message.');
+  if(plan.action==='CALL')
+    return result('HUMAN_HANDOFF','PRODUCER_CALL','The existing governed call decision outranks further qualification.',{producer_handoff:true});
+  if(plan.action==='QUOTE PREPARATION')
+    return result('HUMAN_HANDOFF','PRODUCER_QUOTE_REVIEW','Quote preparation/review outranks further scripted questions.',{producer_handoff:true});
+  if(plan.action!=='ASK ONE QUESTION')
+    return result('HOLD','NONE','Unrecognized governed action; no outreach candidate.');
+  if(!Array.isArray(plan.contact_restrictions)||plan.contact_restrictions.length||contact.sms_permission!==true
+    ||contact.verified_first_party_inquiry!==true||contact.acquisition_type!=='first_party')
+    return result('HOLD','NONE','No verified first-party SMS route and owner context for this candidate.');
+  const known=k=>profile.facts[k]?.status==='KNOWN'&&profile.facts[k]?.verification!=='inference';
+  const pref=String(known('preferred_channel')?profile.facts.preferred_channel.value:contact.explicit_channel_preference||'').toUpperCase();
+  if(pref==='EMAIL'||pref==='CALL')
+    return result('HOLD','PRODUCER_CHANNEL_REVIEW','Honor recorded non-SMS channel preference; SMS proposal held.',{producer_handoff:true});
+  if(pref==='TEXT'||pref==='SMS')
+    return result('QUESTION_FIRST','ASK_ONE_MATERIAL_FACT','Customer requested text assistance; ask only the governed missing fact.');
+  if(known('closing_date')&&typeof profile.facts.closing_date.value==='string'
+    &&/^\d{4}-\d{2}-\d{2}$/.test(profile.facts.closing_date.value)){
+    const closing=Date.parse(profile.facts.closing_date.value+'T00:00:00Z');
+    const days=(closing-Date.parse(now))/86400000;
+    if(Number.isFinite(days)&&days>=-1&&days<=14)
+      return result('COMMITMENT_FIRST','PROPOSE_PRODUCER_HELP','Near-term closing merits commitment/handoff review before more intake.',{requires_canonical_review:true,producer_handoff:true});
+  }
+  return result('CHOICE_FIRST','PROPOSE_CALL_OR_TEXT_CHOICE','Offer an appropriate call/text path rather than requiring a multi-question interview.',{requires_canonical_review:true});
+}
