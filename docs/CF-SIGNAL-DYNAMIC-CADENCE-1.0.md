@@ -1,5 +1,20 @@
 # CF-SIGNAL-DYNAMIC-CADENCE-1.0 — Evidence-Driven Engagement Orchestration
 
+## 2026-10-16 LOCKED CHILD — Commitment-Oriented Engagement + Shared Delivery Governance
+
+Apply [CF-SIGNAL-COMMITMENT-ENGAGEMENT-1.0](CF-SIGNAL-COMMITMENT-ENGAGEMENT-1.0.md) as the **P1 customer-engagement policy of this existing cadence**. The primary target is the next **valuable fulfilled commitment**, not the next question or another scheduled SMS.
+
+1. Preserve canonical C1 decision and Decision 2 precedences. Add a **SHADOW-only subordinate strategy**: commitment-first for approved high-intent needs/explicit producer requests, choice-first for permitted fresh inquiries with unknown channel preference, question-first for a genuinely needed field or a clear text preference. A strategy never changes send authorization or silently overrides C1 action.
+2. Route customer-chosen texting into the existing BUYER/HOME/AUTO/LIFE/BUNDLE/BUSINESS/TECH vertical flows; route a call/quote request into human-owned commitment/quote preparation instead of forcing more intake turns.
+3. Distinguish evaluation due time, channel-eligible window and provider transmission slot. Future Delivery Governor, forward cohort capacity forecasts, recipient/producer backpressure and failure-code classification extend the current guarded gateway rather than duplicate it.
+4. A confirmed or proposed callback, new inbound, provider ambiguity, producer takeover and STOP invalidate or hold stale outbound steps. One active owner per AgencyZoom/CoverageFit workflow family; no competing campaigns.
+5. Treat bulk/vendor acquisition classification and lawful SMS eligibility as separate. Never schedule purchased/third-party-generated list SMS on RingCentral. A documented 40/minute sending figure is neither verified account throughput nor permission to automate.
+
+**First increment:** add a pure proposal helper to the existing C1 module plus no-send tests only. No new runtime sender/schedule, schema, API, model invocation, provider subscription or PR merge follows from this adoption. Continue #24 hosted isolation inventory as the next external dependency.
+
+---
+
+
 **Terminology/status reconciliation — 2026-10-14:** [Verified integration report](CF-ROADMAP-3-INTEGRATION-READINESS.md). Local C1 planning and C2 durable evaluation are implemented/tested on #18/#19; feedback behavior is covered by the E2/C1/C2 spine. Current Decision Integrity C3 (#20) and **Producer Integration C4 (#21)** are separately named engineering slices. They do not complete this document's **Dynamic Cadence C4 authorized communication canary**, which remains **UNAPPROVED AND UNIMPLEMENTED**. The C3 feedback label below is historical roadmap terminology, not the #20 slice name. Earlier future/next-work language is superseded only for local engineering status; live agency/provider/Production authority gates remain unchanged.
 
 **Status:** PRINCIPAL-APPROVED P1 DESIGN / TEST-ONLY ENGINEERING CONTRACT — NOT A LIVE CADENCE  
