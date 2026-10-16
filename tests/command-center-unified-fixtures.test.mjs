@@ -7,6 +7,9 @@ import {DatabaseSync} from 'node:sqlite';
 import {readFileSync,readdirSync} from 'node:fs';
 import {generateCommandCenterFixturePackage} from '../scripts/prepare-command-center-preview-fixtures.mjs';
 import {handleSoloDesk} from '../server/solo-desk-api.mjs';
+// Freeze the synthetic fixture clock at test start: attention freshness is 48h
+// and the legacy producer-work projection uses wall time, not the API test clock.
+const FIXTURE_NOW=new Date();
 const runId='qa-unified-package-test-20261012',workspace='qa-unified-test',head='c'.repeat(40);
 function setup(){
  const sql=new DatabaseSync(':memory:');
@@ -15,13 +18,13 @@ function setup(){
  const db={prepare(q){let args=[];const stmt={bind(...v){args=v;return stmt},async first(){return sql.prepare(q).get(...args)||null},async all(){return {results:sql.prepare(q).all(...args)}},async run(){return {meta:sql.prepare(q).run(...args)}}};return stmt},async batch(stmts){sql.exec('BEGIN');try{const r=[];for(const x of stmts)r.push(await x.run());sql.exec('COMMIT');return r}catch(e){sql.exec('ROLLBACK');throw e}}};
  const env={COVERAGEFIT_DB:db,COVERAGEFIT_SOLO_WORKSPACE_ID:workspace,COVERAGEFIT_PRODUCER_ACCESS_TOKEN:'synthetic-pass-only-access-token',CF_ATTENTION_ENABLED:'1',CF_AI_ENABLED:'0',CF_COMMAND_CENTER_READONLY_ENABLED:'1',CF_PROSPECT_360_READONLY_ENABLED:'1',CF_SMS_REVIEW_READONLY_ENABLED:'1'};
  const api=async(path)=>{
-  const response=await handleSoloDesk({request:new Request('https://synthetic.test/api/solo-desk/'+path,{headers:{Authorization:'Bearer '+env.COVERAGEFIT_PRODUCER_ACCESS_TOKEN}}),env,now:new Date('2026-10-12T22:00:00Z')});
+  const response=await handleSoloDesk({request:new Request('https://synthetic.test/api/solo-desk/'+path,{headers:{Authorization:'Bearer '+env.COVERAGEFIT_PRODUCER_ACCESS_TOKEN}}),env,now:FIXTURE_NOW});
   return {status:response.status,body:await response.json()};
  };
  return {sql,api};
 }
 test('single SQL package adds twelve fictional fixtures, never deletes, updates, or duplicates',()=>{
- const p=generateCommandCenterFixturePackage({runId,workspaceId:workspace,head,now:new Date('2026-10-12T22:00:00Z')});
+ const p=generateCommandCenterFixturePackage({runId,workspaceId:workspace,head,now:FIXTURE_NOW});
  assert.equal(Object.keys(p.fixtures).length,12);
  assert.equal(new Set(Object.values(p.fixtures)).size,12);
  assert.doesNotMatch(p.sql,/\bDELETE FROM\b|\bUPDATE\s+\w+\s+SET\b/i);
@@ -38,7 +41,7 @@ test('single SQL package adds twelve fictional fixtures, never deletes, updates,
  }finally{f.sql.close()}
 });
 test('one seeded Preview fixture package exercises hosted-equivalent Today, Inbox, Prospect and selected draft APIs',async()=>{
- const p=generateCommandCenterFixturePackage({runId,workspaceId:workspace,head,now:new Date('2026-10-12T22:00:00Z')});
+ const p=generateCommandCenterFixturePackage({runId,workspaceId:workspace,head,now:FIXTURE_NOW});
  const f=setup();try{
   f.sql.exec(p.sql);
   const command=await f.api('producer-command-center');
@@ -91,7 +94,7 @@ test('P0 designated GET endpoints preserve every stored row and SQLite change co
   const queue=signalEvaluationQueueLocal(f.sql,{syntheticOnly:true});
   assert.equal(queue.memory.admit(memoryEvent('readonly-event',undefined,{workspace_id:workspace,profile_id:'read-only-queue-prospect'}),{now:memoryNow}).code,'ADMITTED');
   queue.setContext(workspace,'read-only-queue-prospect',{population:'DISTRICT_SIGNAL',workflowOwner:'AGENCYZOOM'},{now:memoryNow,requestId:'read-context',authority:{actor:'synthetic-test',reference:'local-mandate'}});
-  const p=generateCommandCenterFixturePackage({runId,workspaceId:workspace,head,now:new Date('2026-10-12T22:00:00Z')});
+  const p=generateCommandCenterFixturePackage({runId,workspaceId:workspace,head,now:FIXTURE_NOW});
   f.sql.exec(p.sql);
   const snapshot=()=>Object.fromEntries(f.sql.prepare("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").all().map(({name})=>[name,f.sql.prepare('SELECT * FROM "'+name.replaceAll('"','""')+'"').all().map(r=>JSON.stringify(r)).sort()]));
   const id=p.fixtures.review_pending;
