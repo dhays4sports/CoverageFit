@@ -1,5 +1,16 @@
 # CoverageFit Current State
 
+## STRATEGIC ENGAGEMENT DECISION — 2026-10-16
+
+**Principal direction LOCKED, implementation/release NOT approved:** CoverageFit will pursue a **Unified Insurance Growth & Relationship Operating System** with [commitment-oriented engagement](CF-SIGNAL-COMMITMENT-ENGAGEMENT-1.0.md): prioritize fulfilled call/quote commitments or meaningful help over repeated SMS questions; support customer-selected text; preserve BUYER/HOME/AUTO/LIFE deterministic journeys; rely on optional bounded AI for ambiguity rather than an always-on chatbot. Retain one Evidence Flywheel, canonical SIGNAL Decision 2, dynamic evaluation cadence, same guarded outbound gateway, single workflow owner and proposed future delivery/capacity governance.
+
+**Historical signal:** A privacy-minimized RingCentral review showed callback/time commitments, text-first qualification advancing to proposals, as well as repeated booking prompts and significant observed SMS failure statuses. These are observational clues, not proof of comparative conversion or delivered-handset/revenue causality. Do not copy customer transcripts to the repository.
+
+**First proposed engineering increment:** pure synthetic no-send engagement proposal on top of existing C1, with exact-head tests. No hosted C4 provider messaging, D1 migration, customer-data access, AgencyZoom change, automation entitlement or GitHub merge is authorized. **P0 remains [draft #24](https://github.com/dhays4sports/CoverageFit/pull/24) Section H sanitized read-only Cloudflare account inventory**, then isolated hosted-read acceptance. RingCentral's actual registered automated messaging use-case/throughput and failure reasons remain unverified for the proposed live cadence.
+
+---
+
+
 ## Latest portable read engineering acceptance — 2026-10-14
 
 The [hosted-read integrity acceptance package](CF-HOSTED-READ-INTEGRITY-ACCEPTANCE.md) continues draft #22 `80cb58ae7793d7bccabd084ffce1994f284cfdba`. A synthetic-only, runtime-neutral reader hydrates bounded attention/detail state in one SQL statement with eight parameters, reusing canonical E2/C3 semantics. Local suite: 672/672; immutable #22 comparison: 11/11; actual synthetic benchmarks cover 1,000–50,000 prospects with material evidence history. Exact new draft head and CI are in its PR body. All existing PRs remain draft/unmerged.
