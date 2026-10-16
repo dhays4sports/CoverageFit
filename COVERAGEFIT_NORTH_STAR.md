@@ -1,5 +1,18 @@
 # CoverageFit North Star
 
+## COMMITMENT-ORIENTED UNIFIED ENGAGEMENT — PRINCIPAL-LOCKED (2026-10-16)
+
+**Product identity:** CoverageFit is a **Unified Insurance Growth & Relationship Operating System**; its purpose is more useful, compliant customer conversations, fulfilled commitments and verified written premium with less producer effort. **Optimize the smallest effective step toward a fulfilled outcome—not automatically the smallest missing qualification question.** Preserve one Prospect Memory, one SIGNAL decision/attention owner and one guarded outbound gateway.
+
+**P1 engagement doctrine:** [SIGNAL Commitment-Oriented Engagement 1.0](docs/CF-SIGNAL-COMMITMENT-ENGAGEMENT-1.0.md) governs the choice between **commitment-first** (timely producer call/quote review), **choice-first** (call or text), and **question-first** (minimal deterministic BUYER/HOME/AUTO/LIFE/etc. intake). Customer choice and producer handoff outrank forcing completion of a questionnaire. The five Decision 2 actions remain unchanged. AI interpretation remains optional and bounded; deterministic authority, delivery, scheduling and safety never defer to LLM generation.
+
+**P1 reliability and scaling:** Existing Dynamic Cadence must share a future **Delivery Governor** and commitment arbitration, considering 7–30-day cohort congestion, verified per-sender/provider authorization, actual delivery errors, producer capacity, and an explicit distinction between imported inventory and SMS-eligible outreach. **AgencyZoom remains the active district cadence owner** pending individually approved migration. No purchased/third-party RingCentral list SMS, independent parallel schedulers, auto-sends or customer-data use is authorized. [Draft hosted preflight #24](https://github.com/dhays4sports/CoverageFit/pull/24) retains P0 priority: sanitized Cloudflare inventory before hosted acceptance.
+
+**Adoption classification:** Strategic direction LOCKED; subsequent implementation starts as pure no-send SHADOW on a stacked draft branch. Neither this North Star nor user endorsement of the product direction grants an external send, provider/CRM change, database migration, merge or production deployment.
+
+---
+
+
 ## HIGH-PRIORITY EXECUTION NORTH STAR — AUTONOMOUS INSURANCE GROWTH 3.0 (principal-approved 2026-10-13)
 
 **Authoritative detailed plan:** [CF-AUTONOMOUS-GROWTH-ROADMAP-3.0](docs/COVERAGEFIT-AUTONOMOUS-GROWTH-ROADMAP-3.0.md). **Status: HIGH PRIORITY; adopted to guide future CoverageFit + SIGNAL engineering and product decisions.** This is the *execution priority* within the Unified Product North Star below; it does **not** remove the long-term consumer protection vision or loosen STOP, identity, consent, agency/provider, real-data or release authority.
