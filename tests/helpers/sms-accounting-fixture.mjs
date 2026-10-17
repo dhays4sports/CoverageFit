@@ -1,0 +1,17 @@
+import {DatabaseSync} from 'node:sqlite';
+import {mkdtempSync,readFileSync,rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {smsDurableAccountingLocal} from '../../server/sms-durable-action-accounting-local.mjs';
+export const NOW=Date.parse('2026-10-20T16:00:00Z'),W='synthetic-workspace';
+export function authority(extra={}){return {synthetic:true,recipient:'+12025550101',identityVerified:true,sourceRights:true,sourceType:'first_party',sourceRef:'fixture-source',smsPermission:true,permissionRef:'fixture-permission',purpose:'assistance',preference:'SMS',suppressed:false,wrongNumber:false,providerOptOut:false,control:false,takeover:false,owners:{HOME:{owner:'COVERAGEFIT_APPROVED',epoch:1,exclusive:true},AUTO:{owner:'COVERAGEFIT_APPROVED',epoch:1,exclusive:true}},campaigns:[{sender:'synthetic-sender',campaign:'synthetic-campaign',authorized:true,reference:'fixture-campaign'}],profileVersion:'profile-1',contextVersion:'context-1',decisionRef:'decision-1',generation:1,validUntil:new Date(NOW+86400000).toISOString(),windowStart:new Date(NOW-60000).toISOString(),windowEnd:new Date(NOW+86400000).toISOString(),evidenceRefs:['fixture-source'],actor:'fixture-actor',reference:'fixture-authority',...extra};}
+export function input(r='relationship-1',extra={}){return {synthetic:true,workspace:W,relationship:r,family:'HOME',intent:'assistance',businessEvent:'request-1',decisionRef:'decision-1',profileVersion:'profile-1',contextVersion:'context-1',generation:1,ownerEpoch:1,sender:'synthetic-sender',campaign:'synthetic-campaign',notBefore:NOW,expiresAt:NOW+3600000,descriptor:{to:'+12025550101',message:'Fictional assistance request',origin:'coveragefit',workflow:'coveragefit_home_review',replyRoute:'coveragefit',ownershipEffect:'preserve'},...extra};}
+export function open(path){const db=new DatabaseSync(path);return {db,ledger:smsDurableAccountingLocal(db,{syntheticOnly:true})};}
+export function fixture({rate=10,reserve=0,gap=60000,externalKnown=true}={}){
+ const dir=mkdtempSync(join(tmpdir(),'cf-action04-')),path=join(dir,'ledger.sqlite'),providerPath=join(dir,'provider.sqlite'),db=new DatabaseSync(path);
+ db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL;');db.exec(readFileSync(new URL('../migrations/0024_sms_action_accounting_local.sql',import.meta.url),'utf8'));
+ const ledger=smsDurableAccountingLocal(db,{syntheticOnly:true});ledger.setSender('synthetic-sender',{rate,reserve,recipientGapMs:gap,externalKnown},{now:NOW,reference:'fixture-sender'});
+ return {dir,path,providerPath,db,ledger,seed(r='relationship-1',patch={}){ledger.setAuthority(W,r,authority(patch),{now:NOW});return input(r)},cleanup(){try{db.close()}catch{}rmSync(dir,{recursive:true,force:true})}};
+}
+export function start(f,raw=f.seed(),now=NOW){const admitted=f.ledger.admit(raw,{now}),claim=f.ledger.claim(raw.workspace,admitted.action_id,{now,worker:'fixture-worker'}),reservation=f.ledger.reserve(claim,{now}),ticket=f.ledger.beginSubmission(claim,reservation.attempt_id,{now});return {raw,admitted,claim,reservation,ticket};}
+export function evidence(ticket,extra={}){return {evidence_id:'evidence-1',actor:'fixture-reconciler',reference:'fixture-provider-receipt',authoritative:true,workspace:ticket.workspace,action_id:ticket.action_id,attempt_id:ticket.attempt_id,gateway_key:ticket.gateway_key,sender:ticket.sender,campaign:ticket.campaign,payload_digest:ticket.payload_digest,provider_scope:ticket.sender,provider_id:'synthetic-provider-1',outcome:'ACCEPTED',...extra};}
