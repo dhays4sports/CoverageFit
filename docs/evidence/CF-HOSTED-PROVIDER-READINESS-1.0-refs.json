@@ -1,0 +1,483 @@
+{
+  "observed_at_utc": "2026-10-17T01:23:48.290Z",
+  "main": {
+    "sha": "2cafacb7d0e8b7c05479758c66c46c5b13f16802",
+    "protected": false,
+    "rulesets": []
+  },
+  "pull_requests": [
+    {
+      "n": 7,
+      "head": "ad2915a7889637580505293ce38ab4db66f0a9b3",
+      "branch": "signal-copilot",
+      "base": "5f47f2b7367110ca04ff03cc189983f136ab32fa",
+      "baseBranch": "main",
+      "draft": true,
+      "merged": false,
+      "files": 39
+    },
+    {
+      "n": 16,
+      "head": "5cfa79f4d01a8d9a3bf558c44d019064ca477f2a",
+      "branch": "integration/command-center-unified-certification-20261012",
+      "base": "ad2915a7889637580505293ce38ab4db66f0a9b3",
+      "baseBranch": "signal-copilot",
+      "draft": true,
+      "merged": false,
+      "files": 49
+    },
+    {
+      "n": 17,
+      "head": "247b708d2615c0caa72d2a95402a59507ccf9b45",
+      "branch": "feature/p1-continuous-evidence-shadow-20261014",
+      "base": "5cfa79f4d01a8d9a3bf558c44d019064ca477f2a",
+      "baseBranch": "integration/command-center-unified-certification-20261012",
+      "draft": true,
+      "merged": false,
+      "files": 3
+    },
+    {
+      "n": 18,
+      "head": "33d6a48b448e224b878d075a3348d9ae5caf5369",
+      "branch": "engineering/adaptive-memory-e2-20261014",
+      "base": "247b708d2615c0caa72d2a95402a59507ccf9b45",
+      "baseBranch": "feature/p1-continuous-evidence-shadow-20261014",
+      "draft": true,
+      "merged": false,
+      "files": 19
+    },
+    {
+      "n": 19,
+      "head": "01a58c57857c63cbb5c7c426f8ebc38d73d96f2d",
+      "branch": "engineering/c2-evaluation-queue-20261014",
+      "base": "33d6a48b448e224b878d075a3348d9ae5caf5369",
+      "baseBranch": "engineering/adaptive-memory-e2-20261014",
+      "draft": true,
+      "merged": false,
+      "files": 11
+    },
+    {
+      "n": 20,
+      "head": "0098c34b5dc25d1c35816ed8c9b30f606f48a76d",
+      "branch": "engineering/c3-current-decision-20261014",
+      "base": "01a58c57857c63cbb5c7c426f8ebc38d73d96f2d",
+      "baseBranch": "engineering/c2-evaluation-queue-20261014",
+      "draft": true,
+      "merged": false,
+      "files": 8
+    },
+    {
+      "n": 21,
+      "head": "e40d0367921640cd40987d57073125d4921b3416",
+      "branch": "engineering/c4-producer-intelligence-20261014",
+      "base": "0098c34b5dc25d1c35816ed8c9b30f606f48a76d",
+      "baseBranch": "engineering/c3-current-decision-20261014",
+      "draft": true,
+      "merged": false,
+      "files": 29
+    },
+    {
+      "n": 22,
+      "head": "80cb58ae7793d7bccabd084ffce1994f284cfdba",
+      "branch": "engineering/global-producer-attention-20261014",
+      "base": "e40d0367921640cd40987d57073125d4921b3416",
+      "baseBranch": "engineering/c4-producer-intelligence-20261014",
+      "draft": true,
+      "merged": false,
+      "files": 18
+    },
+    {
+      "n": 23,
+      "head": "6276412d7c317d66283159b5f4edbd0ea883e020",
+      "branch": "engineering/hosted-read-integrity-20261014",
+      "base": "80cb58ae7793d7bccabd084ffce1994f284cfdba",
+      "baseBranch": "engineering/global-producer-attention-20261014",
+      "draft": true,
+      "merged": false,
+      "files": 21
+    },
+    {
+      "n": 24,
+      "head": "7248ce2eb2677c142c767a66a0d87c8dfebdac4a",
+      "branch": "docs/hosted-validation-preflight-20261014",
+      "base": "6276412d7c317d66283159b5f4edbd0ea883e020",
+      "baseBranch": "engineering/hosted-read-integrity-20261014",
+      "draft": true,
+      "merged": false,
+      "files": 5
+    },
+    {
+      "n": 26,
+      "head": "2bd96562f30941d00b5380c3bd49e7f5c8a4aa29",
+      "branch": "feature/signal-commitment-engagement-20261016",
+      "base": "229b0f83db7f885c18940f7087ea6e6ce7cd4e7a",
+      "baseBranch": "docs/hosted-validation-preflight-20261014",
+      "draft": true,
+      "merged": false,
+      "files": 9
+    },
+    {
+      "n": 27,
+      "head": "dd5362312a4a136e0cedbf4f94456f249637ecbb",
+      "branch": "engineering/engagement-capacity-shadow-02",
+      "base": "2bd96562f30941d00b5380c3bd49e7f5c8a4aa29",
+      "baseBranch": "feature/signal-commitment-engagement-20261016",
+      "draft": true,
+      "merged": false,
+      "files": 7
+    },
+    {
+      "n": 28,
+      "head": "9ef8b5062be1a0f6ab17c8ba728f45d1afbf1057",
+      "branch": "audit/sms-delivery-contract-03",
+      "base": "dd5362312a4a136e0cedbf4f94456f249637ecbb",
+      "baseBranch": "engineering/engagement-capacity-shadow-02",
+      "draft": true,
+      "merged": false,
+      "files": 2
+    },
+    {
+      "n": 29,
+      "head": "c91c1caa907392d64f0149a8ef1c83f611bb3a9b",
+      "branch": "engineering/sms-durable-accounting-04",
+      "base": "9ef8b5062be1a0f6ab17c8ba728f45d1afbf1057",
+      "baseBranch": "audit/sms-delivery-contract-03",
+      "draft": true,
+      "merged": false,
+      "files": 9
+    }
+  ],
+  "ci": [
+    {
+      "pr": 7,
+      "runs": [
+        {
+          "id": 38305917703,
+          "event": "push",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ad2915a7889637580505293ce38ab4db66f0a9b3"
+        },
+        {
+          "id": 37896114359,
+          "event": "pull_request",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ad2915a7889637580505293ce38ab4db66f0a9b3"
+        },
+        {
+          "id": 37896110516,
+          "event": "push",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ad2915a7889637580505293ce38ab4db66f0a9b3"
+        }
+      ]
+    },
+    {
+      "pr": 16,
+      "runs": [
+        {
+          "id": 38560019748,
+          "event": "pull_request",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5cfa79f4d01a8d9a3bf558c44d019064ca477f2a"
+        },
+        {
+          "id": 38560012191,
+          "event": "push",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5cfa79f4d01a8d9a3bf558c44d019064ca477f2a"
+        }
+      ]
+    },
+    {
+      "pr": 17,
+      "runs": [
+        {
+          "id": 38595331971,
+          "event": "pull_request",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "247b708d2615c0caa72d2a95402a59507ccf9b45"
+        },
+        {
+          "id": 38595322944,
+          "event": "push",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "247b708d2615c0caa72d2a95402a59507ccf9b45"
+        }
+      ]
+    },
+    {
+      "pr": 18,
+      "runs": [
+        {
+          "id": 38595837887,
+          "event": "pull_request",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "33d6a48b448e224b878d075a3348d9ae5caf5369"
+        },
+        {
+          "id": 38595766936,
+          "event": "push",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "33d6a48b448e224b878d075a3348d9ae5caf5369"
+        }
+      ]
+    },
+    {
+      "pr": 19,
+      "runs": [
+        {
+          "id": 38600164028,
+          "event": "pull_request",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "01a58c57857c63cbb5c7c426f8ebc38d73d96f2d"
+        },
+        {
+          "id": 38600082788,
+          "event": "push",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "01a58c57857c63cbb5c7c426f8ebc38d73d96f2d"
+        }
+      ]
+    },
+    {
+      "pr": 20,
+      "runs": [
+        {
+          "id": 38603599926,
+          "event": "pull_request",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "0098c34b5dc25d1c35816ed8c9b30f606f48a76d"
+        },
+        {
+          "id": 38603518868,
+          "event": "push",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "0098c34b5dc25d1c35816ed8c9b30f606f48a76d"
+        }
+      ]
+    },
+    {
+      "pr": 21,
+      "runs": [
+        {
+          "id": 38610683536,
+          "event": "pull_request",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "e40d0367921640cd40987d57073125d4921b3416"
+        },
+        {
+          "id": 38610674599,
+          "event": "push",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "e40d0367921640cd40987d57073125d4921b3416"
+        }
+      ]
+    },
+    {
+      "pr": 22,
+      "runs": [
+        {
+          "id": 38615380877,
+          "event": "pull_request",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "80cb58ae7793d7bccabd084ffce1994f284cfdba"
+        },
+        {
+          "id": 38615342812,
+          "event": "push",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "80cb58ae7793d7bccabd084ffce1994f284cfdba"
+        }
+      ]
+    },
+    {
+      "pr": 23,
+      "runs": [
+        {
+          "id": 38628149799,
+          "event": "pull_request",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "6276412d7c317d66283159b5f4edbd0ea883e020"
+        },
+        {
+          "id": 38628141934,
+          "event": "push",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "6276412d7c317d66283159b5f4edbd0ea883e020"
+        }
+      ]
+    },
+    {
+      "pr": 24,
+      "runs": [
+        {
+          "id": 38984453766,
+          "event": "pull_request",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "7248ce2eb2677c142c767a66a0d87c8dfebdac4a"
+        },
+        {
+          "id": 38984449476,
+          "event": "push",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "7248ce2eb2677c142c767a66a0d87c8dfebdac4a"
+        }
+      ]
+    },
+    {
+      "pr": 26,
+      "runs": [
+        {
+          "id": 38982319631,
+          "event": "pull_request",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "2bd96562f30941d00b5380c3bd49e7f5c8a4aa29"
+        },
+        {
+          "id": 38982315282,
+          "event": "push",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "2bd96562f30941d00b5380c3bd49e7f5c8a4aa29"
+        }
+      ]
+    },
+    {
+      "pr": 27,
+      "runs": [
+        {
+          "id": 38985671591,
+          "event": "pull_request",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "dd5362312a4a136e0cedbf4f94456f249637ecbb"
+        },
+        {
+          "id": 38985650523,
+          "event": "push",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "dd5362312a4a136e0cedbf4f94456f249637ecbb"
+        }
+      ]
+    },
+    {
+      "pr": 28,
+      "runs": [
+        {
+          "id": 38987829406,
+          "event": "pull_request",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "9ef8b5062be1a0f6ab17c8ba728f45d1afbf1057"
+        },
+        {
+          "id": 38987804955,
+          "event": "push",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "9ef8b5062be1a0f6ab17c8ba728f45d1afbf1057"
+        }
+      ]
+    },
+    {
+      "pr": 29,
+      "runs": [
+        {
+          "id": 38989656239,
+          "event": "pull_request",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "c91c1caa907392d64f0149a8ef1c83f611bb3a9b"
+        },
+        {
+          "id": 38989639769,
+          "event": "push",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "c91c1caa907392d64f0149a8ef1c83f611bb3a9b"
+        }
+      ]
+    }
+  ],
+  "pr24_failure": {
+    "run": 38984449476,
+    "job": 117252533122,
+    "tests": 672,
+    "pass": 671,
+    "fail": 1,
+    "test": "one seeded Preview fixture package exercises hosted-equivalent Today, Inbox, Prospect and selected draft APIs",
+    "file": "tests/command-center-unified-fixtures.test.mjs",
+    "downstream_fix": "2bd96562f30941d00b5380c3bd49e7f5c8a4aa29"
+  },
+  "cloudflare": {
+    "account_inspection": "PAUSED_REQUIRES_EXPLICIT_RESUMPTION",
+    "github_check": {
+      "head": "c91c1caa907392d64f0149a8ef1c83f611bb3a9b",
+      "name": "Cloudflare Pages",
+      "conclusion": "success",
+      "project": "coveragefit",
+      "deployment_alias": "433f27aa…946f"
+    },
+    "runtime_and_binding_certification": false
+  },
+  "ringcentral": {
+    "source": "get_my_phone({})",
+    "scope": "authenticated_extension",
+    "extension": {
+      "type": "User",
+      "status": "Enabled"
+    },
+    "numbers": [
+      {
+        "alias": "sender-1",
+        "type": "VoiceFax",
+        "status": "PortedIn",
+        "usageType": "DirectNumber",
+        "communicationFeatures": [
+          "CallerId",
+          "MmsSender",
+          "SmsSender"
+        ]
+      }
+    ],
+    "coverage_complete": true,
+    "customer_records_accessed": false,
+    "limitations": [
+      "No campaign/brand/status/tier fields in semantic tool contract",
+      "No subscription or application OAuth permission inventory tool",
+      "Authenticated connector identity not proven same as deployed app identity"
+    ]
+  },
+  "local_validation": {
+    "node": "24.19.0",
+    "command": "node --test --test-isolation=none --experimental-loader ./tests/json-loader.mjs tests/*.test.mjs",
+    "tests": 782,
+    "pass": 782,
+    "fail": 0,
+    "skipped": 0,
+    "duration_ms": 24506.776516
+  }
+}
