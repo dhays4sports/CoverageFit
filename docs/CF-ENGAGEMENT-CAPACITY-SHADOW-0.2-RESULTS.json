@@ -1,0 +1,2552 @@
+{
+  "build": "CF-ENGAGEMENT-CAPACITY-SHADOW-0.2",
+  "node": "v24.19.0",
+  "platform": "linux",
+  "measurement": "one fresh process per case; synthetic workload, not hosted/provider capacity",
+  "results": [
+    {
+      "size": 1000,
+      "rate": 10,
+      "imports": 1,
+      "days": 7,
+      "construction_ms": 14.806973999999997,
+      "simulation_ms": 905.128621,
+      "evaluations_per_second": 2120.1406689359346,
+      "memory": {
+        "before": {
+          "rss": 61472768,
+          "heapTotal": 12316672,
+          "heapUsed": 8742832,
+          "external": 4864723,
+          "arrayBuffers": 998567
+        },
+        "constructed": {
+          "rss": 65822720,
+          "heapTotal": 18083840,
+          "heapUsed": 11381056,
+          "external": 3892713,
+          "arrayBuffers": 146599
+        },
+        "drained": {
+          "rss": 105013248,
+          "heapTotal": 34861056,
+          "heapUsed": 23377832,
+          "external": 3892713,
+          "arrayBuffers": 146599
+        },
+        "peak_rss_kib": 102552
+      },
+      "result": {
+        "build": "CF-ENGAGEMENT-CAPACITY-SHADOW-0.2",
+        "mode": "SYNTHETIC_ONLY",
+        "now": "2026-10-26T16:00:00.000Z",
+        "counts": {
+          "imported": 1000,
+          "unique": 1000,
+          "source_valid": 1000,
+          "channel_eligible": 667,
+          "evaluated": 1919,
+          "queued": 1254,
+          "duplicate_prevented": 0,
+          "stale": 0,
+          "canceled": 0,
+          "expired": 418,
+          "capacity_violations": 0,
+          "operations": 15734,
+          "peak_events": 501,
+          "evaluated_unique": 1000,
+          "eligible_evaluated_unique": 667,
+          "backlog": 0,
+          "peak_backlog": 418,
+          "avoided_qualification": 249,
+          "window_checks": 190682
+        },
+        "funnel": {
+          "IMPORTED": 1000,
+          "DEDUPLICATED": 1000,
+          "SOURCE_VALID": 1000,
+          "CHANNEL_ELIGIBLE": 667,
+          "ENGAGEMENT_EVALUATED": 667,
+          "APPROVED_FOR_HYPOTHETICAL_QUEUE": 1254,
+          "TRANSMISSION_SLOT_ASSIGNED": 836
+        },
+        "holds": {
+          "PURCHASED_OR_UNKNOWN_SOURCE": 84,
+          "CONTACT_SUPPRESSED": 83,
+          "IDENTITY_HOLD": 83,
+          "OWNERSHIP": 83
+        },
+        "strategies": {
+          "CHOICE_FIRST": 1005,
+          "HOLD": 333,
+          "WAIT": 83,
+          "QUESTION_FIRST": 249,
+          "HUMAN_HANDOFF": 166,
+          "COMMITMENT_FIRST": 83
+        },
+        "daily": {
+          "2026-10-19": {
+            "new_work": 418,
+            "followup_work": 0,
+            "evaluations": 1000,
+            "slots": 418,
+            "backlog": 0,
+            "capacity_available": 3840,
+            "capacity_deferrals": 6362
+          },
+          "2026-10-20": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 11520,
+            "capacity_deferrals": 0
+          },
+          "2026-10-21": {
+            "new_work": 0,
+            "followup_work": 418,
+            "evaluations": 501,
+            "slots": 418,
+            "backlog": 0,
+            "capacity_available": 11520,
+            "capacity_deferrals": 0
+          },
+          "2026-10-22": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 11520,
+            "capacity_deferrals": 0
+          },
+          "2026-10-23": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 11520,
+            "capacity_deferrals": 0
+          },
+          "2026-10-24": {
+            "new_work": 0,
+            "followup_work": 418,
+            "evaluations": 418,
+            "slots": 0,
+            "backlog": 418,
+            "capacity_available": 11520,
+            "capacity_deferrals": 0
+          },
+          "2026-10-25": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 11520,
+            "capacity_deferrals": 0
+          },
+          "2026-10-26": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 7680,
+            "capacity_deferrals": 0
+          }
+        },
+        "work_statuses": {
+          "ASSIGNED": 836,
+          "EXPIRED": 418
+        },
+        "producer_statuses": {
+          "CAPACITY_EXCEPTION": 233,
+          "OFFERED": 16
+        },
+        "producer_actions": {
+          "QUOTE PREPARATION": 83,
+          "ASK ONE QUESTION": 83,
+          "CALL": 83
+        },
+        "sender_utilization": 0.010367063492063492,
+        "wait_ms": {
+          "p50": 0,
+          "p95": 3540000,
+          "max": 3960000
+        },
+        "producer_due": 249,
+        "producer_unfulfilled": 249,
+        "pending_events": 0,
+        "external_actions": 0,
+        "messages_sent": 0,
+        "provider_calls": 0,
+        "calendar_actions": 0,
+        "model_calls": 0,
+        "execution_eligibility": {
+          "sms": false,
+          "call": false,
+          "external": false,
+          "calendar": false,
+          "crm": false,
+          "model": false
+        }
+      }
+    },
+    {
+      "size": 1000,
+      "rate": 20,
+      "imports": 1,
+      "days": 7,
+      "construction_ms": 11.73514400000002,
+      "simulation_ms": 442.29104,
+      "evaluations_per_second": 4338.772044760391,
+      "memory": {
+        "before": {
+          "rss": 61341696,
+          "heapTotal": 12316672,
+          "heapUsed": 8754496,
+          "external": 4864723,
+          "arrayBuffers": 998567
+        },
+        "constructed": {
+          "rss": 64995328,
+          "heapTotal": 18083840,
+          "heapUsed": 11363992,
+          "external": 3892713,
+          "arrayBuffers": 146599
+        },
+        "drained": {
+          "rss": 104161280,
+          "heapTotal": 34861056,
+          "heapUsed": 18656512,
+          "external": 3892713,
+          "arrayBuffers": 146599
+        },
+        "peak_rss_kib": 101720
+      },
+      "result": {
+        "build": "CF-ENGAGEMENT-CAPACITY-SHADOW-0.2",
+        "mode": "SYNTHETIC_ONLY",
+        "now": "2026-10-26T16:00:00.000Z",
+        "counts": {
+          "imported": 1000,
+          "unique": 1000,
+          "source_valid": 1000,
+          "channel_eligible": 667,
+          "evaluated": 1919,
+          "queued": 1254,
+          "duplicate_prevented": 0,
+          "stale": 0,
+          "canceled": 0,
+          "expired": 418,
+          "capacity_violations": 0,
+          "operations": 7466,
+          "peak_events": 501,
+          "evaluated_unique": 1000,
+          "eligible_evaluated_unique": 667,
+          "backlog": 0,
+          "peak_backlog": 418,
+          "avoided_qualification": 249,
+          "window_checks": 74529
+        },
+        "funnel": {
+          "IMPORTED": 1000,
+          "DEDUPLICATED": 1000,
+          "SOURCE_VALID": 1000,
+          "CHANNEL_ELIGIBLE": 667,
+          "ENGAGEMENT_EVALUATED": 667,
+          "APPROVED_FOR_HYPOTHETICAL_QUEUE": 1254,
+          "TRANSMISSION_SLOT_ASSIGNED": 836
+        },
+        "holds": {
+          "PURCHASED_OR_UNKNOWN_SOURCE": 84,
+          "CONTACT_SUPPRESSED": 83,
+          "IDENTITY_HOLD": 83,
+          "OWNERSHIP": 83
+        },
+        "strategies": {
+          "CHOICE_FIRST": 1005,
+          "HOLD": 333,
+          "WAIT": 83,
+          "QUESTION_FIRST": 249,
+          "HUMAN_HANDOFF": 166,
+          "COMMITMENT_FIRST": 83
+        },
+        "daily": {
+          "2026-10-19": {
+            "new_work": 418,
+            "followup_work": 0,
+            "evaluations": 1000,
+            "slots": 418,
+            "backlog": 0,
+            "capacity_available": 8640,
+            "capacity_deferrals": 2228
+          },
+          "2026-10-20": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 25920,
+            "capacity_deferrals": 0
+          },
+          "2026-10-21": {
+            "new_work": 0,
+            "followup_work": 418,
+            "evaluations": 501,
+            "slots": 418,
+            "backlog": 0,
+            "capacity_available": 25920,
+            "capacity_deferrals": 0
+          },
+          "2026-10-22": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 25920,
+            "capacity_deferrals": 0
+          },
+          "2026-10-23": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 25920,
+            "capacity_deferrals": 0
+          },
+          "2026-10-24": {
+            "new_work": 0,
+            "followup_work": 418,
+            "evaluations": 418,
+            "slots": 0,
+            "backlog": 418,
+            "capacity_available": 25920,
+            "capacity_deferrals": 0
+          },
+          "2026-10-25": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 25920,
+            "capacity_deferrals": 0
+          },
+          "2026-10-26": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 17280,
+            "capacity_deferrals": 0
+          }
+        },
+        "work_statuses": {
+          "ASSIGNED": 836,
+          "EXPIRED": 418
+        },
+        "producer_statuses": {
+          "CAPACITY_EXCEPTION": 233,
+          "OFFERED": 16
+        },
+        "producer_actions": {
+          "QUOTE PREPARATION": 83,
+          "ASK ONE QUESTION": 83,
+          "CALL": 83
+        },
+        "sender_utilization": 0.004607583774250441,
+        "wait_ms": {
+          "p50": 0,
+          "p95": 1380000,
+          "max": 1500000
+        },
+        "producer_due": 249,
+        "producer_unfulfilled": 249,
+        "pending_events": 0,
+        "external_actions": 0,
+        "messages_sent": 0,
+        "provider_calls": 0,
+        "calendar_actions": 0,
+        "model_calls": 0,
+        "execution_eligibility": {
+          "sms": false,
+          "call": false,
+          "external": false,
+          "calendar": false,
+          "crm": false,
+          "model": false
+        }
+      }
+    },
+    {
+      "size": 1000,
+      "rate": 25,
+      "imports": 1,
+      "days": 7,
+      "construction_ms": 10.349440999999999,
+      "simulation_ms": 357.945059,
+      "evaluations_per_second": 5361.157953572981,
+      "memory": {
+        "before": {
+          "rss": 61734912,
+          "heapTotal": 12316672,
+          "heapUsed": 8809904,
+          "external": 4864723,
+          "arrayBuffers": 998567
+        },
+        "constructed": {
+          "rss": 65822720,
+          "heapTotal": 18083840,
+          "heapUsed": 11364016,
+          "external": 3892713,
+          "arrayBuffers": 146599
+        },
+        "drained": {
+          "rss": 101015552,
+          "heapTotal": 34861056,
+          "heapUsed": 18325360,
+          "external": 3892713,
+          "arrayBuffers": 146599
+        },
+        "peak_rss_kib": 98648
+      },
+      "result": {
+        "build": "CF-ENGAGEMENT-CAPACITY-SHADOW-0.2",
+        "mode": "SYNTHETIC_ONLY",
+        "now": "2026-10-26T16:00:00.000Z",
+        "counts": {
+          "imported": 1000,
+          "unique": 1000,
+          "source_valid": 1000,
+          "channel_eligible": 667,
+          "evaluated": 1919,
+          "queued": 1254,
+          "duplicate_prevented": 0,
+          "stale": 0,
+          "canceled": 0,
+          "expired": 418,
+          "capacity_violations": 0,
+          "operations": 6240,
+          "peak_events": 501,
+          "evaluated_unique": 1000,
+          "eligible_evaluated_unique": 667,
+          "backlog": 0,
+          "peak_backlog": 418,
+          "avoided_qualification": 249,
+          "window_checks": 57390
+        },
+        "funnel": {
+          "IMPORTED": 1000,
+          "DEDUPLICATED": 1000,
+          "SOURCE_VALID": 1000,
+          "CHANNEL_ELIGIBLE": 667,
+          "ENGAGEMENT_EVALUATED": 667,
+          "APPROVED_FOR_HYPOTHETICAL_QUEUE": 1254,
+          "TRANSMISSION_SLOT_ASSIGNED": 836
+        },
+        "holds": {
+          "PURCHASED_OR_UNKNOWN_SOURCE": 84,
+          "CONTACT_SUPPRESSED": 83,
+          "IDENTITY_HOLD": 83,
+          "OWNERSHIP": 83
+        },
+        "strategies": {
+          "CHOICE_FIRST": 1005,
+          "HOLD": 333,
+          "WAIT": 83,
+          "QUESTION_FIRST": 249,
+          "HUMAN_HANDOFF": 166,
+          "COMMITMENT_FIRST": 83
+        },
+        "daily": {
+          "2026-10-19": {
+            "new_work": 418,
+            "followup_work": 0,
+            "evaluations": 1000,
+            "slots": 418,
+            "backlog": 0,
+            "capacity_available": 11040,
+            "capacity_deferrals": 1615
+          },
+          "2026-10-20": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 33120,
+            "capacity_deferrals": 0
+          },
+          "2026-10-21": {
+            "new_work": 0,
+            "followup_work": 418,
+            "evaluations": 501,
+            "slots": 418,
+            "backlog": 0,
+            "capacity_available": 33120,
+            "capacity_deferrals": 0
+          },
+          "2026-10-22": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 33120,
+            "capacity_deferrals": 0
+          },
+          "2026-10-23": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 33120,
+            "capacity_deferrals": 0
+          },
+          "2026-10-24": {
+            "new_work": 0,
+            "followup_work": 418,
+            "evaluations": 418,
+            "slots": 0,
+            "backlog": 418,
+            "capacity_available": 33120,
+            "capacity_deferrals": 0
+          },
+          "2026-10-25": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 33120,
+            "capacity_deferrals": 0
+          },
+          "2026-10-26": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 22080,
+            "capacity_deferrals": 0
+          }
+        },
+        "work_statuses": {
+          "ASSIGNED": 836,
+          "EXPIRED": 418
+        },
+        "producer_statuses": {
+          "CAPACITY_EXCEPTION": 233,
+          "OFFERED": 16
+        },
+        "producer_actions": {
+          "QUOTE PREPARATION": 83,
+          "ASK ONE QUESTION": 83,
+          "CALL": 83
+        },
+        "sender_utilization": 0.003605935127674258,
+        "wait_ms": {
+          "p50": 0,
+          "p95": 1020000,
+          "max": 1140000
+        },
+        "producer_due": 249,
+        "producer_unfulfilled": 249,
+        "pending_events": 0,
+        "external_actions": 0,
+        "messages_sent": 0,
+        "provider_calls": 0,
+        "calendar_actions": 0,
+        "model_calls": 0,
+        "execution_eligibility": {
+          "sms": false,
+          "call": false,
+          "external": false,
+          "calendar": false,
+          "crm": false,
+          "model": false
+        }
+      }
+    },
+    {
+      "size": 1000,
+      "rate": 40,
+      "imports": 1,
+      "days": 7,
+      "construction_ms": 11.078156000000007,
+      "simulation_ms": 272.771794,
+      "evaluations_per_second": 7035.184876923161,
+      "memory": {
+        "before": {
+          "rss": 61603840,
+          "heapTotal": 12316672,
+          "heapUsed": 8811552,
+          "external": 4864723,
+          "arrayBuffers": 998567
+        },
+        "constructed": {
+          "rss": 65990656,
+          "heapTotal": 18083840,
+          "heapUsed": 11356736,
+          "external": 3892713,
+          "arrayBuffers": 146599
+        },
+        "drained": {
+          "rss": 100315136,
+          "heapTotal": 34861056,
+          "heapUsed": 22586448,
+          "external": 3892713,
+          "arrayBuffers": 146599
+        },
+        "peak_rss_kib": 99500
+      },
+      "result": {
+        "build": "CF-ENGAGEMENT-CAPACITY-SHADOW-0.2",
+        "mode": "SYNTHETIC_ONLY",
+        "now": "2026-10-26T16:00:00.000Z",
+        "counts": {
+          "imported": 1000,
+          "unique": 1000,
+          "source_valid": 1000,
+          "channel_eligible": 667,
+          "evaluated": 1919,
+          "queued": 1254,
+          "duplicate_prevented": 0,
+          "stale": 0,
+          "canceled": 0,
+          "expired": 418,
+          "capacity_violations": 0,
+          "operations": 4578,
+          "peak_events": 501,
+          "evaluated_unique": 1000,
+          "eligible_evaluated_unique": 667,
+          "backlog": 0,
+          "peak_backlog": 418,
+          "avoided_qualification": 249,
+          "window_checks": 34482
+        },
+        "funnel": {
+          "IMPORTED": 1000,
+          "DEDUPLICATED": 1000,
+          "SOURCE_VALID": 1000,
+          "CHANNEL_ELIGIBLE": 667,
+          "ENGAGEMENT_EVALUATED": 667,
+          "APPROVED_FOR_HYPOTHETICAL_QUEUE": 1254,
+          "TRANSMISSION_SLOT_ASSIGNED": 836
+        },
+        "holds": {
+          "PURCHASED_OR_UNKNOWN_SOURCE": 84,
+          "CONTACT_SUPPRESSED": 83,
+          "IDENTITY_HOLD": 83,
+          "OWNERSHIP": 83
+        },
+        "strategies": {
+          "CHOICE_FIRST": 1005,
+          "HOLD": 333,
+          "WAIT": 83,
+          "QUESTION_FIRST": 249,
+          "HUMAN_HANDOFF": 166,
+          "COMMITMENT_FIRST": 83
+        },
+        "daily": {
+          "2026-10-19": {
+            "new_work": 418,
+            "followup_work": 0,
+            "evaluations": 1000,
+            "slots": 418,
+            "backlog": 0,
+            "capacity_available": 18240,
+            "capacity_deferrals": 784
+          },
+          "2026-10-20": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 54720,
+            "capacity_deferrals": 0
+          },
+          "2026-10-21": {
+            "new_work": 0,
+            "followup_work": 418,
+            "evaluations": 501,
+            "slots": 418,
+            "backlog": 0,
+            "capacity_available": 54720,
+            "capacity_deferrals": 0
+          },
+          "2026-10-22": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 54720,
+            "capacity_deferrals": 0
+          },
+          "2026-10-23": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 54720,
+            "capacity_deferrals": 0
+          },
+          "2026-10-24": {
+            "new_work": 0,
+            "followup_work": 418,
+            "evaluations": 418,
+            "slots": 0,
+            "backlog": 418,
+            "capacity_available": 54720,
+            "capacity_deferrals": 0
+          },
+          "2026-10-25": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 54720,
+            "capacity_deferrals": 0
+          },
+          "2026-10-26": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 36480,
+            "capacity_deferrals": 0
+          }
+        },
+        "work_statuses": {
+          "ASSIGNED": 836,
+          "EXPIRED": 418
+        },
+        "producer_statuses": {
+          "CAPACITY_EXCEPTION": 233,
+          "OFFERED": 16
+        },
+        "producer_actions": {
+          "QUOTE PREPARATION": 83,
+          "ASK ONE QUESTION": 83,
+          "CALL": 83
+        },
+        "sender_utilization": 0.0021825396825396826,
+        "wait_ms": {
+          "p50": 0,
+          "p95": 600000,
+          "max": 660000
+        },
+        "producer_due": 249,
+        "producer_unfulfilled": 249,
+        "pending_events": 0,
+        "external_actions": 0,
+        "messages_sent": 0,
+        "provider_calls": 0,
+        "calendar_actions": 0,
+        "model_calls": 0,
+        "execution_eligibility": {
+          "sms": false,
+          "call": false,
+          "external": false,
+          "calendar": false,
+          "crm": false,
+          "model": false
+        }
+      }
+    },
+    {
+      "size": 5000,
+      "rate": 10,
+      "imports": 1,
+      "days": 7,
+      "construction_ms": 39.57835999999999,
+      "simulation_ms": 4025.9186469999995,
+      "evaluations_per_second": 2381.3198528350695,
+      "memory": {
+        "before": {
+          "rss": 61472768,
+          "heapTotal": 12316672,
+          "heapUsed": 8742592,
+          "external": 4864723,
+          "arrayBuffers": 998567
+        },
+        "constructed": {
+          "rss": 81391616,
+          "heapTotal": 31236096,
+          "heapUsed": 20295312,
+          "external": 3892713,
+          "arrayBuffers": 146599
+        },
+        "drained": {
+          "rss": 192724992,
+          "heapTotal": 116854784,
+          "heapUsed": 77968232,
+          "external": 3892677,
+          "arrayBuffers": 146563
+        },
+        "peak_rss_kib": 188208
+      },
+      "result": {
+        "build": "CF-ENGAGEMENT-CAPACITY-SHADOW-0.2",
+        "mode": "SYNTHETIC_ONLY",
+        "now": "2026-10-26T16:00:00.000Z",
+        "counts": {
+          "imported": 5000,
+          "unique": 5000,
+          "source_valid": 5000,
+          "channel_eligible": 3334,
+          "evaluated": 9587,
+          "queued": 6255,
+          "duplicate_prevented": 0,
+          "stale": 0,
+          "canceled": 0,
+          "expired": 2085,
+          "capacity_violations": 0,
+          "operations": 87723,
+          "peak_events": 2502,
+          "evaluated_unique": 5000,
+          "eligible_evaluated_unique": 3334,
+          "backlog": 0,
+          "peak_backlog": 2085,
+          "avoided_qualification": 1249,
+          "window_checks": 898334
+        },
+        "funnel": {
+          "IMPORTED": 5000,
+          "DEDUPLICATED": 5000,
+          "SOURCE_VALID": 5000,
+          "CHANNEL_ELIGIBLE": 3334,
+          "ENGAGEMENT_EVALUATED": 3334,
+          "APPROVED_FOR_HYPOTHETICAL_QUEUE": 6255,
+          "TRANSMISSION_SLOT_ASSIGNED": 4170
+        },
+        "holds": {
+          "PURCHASED_OR_UNKNOWN_SOURCE": 417,
+          "CONTACT_SUPPRESSED": 417,
+          "IDENTITY_HOLD": 416,
+          "OWNERSHIP": 416
+        },
+        "strategies": {
+          "CHOICE_FIRST": 5004,
+          "HOLD": 1666,
+          "WAIT": 417,
+          "QUESTION_FIRST": 1251,
+          "HUMAN_HANDOFF": 833,
+          "COMMITMENT_FIRST": 416
+        },
+        "daily": {
+          "2026-10-19": {
+            "new_work": 2085,
+            "followup_work": 0,
+            "evaluations": 5000,
+            "slots": 2085,
+            "backlog": 0,
+            "capacity_available": 3840,
+            "capacity_deferrals": 36355
+          },
+          "2026-10-20": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 11520,
+            "capacity_deferrals": 0
+          },
+          "2026-10-21": {
+            "new_work": 0,
+            "followup_work": 2085,
+            "evaluations": 2502,
+            "slots": 2085,
+            "backlog": 0,
+            "capacity_available": 11520,
+            "capacity_deferrals": 0
+          },
+          "2026-10-22": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 11520,
+            "capacity_deferrals": 0
+          },
+          "2026-10-23": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 11520,
+            "capacity_deferrals": 0
+          },
+          "2026-10-24": {
+            "new_work": 0,
+            "followup_work": 2085,
+            "evaluations": 2085,
+            "slots": 0,
+            "backlog": 2085,
+            "capacity_available": 11520,
+            "capacity_deferrals": 0
+          },
+          "2026-10-25": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 11520,
+            "capacity_deferrals": 0
+          },
+          "2026-10-26": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 7680,
+            "capacity_deferrals": 0
+          }
+        },
+        "work_statuses": {
+          "ASSIGNED": 4170,
+          "EXPIRED": 2085
+        },
+        "producer_statuses": {
+          "CAPACITY_EXCEPTION": 1233,
+          "OFFERED": 16
+        },
+        "producer_actions": {
+          "QUOTE PREPARATION": 416,
+          "ASK ONE QUESTION": 416,
+          "CALL": 417
+        },
+        "sender_utilization": 0.05171130952380952,
+        "wait_ms": {
+          "p50": 0,
+          "p95": 17700000,
+          "max": 19800000
+        },
+        "producer_due": 1249,
+        "producer_unfulfilled": 1249,
+        "pending_events": 0,
+        "external_actions": 0,
+        "messages_sent": 0,
+        "provider_calls": 0,
+        "calendar_actions": 0,
+        "model_calls": 0,
+        "execution_eligibility": {
+          "sms": false,
+          "call": false,
+          "external": false,
+          "calendar": false,
+          "crm": false,
+          "model": false
+        }
+      }
+    },
+    {
+      "size": 5000,
+      "rate": 20,
+      "imports": 1,
+      "days": 7,
+      "construction_ms": 42.18140600000001,
+      "simulation_ms": 1832.362886,
+      "evaluations_per_second": 5232.042229870836,
+      "memory": {
+        "before": {
+          "rss": 61603840,
+          "heapTotal": 12316672,
+          "heapUsed": 8754704,
+          "external": 4864723,
+          "arrayBuffers": 998567
+        },
+        "constructed": {
+          "rss": 81276928,
+          "heapTotal": 31236096,
+          "heapUsed": 20328600,
+          "external": 3892713,
+          "arrayBuffers": 146599
+        },
+        "drained": {
+          "rss": 187404288,
+          "heapTotal": 113709056,
+          "heapUsed": 59318656,
+          "external": 3892677,
+          "arrayBuffers": 146563
+        },
+        "peak_rss_kib": 183012
+      },
+      "result": {
+        "build": "CF-ENGAGEMENT-CAPACITY-SHADOW-0.2",
+        "mode": "SYNTHETIC_ONLY",
+        "now": "2026-10-26T16:00:00.000Z",
+        "counts": {
+          "imported": 5000,
+          "unique": 5000,
+          "source_valid": 5000,
+          "channel_eligible": 3334,
+          "evaluated": 9587,
+          "queued": 6255,
+          "duplicate_prevented": 0,
+          "stale": 0,
+          "canceled": 0,
+          "expired": 2085,
+          "capacity_violations": 0,
+          "operations": 40571,
+          "peak_events": 2502,
+          "evaluated_unique": 5000,
+          "eligible_evaluated_unique": 3334,
+          "backlog": 0,
+          "peak_backlog": 2085,
+          "avoided_qualification": 1249,
+          "window_checks": 360384
+        },
+        "funnel": {
+          "IMPORTED": 5000,
+          "DEDUPLICATED": 5000,
+          "SOURCE_VALID": 5000,
+          "CHANNEL_ELIGIBLE": 3334,
+          "ENGAGEMENT_EVALUATED": 3334,
+          "APPROVED_FOR_HYPOTHETICAL_QUEUE": 6255,
+          "TRANSMISSION_SLOT_ASSIGNED": 4170
+        },
+        "holds": {
+          "PURCHASED_OR_UNKNOWN_SOURCE": 417,
+          "CONTACT_SUPPRESSED": 417,
+          "IDENTITY_HOLD": 416,
+          "OWNERSHIP": 416
+        },
+        "strategies": {
+          "CHOICE_FIRST": 5004,
+          "HOLD": 1666,
+          "WAIT": 417,
+          "QUESTION_FIRST": 1251,
+          "HUMAN_HANDOFF": 833,
+          "COMMITMENT_FIRST": 416
+        },
+        "daily": {
+          "2026-10-19": {
+            "new_work": 2085,
+            "followup_work": 0,
+            "evaluations": 5000,
+            "slots": 2085,
+            "backlog": 0,
+            "capacity_available": 8640,
+            "capacity_deferrals": 12779
+          },
+          "2026-10-20": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 25920,
+            "capacity_deferrals": 0
+          },
+          "2026-10-21": {
+            "new_work": 0,
+            "followup_work": 2085,
+            "evaluations": 2502,
+            "slots": 2085,
+            "backlog": 0,
+            "capacity_available": 25920,
+            "capacity_deferrals": 0
+          },
+          "2026-10-22": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 25920,
+            "capacity_deferrals": 0
+          },
+          "2026-10-23": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 25920,
+            "capacity_deferrals": 0
+          },
+          "2026-10-24": {
+            "new_work": 0,
+            "followup_work": 2085,
+            "evaluations": 2085,
+            "slots": 0,
+            "backlog": 2085,
+            "capacity_available": 25920,
+            "capacity_deferrals": 0
+          },
+          "2026-10-25": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 25920,
+            "capacity_deferrals": 0
+          },
+          "2026-10-26": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 17280,
+            "capacity_deferrals": 0
+          }
+        },
+        "work_statuses": {
+          "ASSIGNED": 4170,
+          "EXPIRED": 2085
+        },
+        "producer_statuses": {
+          "CAPACITY_EXCEPTION": 1233,
+          "OFFERED": 16
+        },
+        "producer_actions": {
+          "QUOTE PREPARATION": 416,
+          "ASK ONE QUESTION": 416,
+          "CALL": 417
+        },
+        "sender_utilization": 0.022982804232804233,
+        "wait_ms": {
+          "p50": 0,
+          "p95": 6840000,
+          "max": 7620000
+        },
+        "producer_due": 1249,
+        "producer_unfulfilled": 1249,
+        "pending_events": 0,
+        "external_actions": 0,
+        "messages_sent": 0,
+        "provider_calls": 0,
+        "calendar_actions": 0,
+        "model_calls": 0,
+        "execution_eligibility": {
+          "sms": false,
+          "call": false,
+          "external": false,
+          "calendar": false,
+          "crm": false,
+          "model": false
+        }
+      }
+    },
+    {
+      "size": 5000,
+      "rate": 25,
+      "imports": 1,
+      "days": 7,
+      "construction_ms": 49.74003699999999,
+      "simulation_ms": 1542.090752,
+      "evaluations_per_second": 6216.884439236946,
+      "memory": {
+        "before": {
+          "rss": 61341696,
+          "heapTotal": 12316672,
+          "heapUsed": 8759168,
+          "external": 4864723,
+          "arrayBuffers": 998567
+        },
+        "constructed": {
+          "rss": 81330176,
+          "heapTotal": 31498240,
+          "heapUsed": 20428424,
+          "external": 3892713,
+          "arrayBuffers": 146599
+        },
+        "drained": {
+          "rss": 188047360,
+          "heapTotal": 113709056,
+          "heapUsed": 59979864,
+          "external": 3892677,
+          "arrayBuffers": 146563
+        },
+        "peak_rss_kib": 183640
+      },
+      "result": {
+        "build": "CF-ENGAGEMENT-CAPACITY-SHADOW-0.2",
+        "mode": "SYNTHETIC_ONLY",
+        "now": "2026-10-26T16:00:00.000Z",
+        "counts": {
+          "imported": 5000,
+          "unique": 5000,
+          "source_valid": 5000,
+          "channel_eligible": 3334,
+          "evaluated": 9587,
+          "queued": 6255,
+          "duplicate_prevented": 0,
+          "stale": 0,
+          "canceled": 0,
+          "expired": 2085,
+          "capacity_violations": 0,
+          "operations": 33617,
+          "peak_events": 2502,
+          "evaluated_unique": 5000,
+          "eligible_evaluated_unique": 3334,
+          "backlog": 0,
+          "peak_backlog": 2085,
+          "avoided_qualification": 1249,
+          "window_checks": 277389
+        },
+        "funnel": {
+          "IMPORTED": 5000,
+          "DEDUPLICATED": 5000,
+          "SOURCE_VALID": 5000,
+          "CHANNEL_ELIGIBLE": 3334,
+          "ENGAGEMENT_EVALUATED": 3334,
+          "APPROVED_FOR_HYPOTHETICAL_QUEUE": 6255,
+          "TRANSMISSION_SLOT_ASSIGNED": 4170
+        },
+        "holds": {
+          "PURCHASED_OR_UNKNOWN_SOURCE": 417,
+          "CONTACT_SUPPRESSED": 417,
+          "IDENTITY_HOLD": 416,
+          "OWNERSHIP": 416
+        },
+        "strategies": {
+          "CHOICE_FIRST": 5004,
+          "HOLD": 1666,
+          "WAIT": 417,
+          "QUESTION_FIRST": 1251,
+          "HUMAN_HANDOFF": 833,
+          "COMMITMENT_FIRST": 416
+        },
+        "daily": {
+          "2026-10-19": {
+            "new_work": 2085,
+            "followup_work": 0,
+            "evaluations": 5000,
+            "slots": 2085,
+            "backlog": 0,
+            "capacity_available": 11040,
+            "capacity_deferrals": 9302
+          },
+          "2026-10-20": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 33120,
+            "capacity_deferrals": 0
+          },
+          "2026-10-21": {
+            "new_work": 0,
+            "followup_work": 2085,
+            "evaluations": 2502,
+            "slots": 2085,
+            "backlog": 0,
+            "capacity_available": 33120,
+            "capacity_deferrals": 0
+          },
+          "2026-10-22": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 33120,
+            "capacity_deferrals": 0
+          },
+          "2026-10-23": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 33120,
+            "capacity_deferrals": 0
+          },
+          "2026-10-24": {
+            "new_work": 0,
+            "followup_work": 2085,
+            "evaluations": 2085,
+            "slots": 0,
+            "backlog": 2085,
+            "capacity_available": 33120,
+            "capacity_deferrals": 0
+          },
+          "2026-10-25": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 33120,
+            "capacity_deferrals": 0
+          },
+          "2026-10-26": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 22080,
+            "capacity_deferrals": 0
+          }
+        },
+        "work_statuses": {
+          "ASSIGNED": 4170,
+          "EXPIRED": 2085
+        },
+        "producer_statuses": {
+          "CAPACITY_EXCEPTION": 1233,
+          "OFFERED": 16
+        },
+        "producer_actions": {
+          "QUOTE PREPARATION": 416,
+          "ASK ONE QUESTION": 416,
+          "CALL": 417
+        },
+        "sender_utilization": 0.017986542443064184,
+        "wait_ms": {
+          "p50": 0,
+          "p95": 5220000,
+          "max": 5820000
+        },
+        "producer_due": 1249,
+        "producer_unfulfilled": 1249,
+        "pending_events": 0,
+        "external_actions": 0,
+        "messages_sent": 0,
+        "provider_calls": 0,
+        "calendar_actions": 0,
+        "model_calls": 0,
+        "execution_eligibility": {
+          "sms": false,
+          "call": false,
+          "external": false,
+          "calendar": false,
+          "crm": false,
+          "model": false
+        }
+      }
+    },
+    {
+      "size": 5000,
+      "rate": 40,
+      "imports": 1,
+      "days": 7,
+      "construction_ms": 39.23085099999999,
+      "simulation_ms": 1246.609418,
+      "evaluations_per_second": 7690.460108492458,
+      "memory": {
+        "before": {
+          "rss": 61472768,
+          "heapTotal": 12316672,
+          "heapUsed": 8743024,
+          "external": 4864723,
+          "arrayBuffers": 998567
+        },
+        "constructed": {
+          "rss": 81367040,
+          "heapTotal": 30973952,
+          "heapUsed": 20362920,
+          "external": 3892713,
+          "arrayBuffers": 146599
+        },
+        "drained": {
+          "rss": 186937344,
+          "heapTotal": 112922624,
+          "heapUsed": 69285160,
+          "external": 3892677,
+          "arrayBuffers": 146563
+        },
+        "peak_rss_kib": 182556
+      },
+      "result": {
+        "build": "CF-ENGAGEMENT-CAPACITY-SHADOW-0.2",
+        "mode": "SYNTHETIC_ONLY",
+        "now": "2026-10-26T16:00:00.000Z",
+        "counts": {
+          "imported": 5000,
+          "unique": 5000,
+          "source_valid": 5000,
+          "channel_eligible": 3334,
+          "evaluated": 9587,
+          "queued": 6255,
+          "duplicate_prevented": 0,
+          "stale": 0,
+          "canceled": 0,
+          "expired": 2085,
+          "capacity_violations": 0,
+          "operations": 24251,
+          "peak_events": 2502,
+          "evaluated_unique": 5000,
+          "eligible_evaluated_unique": 3334,
+          "backlog": 0,
+          "peak_backlog": 2085,
+          "avoided_qualification": 1249,
+          "window_checks": 165329
+        },
+        "funnel": {
+          "IMPORTED": 5000,
+          "DEDUPLICATED": 5000,
+          "SOURCE_VALID": 5000,
+          "CHANNEL_ELIGIBLE": 3334,
+          "ENGAGEMENT_EVALUATED": 3334,
+          "APPROVED_FOR_HYPOTHETICAL_QUEUE": 6255,
+          "TRANSMISSION_SLOT_ASSIGNED": 4170
+        },
+        "holds": {
+          "PURCHASED_OR_UNKNOWN_SOURCE": 417,
+          "CONTACT_SUPPRESSED": 417,
+          "IDENTITY_HOLD": 416,
+          "OWNERSHIP": 416
+        },
+        "strategies": {
+          "CHOICE_FIRST": 5004,
+          "HOLD": 1666,
+          "WAIT": 417,
+          "QUESTION_FIRST": 1251,
+          "HUMAN_HANDOFF": 833,
+          "COMMITMENT_FIRST": 416
+        },
+        "daily": {
+          "2026-10-19": {
+            "new_work": 2085,
+            "followup_work": 0,
+            "evaluations": 5000,
+            "slots": 2085,
+            "backlog": 0,
+            "capacity_available": 18240,
+            "capacity_deferrals": 4619
+          },
+          "2026-10-20": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 54720,
+            "capacity_deferrals": 0
+          },
+          "2026-10-21": {
+            "new_work": 0,
+            "followup_work": 2085,
+            "evaluations": 2502,
+            "slots": 2085,
+            "backlog": 0,
+            "capacity_available": 54720,
+            "capacity_deferrals": 0
+          },
+          "2026-10-22": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 54720,
+            "capacity_deferrals": 0
+          },
+          "2026-10-23": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 54720,
+            "capacity_deferrals": 0
+          },
+          "2026-10-24": {
+            "new_work": 0,
+            "followup_work": 2085,
+            "evaluations": 2085,
+            "slots": 0,
+            "backlog": 2085,
+            "capacity_available": 54720,
+            "capacity_deferrals": 0
+          },
+          "2026-10-25": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 54720,
+            "capacity_deferrals": 0
+          },
+          "2026-10-26": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 36480,
+            "capacity_deferrals": 0
+          }
+        },
+        "work_statuses": {
+          "ASSIGNED": 4170,
+          "EXPIRED": 2085
+        },
+        "producer_statuses": {
+          "CAPACITY_EXCEPTION": 1233,
+          "OFFERED": 16
+        },
+        "producer_actions": {
+          "QUOTE PREPARATION": 416,
+          "ASK ONE QUESTION": 416,
+          "CALL": 417
+        },
+        "sender_utilization": 0.010886591478696741,
+        "wait_ms": {
+          "p50": 0,
+          "p95": 3060000,
+          "max": 3420000
+        },
+        "producer_due": 1249,
+        "producer_unfulfilled": 1249,
+        "pending_events": 0,
+        "external_actions": 0,
+        "messages_sent": 0,
+        "provider_calls": 0,
+        "calendar_actions": 0,
+        "model_calls": 0,
+        "execution_eligibility": {
+          "sms": false,
+          "call": false,
+          "external": false,
+          "calendar": false,
+          "crm": false,
+          "model": false
+        }
+      }
+    },
+    {
+      "size": 1000,
+      "rate": 10,
+      "imports": 7,
+      "days": 14,
+      "construction_ms": 59.004362,
+      "simulation_ms": 3630.385548,
+      "evaluations_per_second": 2931.920001131516,
+      "memory": {
+        "before": {
+          "rss": 61472768,
+          "heapTotal": 12316672,
+          "heapUsed": 8742448,
+          "external": 4864723,
+          "arrayBuffers": 998567
+        },
+        "constructed": {
+          "rss": 86614016,
+          "heapTotal": 50327552,
+          "heapUsed": 23304152,
+          "external": 3892713,
+          "arrayBuffers": 146599
+        },
+        "drained": {
+          "rss": 258666496,
+          "heapTotal": 183701504,
+          "heapUsed": 114795848,
+          "external": 3892677,
+          "arrayBuffers": 146563
+        },
+        "peak_rss_kib": 254244
+      },
+      "result": {
+        "build": "CF-ENGAGEMENT-CAPACITY-SHADOW-0.2",
+        "mode": "SYNTHETIC_ONLY",
+        "now": "2026-11-02T16:00:00.000Z",
+        "counts": {
+          "imported": 7000,
+          "unique": 7000,
+          "source_valid": 7000,
+          "channel_eligible": 4669,
+          "evaluated": 10644,
+          "queued": 6404,
+          "duplicate_prevented": 0,
+          "stale": 0,
+          "canceled": 0,
+          "expired": 1996,
+          "capacity_violations": 0,
+          "operations": 153445,
+          "peak_events": 2509,
+          "evaluated_unique": 7000,
+          "eligible_evaluated_unique": 4669,
+          "backlog": 0,
+          "peak_backlog": 1688,
+          "avoided_qualification": 1743,
+          "window_checks": 556738
+        },
+        "funnel": {
+          "IMPORTED": 7000,
+          "DEDUPLICATED": 7000,
+          "SOURCE_VALID": 7000,
+          "CHANNEL_ELIGIBLE": 4669,
+          "ENGAGEMENT_EVALUATED": 4669,
+          "APPROVED_FOR_HYPOTHETICAL_QUEUE": 6404,
+          "TRANSMISSION_SLOT_ASSIGNED": 4408
+        },
+        "holds": {
+          "PURCHASED_OR_UNKNOWN_SOURCE": 588,
+          "CONTACT_SUPPRESSED": 581,
+          "IDENTITY_HOLD": 581,
+          "OWNERSHIP": 581
+        },
+        "strategies": {
+          "CHOICE_FIRST": 5084,
+          "HOLD": 2331,
+          "WAIT": 166,
+          "QUESTION_FIRST": 1320,
+          "HUMAN_HANDOFF": 1162,
+          "COMMITMENT_FIRST": 581
+        },
+        "daily": {
+          "2026-10-19": {
+            "new_work": 418,
+            "followup_work": 0,
+            "evaluations": 1000,
+            "slots": 418,
+            "backlog": 0,
+            "capacity_available": 3840,
+            "capacity_deferrals": 6362
+          },
+          "2026-10-20": {
+            "new_work": 418,
+            "followup_work": 0,
+            "evaluations": 1000,
+            "slots": 418,
+            "backlog": 0,
+            "capacity_available": 11520,
+            "capacity_deferrals": 6402
+          },
+          "2026-10-21": {
+            "new_work": 418,
+            "followup_work": 418,
+            "evaluations": 1584,
+            "slots": 836,
+            "backlog": 0,
+            "capacity_available": 11520,
+            "capacity_deferrals": 13964
+          },
+          "2026-10-22": {
+            "new_work": 418,
+            "followup_work": 418,
+            "evaluations": 1418,
+            "slots": 836,
+            "backlog": 0,
+            "capacity_available": 11520,
+            "capacity_deferrals": 13924
+          },
+          "2026-10-23": {
+            "new_work": 418,
+            "followup_work": 418,
+            "evaluations": 1418,
+            "slots": 836,
+            "backlog": 0,
+            "capacity_available": 11520,
+            "capacity_deferrals": 13580
+          },
+          "2026-10-24": {
+            "new_work": 418,
+            "followup_work": 836,
+            "evaluations": 1836,
+            "slots": 0,
+            "backlog": 1254,
+            "capacity_available": 11520,
+            "capacity_deferrals": 0
+          },
+          "2026-10-25": {
+            "new_work": 418,
+            "followup_work": 836,
+            "evaluations": 1836,
+            "slots": 0,
+            "backlog": 1254,
+            "capacity_available": 11520,
+            "capacity_deferrals": 0
+          },
+          "2026-10-26": {
+            "new_work": 0,
+            "followup_work": 418,
+            "evaluations": 418,
+            "slots": 930,
+            "backlog": 0,
+            "capacity_available": 11520,
+            "capacity_deferrals": 14955
+          },
+          "2026-10-27": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 11520,
+            "capacity_deferrals": 0
+          },
+          "2026-10-28": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 11520,
+            "capacity_deferrals": 0
+          },
+          "2026-10-29": {
+            "new_work": 0,
+            "followup_work": 134,
+            "evaluations": 134,
+            "slots": 134,
+            "backlog": 0,
+            "capacity_available": 11520,
+            "capacity_deferrals": 0
+          },
+          "2026-10-30": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 11520,
+            "capacity_deferrals": 0
+          },
+          "2026-10-31": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 11520,
+            "capacity_deferrals": 0
+          },
+          "2026-11-01": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 11520,
+            "capacity_deferrals": 0
+          },
+          "2026-11-02": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 7680,
+            "capacity_deferrals": 0
+          }
+        },
+        "work_statuses": {
+          "ASSIGNED": 4408,
+          "EXPIRED": 1996
+        },
+        "producer_statuses": {
+          "CAPACITY_EXCEPTION": 1687,
+          "OFFERED": 56
+        },
+        "producer_actions": {
+          "QUOTE PREPARATION": 581,
+          "ASK ONE QUESTION": 581,
+          "CALL": 581
+        },
+        "sender_utilization": 0.027331349206349206,
+        "wait_ms": {
+          "p50": 1980000,
+          "p95": 86340000,
+          "max": 86340000
+        },
+        "producer_due": 1743,
+        "producer_unfulfilled": 1743,
+        "pending_events": 0,
+        "external_actions": 0,
+        "messages_sent": 0,
+        "provider_calls": 0,
+        "calendar_actions": 0,
+        "model_calls": 0,
+        "execution_eligibility": {
+          "sms": false,
+          "call": false,
+          "external": false,
+          "calendar": false,
+          "crm": false,
+          "model": false
+        }
+      }
+    },
+    {
+      "size": 1000,
+      "rate": 20,
+      "imports": 7,
+      "days": 14,
+      "construction_ms": 55.87780500000001,
+      "simulation_ms": 1665.02161,
+      "evaluations_per_second": 6384.301522669127,
+      "memory": {
+        "before": {
+          "rss": 61603840,
+          "heapTotal": 12316672,
+          "heapUsed": 8742568,
+          "external": 4864723,
+          "arrayBuffers": 998567
+        },
+        "constructed": {
+          "rss": 85377024,
+          "heapTotal": 51113984,
+          "heapUsed": 23304152,
+          "external": 3892713,
+          "arrayBuffers": 146599
+        },
+        "drained": {
+          "rss": 221798400,
+          "heapTotal": 182652928,
+          "heapUsed": 73812560,
+          "external": 3892677,
+          "arrayBuffers": 146563
+        },
+        "peak_rss_kib": 216600
+      },
+      "result": {
+        "build": "CF-ENGAGEMENT-CAPACITY-SHADOW-0.2",
+        "mode": "SYNTHETIC_ONLY",
+        "now": "2026-11-02T16:00:00.000Z",
+        "counts": {
+          "imported": 7000,
+          "unique": 7000,
+          "source_valid": 7000,
+          "channel_eligible": 4669,
+          "evaluated": 10630,
+          "queued": 6390,
+          "duplicate_prevented": 0,
+          "stale": 0,
+          "canceled": 0,
+          "expired": 2016,
+          "capacity_violations": 0,
+          "operations": 63735,
+          "peak_events": 2509,
+          "evaluated_unique": 7000,
+          "eligible_evaluated_unique": 4669,
+          "backlog": 0,
+          "peak_backlog": 1708,
+          "avoided_qualification": 1743,
+          "window_checks": 221884
+        },
+        "funnel": {
+          "IMPORTED": 7000,
+          "DEDUPLICATED": 7000,
+          "SOURCE_VALID": 7000,
+          "CHANNEL_ELIGIBLE": 4669,
+          "ENGAGEMENT_EVALUATED": 4669,
+          "APPROVED_FOR_HYPOTHETICAL_QUEUE": 6390,
+          "TRANSMISSION_SLOT_ASSIGNED": 4374
+        },
+        "holds": {
+          "PURCHASED_OR_UNKNOWN_SOURCE": 588,
+          "CONTACT_SUPPRESSED": 581,
+          "IDENTITY_HOLD": 581,
+          "OWNERSHIP": 581
+        },
+        "strategies": {
+          "CHOICE_FIRST": 5080,
+          "HOLD": 2331,
+          "WAIT": 166,
+          "QUESTION_FIRST": 1310,
+          "HUMAN_HANDOFF": 1162,
+          "COMMITMENT_FIRST": 581
+        },
+        "daily": {
+          "2026-10-19": {
+            "new_work": 418,
+            "followup_work": 0,
+            "evaluations": 1000,
+            "slots": 418,
+            "backlog": 0,
+            "capacity_available": 8640,
+            "capacity_deferrals": 2228
+          },
+          "2026-10-20": {
+            "new_work": 418,
+            "followup_work": 0,
+            "evaluations": 1000,
+            "slots": 418,
+            "backlog": 0,
+            "capacity_available": 25920,
+            "capacity_deferrals": 2268
+          },
+          "2026-10-21": {
+            "new_work": 418,
+            "followup_work": 418,
+            "evaluations": 1584,
+            "slots": 836,
+            "backlog": 0,
+            "capacity_available": 25920,
+            "capacity_deferrals": 4916
+          },
+          "2026-10-22": {
+            "new_work": 418,
+            "followup_work": 418,
+            "evaluations": 1418,
+            "slots": 836,
+            "backlog": 0,
+            "capacity_available": 25920,
+            "capacity_deferrals": 4916
+          },
+          "2026-10-23": {
+            "new_work": 418,
+            "followup_work": 418,
+            "evaluations": 1418,
+            "slots": 836,
+            "backlog": 0,
+            "capacity_available": 25920,
+            "capacity_deferrals": 4822
+          },
+          "2026-10-24": {
+            "new_work": 418,
+            "followup_work": 836,
+            "evaluations": 1836,
+            "slots": 0,
+            "backlog": 1254,
+            "capacity_available": 25920,
+            "capacity_deferrals": 0
+          },
+          "2026-10-25": {
+            "new_work": 418,
+            "followup_work": 836,
+            "evaluations": 1836,
+            "slots": 0,
+            "backlog": 1254,
+            "capacity_available": 25920,
+            "capacity_deferrals": 0
+          },
+          "2026-10-26": {
+            "new_work": 0,
+            "followup_work": 418,
+            "evaluations": 418,
+            "slots": 910,
+            "backlog": 0,
+            "capacity_available": 25920,
+            "capacity_deferrals": 5196
+          },
+          "2026-10-27": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 25920,
+            "capacity_deferrals": 0
+          },
+          "2026-10-28": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 25920,
+            "capacity_deferrals": 0
+          },
+          "2026-10-29": {
+            "new_work": 0,
+            "followup_work": 120,
+            "evaluations": 120,
+            "slots": 120,
+            "backlog": 0,
+            "capacity_available": 25920,
+            "capacity_deferrals": 0
+          },
+          "2026-10-30": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 25920,
+            "capacity_deferrals": 0
+          },
+          "2026-10-31": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 25920,
+            "capacity_deferrals": 0
+          },
+          "2026-11-01": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 25920,
+            "capacity_deferrals": 0
+          },
+          "2026-11-02": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 17280,
+            "capacity_deferrals": 0
+          }
+        },
+        "work_statuses": {
+          "ASSIGNED": 4374,
+          "EXPIRED": 2016
+        },
+        "producer_statuses": {
+          "CAPACITY_EXCEPTION": 1687,
+          "OFFERED": 56
+        },
+        "producer_actions": {
+          "QUOTE PREPARATION": 581,
+          "ASK ONE QUESTION": 581,
+          "CALL": 581
+        },
+        "sender_utilization": 0.012053571428571429,
+        "wait_ms": {
+          "p50": 780000,
+          "p95": 86340000,
+          "max": 86340000
+        },
+        "producer_due": 1743,
+        "producer_unfulfilled": 1743,
+        "pending_events": 0,
+        "external_actions": 0,
+        "messages_sent": 0,
+        "provider_calls": 0,
+        "calendar_actions": 0,
+        "model_calls": 0,
+        "execution_eligibility": {
+          "sms": false,
+          "call": false,
+          "external": false,
+          "calendar": false,
+          "crm": false,
+          "model": false
+        }
+      }
+    },
+    {
+      "size": 1000,
+      "rate": 25,
+      "imports": 7,
+      "days": 14,
+      "construction_ms": 53.144667,
+      "simulation_ms": 1469.100337,
+      "evaluations_per_second": 7234.359514002344,
+      "memory": {
+        "before": {
+          "rss": 61210624,
+          "heapTotal": 12316672,
+          "heapUsed": 8742456,
+          "external": 4864723,
+          "arrayBuffers": 998567
+        },
+        "constructed": {
+          "rss": 84856832,
+          "heapTotal": 50589696,
+          "heapUsed": 23328200,
+          "external": 3892713,
+          "arrayBuffers": 146599
+        },
+        "drained": {
+          "rss": 252526592,
+          "heapTotal": 182652928,
+          "heapUsed": 58720592,
+          "external": 3892677,
+          "arrayBuffers": 146563
+        },
+        "peak_rss_kib": 246736
+      },
+      "result": {
+        "build": "CF-ENGAGEMENT-CAPACITY-SHADOW-0.2",
+        "mode": "SYNTHETIC_ONLY",
+        "now": "2026-11-02T16:00:00.000Z",
+        "counts": {
+          "imported": 7000,
+          "unique": 7000,
+          "source_valid": 7000,
+          "channel_eligible": 4669,
+          "evaluated": 10628,
+          "queued": 6388,
+          "duplicate_prevented": 0,
+          "stale": 0,
+          "canceled": 0,
+          "expired": 2024,
+          "capacity_violations": 0,
+          "operations": 50485,
+          "peak_events": 2509,
+          "evaluated_unique": 7000,
+          "eligible_evaluated_unique": 4669,
+          "backlog": 0,
+          "peak_backlog": 1718,
+          "avoided_qualification": 1743,
+          "window_checks": 171160
+        },
+        "funnel": {
+          "IMPORTED": 7000,
+          "DEDUPLICATED": 7000,
+          "SOURCE_VALID": 7000,
+          "CHANNEL_ELIGIBLE": 4669,
+          "ENGAGEMENT_EVALUATED": 4669,
+          "APPROVED_FOR_HYPOTHETICAL_QUEUE": 6388,
+          "TRANSMISSION_SLOT_ASSIGNED": 4364
+        },
+        "holds": {
+          "PURCHASED_OR_UNKNOWN_SOURCE": 588,
+          "CONTACT_SUPPRESSED": 581,
+          "IDENTITY_HOLD": 581,
+          "OWNERSHIP": 581
+        },
+        "strategies": {
+          "CHOICE_FIRST": 5083,
+          "HOLD": 2331,
+          "WAIT": 166,
+          "QUESTION_FIRST": 1305,
+          "HUMAN_HANDOFF": 1162,
+          "COMMITMENT_FIRST": 581
+        },
+        "daily": {
+          "2026-10-19": {
+            "new_work": 418,
+            "followup_work": 0,
+            "evaluations": 1000,
+            "slots": 418,
+            "backlog": 0,
+            "capacity_available": 11040,
+            "capacity_deferrals": 1615
+          },
+          "2026-10-20": {
+            "new_work": 418,
+            "followup_work": 0,
+            "evaluations": 1000,
+            "slots": 418,
+            "backlog": 0,
+            "capacity_available": 33120,
+            "capacity_deferrals": 1655
+          },
+          "2026-10-21": {
+            "new_work": 418,
+            "followup_work": 418,
+            "evaluations": 1584,
+            "slots": 836,
+            "backlog": 0,
+            "capacity_available": 33120,
+            "capacity_deferrals": 3589
+          },
+          "2026-10-22": {
+            "new_work": 418,
+            "followup_work": 418,
+            "evaluations": 1418,
+            "slots": 836,
+            "backlog": 0,
+            "capacity_available": 33120,
+            "capacity_deferrals": 3583
+          },
+          "2026-10-23": {
+            "new_work": 418,
+            "followup_work": 418,
+            "evaluations": 1418,
+            "slots": 836,
+            "backlog": 0,
+            "capacity_available": 33120,
+            "capacity_deferrals": 3526
+          },
+          "2026-10-24": {
+            "new_work": 418,
+            "followup_work": 836,
+            "evaluations": 1836,
+            "slots": 0,
+            "backlog": 1254,
+            "capacity_available": 33120,
+            "capacity_deferrals": 0
+          },
+          "2026-10-25": {
+            "new_work": 418,
+            "followup_work": 836,
+            "evaluations": 1836,
+            "slots": 0,
+            "backlog": 1254,
+            "capacity_available": 33120,
+            "capacity_deferrals": 0
+          },
+          "2026-10-26": {
+            "new_work": 0,
+            "followup_work": 418,
+            "evaluations": 418,
+            "slots": 902,
+            "backlog": 0,
+            "capacity_available": 33120,
+            "capacity_deferrals": 3755
+          },
+          "2026-10-27": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 33120,
+            "capacity_deferrals": 0
+          },
+          "2026-10-28": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 33120,
+            "capacity_deferrals": 0
+          },
+          "2026-10-29": {
+            "new_work": 0,
+            "followup_work": 118,
+            "evaluations": 118,
+            "slots": 118,
+            "backlog": 0,
+            "capacity_available": 33120,
+            "capacity_deferrals": 0
+          },
+          "2026-10-30": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 33120,
+            "capacity_deferrals": 0
+          },
+          "2026-10-31": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 33120,
+            "capacity_deferrals": 0
+          },
+          "2026-11-01": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 33120,
+            "capacity_deferrals": 0
+          },
+          "2026-11-02": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 22080,
+            "capacity_deferrals": 0
+          }
+        },
+        "work_statuses": {
+          "ASSIGNED": 4364,
+          "EXPIRED": 2024
+        },
+        "producer_statuses": {
+          "CAPACITY_EXCEPTION": 1687,
+          "OFFERED": 56
+        },
+        "producer_actions": {
+          "QUOTE PREPARATION": 581,
+          "ASK ONE QUESTION": 581,
+          "CALL": 581
+        },
+        "sender_utilization": 0.009411663216011041,
+        "wait_ms": {
+          "p50": 600000,
+          "p95": 86340000,
+          "max": 86340000
+        },
+        "producer_due": 1743,
+        "producer_unfulfilled": 1743,
+        "pending_events": 0,
+        "external_actions": 0,
+        "messages_sent": 0,
+        "provider_calls": 0,
+        "calendar_actions": 0,
+        "model_calls": 0,
+        "execution_eligibility": {
+          "sms": false,
+          "call": false,
+          "external": false,
+          "calendar": false,
+          "crm": false,
+          "model": false
+        }
+      }
+    },
+    {
+      "size": 1000,
+      "rate": 40,
+      "imports": 7,
+      "days": 14,
+      "construction_ms": 55.24542700000001,
+      "simulation_ms": 1100.5051859999999,
+      "evaluations_per_second": 9648.296196216199,
+      "memory": {
+        "before": {
+          "rss": 61734912,
+          "heapTotal": 12316672,
+          "heapUsed": 8812128,
+          "external": 4864723,
+          "arrayBuffers": 998567
+        },
+        "constructed": {
+          "rss": 86913024,
+          "heapTotal": 50589696,
+          "heapUsed": 23304152,
+          "external": 3892713,
+          "arrayBuffers": 146599
+        },
+        "drained": {
+          "rss": 202637312,
+          "heapTotal": 182128640,
+          "heapUsed": 96840632,
+          "external": 3892677,
+          "arrayBuffers": 146563
+        },
+        "peak_rss_kib": 197888
+      },
+      "result": {
+        "build": "CF-ENGAGEMENT-CAPACITY-SHADOW-0.2",
+        "mode": "SYNTHETIC_ONLY",
+        "now": "2026-11-02T16:00:00.000Z",
+        "counts": {
+          "imported": 7000,
+          "unique": 7000,
+          "source_valid": 7000,
+          "channel_eligible": 4669,
+          "evaluated": 10618,
+          "queued": 6378,
+          "duplicate_prevented": 0,
+          "stale": 0,
+          "canceled": 0,
+          "expired": 2042,
+          "capacity_violations": 0,
+          "operations": 32567,
+          "peak_events": 2509,
+          "evaluated_unique": 7000,
+          "eligible_evaluated_unique": 4669,
+          "backlog": 0,
+          "peak_backlog": 1748,
+          "avoided_qualification": 1743,
+          "window_checks": 98808
+        },
+        "funnel": {
+          "IMPORTED": 7000,
+          "DEDUPLICATED": 7000,
+          "SOURCE_VALID": 7000,
+          "CHANNEL_ELIGIBLE": 4669,
+          "ENGAGEMENT_EVALUATED": 4669,
+          "APPROVED_FOR_HYPOTHETICAL_QUEUE": 6378,
+          "TRANSMISSION_SLOT_ASSIGNED": 4336
+        },
+        "holds": {
+          "PURCHASED_OR_UNKNOWN_SOURCE": 588,
+          "CONTACT_SUPPRESSED": 581,
+          "IDENTITY_HOLD": 581,
+          "OWNERSHIP": 581
+        },
+        "strategies": {
+          "CHOICE_FIRST": 5088,
+          "HOLD": 2331,
+          "WAIT": 166,
+          "QUESTION_FIRST": 1290,
+          "HUMAN_HANDOFF": 1162,
+          "COMMITMENT_FIRST": 581
+        },
+        "daily": {
+          "2026-10-19": {
+            "new_work": 418,
+            "followup_work": 0,
+            "evaluations": 1000,
+            "slots": 418,
+            "backlog": 0,
+            "capacity_available": 18240,
+            "capacity_deferrals": 784
+          },
+          "2026-10-20": {
+            "new_work": 418,
+            "followup_work": 0,
+            "evaluations": 1000,
+            "slots": 418,
+            "backlog": 0,
+            "capacity_available": 54720,
+            "capacity_deferrals": 824
+          },
+          "2026-10-21": {
+            "new_work": 418,
+            "followup_work": 418,
+            "evaluations": 1584,
+            "slots": 836,
+            "backlog": 0,
+            "capacity_available": 54720,
+            "capacity_deferrals": 1780
+          },
+          "2026-10-22": {
+            "new_work": 418,
+            "followup_work": 418,
+            "evaluations": 1418,
+            "slots": 836,
+            "backlog": 0,
+            "capacity_available": 54720,
+            "capacity_deferrals": 1780
+          },
+          "2026-10-23": {
+            "new_work": 418,
+            "followup_work": 418,
+            "evaluations": 1418,
+            "slots": 836,
+            "backlog": 0,
+            "capacity_available": 54720,
+            "capacity_deferrals": 1784
+          },
+          "2026-10-24": {
+            "new_work": 418,
+            "followup_work": 836,
+            "evaluations": 1836,
+            "slots": 0,
+            "backlog": 1254,
+            "capacity_available": 54720,
+            "capacity_deferrals": 0
+          },
+          "2026-10-25": {
+            "new_work": 418,
+            "followup_work": 836,
+            "evaluations": 1836,
+            "slots": 0,
+            "backlog": 1254,
+            "capacity_available": 54720,
+            "capacity_deferrals": 0
+          },
+          "2026-10-26": {
+            "new_work": 0,
+            "followup_work": 418,
+            "evaluations": 418,
+            "slots": 884,
+            "backlog": 0,
+            "capacity_available": 54720,
+            "capacity_deferrals": 1822
+          },
+          "2026-10-27": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 54720,
+            "capacity_deferrals": 0
+          },
+          "2026-10-28": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 54720,
+            "capacity_deferrals": 0
+          },
+          "2026-10-29": {
+            "new_work": 0,
+            "followup_work": 108,
+            "evaluations": 108,
+            "slots": 108,
+            "backlog": 0,
+            "capacity_available": 54720,
+            "capacity_deferrals": 0
+          },
+          "2026-10-30": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 54720,
+            "capacity_deferrals": 0
+          },
+          "2026-10-31": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 54720,
+            "capacity_deferrals": 0
+          },
+          "2026-11-01": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 54720,
+            "capacity_deferrals": 0
+          },
+          "2026-11-02": {
+            "new_work": 0,
+            "followup_work": 0,
+            "evaluations": 0,
+            "slots": 0,
+            "backlog": 0,
+            "capacity_available": 36480,
+            "capacity_deferrals": 0
+          }
+        },
+        "work_statuses": {
+          "ASSIGNED": 4336,
+          "EXPIRED": 2042
+        },
+        "producer_statuses": {
+          "CAPACITY_EXCEPTION": 1687,
+          "OFFERED": 56
+        },
+        "producer_actions": {
+          "QUOTE PREPARATION": 581,
+          "ASK ONE QUESTION": 581,
+          "CALL": 581
+        },
+        "sender_utilization": 0.005659983291562239,
+        "wait_ms": {
+          "p50": 360000,
+          "p95": 86340000,
+          "max": 86340000
+        },
+        "producer_due": 1743,
+        "producer_unfulfilled": 1743,
+        "pending_events": 0,
+        "external_actions": 0,
+        "messages_sent": 0,
+        "provider_calls": 0,
+        "calendar_actions": 0,
+        "model_calls": 0,
+        "execution_eligibility": {
+          "sms": false,
+          "call": false,
+          "external": false,
+          "calendar": false,
+          "crm": false,
+          "model": false
+        }
+      }
+    }
+  ]
+}
