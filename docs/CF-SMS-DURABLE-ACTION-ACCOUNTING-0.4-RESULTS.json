@@ -1,0 +1,120 @@
+{
+  "environment": "Local Node.js 24.19.0; file-backed SQLite WAL, synchronous FULL; synthetic only",
+  "clock": "2026-10-20T16:00:00Z controlled fixture clock; not wall-clock execution date",
+  "workloads": [
+    {
+      "n": 1000,
+      "admissionMs": 276.87325,
+      "admissionsPerSecond": 3611.7609772702854,
+      "replayMs": 56.44749899999988,
+      "contentionMs": 644.6332319999999,
+      "claimsPerSecond": 1551.2696993567345,
+      "workers": [
+        {
+          "claims": 439,
+          "reserved": 31,
+          "waits": 408,
+          "elapsedMs": 333.75133100000005,
+          "maxRssKiB": 88800
+        },
+        {
+          "claims": 554,
+          "reserved": 0,
+          "waits": 554,
+          "elapsedMs": 367.19174300000003,
+          "maxRssKiB": 89388
+        },
+        {
+          "claims": 0,
+          "reserved": 0,
+          "waits": 0,
+          "elapsedMs": 345.96512499999994,
+          "maxRssKiB": 79104
+        },
+        {
+          "claims": 7,
+          "reserved": 7,
+          "waits": 0,
+          "elapsedMs": 465.4674110000001,
+          "maxRssKiB": 80128
+        }
+      ],
+      "duplicateClaims": 0,
+      "capacityReservations": 38,
+      "busyErrors": 0,
+      "restartMs": 0.3580949999998211,
+      "recoveryMs": 77.57025500000009,
+      "recovered": 1000,
+      "batches": 10,
+      "maxRecoveryBatch": 100,
+      "unknownAfterRecovery": 10,
+      "fictionalAcceptances": 5,
+      "reconcileMs": 1.760003000000097,
+      "unresolvedRemaining": 5,
+      "memory": {
+        "before": 65933312,
+        "afterConstruction": 86401024,
+        "afterWork": 98451456,
+        "parentPeakKiB": 96144
+      },
+      "databaseBytes": 4276224
+    },
+    {
+      "n": 5000,
+      "admissionMs": 1393.568498,
+      "admissionsPerSecond": 3587.911184255257,
+      "replayMs": 268.7445009999992,
+      "contentionMs": 2183.5464140000004,
+      "claimsPerSecond": 2289.852859523415,
+      "workers": [
+        {
+          "claims": 1063,
+          "reserved": 0,
+          "waits": 1063,
+          "elapsedMs": 1777.0059860000001,
+          "maxRssKiB": 90772
+        },
+        {
+          "claims": 3937,
+          "reserved": 38,
+          "waits": 3899,
+          "elapsedMs": 1466.2399380000002,
+          "maxRssKiB": 95520
+        },
+        {
+          "claims": 0,
+          "reserved": 0,
+          "waits": 0,
+          "elapsedMs": 1985.601304,
+          "maxRssKiB": 86208
+        },
+        {
+          "claims": 0,
+          "reserved": 0,
+          "waits": 0,
+          "elapsedMs": 1676.0147809999999,
+          "maxRssKiB": 86440
+        }
+      ],
+      "duplicateClaims": 0,
+      "capacityReservations": 38,
+      "busyErrors": 0,
+      "restartMs": 0.35435999999981505,
+      "recoveryMs": 407.95485299999973,
+      "recovered": 5000,
+      "batches": 50,
+      "maxRecoveryBatch": 100,
+      "unknownAfterRecovery": 10,
+      "fictionalAcceptances": 5,
+      "reconcileMs": 1.9044430000003558,
+      "unresolvedRemaining": 5,
+      "memory": {
+        "before": 66060288,
+        "afterConstruction": 86581248,
+        "afterWork": 101756928,
+        "parentPeakKiB": 99372
+      },
+      "databaseBytes": 20852736
+    }
+  ]
+}
