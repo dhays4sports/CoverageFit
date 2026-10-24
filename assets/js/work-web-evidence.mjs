@@ -9,5 +9,6 @@ export function webEvidence(distribution){
   add(distribution.initialEvidence,'Entry context / previously supplied evidence');
   for(const answer of distribution.answers||[])if(answer.source==='coveragefit_signal')add(answer.signals,'Submitted web answer');
   for(const [key,value] of Object.entries(distribution.buyer||{}))if(typeof value==='string'&&value)facts.set('buyer_'+key,[key,value.replaceAll('_',' '),'Buyer request / workflow context']);
+  for(const [key,value] of Object.entries(distribution.condo||{}))if(typeof value==='string'&&value)facts.set('condo_'+key,[key,value.replaceAll('_',' '),'Condo request / workflow context']);
   return [...facts.values()];
 }
