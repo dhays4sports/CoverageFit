@@ -5,6 +5,7 @@ import {deriveSignalDecision,SIGNAL_QUESTION_LIBRARY} from './signal-decision-co
 import {createPvxWebResumeToken,pvxWebJourneyKey} from './pvx-web-journey-core.mjs';
 import {normalizeLeadPayload,upsertLeadJourney,retentionExpiresAt} from './lead-operations-core.mjs';
 import {projectSoloDeskEvent} from './solo-desk-event-projection.mjs';
+import {randomBase64Url} from './runtime-crypto.mjs';
 import {sha256Hex} from './runtime-crypto.mjs';
 import {smsLiveConversationId} from './sms-outbound-gateway.mjs';
 
@@ -33,13 +34,22 @@ async function load(request,options){
   const token=(request.headers.get('cookie')||'').split(';').map(s=>s.trim()).find(s=>s.startsWith(DISTRIBUTION_COOKIE+'='))?.slice(DISTRIBUTION_COOKIE.length+1);
   if(!/^pvxw_[A-Za-z0-9_-]{43}$/.test(token||''))return null;
   const key=await pvxWebJourneyKey(token),record=await options.store.get(key);
-  return record?.seed?.journey?.experience==='canonical_signal' && Date.parse(record.expiresAt)>date(options).getTime()?{key,record,token}:null;
+  return record?.seed?.journey?.experience==='canonical_signal' && Date.parse(record.expiresAt)>date(options).getTime()?{key,record,token,reviewVersion:await sha256Hex('distribution-review-version|'+token)}:null;
 }
+function stateFor(loaded,now){return {...publicState(loaded.record,now),reviewVersion:loaded.reviewVersion};}
 async function save(loaded,next,options){
   // Compare the exact previous JSON, not a browser-supplied identity or cohort.
   const result=await options.db.prepare('UPDATE pvx_records SET data_json=?,updated_at=?,expires_at=COALESCE(?,expires_at) WHERE record_key=? AND data_json=?')
     .bind(JSON.stringify(next),next.updatedAt,next.contact?.retainedUntil||null,loaded.key,JSON.stringify(loaded.record)).run();
   if(Number(result.meta?.changes)!==1)problem(409);
+}
+function createJourney(distribution,now,immediate){
+  const at=now.toISOString();
+  return {recordType:'pvx_web_journey',schemaVersion:'1.0',journeyId:'pvxj_'+crypto.randomUUID().replaceAll('-',''),
+      ...(immediate&&distribution.entry==='buyer'?{buyerFlowVersion:1,buyer:{}}:{}),
+      seed:{journey:{experience:'canonical_signal'}},distribution,signals:distribution.evidence,answers:[],revision:0,
+      firstTouch:{...distribution.attribution,occurredAt:distribution.occurredAt},currentChannel:distribution.presentation,lastTouchChannel:distribution.presentation,
+      createdAt:at,updatedAt:at,expiresAt:new Date(now.getTime()+TTL).toISOString()};
 }
 export async function distributionEntry(request,options={}){
   if(request.method!=='POST')return json({ok:false},405);
@@ -61,11 +71,7 @@ export async function distributionEntry(request,options={}){
         'Set-Cookie':`${DISTRIBUTION_COOKIE}=${alias.token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${Math.floor((Date.parse(alias.expiresAt)-now)/1000)}`}});
     }
     const token=createPvxWebResumeToken(),key=await pvxWebJourneyKey(token),at=now.toISOString();
-    const record={recordType:'pvx_web_journey',schemaVersion:'1.0',journeyId:'pvxj_'+crypto.randomUUID().replaceAll('-',''),
-      ...(options.immediate&&distribution.entry==='buyer'?{buyerFlowVersion:1,buyer:{}}:{}),
-      seed:{journey:{experience:'canonical_signal'}},distribution,signals:distribution.evidence,answers:[],revision:0,
-      firstTouch:{...distribution.attribution,occurredAt:distribution.occurredAt},currentChannel:distribution.presentation,lastTouchChannel:distribution.presentation,
-      createdAt:at,updatedAt:at,expiresAt:new Date(now.getTime()+TTL).toISOString()};
+    const record=createJourney(distribution,now,options.immediate);
     await options.store.setJSON(key,record,{onlyIfNew:true,metadata:{recordType:record.recordType,createdAt:at,expiresAt:record.expiresAt}});
     try{await options.store.setJSON(aliasKey,{token,fingerprint,expiresAt:record.expiresAt},{onlyIfNew:true,metadata:{expiresAt:record.expiresAt}});}
     catch(e){
@@ -112,19 +118,19 @@ async function deliver(loaded,options){
   v.context.smsOwnership={owner:'FIRST_PARTY_408',basis:'explicit_web_handoff'};
   const result=await upsertLeadJourney(options.store,v,{env:options.env,now:at});
   const projected=await (options.project||projectSoloDeskEvent)({db:options.db,env:options.env},{kind:'lead',record:result.record});
-  if(!projected.ok)return json({...publicState(r,date(options)),ok:false},503);
+  if(!projected.ok)return json({...stateFor(loaded,date(options)),ok:false},503);
   const next={...r,contact:{...c,delivered:true,recoveryState:'delivered'},revision:r.revision+1,updatedAt:date(options).toISOString()};
   try{await save(loaded,next,options);}catch(error){
     // Concurrent reconciliation/retry may have completed this exact handoff.
     const winner=await options.store.get(loaded.key);
     if(error.status!==409||!winner?.contact?.delivered)throw error;
-    return json(publicState(winner,date(options)));
+    return json(stateFor({...loaded,record:winner},date(options)));
   }
   await event(next.distribution,'producer_handoff',options).catch(()=>{});
   // First-party measurement only; never transmit intake or identity to ad vendors.
   const buyer=next.buyerFlowVersion===1?buyerFacts(next,date(options)):null;
   if(buyer&&/^9\d{4}$/.test(buyer.propertyZip||'')&&['single_family','condo','townhome'].includes(buyer.propertyType)&&['urgent','near_term','upcoming','longer_term'].includes(buyer.urgency))await event(next.distribution,'buyer_qualified_request_accepted',options).catch(()=>{});
-  return json(publicState(next,date(options)));
+  return json(stateFor({...loaded,record:next},date(options)));
 }
 export async function distributionJourney(request,options={}){
   try{distributionOrigin(request,options.env);}catch{return json({ok:false},503);}
@@ -132,12 +138,13 @@ export async function distributionJourney(request,options={}){
   if(request.headers.get('origin')!==new URL(request.url).origin)return json({ok:false},403);
   try{
     const raw=await request.text();if(raw.length>4096)problem(413);
-    const body=JSON.parse(raw);strict(body,['action','revision','questionId','code','name','phone','mode','permission','value','contactTime']);
+    const body=JSON.parse(raw);strict(body,['action','revision','questionId','code','name','phone','mode','permission','value','contactTime','reviewVersion']);
     const loaded=await load(request,options);if(!loaded)problem(404);
     const r=loaded.record,now=date(options);
-    if(body.action==='load')return json(publicState(r,now));
+    if(body.action==='load')return json(stateFor(loaded,now));
+    if((body.reviewVersion||r.requiresReviewVersion)&&body.reviewVersion!==loaded.reviewVersion)return json({ok:false,reviewChanged:true,message:'A different review is active in this browser. Reload to continue.'},409);
     if(body.action==='retry_delivery' && r.contact && !r.contact.delivered)return await deliver(loaded,options);
-    if(r.contact)return json(publicState(r,now));
+    if(r.contact)return json(stateFor(loaded,now));
     if(body.revision!==r.revision)problem(409);
     let next={...r,revision:r.revision+1,updatedAt:now.toISOString()};
     if(body.action==='answer'){
@@ -166,7 +173,7 @@ export async function distributionJourney(request,options={}){
       if(!decide(next,now).nextQuestion)await event(next.distribution,'signal_session_completed',options).catch(()=>{});
     }
     if(next.contact)await event(next.distribution,'contact_requested',options).catch(()=>{});
-    return next.contact?await deliver({...loaded,record:next},options):json(publicState(next,now));
+    return next.contact?await deliver({...loaded,record:next},options):json(stateFor({...loaded,record:next},now));
   }catch(e){return json({ok:false,message:e.status===409?'Your review changed. Reload to continue with the saved answers.':'This review is unavailable. Please retry or contact Dylan directly.'},e.status||503);}
 }
 
@@ -187,8 +194,10 @@ export async function distributionInteract(request,options={}){
   if(request.headers.get('origin')!==new URL(request.url).origin)return json({ok:false},403);
   try{
     const raw=await request.text();if(raw.length>8192)problem(413);const body=JSON.parse(raw);
+    if(body.action==='new_review')return await startNewReview(request,body,options);
     if(body.action!=='start')return distributionJourney(new Request(request.url,{method:'POST',headers:request.headers,body:raw}),options);
     strict(body,['action','handoff','questionId','code']);
+    if((await load(request,options))?.record.requiresReviewVersion)return json({ok:false,reviewChanged:true,message:'A different review is active in this browser. Reload to continue.'},409);
     const distribution=normalizeDistribution(body.handoff,date(options)),state=distributionPresentation(body.handoff,date(options));
     if(state.question?.id!==body.questionId||!state.question.options.some(o=>o.code===body.code))problem(422);
     const start=await distributionEntry(new Request(request.url,{method:'POST',headers:{Origin:new URL(request.url).origin,'Content-Type':'application/json'},body:JSON.stringify(body.handoff)}),{...options,immediate:true});
@@ -200,7 +209,7 @@ export async function distributionInteract(request,options={}){
     let response;
     if(loaded.record.answers.length){
       if(loaded.record.answers[0].questionId!==body.questionId||loaded.record.answers[0].optionCode!==body.code)problem(409);
-      response=json(publicState(loaded.record,date(options)));
+      response=json(stateFor(loaded,date(options)));
     }else response=await distributionJourney(new Request(request.url,{method:'POST',headers:h,body:JSON.stringify({action:'answer',revision:loaded.record.revision,questionId:body.questionId,code:body.code})}),options);
     const out=new Headers(response.headers);out.set('Set-Cookie',cookie);
     return new Response(response.body,{status:response.status,headers:out});
@@ -245,4 +254,36 @@ export async function reconcileDistributionContacts(options={}){
   }
   const pending=Number((await options.db.prepare(`SELECT count(*) n FROM pvx_records WHERE ${where}`).bind(at).first())?.n||0);
   return {attempted:rows.length,recovered,failed,pending};
+}
+
+
+async function startNewReview(request,body,options){
+  strict(body,['action','handoff','reviewVersion']);
+  const previous=await load(request,options);if(!previous)problem(404);
+  if(body.reviewVersion!==previous.reviewVersion)return json({ok:false,reviewChanged:true,message:'A different review is active in this browser. Reload to continue.'},409);
+  if(!previous.record.contact?.delivered)return json({...stateFor(previous,date(options)),ok:false,message:previous.record.contact?'Your saved request still needs delivery. Retry delivery before starting another review.':'Finish this review before starting another.'},409);
+  const now=date(options);
+  // Validate the current landing-page contract; never inherit old answers,
+  // consent or campaign context from the completed record.
+  normalizeDistribution(body.handoff,now);
+  const handoff={...body.handoff,bootstrapId:'pvxb_'+randomBase64Url(32),occurredAt:now.toISOString(),evidence:{},knownContext:{},contactChoice:''};
+  const distribution=normalizeDistribution(handoff,now);
+  const fingerprint=await sha256Hex(JSON.stringify({...distribution,bootstrapId:undefined,receivedAt:undefined,occurredAt:undefined}));
+  const aliasKey='pvx/web-bootstrap/new-review/'+await sha256Hex(previous.token);
+  const token=createPvxWebResumeToken(),key=await pvxWebJourneyKey(token),at=now.toISOString();
+  const record={...createJourney(distribution,now,true),requiresReviewVersion:true};
+  const alias={token,fingerprint,expiresAt:record.expiresAt};
+  // D1 batch is atomic. One rotation per predecessor capability, even when
+  // separate tabs submit concurrently. Neither statement changes the old row.
+  await options.db.batch([
+    options.db.prepare("INSERT INTO pvx_records(record_key,data_json,metadata_json,created_at,updated_at,expires_at) SELECT ?,?,?,?,?,? WHERE NOT EXISTS(SELECT 1 FROM pvx_records WHERE record_key=?)")
+      .bind(key,JSON.stringify(record),JSON.stringify({recordType:record.recordType}),at,at,record.expiresAt,aliasKey),
+    options.db.prepare("INSERT OR IGNORE INTO pvx_records(record_key,data_json,metadata_json,created_at,updated_at,expires_at) VALUES(?,?,?,?,?,?)")
+      .bind(aliasKey,JSON.stringify(alias),'{}',at,at,record.expiresAt)
+  ]);
+  const winner=await options.store.get(aliasKey);
+  if(!winner||winner.fingerprint!==fingerprint)return json({ok:false,reviewChanged:true,message:'Another tab started a review. Reload to continue.'},409);
+  const active=await load(new Request(request.url,{headers:{Cookie:DISTRIBUTION_COOKIE+'='+winner.token}}),options);if(!active)problem(503);
+  const out=new Headers(headers);out.set('Set-Cookie',`${DISTRIBUTION_COOKIE}=${winner.token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${Math.max(0,Math.floor((Date.parse(active.record.expiresAt)-now)/1000))}`);
+  return Response.json({...stateFor(active,now),newReview:true},{headers:out});
 }

@@ -10,9 +10,9 @@
   async function send(body){
     if(busy)return;busy=true;root.setAttribute('aria-busy','true');root.querySelectorAll('button').forEach(b=>b.disabled=true);status.textContent='Saving your answer…';
     try{
-      const response=await fetch(boot.api+'/interact',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-      const value=await response.json();if(!response.ok&&!value.deliveryPending)throw Error('save');
-      state=value;started=true;answered=true;finished=Boolean(state.contactSubmitted);status.textContent='Saved.';render();focus();
+      const response=await fetch(boot.api+'/interact',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({...body,...(started&&state.reviewVersion?{reviewVersion:state.reviewVersion}:{})})});
+      const value=await response.json();if(value.reviewChanged){status.textContent=value.message;root.replaceChildren(el('h2','Your review changed in another tab',{tabindex:'-1'}),button('Reload current review',()=>location.reload()));focus();return;}if(!response.ok&&!value.deliveryPending)throw Error('save');
+      state=value;if(value.newReview)contactDraft={};started=true;answered=!value.newReview;finished=Boolean(state.contactSubmitted);status.textContent=value.newReview?'New review started.':'Saved.';render();focus();if(value.newReview)metric('first_question_view');
     }catch{
       status.textContent='We couldn’t confirm that step was saved. Your earlier answers are kept. Retry the step, or reload saved answers before continuing.';
       if(!root.querySelector('[data-reload]')){const b=button('Reload saved answers',()=>send({action:'load'}));b.dataset.reload='true';root.append(b);}
@@ -34,7 +34,8 @@
     for(const o of state.question.options)field.append(button(o.label,()=>answer(o.code)));root.append(field);}
     else{root.append(el('h2',state.message||'Your answers are saved',{tabindex:'-1'}));if(state.description)root.append(el('p',state.description));}
     if(state.urgent){root.append(el('p','Closing within 7 days? You can call Dylan directly while your request is reviewed.'),el('a','Call (408) 327-6377',{href:'tel:+14083276377'}));}
-    if(state.deliveryPending)root.append(button('Retry delivery',()=>send({action:'retry_delivery'})));
+    if(state.deliveryPending){root.append(button('Retry delivery',()=>send({action:'retry_delivery'})),el('p','Start a New Review is available after this saved request reaches Dylan’s workspace.'));}
+    if(state.contactSubmitted){if(!state.deliveryPending)root.append(button('Start a New Review',()=>send({action:'new_review',handoff:boot.handoff})));root.append(el('a','Contact Dylan',{href:boot.handoff.presentation==='408_contextual'?'/contact/':'/support/'}));}
     else if(!state.contactSubmitted&&started){if(state.canBack)root.append(button('Back',()=>send({action:'back',revision:state.revision})));root.append(button('Ask Dylan to follow up',contact));}
   }
   root.querySelectorAll('[data-answer]').forEach(b=>b.onclick=()=>answer(b.dataset.answer));
