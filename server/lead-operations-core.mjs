@@ -141,7 +141,7 @@ function boundedStage(value, fallback = 'started') {
   return LEAD_STAGES.includes(candidate) ? candidate : fallback;
 }
 
-function retentionExpiresAt(now, env = {}) {
+export function retentionExpiresAt(now, env = {}) {
   const configured = Number(env.COVERAGEFIT_LEAD_RETENTION_DAYS);
   const days = Number.isFinite(configured) ? Math.max(30, Math.min(3650, configured)) : DEFAULT_RETENTION_DAYS;
   return new Date(now.getTime() + days * 24 * 60 * 60 * 1000).toISOString();

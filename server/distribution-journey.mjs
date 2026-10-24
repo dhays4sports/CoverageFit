@@ -1,8 +1,9 @@
+import {distributionOrigin} from './distribution-preview.mjs';
 import {BUYER_QUESTIONS,buyerDecision,buyerFacts,buyerSummary} from './buyer-journey.mjs';
 import {normalizeDistribution} from './distribution-contract.mjs';
 import {deriveSignalDecision,SIGNAL_QUESTION_LIBRARY} from './signal-decision-core.mjs';
 import {createPvxWebResumeToken,pvxWebJourneyKey} from './pvx-web-journey-core.mjs';
-import {normalizeLeadPayload,upsertLeadJourney} from './lead-operations-core.mjs';
+import {normalizeLeadPayload,upsertLeadJourney,retentionExpiresAt} from './lead-operations-core.mjs';
 import {projectSoloDeskEvent} from './solo-desk-event-projection.mjs';
 import {sha256Hex} from './runtime-crypto.mjs';
 import {smsLiveConversationId} from './sms-outbound-gateway.mjs';
@@ -36,13 +37,14 @@ async function load(request,options){
 }
 async function save(loaded,next,options){
   // Compare the exact previous JSON, not a browser-supplied identity or cohort.
-  const result=await options.db.prepare('UPDATE pvx_records SET data_json=?,updated_at=? WHERE record_key=? AND data_json=?')
-    .bind(JSON.stringify(next),next.updatedAt,loaded.key,JSON.stringify(loaded.record)).run();
+  const result=await options.db.prepare('UPDATE pvx_records SET data_json=?,updated_at=?,expires_at=COALESCE(?,expires_at) WHERE record_key=? AND data_json=?')
+    .bind(JSON.stringify(next),next.updatedAt,next.contact?.retainedUntil||null,loaded.key,JSON.stringify(loaded.record)).run();
   if(Number(result.meta?.changes)!==1)problem(409);
 }
 export async function distributionEntry(request,options={}){
   if(request.method!=='POST')return json({ok:false},405);
-  if(!origins.has(request.headers.get('origin')))return json({ok:false},403);
+  let own;try{own=distributionOrigin(request,options.env);}catch{return json({ok:false},503);}
+  if(own.endsWith('.coveragefit.pages.dev')?request.headers.get('origin')!==own:!origins.has(request.headers.get('origin')))return json({ok:false},403);
   try{
     const raw=await request.text();if(raw.length>8192)problem(413);
     const input=request.headers.get('content-type')?.includes('application/json')?JSON.parse(raw):JSON.parse(new URLSearchParams(raw).get('handoff')||'null');
@@ -111,8 +113,13 @@ async function deliver(loaded,options){
   const result=await upsertLeadJourney(options.store,v,{env:options.env,now:at});
   const projected=await (options.project||projectSoloDeskEvent)({db:options.db,env:options.env},{kind:'lead',record:result.record});
   if(!projected.ok)return json({...publicState(r,date(options)),ok:false},503);
-  const next={...r,contact:{...c,delivered:true},revision:r.revision+1,updatedAt:date(options).toISOString()};
-  await save(loaded,next,options);
+  const next={...r,contact:{...c,delivered:true,recoveryState:'delivered'},revision:r.revision+1,updatedAt:date(options).toISOString()};
+  try{await save(loaded,next,options);}catch(error){
+    // Concurrent reconciliation/retry may have completed this exact handoff.
+    const winner=await options.store.get(loaded.key);
+    if(error.status!==409||!winner?.contact?.delivered)throw error;
+    return json(publicState(winner,date(options)));
+  }
   await event(next.distribution,'producer_handoff',options).catch(()=>{});
   // First-party measurement only; never transmit intake or identity to ad vendors.
   const buyer=next.buyerFlowVersion===1?buyerFacts(next,date(options)):null;
@@ -120,6 +127,7 @@ async function deliver(loaded,options){
   return json(publicState(next,date(options)));
 }
 export async function distributionJourney(request,options={}){
+  try{distributionOrigin(request,options.env);}catch{return json({ok:false},503);}
   if(request.method!=='POST')return json({ok:false},405);
   if(request.headers.get('origin')!==new URL(request.url).origin)return json({ok:false},403);
   try{
@@ -149,7 +157,7 @@ export async function distributionJourney(request,options={}){
       const phone=String(body.phone||'').replace(/\D/g,'').replace(/^1(?=\d{10}$)/,''),name=String(body.name||'').trim();
       if(body.permission!==true||!['call','text'].includes(body.mode)||!/^\d{10}$/.test(phone)||!name||name.length>80||/[<>\x00-\x1f]/.test(name))problem(422);
       if(body.contactTime&&!['morning','afternoon','evening','anytime'].includes(body.contactTime))problem(422);
-      next.contact={name,phone,mode:body.mode,...(body.contactTime?{contactTime:body.contactTime}:{}),at:now.toISOString(),delivered:false};
+      next.contact={name,phone,mode:body.mode,...(body.contactTime?{contactTime:body.contactTime}:{}),at:now.toISOString(),retainedUntil:retentionExpiresAt(now,options.env),delivered:false};
     }else problem(422);
     await save(loaded,next,options);
     if(body.action==='answer'){
@@ -174,6 +182,7 @@ export function distributionPresentation(input,now=new Date()){
   return publicState({journeyId:'entry_presentation',...(distribution.entry==='buyer'?{buyerFlowVersion:1,buyer:{}}:{}),distribution,signals:distribution.evidence,answers:[],revision:0},now);
 }
 export async function distributionInteract(request,options={}){
+  try{distributionOrigin(request,options.env);}catch{return json({ok:false},503);}
   if(request.method!=='POST')return json({ok:false},405);
   if(request.headers.get('origin')!==new URL(request.url).origin)return json({ok:false},403);
   try{
@@ -198,6 +207,7 @@ export async function distributionInteract(request,options={}){
   }catch(e){return json({ok:false,message:'We couldn’t save that answer. Please retry or contact Dylan.'},e.status||503);}
 }
 export async function distributionEvent(request,options={}){
+  try{distributionOrigin(request,options.env);}catch{return json({ok:false},503);}
   if(request.method!=='POST'||request.headers.get('origin')!==new URL(request.url).origin)return json({ok:false},403);
   try{
     const raw=await request.text();if(raw.length>8192)problem(413);const body=JSON.parse(raw);strict(body,['type','handoff']);
@@ -208,4 +218,31 @@ export async function distributionEvent(request,options={}){
     await event(distribution,body.type,options);
     return json({ok:true});
   }catch(e){return json({ok:false},e.status||422);}
+}
+
+// Bounded operator-triggered reconciliation, invoked by the existing lead sync.
+// No cron, provider delivery, token exposure, or new queue. Resume expiration is
+// separate from explicitly consented request retention. Failed rows rotate so a
+// permanent error cannot starve later requests.
+export async function reconcileDistributionContacts(options={}){
+  const where="record_key LIKE 'pvx/web-journey/%' AND json_extract(data_json,'$.seed.journey.experience')='canonical_signal' AND json_extract(data_json,'$.contact.delivered')=0 AND (expires_at IS NULL OR expires_at>?)";
+  const at=date(options).toISOString();
+  const rows=(await options.db.prepare(`SELECT record_key,data_json FROM pvx_records WHERE ${where} ORDER BY updated_at,record_key LIMIT 10`).bind(at).all()).results||[];
+  let recovered=0,failed=0;
+  for(const row of rows){
+    const record=JSON.parse(row.data_json),loaded={key:row.record_key,record};
+    try{
+      if(!record.contact?.at||!['call','text'].includes(record.contact.mode))throw Error('invalid_contact');
+      const response=await deliver(loaded,options);
+      if(!response.ok)throw Error('handoff_pending');
+      recovered++;
+    }catch{
+      failed++;
+      // Preserve the saved permission and inputs. Never store exception text.
+      const next={...record,updatedAt:at,contact:{...record.contact,lastRecoveryAt:at,recoveryState:'pending'}};
+      try{await save(loaded,next,options);}catch{/* A concurrent delivery wins. */}
+    }
+  }
+  const pending=Number((await options.db.prepare(`SELECT count(*) n FROM pvx_records WHERE ${where}`).bind(at).first())?.n||0);
+  return {attempted:rows.length,recovered,failed,pending};
 }

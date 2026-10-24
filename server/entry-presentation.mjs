@@ -14,8 +14,8 @@ export function entryInput(url,now=new Date()){
   return {version:DISTRIBUTION_VERSION,entry,presentation:q.get('presentation')||'408_contextual',bootstrapId:'pvxb_'+randomBase64Url(32),occurredAt:now.toISOString(),attribution,evidence:{},
     ...(q.has('market')?{qr:{market:q.get('market'),campaign:q.get('qr_campaign')}}:{})};
 }
-export function renderEntry(handoff,state=distributionPresentation(handoff)){
-  const contextual=handoff.presentation==='408_contextual',base=contextual?'https://coveragefit.com':'',brand=contextual?'408FARMERS':'CoverageFit';
+export function renderEntry(handoff,state=distributionPresentation(handoff),assetOrigin='https://coveragefit.com'){
+  const contextual=handoff.presentation==='408_contextual',base=contextual?assetOrigin:'',brand=contextual?'408FARMERS':'CoverageFit';
   const api=contextual?'/api/entry':'/api/distribution';
   const compatibility=['home','buyer','condo','tech','teachers','healthcare'].includes(handoff.entry)?'/'+handoff.entry+'/legacy.html':'/'+handoff.entry+'/';
   const question=state.question;
