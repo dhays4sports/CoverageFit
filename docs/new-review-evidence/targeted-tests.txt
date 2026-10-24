@@ -1,0 +1,21 @@
+✔ completed review starts current audience independently: buyer (41.342065ms)
+✔ completed review starts current audience independently: tech (16.73045ms)
+✔ completed review starts current audience independently: healthcare (14.162611ms)
+✔ completed review starts current audience independently: engineers (15.771465ms)
+✔ completed review starts current audience independently: teachers (13.343747ms)
+✔ completed review starts current audience independently: home (13.859858ms)
+✔ completed review starts current audience independently: condo (15.717212ms)
+✔ new buyer answers and reload resume independently, and stale tab cannot mutate matching revision (15.48228ms)
+✔ concurrent completed tabs and repeated network retries rotate once without orphan records (18.364937ms)
+✔ pending delivery blocks rotation, keeps retry/reconciliation and original request (14.082428ms)
+✔ expired, cross-origin, missing-session and uncompleted requests cannot rotate (13.197837ms)
+✔ atomic storage failure preserves active old capability and retry creates only one new journey (13.706617ms)
+✔ a later consented request is independent, and another explicit restart is possible (20.98434ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 335.364713
