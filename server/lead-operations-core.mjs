@@ -478,6 +478,7 @@ export function projectAgencyZoomLead(record, stage = record?.stage || 'started'
     product_or_review_track: clean(record?.context?.reviewTrack, 40),
     housing_context: clean(record?.context?.housing, 40),
     property_type: clean(record?.context?.propertyType, 40),
+    ...(record?.context?.distribution?.buyer ? {buyer_context:record.context.distribution.buyer,buyer_summary:clean(record.context.buyerSummary,1000)} : {}),
     current_carrier: clean(record?.context?.currentCarrier, 60),
     renewal_timing: clean(record?.context?.renewalTiming, 40),
     auto_vehicle_count: clean(record?.context?.autoVehicleCount, 20),
