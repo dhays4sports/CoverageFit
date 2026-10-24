@@ -141,7 +141,7 @@ function boundedStage(value, fallback = 'started') {
   return LEAD_STAGES.includes(candidate) ? candidate : fallback;
 }
 
-function retentionExpiresAt(now, env = {}) {
+export function retentionExpiresAt(now, env = {}) {
   const configured = Number(env.COVERAGEFIT_LEAD_RETENTION_DAYS);
   const days = Number.isFinite(configured) ? Math.max(30, Math.min(3650, configured)) : DEFAULT_RETENTION_DAYS;
   return new Date(now.getTime() + days * 24 * 60 * 60 * 1000).toISOString();
@@ -478,6 +478,7 @@ export function projectAgencyZoomLead(record, stage = record?.stage || 'started'
     product_or_review_track: clean(record?.context?.reviewTrack, 40),
     housing_context: clean(record?.context?.housing, 40),
     property_type: clean(record?.context?.propertyType, 40),
+    ...(record?.context?.distribution?.buyer ? {buyer_context:record.context.distribution.buyer,buyer_summary:clean(record.context.buyerSummary,1000)} : {}),
     current_carrier: clean(record?.context?.currentCarrier, 60),
     renewal_timing: clean(record?.context?.renewalTiming, 40),
     auto_vehicle_count: clean(record?.context?.autoVehicleCount, 20),

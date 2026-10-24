@@ -1,3 +1,4 @@
+import {createPVXRecordStore} from './d1-json-store.mjs';
 import {clean,fail,pacificInputToISO} from '../assets/js/solo-desk-model.mjs';
 import {digest,parse,stamp} from './solo-desk-repository.mjs';
 import {projectOpportunityAttribution,refreshOpportunityMeasurement} from './acquisition-measurement.mjs';
@@ -11,7 +12,7 @@ const safeAppointment=a=>a?.googleEventId?{eventId:clean(a.googleEventId,200),st
 const SALES_STAGE_RANK=Object.freeze({inquiry:1,discovery:2,quote_preparation:3,recommendation:4,decision:5,issuance_onboarding:6});
 const LEAD_STAGE_TO_SALES=Object.freeze({started:'inquiry',snapshot_completed:'discovery',contact_requested:'discovery',home_profile_ready:'quote_preparation',policy_review_ready:'quote_preparation'});
 
-export function sourceSync(repo){
+export function sourceSync(repo,env={}){
   const {sql,rows,scope,db}=repo,{workspace,actor}=scope;
   const linked=async(kind,id)=>sql('SELECT opportunity_id FROM cf_solo_sources WHERE workspace_id=? AND kind=? AND source_id=?',workspace,kind,id).first();
   const legacy=async(table,key)=>{const row=await sql(`SELECT data_json FROM ${table} WHERE record_key=?`,key).first();return row?parse(row.data_json):null;};
@@ -54,7 +55,7 @@ export function sourceSync(repo){
     if(!(permission.granted||permission.basis))return null;
     const createdAt=safeDate(value.createdAt),updatedAt=safeDate(value.updatedAt);
     const op=await ensure('lead',value.checkpointId,{contact:contact(value.identity),source:clean(value.attribution?.sourceLabel||value.attribution?.sourceKey||'408FARMERS inquiry',120),reason:clean(value.context?.reviewContext||value.context?.reviewReason,600),products:clean(value.context?.reviewTrack,200),deadline:clean(value.context?.closingDate,10),createdAt,updatedAt,
-      next:task('Review inquiry and choose the next action',createdAt),summary:{stage:value.stage,contactRequested:value.consent?.contactRequested===true,attribution:value.attribution,context:{distribution:value.context?.distribution||null,signalHome:value.context?.signalHome||null,shoppingIntent:clean(value.context?.shoppingIntent,40),decisionTiming:clean(value.context?.decisionTiming,40),statedTrigger:clean(value.context?.statedTrigger,100),reviewTrack:clean(value.context?.reviewTrack,40),reviewReason:clean(value.context?.reviewReason,60),reviewContext:clean(value.context?.reviewContext,120),propertyType:clean(value.context?.propertyType,40),currentCarrier:clean(value.context?.currentCarrier,60),renewalTiming:clean(value.context?.renewalTiming,40),autoVehicleCount:clean(value.context?.autoVehicleCount,20),housing:clean(value.context?.housing,40),unitWaterShutoff:clean(value.context?.unitWaterShutoff,40),automaticWaterShutoffDevice:clean(value.context?.automaticWaterShutoffDevice,40),waterShutoffWillingness:clean(value.context?.waterShutoffWillingness,40),waterShutoffEvidenceStatus:clean(value.context?.waterShutoffEvidenceStatus,40),closingDate:clean(value.context?.closingDate,40),fivSignalVersion:clean(value.context?.fivSignalVersion,80)},permission:{basis:clean(permission.basis,200),callPermitted:permission.callPermitted===true,personalTextPermitted:permission.personalTextPermitted===true,emailPermitted:permission.emailPermitted===true},crm:{state:clean(value.crm?.state,40),reason:clean(value.crm?.reason,240)},notification:'See acquisition delivery status',appointment:safeAppointment(value.context?.appointment)}});
+      next:task(value.context?.distribution?.buyer?.urgency==='urgent'?'Urgent closing: contact buyer and confirm timing':'Review inquiry and choose the next action',createdAt),summary:{stage:value.stage,contactRequested:value.consent?.contactRequested===true,attribution:value.attribution,context:{...(value.context?.distribution?.buyer?{buyerSummary:clean(value.context.buyerSummary,1000),buyerUrgency:clean(value.context.buyerUrgency,40)}:{}),distribution:value.context?.distribution||null,signalHome:value.context?.signalHome||null,shoppingIntent:clean(value.context?.shoppingIntent,40),decisionTiming:clean(value.context?.decisionTiming,40),statedTrigger:clean(value.context?.statedTrigger,100),reviewTrack:clean(value.context?.reviewTrack,40),reviewReason:clean(value.context?.reviewReason,60),reviewContext:clean(value.context?.reviewContext,120),propertyType:clean(value.context?.propertyType,40),currentCarrier:clean(value.context?.currentCarrier,60),renewalTiming:clean(value.context?.renewalTiming,40),autoVehicleCount:clean(value.context?.autoVehicleCount,20),housing:clean(value.context?.housing,40),unitWaterShutoff:clean(value.context?.unitWaterShutoff,40),automaticWaterShutoffDevice:clean(value.context?.automaticWaterShutoffDevice,40),waterShutoffWillingness:clean(value.context?.waterShutoffWillingness,40),waterShutoffEvidenceStatus:clean(value.context?.waterShutoffEvidenceStatus,40),closingDate:clean(value.context?.closingDate,40),fivSignalVersion:clean(value.context?.fivSignalVersion,80)},permission:{basis:clean(permission.basis,200),callPermitted:permission.callPermitted===true,personalTextPermitted:permission.personalTextPermitted===true,emailPermitted:permission.emailPermitted===true},crm:{state:clean(value.crm?.state,40),reason:clean(value.crm?.reason,240)},notification:'See acquisition delivery status',appointment:safeAppointment(value.context?.appointment)}});
     const target=LEAD_STAGE_TO_SALES[clean(value.stage,40)]||'';
     if(op&&target)await advanceSalesStage(op,target,`lead-stage:${clean(value.checkpointId,120)}:${clean(value.stage,40)}`);
     if(op&&value.stage==='contact_requested')await signal(op,`lead-contact:${clean(value.checkpointId,120)}`,task('Respond to requested contact',updatedAt,'advice_closing'),{note:'Customer explicitly requested producer contact.',stage:value.stage,checkpointId:value.checkpointId},70);
@@ -173,6 +174,8 @@ export function sourceSync(repo){
   };
   return {anchor,link,projectLead:lead,projectRecommendation:recommendation,projectResponse:response,projectClosing:closing,projectBooking:booking,projectJourney:journey,async sync(stream){
     if(workspace!=='virginia-tam:dylan-haysbert')fail(409,'workspace_transition','Importing legacy records into a different agency workspace requires a reviewed transition mapping.');
+    let recovery;
+    if(stream==='leads'){const {reconcileDistributionContacts}=await import('./distribution-journey.mjs');recovery=await reconcileDistributionContacts({db,store:createPVXRecordStore(db),env});}
     const c=configs[stream];if(!c)fail(422,'stream','Choose a supported source.');
     const saved=await sql('SELECT cursor_json FROM cf_solo_sync WHERE workspace_id=? AND stream=?',workspace,stream).first(),prior=saved?.cursor_json;
     const cursor=parse(prior),until=cursor.until||stamp(),after=cursor.after||'',key=cursor.key||'',time=c.time||'updated_at';
@@ -182,6 +185,6 @@ export function sourceSync(repo){
     // A short overlap catches source writes that finish near the sync boundary.
     const next=more?{after:last[time.split('.').at(-1)],key:last[c.key.split('.').at(-1)],until}:{after:new Date(Date.parse(until)-120000).toISOString(),key:'',lastCompletedAt:until};
     await sql(`INSERT INTO cf_solo_sync(workspace_id,stream,cursor_json) VALUES(?,?,?) ON CONFLICT(workspace_id,stream) DO UPDATE SET cursor_json=excluded.cursor_json WHERE cf_solo_sync.cursor_json=?`,workspace,stream,JSON.stringify(next),prior||'').run();
-    return {stream,processed:Math.min(found.length,10),skipped,hasMore:more,lastCompletedAt:next.lastCompletedAt||null};
+    return {stream,processed:Math.min(found.length,10),skipped,...(recovery?{recovery}:{}),hasMore:more||!!recovery?.pending,lastCompletedAt:next.lastCompletedAt||null};
   }};
 }

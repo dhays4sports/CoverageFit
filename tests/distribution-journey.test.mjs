@@ -144,7 +144,7 @@ test('real canonical buyer handoff continues on the same opportunity with origin
     const first=distributionPresentation(handoff,new Date(now));assert.equal(first.question.id,'buyer_need');
     const response=await distributionInteract(req('interact',{action:'start',handoff,questionId:first.question.id,code:'closing_coverage'}),f);
     assert.equal(response.status,200);const state=await response.json(),cookie=response.headers.get('set-cookie').split(';')[0];
-    assert.equal(state.question.id,'home_shopping_intent');
+    assert.equal(state.question.id,'buyer_timing');
     const contact=await distributionJourney(req('journey',{action:'contact',revision:state.revision,name:'Synthetic Entry Canary',phone:'2025550199',mode:'call',permission:true},cookie),f);assert.equal(contact.status,200,await contact.clone().text());
     const opportunity=f.sql.prepare('SELECT id FROM cf_solo_opportunities').get().id;
     const original=JSON.parse(f.sql.prepare("SELECT summary_json FROM cf_solo_sources WHERE kind='lead'").get().summary_json);assert.ok(original.context.distribution.conversation_id);assert.equal(original.context.distribution.phase,'producer_handoff');

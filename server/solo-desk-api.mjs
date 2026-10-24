@@ -65,7 +65,7 @@ export async function handleSoloDesk(context){
     if(route==='raw-preview')return json({ok:true,...await rawImporter(repo,env).preview(value)});
     if(route==='raw-import')return json({ok:true,...await rawImporter(repo,env).commit(value)});
     if(route==='raw-promote')return json({ok:true,...await rawImporter(repo,env).promote(value)});
-    if(route==='sync')return json({ok:true,...await sourceSync(repo).sync(value.stream)});
+    if(route==='sync')return json({ok:true,...await sourceSync(repo,env).sync(value.stream)});
     if(route==='priority-backfill'){const result=await repo.backfillOpportunityPriority(value.limit||60);return json({ok:true,...result});}
     if(!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(value.requestId||''))fail(422,'request_id','Reload the form before saving.');
     if(route==='continue-create'||route==='continue-action'){if(env.SIGNAL_CONTINUE_ENABLED!=='1')fail(503,'continue_disabled','Signal Continue is not activated.');const svc=signalContinue(repo,env);return json({ok:true,...await (route==='continue-create'?svc.create(value):svc.producer(value))});}
