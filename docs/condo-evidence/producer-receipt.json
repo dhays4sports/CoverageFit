@@ -1,0 +1,50 @@
+{
+  "environment": "Isolated in-memory SQLite; no provider credentials",
+  "summary": "Condo: My policy is renewing or getting more expensive. ZIP 95128. Use: I live there / will live there. Estimated renewal: 15–30 days. Concern: Both premium and coverage. Priority: near_term. Prefers call / afternoon. Review renewal, premium and relevant coverage.",
+  "condo": {
+    "reason": "renewal",
+    "timingWindow": "days_15_30",
+    "propertyZip": "95128",
+    "propertyUse": "primary",
+    "concern": "both",
+    "closingDate": "",
+    "urgency": "near_term",
+    "nextAction": "Review renewal, premium and relevant coverage."
+  },
+  "attribution": {
+    "sourceKey": "web_408_condo",
+    "sourceLabel": "Web — 408farmers.com Condo",
+    "pipeline": "personal",
+    "source": "",
+    "campaign": "",
+    "campaignId": "",
+    "campaignVariant": "immediate_question_v1",
+    "partnerId": "",
+    "batchId": "",
+    "creative": "",
+    "utm": {
+      "source": "instagram",
+      "medium": "paid_social",
+      "campaign": "professional_qa",
+      "content": "",
+      "term": ""
+    },
+    "landingPage": "/condo/",
+    "sourceFamily": "paid_social",
+    "audience": "condo",
+    "marketContext": "",
+    "occurredAt": "2026-10-24T20:45:20.195Z",
+    "referralContext": ""
+  },
+  "permission": {
+    "basis": "explicit_agency_contact_consent",
+    "callPermitted": true,
+    "personalTextPermitted": false,
+    "emailPermitted": false
+  },
+  "appointment": null,
+  "crm": {
+    "state": "pending",
+    "reason": ""
+  }
+}

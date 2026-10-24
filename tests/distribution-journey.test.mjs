@@ -174,7 +174,7 @@ test('Condo context survives entry without asking property type or adding intent
  const normalized=normalizeDistribution(handoff,new Date(now));
  assert.equal(normalized.audience,'condo');assert.equal(normalized.route,'/condo/');
  assert.deepEqual(normalized.evidence,{product:'home'});
- const state=distributionPresentation(handoff,new Date(now));assert.equal(state.question.id,'home_trigger');
+ const state=distributionPresentation(handoff,new Date(now));assert.equal(state.question.id,'condo_need');
  assert.doesNotMatch(state.question.prompt,/property type|own or rent/i);
  const html=renderEntry(handoff,state);assert.match(html,/Condo insurance review with Dylan/);
  assert.match(html,/href="\/condo\/legacy.html">Existing review or appointment/);
@@ -184,12 +184,12 @@ test('Condo answer resumes and reaches one WEB_DIRECT record with source and evi
  const f=fixture();try{
   f.env={COVERAGEFIT_DB:f.db,COVERAGEFIT_SOLO_WORKSPACE_ID:'qa'};
   const handoff={...input(),entry:'condo',evidence:{},knownContext:{},contactChoice:'',attribution:{campaignId:'condo_internal_canary',campaignVariant:'immediate_question'}};
-  const first=distributionPresentation(handoff,new Date(now));assert.equal(first.question.id,'home_trigger');
-  const response=await distributionInteract(req('interact',{action:'start',handoff,questionId:first.question.id,code:'renewal_change'}),f);
+  const first=distributionPresentation(handoff,new Date(now));assert.equal(first.question.id,'condo_need');
+  const response=await distributionInteract(req('interact',{action:'start',handoff,questionId:first.question.id,code:'renewal'}),f);
   assert.equal(response.status,200);const cookie=response.headers.get('set-cookie').split(';')[0];
   const post=body=>distributionJourney(req('journey',body,cookie),f);
   const state=await response.json(),resumed=await (await post({action:'load'})).json();
-  assert.equal(state.question.id,'home_shopping_intent');assert.equal(resumed.question.id,state.question.id);
+  assert.equal(state.question.id,'condo_renewal');assert.equal(resumed.question.id,state.question.id);
   const contact={action:'contact',revision:resumed.revision,name:'Synthetic Condo Canary',phone:'2025550197',mode:'call',permission:true};
   assert.equal((await post(contact)).status,200);assert.equal((await post(contact)).status,200);
   assert.equal(f.sql.prepare('SELECT count(*) n FROM cf_solo_opportunities').get().n,1);

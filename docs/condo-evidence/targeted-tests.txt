@@ -1,0 +1,35 @@
+✔ condo renewal owner persists and projects one consented opportunity (49.490784ms)
+✔ condo urgent buyer persists and projects one consented opportunity (22.552043ms)
+✔ condo non-renewal persists and projects one consented opportunity (19.912819ms)
+✔ condo cancellation rental persists and projects one consented opportunity (19.425623ms)
+✔ condo rental coverage review persists and projects one consented opportunity (17.843906ms)
+✔ condo HOA concern persists and projects one consented opportunity (20.128591ms)
+✔ condo early research persists and projects one consented opportunity (14.917794ms)
+✔ condo purchase no property persists and projects one consented opportunity (17.434134ms)
+✔ condo second home purchase persists and projects one consented opportunity (20.113969ms)
+✔ condo Back, saved ZIP, reload, exact closing date and no-session protections (13.448765ms)
+✔ condo projection failure remains pending, blocks restart, reconciliation deduplicates (19.712961ms)
+✔ transient lead write failure is recovered without visitor return (14.738677ms)
+✔ legacy condo resumes unchanged; completed buyer restarts as versioned condo with independent attribution (13.913869ms)
+✔ unknown termination date requires confirmation, not an exploratory assumption (0.310192ms)
+✔ completed review starts current audience independently: buyer (40.272525ms)
+✔ completed review starts current audience independently: tech (16.909033ms)
+✔ completed review starts current audience independently: healthcare (13.516204ms)
+✔ completed review starts current audience independently: engineers (14.445271ms)
+✔ completed review starts current audience independently: teachers (12.99613ms)
+✔ completed review starts current audience independently: home (12.508193ms)
+✔ completed review starts current audience independently: condo (13.932346ms)
+✔ new buyer answers and reload resume independently, and stale tab cannot mutate matching revision (15.545229ms)
+✔ concurrent completed tabs and repeated network retries rotate once without orphan records (16.585841ms)
+✔ pending delivery blocks rotation, keeps retry/reconciliation and original request (13.825717ms)
+✔ expired, cross-origin, missing-session and uncompleted requests cannot rotate (12.88557ms)
+✔ atomic storage failure preserves active old capability and retry creates only one new journey (14.04222ms)
+✔ a later consented request is independent, and another explicit restart is possible (31.24196ms)
+ℹ tests 27
+ℹ suites 0
+ℹ pass 27
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 387.553794
