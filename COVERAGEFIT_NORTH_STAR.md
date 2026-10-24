@@ -460,3 +460,8 @@ Optimize useful revenue / producer hour and producer effort / useful conversatio
 Future EV(action | state) = expected incremental customer value − expected execution cost. Contactability, response velocity and channel responsiveness may later inform execution success/cost, not intrinsic person quality. No arbitrary points, numeric EV, fake DIG/$ or automatic weight changes are introduced. Calibration remains observational; scoring changes require human review and a new engine version.
 
 market.ad integration is deferred. It is one potential acquisition source, not the North Star. Generic attribution, canonical Signal, exposure, spend and outcome contracts should allow future source and feedback adapters without a core rewrite. Channel economics remain separate from individual opportunity quality. The system must work if market.ad never launches. See [the economic roadmap and conformance evidence](docs/SIGNAL-NORTH-STAR-1.0.md).
+
+
+## Portfolio reconciliation 1.1
+
+See [CoverageFit adoption note](docs/MESH-PERSONAL-CONTROL-PLANE-ADOPTION-1.1.md). Documentation only: preserve native records, consent, current release state and existing runtime controls. No Mesh dependency or operational authority is introduced.
