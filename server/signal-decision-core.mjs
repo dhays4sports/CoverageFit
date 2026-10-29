@@ -10,7 +10,7 @@ const SIGNAL_FIELDS=new Set([
   'lifeCoverageStatus','lifeProtectionTrigger','lifeGoal'
 ]);
 const ATTRIBUTION_FIELDS=new Set([
-  'source','sourceFamily','sourceKey','campaignId','campaignVariant','creative','partnerId','batchId',
+  'source','sourceFamily','sourceKey','campaignId','campaignVariant','creative','partnerId','placementId','batchId',
   'utmSource','utmMedium','utmCampaign','utmContent','utmTerm','landingPage'
 ]);
 const PROHIBITED_KEYS=new Set([
