@@ -1,3 +1,4 @@
+import {scopedRequest,scopedResponse} from './distribution-sessions.mjs';
 import {CONDO_QUESTIONS,condoDecision,condoFacts,condoSummary,condoQualified} from './condo-journey.mjs';
 import {distributionOrigin} from './distribution-preview.mjs';
 import {BUYER_QUESTIONS,buyerDecision,buyerFacts,buyerSummary} from './buyer-journey.mjs';
@@ -24,7 +25,7 @@ function decide(record,now){if(record.condoFlowVersion===1)return condoDecision(
   canonicalSignals:record.signals,attribution:record.distribution.attribution,
   presentationContext:record.distribution.audience==='homebuyer'?'homebuyer':record.distribution.audience==='condo'?'condo':''},now).public;}
 function publicState(record,now){
-  if(record.contact) return {ok:true,revision:record.revision,complete:true,contactSubmitted:true,message:record.contact.delivered?'Thanks — your request reached Dylan’s workspace. He can pick up from what you shared.':'Your request is saved. Please retry delivery or contact Dylan directly.',deliveryPending:!record.contact.delivered};
+  if(record.contact) return {ok:true,revision:record.revision,complete:true,contactSubmitted:true,requestId:'408d_'+record.journeyId,message:record.contact.delivered?'Thanks — your request reached Dylan’s workspace. He can pick up from what you shared.':'Your request is saved. Please retry delivery or contact Dylan directly.',deliveryPending:!record.contact.delivered};
   const d=decide(record,now);
   return {ok:true,revision:record.revision,canBack:record.answers.length>0,contactChoice:record.distribution.contactChoice,
     ...(record.buyerFlowVersion===1?{buyer:true,urgent:buyerFacts(record,now).urgency==='urgent'}:{}),
@@ -98,7 +99,7 @@ async function deliver(loaded,options){
   const normalized=normalizeLeadPayload({lead_checkpoint_id:'408d_'+r.journeyId,lead_stage:'contact_requested',first_name:c.name,phone:c.phone,
     contact_consent:true,consent_version:'distribution-contact-v1',consent_at:at,automated_marketing_sms_consent:false,
     source_key:r.distribution.operationalSourceKey||a.sourceKey,route_path:a.landingPage,campaign_id:a.campaignId,campaign_variant:a.campaignVariant,
-    partner_id:a.partnerId,creative:a.creative,utm_source:a.utmSource,utm_medium:a.utmMedium,utm_campaign:a.utmCampaign,utm_content:a.utmContent,utm_term:a.utmTerm,
+    partner_id:a.partnerId,placement_id:a.placementId,creative:a.creative,utm_source:a.utmSource,utm_medium:a.utmMedium,utm_campaign:a.utmCampaign,utm_content:a.utmContent,utm_term:a.utmTerm,
     review_track:s.product,review_reason:s.reviewReason,shopping_intent:s.shoppingIntent,decision_timing:s.decisionTiming,
     stated_trigger:s.statedTrigger,closing_date:s.closingDate,property_type:s.propertyType,renewal_timing:s.renewalTiming});
   if(!normalized.valid)problem(422);
@@ -195,7 +196,28 @@ export function distributionPresentation(input,now=new Date()){
   const distribution=normalizeDistribution(input,now);
   return publicState({journeyId:'entry_presentation',...(distribution.entry==='buyer'?{buyerFlowVersion:1,buyer:{}}:{}),...(distribution.entry==='condo'?{condoFlowVersion:1,condo:{}}:{}),distribution,signals:distribution.evidence,answers:[],revision:0},now);
 }
+// Explicit audience selects a capability, never an arbitrary supplied token.
 export async function distributionInteract(request,options={}){
+  try{distributionOrigin(request,options.env);}catch{return json({ok:false},503);}
+  if(request.method!=='POST')return json({ok:false},405);
+  if(request.headers.get('origin')!==new URL(request.url).origin)return json({ok:false},403);
+  try{
+    const raw=await request.clone().text();if(raw.length>8192)return json({ok:false},413);
+    const body=JSON.parse(raw),entry=body.entry;
+    if(!entry)return interactUnscoped(request,options); // legacy clients
+    delete body.entry;
+    let selected=scopedRequest(request,entry);
+    const saved=await load(selected,options);
+    if(saved&&saved.record.distribution.entry!==entry){
+      if(body.action!=='start')return json({ok:false,reviewChanged:true,message:'Open the original review to continue.'},409);
+      selected=scopedRequest(request,entry,{legacy:false});
+    }
+    if(body.handoff&&body.handoff.entry!==entry)return json({ok:false},422);
+    const response=await interactUnscoped(new Request(request.url,{method:request.method,headers:selected.headers,body:JSON.stringify(body)}),options);
+    return scopedResponse(response,entry);
+  }catch{return json({ok:false},422);}
+}
+async function interactUnscoped(request,options={}){
   try{distributionOrigin(request,options.env);}catch{return json({ok:false},503);}
   if(request.method!=='POST')return json({ok:false},405);
   if(request.headers.get('origin')!==new URL(request.url).origin)return json({ok:false},403);
@@ -227,9 +249,10 @@ export async function distributionEvent(request,options={}){
   if(request.method!=='POST'||request.headers.get('origin')!==new URL(request.url).origin)return json({ok:false},403);
   try{
     const raw=await request.text();if(raw.length>8192)problem(413);const body=JSON.parse(raw);strict(body,['type','handoff']);
+    request=scopedRequest(request,body.handoff.entry);
     if(!['landing_view','first_question_view','abandon'].includes(body.type))problem(422);
     const existing=await load(request,options);
-    const distribution=existing?.record.distribution||normalizeDistribution(body.handoff,date(options));
+    const distribution=existing?.record.distribution.entry===body.handoff.entry?existing.record.distribution:normalizeDistribution(body.handoff,date(options));
     if(body.type==='abandon'&&(!existing?.record.answers.length||existing.record.contact||!decide(existing.record,date(options)).nextQuestion))problem(422);
     await event(distribution,body.type,options);
     return json({ok:true});

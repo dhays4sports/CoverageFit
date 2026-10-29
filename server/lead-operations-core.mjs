@@ -264,6 +264,7 @@ export function normalizeLeadPayload(source = {}, options = {}) {
         campaignId: clean(source.campaign_id ?? source.campaignId, 180),
         campaignVariant: clean(source.campaign_variant ?? source.campaignVariant, 80),
         partnerId: clean(source.partner_id ?? source.partnerId, 120),
+        placementId: clean(source.placement_id ?? source.placementId, 120),
         batchId: clean(source.batch_id ?? source.batchId, 120),
         creative: clean(source.creative, 120),
         utm: {
