@@ -22,12 +22,17 @@
   function contact(){
     root.replaceChildren(el('h2','Ask Dylan to follow up',{tabindex:'-1'}));const form=el('form');
     for(const [name,label,type]of [['name','Your name','text'],['phone','Phone number','tel']]){const l=el('label',label),i=el('input','',{name,type,required:'',autocomplete:name==='name'?'given-name':'tel',maxlength:name==='name'?'80':'24'});l.append(i);form.append(l);}
+    if(state.restaurant){
+      for(const [name,label]of [['restaurantName','Restaurant name'],['restaurantCity','California city']]){const l=el('label',label),i=el('input','',{name,required:'',maxlength:name==='restaurantName'?'120':'80'});l.append(i);form.append(l);}
+      const l=el('label','Alcohol sales as a share of total sales'),a=el('select','',{name:'alcoholShare',required:''});
+      for(const [value,label]of [['','Choose one'],['below_33','Less than 33%'],['at_least_33','33% or more'],['unknown','Not sure']])a.append(el('option',label,{value}));l.append(a);form.append(l,el('p','This program requires alcohol sales below 33%. If unsure, Dylan will clarify eligibility before requesting underwriting details.'));
+    }
     const l=el('label','How would you like Dylan to respond?'),select=el('select','',{name:'mode'});select.append(el('option','Personal call',{value:'call'}),el('option','Personal text',{value:'text'}));if(['call','text'].includes(state.contactChoice))select.value=state.contactChoice;l.append(select);form.append(l);
     const permission=el('label'),check=el('input','',{type:'checkbox',name:'permission',required:''});permission.append(check,document.createTextNode(' I ask Dylan at Virginia Tam Insurance Agency, Inc. to contact me about this review using my chosen channel. This does not authorize automated marketing texts. Consent is not a condition of purchase.'));form.append(permission,el('button','Send my request',{type:'submit',class:'primary'}));
     if(state.buyer||state.condo){const l=el('label','Convenient time (optional)'),t=el('select','',{name:'contactTime'});for(const [v,label]of [['','No preference'],['morning','Morning'],['afternoon','Afternoon'],['evening','Evening']])t.append(el('option',label,{value:v}));l.append(t);form.insertBefore(l,permission);form.append(el('p','Times are preferences, not confirmed appointments.'));}
     for(const input of form.elements){if(input.name in contactDraft){if(input.type==='checkbox')input.checked=contactDraft[input.name]===true;else input.value=contactDraft[input.name];}}
     form.oninput=()=>{for(const input of form.elements)if(input.name)contactDraft[input.name]=input.type==='checkbox'?input.checked:input.value;};
-    form.onsubmit=e=>{e.preventDefault();const d=new FormData(form);send({action:'contact',revision:state.revision,name:d.get('name'),phone:d.get('phone'),mode:d.get('mode'),permission:d.has('permission'),...((state.buyer||state.condo)?{contactTime:d.get('contactTime')||''}:{})});};root.append(form,button('Back to my review',render));focus();
+    form.onsubmit=e=>{e.preventDefault();const d=new FormData(form);send({action:'contact',revision:state.revision,name:d.get('name'),phone:d.get('phone'),mode:d.get('mode'),permission:d.has('permission'),...(state.restaurant?{restaurantName:d.get('restaurantName'),restaurantCity:d.get('restaurantCity'),alcoholShare:d.get('alcoholShare')} : {}),...((state.buyer||state.condo)?{contactTime:d.get('contactTime')||''}:{})});};root.append(form,button('Back to my review',render));focus();
   }
   function render(){
     root.replaceChildren();

@@ -4,6 +4,7 @@ import {deriveSourceFamily} from './acquisition-measurement.mjs';
 // Distribution metadata never becomes individual priority evidence.
 export const DISTRIBUTION_VERSION = 'coveragefit-distribution-v1';
 export const DISTRIBUTION_ROUTES = Object.freeze({
+  restaurant: {route:'/restaurant/', audience:'restaurant', product:'business'},
   business: {route:'/business/', audience:'business', product:'business'},
   buyer: {route:'/buyer/', audience:'homebuyer', product:'home'},
   condo: {route:'/condo/', audience:'condo', product:'home'},

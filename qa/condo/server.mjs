@@ -10,7 +10,7 @@ import {entryInput,renderEntry} from '../../server/entry-presentation.mjs';
 import {distributionPresentation,distributionInteract,distributionEvent,distributionEntry,distributionJourney} from '../../server/distribution-journey.mjs';
 import {createPVXRecordStore} from '../../server/d1-json-store.mjs';
 import {entryPage,entryAction} from '../../../408finneas/server/entry-presentation-proxy.mjs';
-const sql=new DatabaseSync(':memory:');
+const sql=new DatabaseSync(process.env.RESTAURANT_QA_DB||':memory:');
 for(const f of readdirSync('../../migrations').filter(f=>f.endsWith('.sql')).sort())sql.exec(readFileSync('../../migrations/'+f,'utf8'));
 const db={prepare(q){let args=[];const s={bind(...v){args=v;return s},async first(){return sql.prepare(q).get(...args)||null},async all(){return {results:sql.prepare(q).all(...args)}},async run(){return {meta:sql.prepare(q).run(...args)}}};return s},async batch(stmts){sql.exec('BEGIN');try{let out=[];for(const s of stmts)out.push(await s.run());sql.exec('COMMIT');return out}catch(e){sql.exec('ROLLBACK');throw e}}};
 const options={db,store:createPVXRecordStore(db),env:{}};
@@ -24,7 +24,7 @@ http.createServer(async(req,res)=>{try{
  const u=new URL(req.url,'http://terminal.local:4173');let response;
  if(u.pathname==='/qa-fresh'){response=new Response(null,{status:303,headers:{Location:'/?route=condo&width='+(u.searchParams.get('width')||390),'Set-Cookie':'cf_distribution_resume=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0'}});}
  else if(u.pathname==='/qa-completed'){
-  const route=['buyer','tech','healthcare','engineers','teachers','home','condo'].includes(u.searchParams.get('route'))?u.searchParams.get('route'):'buyer';
+  const route=['restaurant','buyer','tech','healthcare','engineers','teachers','home','condo'].includes(u.searchParams.get('route'))?u.searchParams.get('route'):'buyer';
   const handoff=entryInput(new URL('https://coveragefit.com/?entry='+route+'&utm_campaign=original_completed_campaign'));
   const start=await distributionEntry(new Request('https://coveragefit.com/api/distribution/entry',{method:'POST',headers:{Origin:'https://coveragefit.com','Content-Type':'application/json'},body:JSON.stringify(handoff)}),{...options,immediate:true});
   const cookie=start.headers.get('set-cookie');
@@ -32,8 +32,8 @@ http.createServer(async(req,res)=>{try{
   if(![200,503].includes(done.status))throw Error('fixture');
   response=new Response(null,{status:303,headers:{Location:'/?route='+route+'&width='+(u.searchParams.get('width')||390),'Set-Cookie':cookie.replace('; Secure','')}});
  }
- else if(u.pathname==='/'){const route=['buyer','tech','healthcare','engineers','teachers','home','condo'].includes(u.searchParams.get('route'))?u.searchParams.get('route'):'tech';const width=Number(u.searchParams.get('width'))||390;const before=u.searchParams.has('before');response=new Response(`<html><head><meta charset="utf-8"><title>Isolated condo acceptance</title></head><body style="margin:0;background:#e6e8eb;font-family:system-ui"><div style="padding:10px;font-size:12px">${before?'BEFORE — source baseline':'AFTER — unpublished candidate'} · ${route} · ${width}px · isolated synthetic data</div><iframe title="Intake preview" src="/${before?'before/':''}${route}/?utm_source=instagram&utm_medium=paid_social&utm_campaign=professional_qa" style="display:block;border:0;width:${width}px;height:1250px;margin:0 auto"></iframe></body></html>`,{headers:{'Content-Type':'text/html'}})}
- else if(/^\/(before\/)?(buyer|tech|healthcare|engineers|teachers|home|condo)\/$/.test(u.pathname)){
+ else if(u.pathname==='/'){const route=['restaurant','buyer','tech','healthcare','engineers','teachers','home','condo'].includes(u.searchParams.get('route'))?u.searchParams.get('route'):'tech';const width=Number(u.searchParams.get('width'))||390;const before=u.searchParams.has('before');response=new Response(`<html><head><meta charset="utf-8"><title>Isolated condo acceptance</title></head><body style="margin:0;background:#e6e8eb;font-family:system-ui"><div style="padding:10px;font-size:12px">${before?'BEFORE — source baseline':'AFTER — unpublished candidate'} · ${route} · ${width}px · isolated synthetic data</div><iframe title="Intake preview" src="/${before?'before/':''}${route}/?utm_source=instagram&utm_medium=paid_social&utm_campaign=professional_qa" style="display:block;border:0;width:${width}px;height:1250px;margin:0 auto"></iframe></body></html>`,{headers:{'Content-Type':'text/html'}})}
+ else if(/^\/(before\/)?(restaurant|buyer|tech|healthcare|engineers|teachers|home|condo)\/$/.test(u.pathname)){
   const parts=u.pathname.split('/').filter(Boolean),route=parts.at(-1),before=parts[0]==='before';
   if(before&&route==='condo')response=new Response(readFileSync('./baseline-condo.html','utf8'),{headers:{'Content-Type':'text/html'}});
   else if(before&&route==='buyer')response=new Response(readFileSync('./baseline-buyer.html','utf8').replace(/<script\b[\s\S]*?<\/script>/g,''),{headers:{'Content-Type':'text/html'}});
