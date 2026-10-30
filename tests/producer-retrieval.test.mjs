@@ -29,7 +29,7 @@ async function linkedFixture(){
  const one=await start(f,'restaurant');
  await distributionEvent(request({type:'landing_view',handoff:handoff('restaurant','qa_partner_b')},one.cookie),f);
  const response=await distributionInteract(request({entry:'restaurant',action:'contact',revision:one.state.revision,reviewVersion:one.state.reviewVersion,name:'Local regression fixture',phone:'2025550133',mode:'call',permission:true,restaurantName:'Local QA Cafe',restaurantCity:'San Jose',alcoholShare:'below_33'},one.cookie),f);
- assert.equal(response.status,200);f.requestId=(await response.json()).requestId;
+ f.cookie=one.cookie;assert.equal(response.status,200);f.requestId=(await response.json()).requestId;
  f.env={...f.env,COVERAGEFIT_DB:f.db,COVERAGEFIT_PRODUCER_ACCESS_TOKEN:'synthetic-local-regression-only'};
  f.source=f.sql.prepare("SELECT * FROM cf_solo_sources WHERE workspace_id=? AND kind='lead' AND source_id=?").get(TEST_WORKSPACE,f.requestId);
  f.read=(id=f.source.opportunity_id,token=f.env.COVERAGEFIT_PRODUCER_ACCESS_TOKEN,env=f.env)=>handleSoloDesk({request:new Request('https://qa.coveragefit.pages.dev/api/solo-desk/producer-detail?id='+encodeURIComponent(id),{headers:token?{Authorization:'Bearer '+token}:{}}),env});
@@ -88,4 +88,49 @@ test('safe fallback is Preview-only; production full-record workflow and non-fir
  const html=savedSourceEvidence({sources:[{kind:'lead',source_id:'<script>',summary:{context:{distribution:{restaurant:{name:'<img src=x>'}}}}}]});assert.doesNotMatch(html,/<script>|<img /);
  const source=readFileSync(new URL('../assets/js/producer-workspace.mjs',import.meta.url),'utf8');
  assert.match(source,/async function syncSources\(\)\{if\(syntheticPreview\)/);assert.match(source,/fullRecordAction\(id,syntheticPreview\)/);assert.match(source,/savedSourceEvidence\(d\)/);
+});
+
+import {projectDistributionTouches} from '../server/distribution-touch-projection.mjs';
+async function touchState(f){
+ const j=f.sql.prepare("SELECT record_key,data_json FROM pvx_records WHERE record_key LIKE 'pvx/web-journey/%'").get();
+ const l=f.sql.prepare('SELECT data_json FROM pvx_records WHERE record_key=?').get('lead-ops/lead/'+await digest(f.requestId));
+ const s=f.sql.prepare("SELECT summary_json FROM cf_solo_sources WHERE kind='lead'").get();
+ return {loaded:{key:j.record_key,record:JSON.parse(j.data_json)},lead:JSON.parse(l.data_json),source:JSON.parse(s.summary_json)};
+}
+const invariant=v=>{const c=structuredClone(v);if(c.context?.distribution)delete c.context.distribution.additionalTouches;return c;};
+test('post-submission touches propagate without repeating handoff or changing consent/state/tasks',async()=>{
+ const f=await linkedFixture();try{
+ const before=await touchState(f),op=f.sql.prepare('SELECT * FROM cf_solo_opportunities').all(),tasks=f.sql.prepare('SELECT * FROM cf_solo_tasks').all(),activity=f.sql.prepare('SELECT * FROM cf_solo_activity').all();
+ const h=handoff('restaurant','qa_partner_c');h.attribution.utmCampaign='after_submission';
+ for(let i=0;i<3;i++)assert.equal((await distributionEvent(request({type:'landing_view',handoff:h},f.cookie),f)).status,200);
+ const after=await touchState(f);assert.equal(after.loaded.record.additionalTouches.length,2);
+ assert.deepEqual(after.lead.context.distribution.additionalTouches,after.loaded.record.additionalTouches);
+ assert.deepEqual(after.source.context.distribution.additionalTouches,after.loaded.record.additionalTouches);
+ assert.deepEqual(invariant(after.lead),invariant(before.lead));assert.deepEqual(invariant(after.source),invariant(before.source));
+ assert.deepEqual(after.loaded.record.firstTouch,before.loaded.record.firstTouch);
+ assert.deepEqual(f.sql.prepare('SELECT * FROM cf_solo_opportunities').all(),op);assert.deepEqual(f.sql.prepare('SELECT * FROM cf_solo_tasks').all(),tasks);assert.deepEqual(f.sql.prepare('SELECT * FROM cf_solo_activity').all(),activity);
+ }finally{f.sql.close();}
+});
+test('touch failure is atomic and repeat event repairs projection; stale reads cannot drop newer touches',async()=>{
+ const f=await linkedFixture();try{
+ const before=await touchState(f);f.sql.exec("CREATE TRIGGER reject_touch BEFORE UPDATE OF summary_json ON cf_solo_sources WHEN NEW.kind='lead' BEGIN SELECT RAISE(ABORT,'injected projection failure'); END;");
+ const h=handoff('restaurant','qa_partner_c');h.attribution.utmCampaign='after_submission';
+ assert.notEqual((await distributionEvent(request({type:'landing_view',handoff:h},f.cookie),f)).status,200);
+ const failed=await touchState(f);assert.equal(failed.loaded.record.additionalTouches.length,2);assert.deepEqual(failed.lead,before.lead);assert.deepEqual(failed.source,before.source);
+ f.sql.exec('DROP TRIGGER reject_touch');
+ assert.equal((await distributionEvent(request({type:'landing_view',handoff:h},f.cookie),f)).status,200);
+ await projectDistributionTouches(before.loaded,f);
+ const recovered=await touchState(f);assert.deepEqual(recovered.lead.context.distribution.additionalTouches,recovered.loaded.record.additionalTouches);
+ assert.equal(recovered.source.context.distribution.additionalTouches.length,2);
+ }finally{f.sql.close();}
+});
+test('touch propagation cannot recreate missing records or cross a workspace',async()=>{
+ const f=await linkedFixture();try{
+ const before=await touchState(f);
+ await assert.rejects(projectDistributionTouches(before.loaded,{...f,env:{...f.env,COVERAGEFIT_SOLO_WORKSPACE_ID:'other'}}));
+ assert.deepEqual((await touchState(f)).source,before.source);
+ f.sql.prepare('DELETE FROM pvx_records WHERE record_key=?').run('lead-ops/lead/'+await digest(f.requestId));
+ await assert.rejects(projectDistributionTouches(before.loaded,f));
+ assert.equal(f.sql.prepare("SELECT count(*) n FROM pvx_records WHERE record_key LIKE 'lead-ops/lead/%'").get().n,0);
+ }finally{f.sql.close();}
 });

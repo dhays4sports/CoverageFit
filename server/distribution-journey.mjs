@@ -1,3 +1,4 @@
+import {projectDistributionTouches} from './distribution-touch-projection.mjs';
 import {scopedRequest,scopedResponse} from './distribution-sessions.mjs';
 import {CONDO_QUESTIONS,condoDecision,condoFacts,condoSummary,condoQualified} from './condo-journey.mjs';
 import {distributionOrigin} from './distribution-preview.mjs';
@@ -273,6 +274,8 @@ export async function distributionEvent(request,options={}){
       if(!prior.some(t=>t.partnerId===touch.partnerId&&t.placementId===touch.placementId&&t.utmCampaign===touch.utmCampaign)){
         await save(existing,{...existing.record,additionalTouches:[...(existing.record.additionalTouches||[]),touch].slice(-20),updatedAt:date(options).toISOString()},options);
       }
+      // Also reconcile an already-recorded touch after a previous projection failure.
+      await projectDistributionTouches(existing,options);
     }
     await event(distribution,body.type,options);
     return json({ok:true});
