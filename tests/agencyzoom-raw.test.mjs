@@ -119,3 +119,34 @@ test('six-day district leads remain eligible for NEW_LEAD while eight-day leads 
   assert.match(p.rows[1].status,/outside 7 days/i);
  }finally{f.sql.close()}
 });
+
+import {buildExport,SCHEMA as EXPORT_SCHEMA} from '../server/lead-export.mjs';
+test('single and bulk RAW imports preserve canonical export identities, source timestamps and evidence without sends',async()=>{
+ const f=setup(),originalFetch=globalThis.fetch;globalThis.fetch=()=>{throw Error('external network prohibited');};
+ try{
+  // Local fixtures only: use the existing importer, including its TEST enrollment semantics.
+  f.sql.exec('DELETE FROM cf_solo_opportunities');
+  const files=[file('export-single','2025550141'),file('export-bulk-a','2025550142'),file('export-bulk-b','2025550143')];
+  for(const batch of [[files[0]],[batchFile(files.slice(1))]]){
+   const preview=await f.importer.preview({files:batch,synthetic:true});
+   const input={files:batch,synthetic:true,confirmed:true,eligible:true,fingerprint:preview.fingerprint};
+   const committed=await f.importer.commit(input);assert.equal(committed.needs_review,0);assert.equal(committed.sms_sent,0);
+   assert.equal((await f.importer.commit(input)).duplicates,committed.imported);
+  }
+  const policy={version:EXPORT_SCHEMA,workspace:'qa',owner:'qa',legacyWorkspace:'qa',ownerWorkspace:'qa',inventoryReviewed:true,allowControl:true,sourceDecisions:{lead:'allow',district_pilot_v1:'allow'},sourceKeyDecisions:{district:'allow',awl:'allow'}};
+  const before=f.sql.prepare('SELECT total_changes() n').get().n;
+  const result=await buildExport(f.repo.db,policy);
+  assert.equal(result.rows.length,3);assert.equal(result.manifest.counts.opportunities,3);assert.equal(result.manifest.counts.sources,6);
+  for(const row of result.rows){
+   assert.match(row.canonical_lead_id,/^lead:agencyzoom_raw%3A/);assert.equal(row.source,'awl');assert.equal(row.source_ids.length,2);
+   const source=JSON.parse(f.sql.prepare("SELECT summary_json FROM cf_solo_sources WHERE opportunity_id=? AND kind='district_pilot_v1'").get(row.opportunity_ids[0]).summary_json);
+   assert.equal(row.created_at,source.received_at);assert.equal(row.attribution_evidence.acquisition.first_touch.occurredAt,source.received_at);
+   assert.equal(row.source_evidence[0].facts.current_carrier,'Mercury');assert.equal(row.source_evidence[0].facts.renewal_date,'2026-12-31');
+   assert.deepEqual(row.permission_evidence,{});assert.match(row.suppression_state,/unknown/);
+  }
+  assert.equal(result.csv.includes('EXCLUDED_'),false);
+  assert.equal((await buildExport(f.repo.db,policy)).csv,result.csv);
+  assert.equal(f.sql.prepare('SELECT total_changes() n').get().n,before);
+  assert.equal((await buildExport(f.repo.db,{...policy,sourceKeyDecisions:{district:'allow',awl:'deny'}})).rows.length,0);
+ }finally{globalThis.fetch=originalFetch;f.sql.close();}
+});

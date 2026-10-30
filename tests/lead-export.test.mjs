@@ -107,3 +107,23 @@ test('exact UCP relationship identifiers are exported without inferring a merge'
  f.sql.prepare('INSERT INTO cf_ucp_opportunity_links(workspace_id,opportunity_id,customer_id,household_id,link_basis,linked_by,request_id,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?)').run('qa','o','cust-exact','house-exact','explicit_profile_link','qa','req',at,at);
  const r=(await buildExport(f.db,f.policy)).rows[0];assert.equal(r.customer_relationship[0].customer_id,'cust-exact');assert.equal(r.customer_relationship[0].link_basis,'explicit_profile_link');
 });
+
+test('import evidence and acquisition touches export curated fields without secrets or arbitrary payloads',async()=>{
+ const f=fixture();f.op('o');f.link('lead','raw','o',{context:{evidenceOrigin:'agencyzoom_raw'},rawFacts:{current_carrier:'Synthetic',renewal_date:'2027-01-01',token:'do-not-export',credit:'do-not-export',vehicles:[{vehicle:'Synthetic car',vin:'do-not-export'}]},provenance:{secret:'do-not-export'}});
+ f.sql.prepare('INSERT INTO cf_acq_opportunity_attribution(workspace_id,opportunity_id,source_key,source_family,first_touch_json,latest_touch_json,updated_at) VALUES(?,?,?,?,?,?,?)').run('qa','o','web','organic_web',JSON.stringify({sourceKey:'web',occurredAt:at,token:'do-not-export'}),'{}',at);
+ const r=await buildExport(f.db,f.policy);
+ assert.equal(r.rows[0].source_evidence[0].facts.renewal_date,'2027-01-01');
+ assert.deepEqual(r.rows[0].source_evidence[0].facts.vehicles,[{vehicle:'Synthetic car'}]);
+ assert.equal(r.rows[0].attribution_evidence.acquisition.first_touch.occurredAt,at);
+ assert.equal(r.csv.includes('do-not-export'),false);
+});
+test('export authentication and disabled release gates reject before any database access',async()=>{
+ let reads=0;const db={prepare(){reads++;throw Error('must not read');}},token='synthetic-only-export-auth-key';
+ const env={COVERAGEFIT_DB:db,COVERAGEFIT_PRODUCER_ACCESS_TOKEN:token};
+ for(const credential of ['', 'wrong'])for(const method of ['GET','POST','DELETE']){
+  const r=await handleLeadExport({env,request:new Request('https://test.invalid/api/solo-desk/export-leads.csv',{method,headers:credential?{Authorization:'Bearer '+credential}:{}})});
+  assert.equal(r.status,401);assert.match(r.headers.get('cache-control'),/no-store/);
+ }
+ const r=await handleLeadExport({env,request:new Request('https://test.invalid/api/solo-desk/export-leads.csv',{method:'POST',headers:{Authorization:'Bearer '+token}})});
+ assert.equal(r.status,405);assert.equal(reads,0);
+});

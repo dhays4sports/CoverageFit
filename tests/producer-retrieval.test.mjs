@@ -206,8 +206,23 @@ test('exact operator recovery SQL is guarded, idempotent and resumes after one s
 });
 test('saved review with an exact existing lead link reaches the same producer opportunity',async()=>{
  const f=await linkedFixture();try{
- const response=await handlePVXCheckpoint(request({action:'create',idempotencyKey:'pvxc_linked_snapshot_123456',snapshot:{contractId:'coveragefit-discovery-only-snapshot-v1',reportRevision:'1',guardrails:{discoveryOnly:true}},consent:{reportSaved:true},attribution:{leadCheckpointId:f.requestId}}),{...f,now:new Date(f.now)});
- assert.equal(response.status,201);
+ const before=await touchState(f),originalFetch=globalThis.fetch;
+ const value={action:'create',idempotencyKey:'pvxc_linked_snapshot_123456',snapshot:{contractId:'coveragefit-discovery-only-snapshot-v1',reportRevision:'1',guardrails:{discoveryOnly:true}},consent:{reportSaved:true},attribution:{leadCheckpointId:f.requestId}};
+ const call=v=>handlePVXCheckpoint(request(v),{...f,store:createPVXRecordStore(f.db),now:new Date(f.now)});
+ globalThis.fetch=()=>{throw Error('external communication forbidden');};
+ try{
+ const response=await call(value);assert.equal(response.status,201);const created=await response.json();
+ const sourceCount=f.sql.prepare('SELECT count(*) n FROM cf_solo_sources').get().n,taskCount=f.sql.prepare('SELECT count(*) n FROM cf_solo_tasks').get().n;
+ for(let i=0;i<3;i++){
+  const saved=await call({action:'read',token:created.token});assert.equal(saved.status,200);
+  assert.equal((await saved.json()).snapshot.reportRevision,'1');
+  const retry=await call(value);assert.equal(retry.status,200);assert.equal((await retry.json()).token,created.token);
+ }
+ assert.equal(f.sql.prepare('SELECT count(*) n FROM cf_solo_sources').get().n,sourceCount);
+ assert.equal(f.sql.prepare('SELECT count(*) n FROM cf_solo_tasks').get().n,taskCount);
+ assert.deepEqual((await touchState(f)).lead,before.lead);
+ assert.deepEqual((await touchState(f)).source,before.source);
+ }finally{globalThis.fetch=originalFetch;}
  const detail=await (await f.read()).json();assert.equal(detail.opportunity.id,f.source.opportunity_id);
  assert.equal(detail.sources.filter(s=>s.kind==='pvx'&&s.source_id==='pvxc_linked_snapshot_123456').length,1);
  assert.equal(f.sql.prepare('SELECT count(*) n FROM cf_solo_opportunities').get().n,1);

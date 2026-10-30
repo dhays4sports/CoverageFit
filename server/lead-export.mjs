@@ -3,7 +3,7 @@ import {authorizeProducer} from './consultation-inbox-core.mjs';
 // Local draft. No infrastructure configuration is supplied by this module.
 export const SCHEMA='coveragefit-leads/1';
 export const EXPORT_RELEASE_BLOCKERS=Object.freeze(['legacy_scope_and_source_rights_signoff','remaining_identified_store_inventory','authoritative_suppression_coverage','hosted_security_and_capacity_acceptance']);
-export const COLUMNS=['schema_version','canonical_lead_id','source_ids','opportunity_ids','name','email','phone','product','source','campaign','placement','created_at','updated_at','status','owner','permission_evidence','suppression_state','handoff_state','action_ids','quote_evidence','bound_premium_evidence','limitations','attribution_evidence','request_context','recommendation_history','customer_relationship'];
+export const COLUMNS=['schema_version','canonical_lead_id','source_ids','opportunity_ids','name','email','phone','product','source','campaign','placement','created_at','updated_at','status','owner','permission_evidence','suppression_state','handoff_state','action_ids','quote_evidence','bound_premium_evidence','limitations','attribution_evidence','request_context','recommendation_history','customer_relationship','source_evidence'];
 const headers={'Cache-Control':'private, no-store, max-age=0','Pragma':'no-cache','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer','Content-Security-Policy':"default-src 'none'; frame-ancestors 'none'"};
 const fail=code=>{throw Object.assign(new Error(code),{code});};
 const parse=v=>{try{return JSON.parse(v);}catch{fail('malformed_record');}};
@@ -16,6 +16,16 @@ const name=c=>c?.name||[c?.firstName,c?.lastName].filter(Boolean).join(' ');
 
 // Export only known evidence fields, never arbitrary source JSON or capabilities.
 const conversationIds=s=>[s.conversation_id,s.context?.distribution?.conversation_id].filter(v=>typeof v==='string'&&v.length);
+const touchEvidence=t=>pick(t,['source','sourceKey','sourceFamily','partnerId','placementId','campaignId','campaignVariant','creative','utmSource','utmMedium','utmCampaign','utmContent','utmTerm','landingPage','occurredAt']);
+// Only normalized insurance facts already accepted by the RAW importer. Never
+// dump original files, arbitrary source payloads, or capability-bearing fields.
+function importedEvidence(s){
+ const v=s.summary;
+ if(v.context?.evidenceOrigin!=='agencyzoom_raw')return [];
+ const facts=pick(v.rawFacts,['line','state','current_carrier','currently_insured','renewal_date','closing_date','insured_since','stated_need','shopping_intent','bundle_interest','property_type','occupancy','residence','vehicle_count','vehicle','vehicle_ownership','vehicle_usage','annual_mileage','liability_limits','deductibles','umbi','umpd','filing_requirement']);
+ if(Array.isArray(v.rawFacts?.vehicles))facts.vehicles=v.rawFacts.vehicles.map(x=>pick(x,['vehicle','ownership','usage','annual_mileage','liability_limits','deductibles','umbi','umpd']));
+ return [{source_id:id(s.kind,s.source_id),basis:'retained normalized import; not independently verified',schema:v.schema||null,normalization_version:v.normalization_version||null,facts}];
+}
 function distributionEvidence(value){
  const d=value.context?.distribution||value, a=value.attribution||value.distribution?.attribution||{};
  const touch=t=>pick(t,['source','sourceKey','sourceFamily','partnerId','placementId','campaignId','campaignVariant','creative','utmSource','utmMedium','utmCampaign','utmContent','utmTerm','landingPage','occurredAt']);
@@ -91,6 +101,10 @@ export async function buildExport(db,policy,now=new Date()){
   const recommendations=data.recommendations.filter(r=>(kind==='recommendation'&&sourceId===r.id)||linked.some(s=>s.kind==='recommendation'&&s.source_id===r.id));
   if(linked.some(s=>s.kind==='recommendation'&&!data.recommendations.some(r=>r.id===s.source_id)))fail('recommendation_owner_mismatch');
   const r={schema_version:SCHEMA,canonical_lead_id:canonical,source_ids:[canonical,...linked.map(s=>id(s.kind,s.source_id))].filter((v,i,a)=>a.indexOf(v)===i).sort(),opportunity_ids:opId?[opId]:[],name:name(c),email:c?.email||'',phone:c?.mobile||c?.phone||'',product:o?.products||'',source:a?.source_key||o?.source||kind,campaign:a?.campaign_id||'',placement:'',created_at:o?.created_at||'',updated_at:o?.updated_at||'',status:o?.status||'unprojected',owner:o?.owner_id||policy.owner,permission_evidence:[],suppression_state:'unknown — consult authoritative suppression before contact',handoff_state:opId?'projected':'unprojected',action_ids:data.tasks.filter(t=>t.opportunity_id===opId).map(t=>t.id).concat(data.activities.filter(t=>t.opportunity_id===opId).map(t=>t.id)).sort(),quote_evidence:recommendations.map(r=>({recommendation_id:r.id,option_ids:(parse(r.draft_json).options||[]).map(o=>o.id)})),bound_premium_evidence:recommendations.map(r=>({recommendation_id:r.id,outcome:pick(parse(r.outcome_json),['kind','policyIds','updatedAt'])})),recommendation_history:history(recommendations.map(r=>r.id)),customer_relationship:data.customerLinks.filter(l=>l.opportunity_id===opId),attribution_evidence:{},request_context:{},limitations:'Export grants no contact authority; external-only records unavailable',...fields};
+  r.source_evidence=linked.flatMap(importedEvidence).sort((a,b)=>a.source_id.localeCompare(b.source_id));
+  // Keep acquisition's immutable first touch separate from journey evidence;
+  // merging the two could overwrite a distinct original attribution contract.
+  if(a)r.attribution_evidence.acquisition={first_touch:touchEvidence(parse(a.first_touch_json)),latest_touch:touchEvidence(parse(a.latest_touch_json))};
   if(m){r.quote_evidence.push({quote_prepared_at:m.quote_prepared_at});r.bound_premium_evidence.push({bound_at:m.bound_at,written_premium_cents:m.written_premium_cents,evidence:parse(m.premium_evidence_json),basis:'stored measurement; not independently carrier-verified'});}
   const suppression=data.suppression.filter(c=>linked.some(s=>conversationIds(s.summary).includes(c.conversation_id)));
   if(suppression.length)r.suppression_state=suppression;
