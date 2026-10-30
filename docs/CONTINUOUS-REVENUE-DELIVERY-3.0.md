@@ -1,7 +1,7 @@
 # Continuous revenue delivery — canonical engineering ledger
 
 Mandate: CF-CONTINUOUS-REVENUE-DELIVERY-3.0. Updated 2026-10-30 UTC.
-Current checkpoint: Phase 0 locally corrected, hosted acceptance PARTIAL; independent Phase 1 draft corrections tested; Phase 2 source inventory reconciliation started. No later phase is accepted. Production remains NO-GO.
+Current checkpoint: exact hosted fixture history repaired and verified (2/2/2); producer-detail UI acceptance PARTIAL. Portability and consumer-handoff repairs locally tested. Preview deployment BLOCKED on exact-commit Git transport authentication. No later phase is accepted. Production remains NO-GO.
 
 This is the continuation ledger. Earlier retrieval and portability documents are supporting historical evidence; their original test totals and hosted observations are not new acceptance.
 
@@ -153,3 +153,20 @@ Preview settings independently verified: COVERAGEFIT_DB -> coveragefit-distribut
 A backend-only changed-code Preview deployment can use existing wildcard browser Access and unchanged TEST bindings. It does not require changing the old exact-host distribution Service Auth application. Do not change frontend origin or claim paired frontend-to-backend acceptance on a new hostname. A new immutable origin may require private producer-key connection by the user; never transfer the existing key through browser storage or chat. Export and consumer APIs remain blocked in Preview. Rollback is the existing fa3adc1d/709db69 Preview; do not undo the legitimate second touch when rolling code back. Production remains NO-GO.
 
 Remaining portability gates: legacy checkpoint/web/SMS adapters and reviewed legacy ownership/source rights, full suppression coverage, UCP evidence/document metadata inventory, reconciled candidate exclusions/aliases, D1 capacity, and hosted download authorization. No complete-export promise or business/revenue uplift claim. Reliable ingestion/producer handoff audit has started via the consumer checkpoint correction, but the next milestone is not accepted.
+
+
+### Deployment attempt and concrete continuation dependency
+
+Engineering checkpoint: 50f0c87dd4c3e831a37742877f684f4918d98bf7, parent 8c959022ba3bc52040ec4d4b168325032fe6343c. All code and acceptance evidence committed; working tree clean before this documentation update.
+
+Attempted the authorized changed-code Preview push: git push origin HEAD:fix/restaurant-intake-1-0. It failed with Git exit 128 because this workspace has no usable HTTPS Git credential (could not read Username). This was an authentication failure, not an automatic approval rejection. Fresh GitHub PR read after failure confirms remote head is still 709db6908cd8edb9cce349569e7ce699c65b3569. No new deployment was triggered.
+
+The connected GitHub app remains usable for PR reads; its create_commit API does not accept original author/committer metadata, so it cannot upload these exact local commit objects. Do not replace the local history with recreated commits, force a branch, extract a browser credential or create new security grants to bypass this dependency.
+
+Prepare a verified incremental Git bundle containing the exact existing branch commits since remote baseline 709db69, including this ledger update, for transfer to an already-authenticated Git clone. In that clone, fetch the bundle's fix/restaurant-intake-1-0 branch and push FETCH_HEAD to the same remote branch after confirming remote head remains 709db69. This is an alternative transport for the existing history, not a replacement PR or reconstructed implementation. A push will trigger Preview; no production merge is authorized.
+
+Next hosted step after exact-commit transport: confirm new Preview deployment SHA and unchanged TEST/provider-isolation configuration, then open the same opportunity on that origin. If needed the user privately connects the existing producer key there. Compare visible source ID, consent, restaurant facts, first touch, both later touches and current action. Keep the original tab and record identities. No frontend origin repoint, Access change or export activation is authorized by this transport.
+
+Required future security approval is limited to GET /api/solo-desk/export-leads.csv on an explicitly selected TEST Preview origin, with producer authentication, fixed server-side workspace, no query scope and existing provider isolation. It is only a proposal: first complete missing adapters, source-rights/legacy ownership and suppression review, reconciliation and capacity acceptance. Do not enable it yet or interpret route approval as completeness approval.
+
+Feature Integrity/ingestion milestone started with a verified local save/read/retry/contact/producer-link repair. Remaining audit domains retain the classifications above. No live import, enrollment, provider send, cadence update or production action. No measured producer-time savings or revenue result. Safe hosted continuation now requires exact-commit push capability; remaining portability claims depend on unresolved inventory/source-rights and hosted acceptance.
