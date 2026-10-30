@@ -1,0 +1,23 @@
+✔ complete snapshot exceeds worklist limits; deterministic CSV, all statuses and read-only DB (253.536648ms)
+✔ retained unprojected, incomplete contact, rejected projection and anonymous remain distinct (7.817556ms)
+✔ exact source links deduplicate projections; identifiers stable after projection (7.829451ms)
+✔ Unicode multiline long fields and spreadsheet formulas round trip safely (9.736733ms)
+✔ source restriction, CONTROL and expired records accounted without data leakage (16.437375ms)
+✔ unknown source rights, missing legacy ownership, malformed records fail closed (7.689807ms)
+✔ truncated or missing database results never return partial CSV (6.851903ms)
+✔ legacy consultation and pending distribution contact are included without creating opportunities (7.356905ms)
+✔ latest permission changes are preserved, not inferred from identity (7.534857ms)
+✔ handler rejects unauthorized access, client scope, non-test activation and incomplete coverage with private responses (19.067582ms)
+✔ linked opt-out is exported without reading transcripts or clearing suppression (11.535417ms)
+✔ mixed source agreements cannot be laundered through an allowed lead source (7.712005ms)
+✔ missing schema is a hard failure rather than empty export (6.148701ms)
+✔ imported source IDs persist and duplicate source events do not add rows (6.315713ms)
+✔ CSV export performs no outbound network operations (8.296555ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 584.60413
