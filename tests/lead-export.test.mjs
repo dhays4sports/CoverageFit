@@ -25,3 +25,38 @@ test('mixed source agreements cannot be laundered through an allowed lead source
 test('missing schema is a hard failure rather than empty export',async()=>{const f=fixture();f.sql.exec('DROP TABLE cf_acq_opportunity_measurements');await assert.rejects(buildExport(f.db,f.policy),/no such table/);});
 test('imported source IDs persist and duplicate source events do not add rows',async()=>{const f=fixture();f.op('import');f.link('lead','agencyzoom_raw:synthetic','import',{consent:{granted:false}});assert.throws(()=>f.link('lead','agencyzoom_raw:synthetic','import'),/UNIQUE/);const r=await buildExport(f.db,f.policy);assert.equal(r.rows.length,1);assert.equal(r.rows[0].canonical_lead_id,'lead:agencyzoom_raw%3Asynthetic');});
 test('CSV export performs no outbound network operations',async()=>{const f=fixture();f.lead('network');const original=globalThis.fetch;globalThis.fetch=()=>{throw Error('forbidden external call');};try{assert.equal((await buildExport(f.db,f.policy)).rows.length,1);}finally{globalThis.fetch=original;}});
+test('distribution attribution and request context persist through projection and repeated export',async()=>{
+ const f=fixture(),checkpoint='408d_pvxj_fixture';
+ const firstTouch={sourceKey:'web',utmCampaign:'alpha',placementId:'first',occurredAt:at};
+ const additionalTouches=[{...firstTouch,utmCampaign:'beta'},{...firstTouch,utmCampaign:'gamma'}];
+ const context={reviewTrack:'restaurant',reviewContext:'requested call',distribution:{journeyId:'pvxj_fixture',firstTouch,additionalTouches,conversation_id:'private-capability'}};
+ f.lead(checkpoint,{context});
+ const before=await buildExport(f.db,f.policy);
+ f.op('exact');f.link('lead',checkpoint,'exact',{context});
+ const after=await buildExport(f.db,f.policy);
+ assert.equal(after.rows.length,1);assert.equal(after.rows[0].canonical_lead_id,before.rows[0].canonical_lead_id);
+ assert.deepEqual(after.rows[0].attribution_evidence,before.rows[0].attribution_evidence);
+ assert.equal(after.rows[0].campaign,'alpha');assert.equal(after.rows[0].placement,'first');
+ assert.deepEqual(after.rows[0].attribution_evidence.subsequent_touches,additionalTouches);
+ assert.equal(after.rows[0].request_context.reviewContext,'requested call');
+ assert.equal(after.csv.includes('private-capability'),false);
+ assert.equal(after.csv,(await buildExport(f.db,f.policy)).csv);
+});
+test('nested web source suppression uses exact scoped conversation links',async()=>{
+ const f=fixture();f.op('o');f.link('lead','web-source','o',{context:{distribution:{conversation_id:'web-thread'}}});
+ for(const key of ['web-thread','other-thread'])f.sql.prepare('INSERT INTO sms_conversations(record_key,data_json,created_at,updated_at) VALUES(?,?,?,?)').run('sms-live-conversations/'+key,JSON.stringify({id:key,smsConsent:{status:'opted_out'},signal:{contact_suppressed:true},transcript:[{body:'excluded-transcript'}]}),at,at);
+ const r=await buildExport(f.db,f.policy);
+ assert.equal(r.manifest.counts.suppression,1);assert.equal(r.rows[0].suppression_state[0].consent_status,'opted_out');
+ assert.equal(r.csv.includes('other-thread'),false);assert.equal(r.csv.includes('excluded-transcript'),false);
+});
+test('retained source keeps lead identity without checkpoint and does not duplicate an imported checkpoint',async()=>{
+ const f=fixture();f.op('o');f.link('lead','retained-web','o');f.op('raw');f.link('lead','agencyzoom_raw:one','raw');f.lead('agencyzoom_raw:one');
+ const r=await buildExport(f.db,f.policy);
+ assert.deepEqual(r.rows.map(r=>r.canonical_lead_id),['lead:agencyzoom_raw%3Aone','lead:retained-web']);
+});
+test('expired checkpoint cannot reappear through a retained journey or source projection',async()=>{
+ const f=fixture(),key='408d_expired';f.op('o');f.link('lead',key,'o');f.lead(key);
+ f.sql.exec("UPDATE pvx_records SET expires_at='2020-01-01T00:00:00Z'");
+ f.sql.prepare('INSERT INTO pvx_records(record_key,data_json,created_at,updated_at) VALUES(?,?,?,?)').run('pvx/web-journey/expired',JSON.stringify({journeyId:'expired',contact:{name:'Synthetic',delivered:true}}),at,at);
+ const r=await buildExport(f.db,f.policy);assert.equal(r.rows.length,0);assert.equal(r.manifest.excluded.expired,1);
+});
