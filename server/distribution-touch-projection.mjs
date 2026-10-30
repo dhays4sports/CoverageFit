@@ -18,6 +18,8 @@ export async function projectDistributionTouches(loaded,options){
  AND json_extract(l.data_json,'$.checkpointId')=s.source_id
  AND json_extract(l.data_json,'$.context.distribution.journeyId')=json_extract(j.data_json,'$.journeyId')
  AND json_extract(s.summary_json,'$.context.distribution.journeyId')=json_extract(j.data_json,'$.journeyId')
+ AND json_extract(l.data_json,'$.context.distribution.firstTouch')=json_extract(j.data_json,'$.firstTouch')
+ AND json_extract(s.summary_json,'$.context.distribution.firstTouch')=json_extract(j.data_json,'$.firstTouch')
  AND (l.expires_at IS NULL OR l.expires_at>?)`;
  const args=[leadKey,workspace,requestId,loaded.key,loaded.record.journeyId,new Date(options.now||Date.now()).toISOString()];
  if(!await db.prepare(target).bind(...args).first())throw Object.assign(Error('Existing touch projection unavailable'),{status:503});

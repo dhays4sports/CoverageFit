@@ -75,3 +75,35 @@ test('historical web journey is not silently classified as anonymous',async()=>{
  f.sql.prepare('INSERT INTO pvx_records(record_key,data_json,created_at,updated_at) VALUES(?,?,?,?)').run('pvx/web-journey/historical',JSON.stringify({recordType:'pvx_web_journey',journeyId:'historical',seed:{contact:{leadCheckpointId:'older-lead'}}}),at,at);
  await assert.rejects(buildExport(f.db,f.policy),/legacy_journey_adapter_required/);
 });
+
+test('owner-scoped recommendation revisions and closing events retain chronology without capabilities or bind inference',async()=>{
+ const f=fixture();
+ for(const [key,owner] of [['mine','qa'],['foreign','other']]){
+  f.sql.prepare('INSERT INTO cf_recommendations(id,owner_id,draft_json,outcome_json,created_at,updated_at) VALUES(?,?,?,?,?,?)').run(key,owner,JSON.stringify({contact:{name:'Synthetic '+key},options:[{id:'draft-option'}]}),'{}',at,at);
+  for(const revision of [2,1])f.sql.prepare('INSERT INTO cf_recommendation_revisions(recommendation_id,revision,token_hash,payload_json,expires_at,created_at) VALUES(?,?,?,?,?,?)').run(key,revision,key+'-secret-'+revision,JSON.stringify({options:[{id:'option-'+revision,policies:[{id:'p',premium:123,carrier:'Synthetic Carrier',product:'home'}]}],token:'must-not-export'}),'2027-01-01',at);
+  f.sql.prepare('INSERT INTO cf_close_events(id,recommendation_id,kind,request_id,actor_id,payload_json,created_at) VALUES(?,?,?,?,?,?,?)').run(key+'-event',key,'customer_decision',key+'-request',owner,JSON.stringify({decision:'proceed',optionId:'option-2',secret:'must-not-export'}),at);
+ }
+ const before=f.sql.prepare('SELECT total_changes() n').get().n,r=await buildExport(f.db,f.policy);
+ assert.equal(r.rows.length,1);const history=r.rows[0].recommendation_history;
+ assert.deepEqual(history.revisions.map(r=>r.revision),[1,2]);assert.equal(history.revisions[1].options[0].policies[0].premium,123);
+ assert.equal(history.closing_events[0].evidence.decision,'proceed');assert.match(history.closing_events[0].basis,/not carrier bind confirmation/);
+ for(const text of ['foreign','must-not-export','mine-secret'])assert.equal(r.csv.includes(text),false);
+ assert.equal(r.manifest.counts.revisions,2);assert.equal(r.manifest.counts.closing,1);
+ assert.equal(f.sql.prepare('SELECT total_changes() n').get().n,before);
+});
+test('a projected recommendation owned elsewhere cannot disappear behind a scoped source link',async()=>{
+ const f=fixture();f.op('o');f.link('recommendation','not-owned','o');
+ await assert.rejects(buildExport(f.db,f.policy),/recommendation_owner_mismatch/);
+});
+test('retained projection exports permission and timestamp evidence when checkpoint is absent',async()=>{
+ const f=fixture();f.op('o');f.link('lead','retained','o',{permission:{callPermitted:true,personalTextPermitted:false,basis:'explicit_agency_contact_consent'}});
+ f.sql.exec("UPDATE cf_solo_sources SET updated_at='2026-10-02T00:00:00Z'");
+ const r=(await buildExport(f.db,f.policy)).rows[0];assert.equal(r.permission_evidence.personalTextPermitted,false);assert.equal(r.updated_at,'2026-10-02T00:00:00Z');
+});
+test('exact UCP relationship identifiers are exported without inferring a merge',async()=>{
+ const f=fixture();f.op('o');
+ f.sql.prepare('INSERT INTO cf_ucp_customers(id,workspace_id,display_name,created_at,updated_at) VALUES(?,?,?,?,?)').run('cust-exact','qa','Synthetic',at,at);
+ f.sql.prepare('INSERT INTO cf_ucp_households(id,workspace_id,label,created_at,updated_at) VALUES(?,?,?,?,?)').run('house-exact','qa','Synthetic',at,at);
+ f.sql.prepare('INSERT INTO cf_ucp_opportunity_links(workspace_id,opportunity_id,customer_id,household_id,link_basis,linked_by,request_id,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?)').run('qa','o','cust-exact','house-exact','explicit_profile_link','qa','req',at,at);
+ const r=(await buildExport(f.db,f.policy)).rows[0];assert.equal(r.customer_relationship[0].customer_id,'cust-exact');assert.equal(r.customer_relationship[0].link_basis,'explicit_profile_link');
+});

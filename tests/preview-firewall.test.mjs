@@ -24,3 +24,13 @@ test('production middleware is a passthrough',async()=>{
   const response=await previewFirewall({request:new Request('https://coveragefit.com/api/sms/send',{method:'POST'}),env:{RINGCENTRAL_JWT_TOKEN:'fixture'},next:()=>new Response('production')});
   assert.equal(await response.text(),'production');
 });
+test('proposed exact export route remains denied for every method and path variant',async()=>{
+ let calls=0;
+ for(const path of ['/api/solo-desk/export-leads.csv','/api/solo-desk/export-leads.csv/','/api/solo-desk/export-leads.csv?workspace=other','/api/solo-desk/export-leads.csv/extra']){
+  for(const method of ['GET','HEAD','POST','PUT','DELETE','OPTIONS']){
+   const result=await previewFirewall({request:new Request('https://qa.coveragefit.pages.dev'+path,{method}),env:{},next:()=>{calls++;return new Response('should not run')}});
+   assert.equal(result.status,403);
+  }
+ }
+ assert.equal(calls,0);
+});

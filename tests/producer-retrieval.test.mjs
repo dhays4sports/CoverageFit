@@ -134,3 +134,82 @@ test('touch propagation cannot recreate missing records or cross a workspace',as
  assert.equal(f.sql.prepare("SELECT count(*) n FROM pvx_records WHERE record_key LIKE 'lead-ops/lead/%'").get().n,0);
  }finally{f.sql.close();}
 });
+
+import {buildExport,SCHEMA} from '../server/lead-export.mjs';
+import {handlePVXCheckpoint} from '../server/pvx-checkpoint-core.mjs';
+test('real restaurant schema exports recovered canonical history without mutating any records',async()=>{
+ const f=await linkedFixture();try{
+ const before=await touchState(f),h=handoff('restaurant','qa_partner_c');h.attribution.utmCampaign='after_submission';
+ f.sql.exec("CREATE TRIGGER reject_touch BEFORE UPDATE OF summary_json ON cf_solo_sources WHEN NEW.kind='lead' BEGIN SELECT RAISE(ABORT,'injected'); END;");
+ assert.notEqual((await distributionEvent(request({type:'landing_view',handoff:h},f.cookie),f)).status,200);
+ f.sql.exec('DROP TRIGGER reject_touch');
+ const key=before.lead.attribution.sourceKey;
+ const policy={version:SCHEMA,workspace:TEST_WORKSPACE,owner:'dylan',legacyWorkspace:TEST_WORKSPACE,ownerWorkspace:TEST_WORKSPACE,inventoryReviewed:true,sourceDecisions:{lead:'allow'},sourceKeyDecisions:{[key]:'allow'}};
+ await assert.rejects(buildExport(f.db,policy,new Date(f.now)),/source_history_mismatch/);
+ await projectDistributionTouches(before.loaded,f);
+ const state=await touchState(f);
+ const changes=f.sql.prepare('SELECT total_changes() n').get().n;
+ const result=await buildExport(f.db,policy,new Date(f.now));
+ assert.equal(result.rows.length,1);assert.equal(result.rows[0].canonical_lead_id,'lead:'+encodeURIComponent(f.requestId));
+ assert.deepEqual(result.rows[0].opportunity_ids,[f.source.opportunity_id]);
+ assert.equal(result.rows[0].attribution_evidence.subsequent_touches.length,2);
+ assert.equal(result.rows[0].attribution_evidence.first_touch.partnerId,state.loaded.record.firstTouch.partnerId);
+ assert.equal(result.rows[0].permission_evidence.agencyContact.callPermitted,true);
+ assert.equal(result.rows[0].status,'open');
+ assert.equal(f.sql.prepare('SELECT total_changes() n').get().n,changes);
+ assert.equal((await buildExport(f.db,policy,new Date(f.now))).csv,result.csv);
+ }finally{f.sql.close();}
+});
+
+for(const action of ['create','continue','contact_only'])test('saved consumer '+action+' returns successfully and remains readable without duplicate records',async()=>{
+ const f=fixture();try{
+ const snapshot={contractId:'coveragefit-discovery-only-snapshot-v1',reportRevision:'1',guardrails:{discoveryOnly:true}};
+ const value={action,snapshot,idempotencyKey:'pvxc_synthetic_checkpoint_1234',contact:{name:'Synthetic Snapshot',mobile:'2025550123',preferredMethod:'call'},consent:{reportSaved:action==='create',contact:action!=='continue',call:action!=='continue'}};
+ const call=v=>handlePVXCheckpoint(request(v),{...f,now:new Date(f.now)});
+ const response=await call(value);assert.equal(response.status,201);const result=await response.json();assert.equal(result.ok,true);
+ const saved=await call({action:'read',token:result.token});assert.equal(saved.status,200);
+ assert.equal((await call(value)).status,200);
+ const contact=await call({action:'contact',token:result.token,contact:value.contact,consent:{contact:true,call:true}});assert.equal(contact.status,200);
+ assert.equal(f.sql.prepare("SELECT count(*) n FROM pvx_records WHERE record_key LIKE 'pvx/checkpoint/%'").get().n,1);
+ assert.equal(f.sql.prepare('SELECT count(*) n FROM cf_solo_opportunities').get().n,0);
+ }finally{f.sql.close();}
+});
+test('touch recovery refuses a conflicting original source history',async()=>{
+ const f=await linkedFixture();try{
+ const before=await touchState(f);
+ f.sql.exec("UPDATE cf_solo_sources SET summary_json=json_set(summary_json,'$.context.distribution.firstTouch.utmCampaign','conflicting-original') WHERE kind='lead'");
+ await assert.rejects(projectDistributionTouches(before.loaded,f),/Existing touch projection unavailable/);
+ assert.deepEqual((await touchState(f)).lead,before.lead);
+ }finally{f.sql.close();}
+});
+test('exact operator recovery SQL is guarded, idempotent and resumes after one statement',async()=>{
+ const f=await linkedFixture();try{
+ const before=await touchState(f),h=handoff('restaurant','qa_partner_c');
+ f.sql.exec("CREATE TRIGGER reject_touch BEFORE UPDATE OF summary_json ON cf_solo_sources WHEN NEW.kind='lead' BEGIN SELECT RAISE(ABORT,'injected'); END;");
+ await distributionEvent(request({type:'landing_view',handoff:h},f.cookie),f);f.sql.exec('DROP TRIGGER reject_touch');
+ let sql=readFileSync(new URL('../docs/acceptance/EXACT-SYNTHETIC-TOUCH-RECOVERY.sql',import.meta.url),'utf8')
+  .replaceAll('408d_pvxj_3449352375374a89841a937b9c91c441',f.requestId)
+  .replaceAll('pvxj_3449352375374a89841a937b9c91c441',before.loaded.record.journeyId)
+  .replaceAll('lead-ops/lead/4055026c0c367c4c9626950fff2292af27228a484a90548d398f08bb9da2280d','lead-ops/lead/'+await digest(f.requestId))
+  .replaceAll('pvx/web-journey/76a245a82c86b77d6c3d62a4220336523bb11c780d02114d0e42d1b38d435440',before.loaded.key)
+  .replaceAll('opp_src_ae960d98c5e3f0b296d2edbedd9dd91e',f.source.opportunity_id);
+ f.sql.exec('CREATE TABLE distribution_preview_identity(singleton INTEGER PRIMARY KEY,database_id TEXT,traffic_class TEXT)');
+ f.sql.prepare('INSERT INTO distribution_preview_identity VALUES(1,?,?)').run(TEST_DATABASE_ID,'PRODUCTION');
+ const initial=f.sql.prepare('SELECT total_changes() n').get().n;f.sql.exec(sql);assert.equal(f.sql.prepare('SELECT total_changes() n').get().n,initial);
+ f.sql.exec("UPDATE distribution_preview_identity SET traffic_class='TEST'");
+ const statements=sql.replace(/^--.*$/gm,'').split(';').filter(s=>s.trim());
+ f.sql.exec(statements[0]);assert.equal((await touchState(f)).lead.context.distribution.additionalTouches.length,2);assert.equal((await touchState(f)).source.context.distribution.additionalTouches.length,1);
+ f.sql.exec(sql);const after=await touchState(f);assert.equal(after.source.context.distribution.additionalTouches.length,2);
+ assert.deepEqual(invariant(after.lead),invariant(before.lead));assert.deepEqual(invariant(after.source),invariant(before.source));
+ const changes=f.sql.prepare('SELECT total_changes() n').get().n;f.sql.exec(sql);assert.equal(f.sql.prepare('SELECT total_changes() n').get().n,changes);
+ }finally{f.sql.close();}
+});
+test('saved review with an exact existing lead link reaches the same producer opportunity',async()=>{
+ const f=await linkedFixture();try{
+ const response=await handlePVXCheckpoint(request({action:'create',idempotencyKey:'pvxc_linked_snapshot_123456',snapshot:{contractId:'coveragefit-discovery-only-snapshot-v1',reportRevision:'1',guardrails:{discoveryOnly:true}},consent:{reportSaved:true},attribution:{leadCheckpointId:f.requestId}}),{...f,now:new Date(f.now)});
+ assert.equal(response.status,201);
+ const detail=await (await f.read()).json();assert.equal(detail.opportunity.id,f.source.opportunity_id);
+ assert.equal(detail.sources.filter(s=>s.kind==='pvx'&&s.source_id==='pvxc_linked_snapshot_123456').length,1);
+ assert.equal(f.sql.prepare('SELECT count(*) n FROM cf_solo_opportunities').get().n,1);
+ }finally{f.sql.close();}
+});

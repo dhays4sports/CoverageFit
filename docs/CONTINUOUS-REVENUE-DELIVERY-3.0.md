@@ -34,7 +34,7 @@ Opportunity: `opp_src_ae960d98c5e3f0b296d2edbedd9dd91e`.
 
 Fresh hosted read-only joins establish one journey, one checkpoint, one exact kind=lead source and one associated open opportunity. This identifies Synthetic Portability Alpha by relationship, not name. Consent is requested_review_call, distribution-contact-v1, explicit_agency_contact_consent, call allowed, personal text not allowed. Restaurant/TEST context and immutable portability_alpha first touch match. No contact data or credentials are recorded here.
 
-Hosted defect: journey has two subsequent touches; checkpoint/source have one. No hosted repair/backfill occurred. Local correction copies only additionalTouches from the authoritative stored journey to the exact linked existing rows in one batch. It does not invoke source synchronization, create work, refresh profiles, alter consent/first touch/timestamps/status or send anything. Repeated events can repair a failed prior projection; stale loaded state cannot overwrite newer stored touches.
+Historical hosted defect (repaired below): journey had two subsequent touches; checkpoint/source had one. The resumed exact-fixture correction below supersedes this observation. Local correction copies only additionalTouches from the authoritative stored journey to the exact linked existing rows in one batch. It does not invoke source synchronization, create work, refresh profiles, alter consent/first touch/timestamps/status or send anything. Repeated events can repair a failed prior projection; stale loaded state cannot overwrite newer stored touches.
 
 Full-record observation: `/api/solo-desk/record?id=opp_src_ae960d98c5e3f0b296d2edbedd9dd91e` rendered the Preview-disabled JSON message. Source returns HTTP 403 before application/database access; actual wire status was not exposed by the browser tool. No server application error code exists in that response. Local `preview_operation_disabled` classification requires exactly that status/message. The standard record and sync routes remain denied. Producer-detail remains allowlisted. No independent database defect has been established for untested retrieval data.
 
@@ -68,7 +68,7 @@ Reused COVERAGEFIT_NORTH_STAR.md, docs/SIGNAL-NORTH-STAR-1.0.md, docs/CONSUMER-R
 | Policy.box/evidence | cf_policybox_analyses, policy intake, policy files, recommendation documents | Existing implementation; export metadata requires exact authorized parent links; no raw document export assumed |
 | SmartDevices/protection | cf_device_*, cf_protection_* | Existing implementation; classify contact-bearing sessions vs linked evidence before completeness claim |
 | Referrals | referral_links/referral_events | Existing capability/event stores; do not turn an anonymous referral event into a lead |
-| Producer Work/recommendations/closing | cf_solo_*, cf_recommendations/revisions/events, cf_close_events | Work locally tested; Preview detail blocked on connection; revision/close export adapter outstanding |
+| Producer Work/recommendations/closing | cf_solo_*, cf_recommendations/revisions/events, cf_close_events | Work locally tested; authenticated Preview detail renders; revision/close export adapter outstanding |
 | Single/bulk import | agencyzoom-raw.mjs, agencyzoom-import.mjs, existing Import UI | Existing synthetic tests pass; review-gated import; broader neutral ingestion not yet accepted |
 | SIGNAL/SMS | sms_conversations, sms_handoffs, sms-signal-core/service, ownership guards | Local safety tests pass; no new hosted provider acceptance or SHADOW strategy certification |
 | Identity/privacy/retention | exact source links, checkpoint TTL, pvx-privacy-retention, producer auth | Local scoped tests pass; legacy export ownership/retention reconciliation blocks release |
@@ -117,3 +117,39 @@ Independent portability correction: acquisition source_key overrides now require
 Fresh validation: node --test tests/*.test.mjs passed 417/417 with zero failures/skips/cancellations; includes 21 export tests. The new source-rights fixture initially failed its database NOT NULL constraint; corrected the fixture to include required source_family and updated_at, then the full suite passed. Log: /tmp/continuous-resume-regression.log. Local code and ledger committed on the existing branch, not pushed or deployed.
 
 Checkpoint status: hosted producer acceptance PARTIAL (connection and rendered detail PASS, detailed evidence comparison and changed-code hosted acceptance pending). Export release BLOCKED. Production NO-GO. No new measured revenue outcome.
+
+
+## Execution checkpoint — source-history recovery and feature repairs (2026-10-29 PDT)
+
+Ancestry/worktree: resumed clean at 8c959022ba3bc52040ec4d4b168325032fe6343c, parent c2cb472b4614615c41e9b3613ad26919abd2bc3e. Verified both e52581a and 709db69 are ancestors. Fresh GitHub reads confirm #36 and #37 remain open drafts, #37 head 709db69 and base e52581a. No PR was replaced.
+
+### Hosted exact-fixture recovery — PASS for stored history
+
+Fresh SELECT joined the exact TEST marker, journey, checkpoint, source and opportunity: one relationship, Open, first touches equal, counts 2/1/1 for later touches. Consent remains requested_review_call, distribution-contact-v1, callPermitted=true, personalTextPermitted=false, automatedSmsAuthorized=false, automatedSmsSuppressed=true.
+
+Under the renewed mandate to reconcile the original fixture, executed only the two exact guarded UPDATE statements preserved in docs/acceptance/EXACT-SYNTHETIC-TOUCH-RECOVERY.sql. They are generated from the existing touch-projection SQL, further constrained by exact opportunity, Open status and TEST database marker. Only context.distribution.additionalTouches changes. No INSERT, broad sync/backfill, new journey, credential access, provider request or migration. The SQL artifact records the execution-time retention cutoff; do not reuse at a later date without refreshing and revalidating retention.
+
+Fresh follow-up SELECT: one exact relationship; Open; journey/lead/source counts 2/2/2; both full later-touch JSON arrays equal the canonical journey; original first-touch equality preserved. Lead and source updated_at remain 2026-10-30T01:43:54.995Z. Global TEST counts before and after: opportunities 2, sources 4, tasks 4, activities 4, customers 2, SMS records 0, PVX records 28. No extra profile/task/notification or CRM enrollment was created by this correction. Source history screenshot: docs/acceptance/source-history-hosted.png. Existing producer Refresh conversation was invoked without submitting work changes. Raw producer-detail response/full history still requires patched UI or supported response capture; do not equate the database repair with complete hosted UI acceptance.
+
+Local operator-SQL regression verifies TEST guard, interrupted execution after the first statement, recovery by rerun, unchanged non-touch fields, and a no-op repeated run. Application propagation now additionally refuses conflicting first-touch provenance. Automatic propagation changes remain undeployed until the next Preview release is verified.
+
+### Confirmed repairs and independent Feature Integrity work
+
+1. Corrected 8c95902's overbroad legacy guard: restaurant distribution and older web journeys share recordType=pvx_web_journey. Distribution is recognized by seed.journey.experience=canonical_signal. Added actual-handler export test, not just simplified JSON fixtures.
+2. Export rejects source_history_mismatch rather than silently exporting a stale projection. Actual-handler test injects projection failure, verifies export rejection, recovers the same local relationship, and verifies two-touch deterministic read-only export. Local fixture is independent; it is not a new hosted submission or a claim that hosted CSV was downloaded.
+3. Added owner-scoped recommendation revision/closing history and exact scoped UCP customer/household relationship IDs. Explicit field projection excludes token hashes, document capabilities and arbitrary payload keys. Closing decisions and quote premiums are labeled stored evidence, not carrier-confirmed binds. Missing/foreign recommendation parents fail closed.
+4. Retained sources now preserve permission and source timestamp evidence even when their checkpoint is absent.
+5. Feature Integrity discovered a confirmed consumer failure: handlePVXCheckpoint referenced undefined options after persisting. Corrected the injected db binding across create/continue/contact-only/contact and web advancement. Local tests exercise save/read/retry/contact and exact existing producer projection with no duplicate opportunity. No consumer production certification is implied.
+6. Prepared the narrow future export candidate GET /api/solo-desk/export-leads.csv only, producer-authenticated, fixed server workspace, no query parameters, no-store. Firewall remains unchanged. Negative tests prove GET/HEAD/POST/PUT/DELETE/OPTIONS and trailing/extra-path/scope-query variants remain denied before handler execution. Do not request activation before completeness/source-rights/suppression gates pass.
+
+Fresh full validation: node --test tests/*.test.mjs — 429/429 pass, zero skipped/cancelled/failing; includes 25 export tests and 14 producer-retrieval tests. Logs: /tmp/continuous-delivery-next-regression.log and /tmp/continuous-recovery-tests.log. git diff --check passes. Initial new fixtures were corrected for required Date values and UCP parent foreign keys; no failing tests remain.
+
+### Deployment effect review
+
+Fresh Cloudflare UI: production main remains 4aacbb82d789bf55a5b7e289a9f014382df5d36f; current backend Preview fa3adc1d corresponds to 709db6908cd8edb9cce349569e7ce699c65b3569. Automatic deployments are enabled, Preview branch control is All non-production branches and watch paths '*': pushing this branch triggers a Preview build.
+
+Preview settings independently verified: COVERAGEFIT_DB -> coveragefit-distribution-test, UUID f5ac694d-1028-4a30-9fbd-c264b2e5995e; BUYER_STAGING_ISOLATED=1; workspace distribution-engine:synthetic-test; no forbidden provider credential names/bindings in Preview; CF_AI_ENABLED=0; CF_SMS_SIGNAL_ENABLED=0; platform Fail closed; wildcard Pages browser Access remains enabled. Existing service credential displays Enabled, 24h duration, expiry October 30 12:46 AM in the dashboard; no secret viewed, expiry extended or credential replaced. This is metadata verification, not a new server-to-server authorization probe.
+
+A backend-only changed-code Preview deployment can use existing wildcard browser Access and unchanged TEST bindings. It does not require changing the old exact-host distribution Service Auth application. Do not change frontend origin or claim paired frontend-to-backend acceptance on a new hostname. A new immutable origin may require private producer-key connection by the user; never transfer the existing key through browser storage or chat. Export and consumer APIs remain blocked in Preview. Rollback is the existing fa3adc1d/709db69 Preview; do not undo the legitimate second touch when rolling code back. Production remains NO-GO.
+
+Remaining portability gates: legacy checkpoint/web/SMS adapters and reviewed legacy ownership/source rights, full suppression coverage, UCP evidence/document metadata inventory, reconciled candidate exclusions/aliases, D1 capacity, and hosted download authorization. No complete-export promise or business/revenue uplift claim. Reliable ingestion/producer handoff audit has started via the consumer checkpoint correction, but the next milestone is not accepted.

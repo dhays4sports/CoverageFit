@@ -129,7 +129,7 @@ function publicJourneyState(token, record, status = 201) {
   }, status);
 }
 
-export async function handlePVXCheckpoint(request, { store, journeyStore, operationsStore, now = new Date(), cryptoApi = globalThis.crypto, env = {}, waitUntil = null } = {}) {
+export async function handlePVXCheckpoint(request, { store, journeyStore, operationsStore, db = null, now = new Date(), cryptoApi = globalThis.crypto, env = {}, waitUntil = null } = {}) {
   if (request.method !== 'POST') return error(405, 'method_not_allowed', 'POST is required.');
   if (!sameOrigin(request)) return error(403, 'origin_rejected', 'The Snapshot request must come from CoverageFit.');
   const parsed = await body(request);
@@ -162,11 +162,11 @@ export async function handlePVXCheckpoint(request, { store, journeyStore, operat
     const token=randomToken(cryptoApi),createdAt=now.toISOString(),expiresAt=new Date(now.getTime()+TTL_MS).toISOString(),smsJourney=await loadPvxSmsJourneyFromRequest(request,{store:journeyStore,now}),webJourney=await loadPvxWebJourneyFromRequest(request,{store:journeyStore,now}),displacementContext=cleanDisplacementContext(parsed.value?.displacementContext||{},now),record={schemaVersion:'1.0',recordType:'pvx_journey_state',checkpointType:contactRequested?'contact_requested':'journey_continued',checkpointId:idempotencyKey||`journey_${createdAt}`,createdAt,expiresAt,snapshot,contact:contactRequested?contact:{},consent:channel,campaignDisposition:campaignDispositionFor(readiness),displacementContext,attribution:{...(parsed.value?.attribution||{}),...(smsJourney?{smsJourneyId:smsJourney.record.journeyId,smsConversationId:smsJourney.record.smsConversationId}:{}),...(webJourney?{webJourneyId:webJourney.record.journeyId,leadCheckpointId:webJourney.record.seed?.contact?.leadCheckpointId||''}:{})},topicResponses:Array.isArray(parsed.value?.topicResponses)?parsed.value.topicResponses.slice(0,3):[],actionReadinessExpressions:readiness.actionReadinessExpressions,changeScopeExpressions:readiness.changeScopeExpressions,desiredNextActions:readiness.desiredNextActions,leadCheckpoints:contactRequested?[{checkpointType:'contact_requested',reportRevision:'',createdAt}]:[],reportRevisions:[],producerNotification:{status:contactRequested?'pending':'not_requested',dedupeKey:contactRequested?`snapshot-contact:${idempotencyKey||createdAt}`:''},resumeState:{status:'active',exactStage:'continuation',exactStep:'choice',updatedAt:createdAt},authorization:{bindAuthorized:false}};
     const recordKey=`pvx/checkpoint/${await hashToken(token,cryptoApi)}`;
     await store.setJSON(recordKey,record,{metadata:{createdAt,updatedAt:createdAt,expiresAt,checkpointType:record.checkpointType,contactRequested}});
-    if(options.db)await projectSoloDeskEventBestEffort({db:options.db,env},{kind:'journey',record,recordKey});
+    if(db)await projectSoloDeskEventBestEffort({db,env},{kind:'journey',record,recordKey});
     if(aliasKey)await store.setJSON(aliasKey,{schemaVersion:'1.0',recordType:'pvx_checkpoint_alias',token,checkpointId:record.checkpointId,createdAt,expiresAt},{metadata:{recordType:'pvx_checkpoint_alias',createdAt,updatedAt:createdAt,expiresAt},onlyIfNew:true});
     const details={reviewTopics:snapshot.whatDylanWouldLookAtFirst,topicResponses:record.topicResponses,requestedProducerAction:contactRequested?'contact_requested':'none'};
     if(smsJourney)await advancePvxSmsJourney(smsJourney,{store:journeyStore,operationsStore,now,stage:'snapshot_viewed',currentStage:'snapshot',currentStep:contactRequested?'contact_requested':'continuing',details});
-    if(webJourney)await advancePvxWebJourney(webJourney,{store:journeyStore,db:options.db||null,now,env,waitUntil,stage:'snapshot_viewed',currentStep:contactRequested?'contact_requested':'continuing',details});
+    if(webJourney)await advancePvxWebJourney(webJourney,{store:journeyStore,db,now,env,waitUntil,stage:'snapshot_viewed',currentStep:contactRequested?'contact_requested':'continuing',details});
     return publicJourneyState(token,record,201);
   }
   if (action === 'contact') {
@@ -181,10 +181,10 @@ export async function handlePVXCheckpoint(request, { store, journeyStore, operat
     if(consent.email&&(!contact.email||contact.preferredMethod!=='email'))return error(422,'email_consent_invalid','Email permission requires an email address and email preference.');
     const updatedAt=now.toISOString();record.contact=contact;record.consent={...record.consent,...consent};record.contactRequestedAt=record.contactRequestedAt||updatedAt;record.producerNotification={status:record.producerNotification?.status==='sent'?'sent':'pending',dedupeKey:`snapshot-contact:${record.checkpointId||record.createdAt}`};
     await store.setJSON(key,record,{metadata:{createdAt:record.createdAt,updatedAt,expiresAt:record.expiresAt,checkpointType:'snapshot_saved',contactRequested:true}});
-    if(options.db)await projectSoloDeskEventBestEffort({db:options.db,env},{kind:'journey',record,recordKey:key});
+    if(db)await projectSoloDeskEventBestEffort({db,env},{kind:'journey',record,recordKey:key});
     const details={reviewTopics:record.snapshot.whatDylanWouldLookAtFirst,topicResponses:record.topicResponses,preferredContactChannel:contact.preferredMethod,requestedContactTime:contact.bestTime,contactPurpose:contact.purpose,contactQuestion:contact.question,requestedProducerAction:'contact_requested'};
     if(smsJourney)await advancePvxSmsJourney(smsJourney,{store:journeyStore,operationsStore,now,stage:'snapshot_saved',currentStage:'snapshot',currentStep:'contact_requested',details});
-    if(webJourney)await advancePvxWebJourney(webJourney,{store:journeyStore,db:options.db||null,now,env,waitUntil,stage:'snapshot_saved',currentStep:'contact_requested',details});
+    if(webJourney)await advancePvxWebJourney(webJourney,{store:journeyStore,db,now,env,waitUntil,stage:'snapshot_saved',currentStep:'contact_requested',details});
     return consent.reportSaved?publicCreated(token,record,200):publicJourneyState(token,record,200);
   }
   const snapshot = cleanSnapshot(parsed.value?.snapshot);
@@ -226,13 +226,13 @@ export async function handlePVXCheckpoint(request, { store, journeyStore, operat
   };
   const recordKey = `pvx/checkpoint/${await hashToken(token, cryptoApi)}`;
   await store.setJSON(recordKey, record, { metadata: { createdAt, updatedAt: createdAt, expiresAt, checkpointType: 'snapshot_saved', contactRequested: consent.contact }, onlyIfNew: true });
-  if(options.db)await projectSoloDeskEventBestEffort({db:options.db,env},{kind:'journey',record,recordKey});
+  if(db)await projectSoloDeskEventBestEffort({db,env},{kind:'journey',record,recordKey});
   if(aliasKey)await store.setJSON(aliasKey,{schemaVersion:'1.0',recordType:'pvx_checkpoint_alias',token,checkpointId:record.checkpointId,createdAt,expiresAt},{metadata:{recordType:'pvx_checkpoint_alias',createdAt,updatedAt:createdAt,expiresAt},onlyIfNew:true});
   if (smsJourney) await advancePvxSmsJourney(smsJourney, {
     store: journeyStore, operationsStore, now, stage: 'snapshot_saved', currentStage: 'snapshot', currentStep: 'saved', completedStage: 'snapshot_saved',
     details: { reviewTopics: snapshot.whatDylanWouldLookAtFirst, topicResponses: record.topicResponses, preferredContactChannel: contact.preferredMethod, requestedContactTime:contact.bestTime, contactPurpose:contact.purpose, contactQuestion:contact.question, requestedProducerAction: consent.contact ? 'contact_requested' : 'none' }
   });
-  if(webJourney)await advancePvxWebJourney(webJourney,{store:journeyStore,db:options.db||null,now,env,waitUntil,stage:'snapshot_saved',currentStep:'saved',completedStage:'snapshot_saved',details:{reviewTopics:snapshot.whatDylanWouldLookAtFirst,topicResponses:record.topicResponses,preferredContactChannel:contact.preferredMethod,requestedContactTime:contact.bestTime,contactPurpose:contact.purpose,contactQuestion:contact.question,requestedProducerAction:consent.contact?'contact_requested':'none'}});
+  if(webJourney)await advancePvxWebJourney(webJourney,{store:journeyStore,db,now,env,waitUntil,stage:'snapshot_saved',currentStep:'saved',completedStage:'snapshot_saved',details:{reviewTopics:snapshot.whatDylanWouldLookAtFirst,topicResponses:record.topicResponses,preferredContactChannel:contact.preferredMethod,requestedContactTime:contact.bestTime,contactPurpose:contact.purpose,contactQuestion:contact.question,requestedProducerAction:consent.contact?'contact_requested':'none'}});
   return publicCreated(token,record,201);
 }
 
