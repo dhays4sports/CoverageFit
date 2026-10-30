@@ -60,3 +60,18 @@ test('expired checkpoint cannot reappear through a retained journey or source pr
  f.sql.prepare('INSERT INTO pvx_records(record_key,data_json,created_at,updated_at) VALUES(?,?,?,?)').run('pvx/web-journey/expired',JSON.stringify({journeyId:'expired',contact:{name:'Synthetic',delivered:true}}),at,at);
  const r=await buildExport(f.db,f.policy);assert.equal(r.rows.length,0);assert.equal(r.manifest.excluded.expired,1);
 });
+
+test('acquisition source override requires its own source-rights decision',async()=>{
+ const f=fixture();f.op('o');
+ f.sql.prepare('INSERT INTO cf_acq_opportunity_attribution(workspace_id,opportunity_id,source_key,source_family,updated_at) VALUES(?,?,?,?,?)').run('qa','o','restricted_acquisition','organic_web',at);
+ await assert.rejects(buildExport(f.db,f.policy),/source_rights_review_required/);
+ f.policy.sourceKeyDecisions.restricted_acquisition='deny';
+ const denied=await buildExport(f.db,f.policy);assert.equal(denied.rows.length,0);assert.equal(denied.manifest.excluded.restricted,1);
+ f.policy.sourceKeyDecisions.restricted_acquisition='allow';
+ assert.equal((await buildExport(f.db,f.policy)).rows[0].source,'restricted_acquisition');
+});
+test('historical web journey is not silently classified as anonymous',async()=>{
+ const f=fixture();
+ f.sql.prepare('INSERT INTO pvx_records(record_key,data_json,created_at,updated_at) VALUES(?,?,?,?)').run('pvx/web-journey/historical',JSON.stringify({recordType:'pvx_web_journey',journeyId:'historical',seed:{contact:{leadCheckpointId:'older-lead'}}}),at,at);
+ await assert.rejects(buildExport(f.db,f.policy),/legacy_journey_adapter_required/);
+});

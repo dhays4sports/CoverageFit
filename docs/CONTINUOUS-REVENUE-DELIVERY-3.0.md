@@ -14,7 +14,7 @@ This is the continuation ledger. Earlier retrieval and portability documents are
 | Frontend existing #9/#10 | #10 49d8f6f8ba773bf551ebc559f6128571f7bdd73f | No frontend edits this checkpoint |
 | Backend immutable Preview | https://fa3adc1d.coveragefit.pages.dev | Existing deployment; new local code NOT deployed |
 | Isolated D1 | coveragefit-distribution-test; f5ac694d-1028-4a30-9fbd-c264b2e5995e | TEST marker verified by SELECT |
-| Producer workspace | distribution-engine:synthetic-test | Current browser shows Not connected |
+| Producer workspace | distribution-engine:synthetic-test | Connected; exact opportunity opened during resumed Chrome verification |
 | Recovered portability draft | 83787ae, from prior local draft/feature-integrity-portability | Reused by cherry-pick, no replacement stack |
 
 Local changes on the existing #37 branch, not pushed:
@@ -40,7 +40,7 @@ Full-record observation: `/api/solo-desk/record?id=opp_src_ae960d98c5e3f0b296d2e
 
 Local UI removes misleading Preview legacy/full-record actions and sync, renders saved source evidence, and preserves production legacy behavior. Hosted UI has not received the patch. Producer-detail can write derived profile/classification/priority state; do not describe it as a pure database read.
 
-Acceptance still required: privately reconnect existing authorized producer access in the open fa3adc1d Tools panel; verify exact producer-detail relationship and action context; verify new UI and two-touch propagation after a changed-code deployment within independently verified authorized isolation/security scope. Do not replace expired credentials or broaden access under this mandate.
+Acceptance still required: complete the detailed source/consent/touch comparison not rendered by the deployed UI; verify new UI and two-touch propagation after a changed-code deployment within independently verified authorized isolation/security scope. Do not replace expired credentials or broaden access under this mandate.
 
 ## Phase 1 portability checkpoint
 
@@ -96,7 +96,24 @@ Rollback: revert these additive code changes on the draft stack; no schema rollb
 ## Exact continuation
 
 1. Reuse this branch/ledger; do not recreate PRs, synthetic records or the original export draft. Keep the canonical opportunity open.
-2. Complete the private producer-connection handoff and allowed producer-detail comparison. Do not request a credential in chat or inspect browser storage.
+2. Producer connection and producer-detail UI retrieval now work. Complete remaining detailed source/consent/touch comparison when the authorized surface exposes it. Do not request a credential in chat or inspect browser storage.
 3. Review changed code and deployment scope before any push that could trigger Pages. No deployment occurred during this checkpoint.
 4. Continue remaining local export adapters/count reconciliation and focused synthetic failures, keeping hard release blockers until actual acceptance. Independently continue source-audited feature checks where hosted access is unnecessary.
 5. Hand the reconciled exact request/source/opportunity fixture to Data Portability acceptance; it is verified for identity, locally tested for touch projection/export, and still PARTIAL for current hosted producer experience.
+
+
+## Resumed Chrome acceptance — 2026-10-29 PDT
+
+Original filesystem and branch recovered intact at c2cb472; all listed exact local commits exist and the initial working tree was clean. No replacement PR, record or reconstruction was needed.
+
+Browser control: PASS. The extension identified Chrome and actual DOM interaction succeeded in existing tab 550800969. Producer connection displayed Connected. Selecting WEB / DIRECT and opening Synthetic Portability Alpha rendered detail at the exact canonical opportunity URL. Open status remained visible. The workspace source implements this action through GET producer-detail; this run verified the rendered application result, not a captured raw network body or wire status. No credential was read from storage or requested.
+
+Visible comparison: original source web_408_restaurant; route /restaurant/; variant immediate_question_v1; audience restaurant; current channel 408_contextual; reviewTrack business; reviewReason coverage review; reviewContext requested call; contact evidence explicit_agency_contact_consent. Next action: Respond to the contact request. These agree with the recorded TEST context. Detailed source ID, consent version/channel flags, restaurant qualification answers and first/subsequent touch arrays were not exposed in the deployed UI. They remain pending response-level or patched-UI comparison; historical database evidence was not rerun or reclassified as fresh proof. The existing full-record link remains visible, as expected for undeployed UI fixes; it was not invoked. No work update, status change, sync or communication was submitted. Detail access may update derived profile/priority state as previously documented.
+
+Cloudflare browser access: PASS. Current Applications view confirms exact distribution destination fa3adc1d.coveragefit.pages.dev/api/distribution/* with authorized-browser policy and one additional policy; wildcard Pages applications remain listed. Policy contents/credential expiry were not newly verified. Changed-code deployment remains NOT PERFORMED: a new immutable hostname and paired distribution request path have not been established within existing exact-host authorization. Do not automatically change Access destinations or push-trigger deployment. A separately scoped UI-only deployment may be assessed, but is not accepted by this observation. Touch propagation hosted acceptance remains blocked; no replacement submission or backfill is permitted.
+
+Independent portability correction: acquisition source_key overrides now require their own explicit source-rights decision, including deny and missing-decision failures. Historical recordType=pvx_web_journey now fails with legacy_journey_adapter_required instead of being silently excluded as anonymous. This is a fail-closed guard, not implementation or acceptance of the missing adapter. Remaining checkpoint, legacy SMS, linked evidence, retention and completeness gates above still apply; HTTP activation stays hard-blocked.
+
+Fresh validation: node --test tests/*.test.mjs passed 417/417 with zero failures/skips/cancellations; includes 21 export tests. The new source-rights fixture initially failed its database NOT NULL constraint; corrected the fixture to include required source_family and updated_at, then the full suite passed. Log: /tmp/continuous-resume-regression.log. Local code and ledger committed on the existing branch, not pushed or deployed.
+
+Checkpoint status: hosted producer acceptance PARTIAL (connection and rendered detail PASS, detailed evidence comparison and changed-code hosted acceptance pending). Export release BLOCKED. Production NO-GO. No new measured revenue outcome.
