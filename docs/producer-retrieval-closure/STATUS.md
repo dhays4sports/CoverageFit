@@ -1,8 +1,10 @@
 # CF-PRODUCER-RETRIEVAL-CLOSURE-1.0
 
+Current continuation: [canonical engineering ledger](../CONTINUOUS-REVENUE-DELIVERY-3.0.md). The notes below preserve the hosted baseline; local follow-up corrections and current test counts are in that ledger.
+
 Outcome: PARTIAL. Exact hosted identity is verified; the interface and post-submission touch projection gaps remain. Production remains NO-GO.
 
-Base: CoverageFit draft PR #37, fix/restaurant-intake-1-0 at 709db6908cd8edb9cce349569e7ce699c65b3569, stacked on #36. This correction is prepared locally on that branch. No remote update or deployment has been performed. Publishing the branch can trigger Pages; this packet is prepared for review first. Existing portability local commit 83787ae was reported in another workspace but is not present in this clone; it has not been overwritten or recreated.
+Base: CoverageFit draft PR #37, fix/restaurant-intake-1-0 at 709db6908cd8edb9cce349569e7ce699c65b3569, stacked on #36. This correction is prepared locally on that branch. No remote update or deployment has been performed. Publishing the branch can trigger Pages; this packet is prepared for review first. The existing portability commit 83787ae was subsequently recovered and reconciled as 275c01f; see the canonical ledger.
 
 ## Identity evidence and limits
 
