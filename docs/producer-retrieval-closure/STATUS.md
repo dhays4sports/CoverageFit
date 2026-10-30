@@ -1,6 +1,6 @@
 # CF-PRODUCER-RETRIEVAL-CLOSURE-1.0
 
-Outcome: BLOCKED for fresh hosted closure. Production remains NO-GO.
+Outcome: PARTIAL. Exact hosted identity is verified; the interface and post-submission touch projection gaps remain. Production remains NO-GO.
 
 Base: CoverageFit draft PR #37, fix/restaurant-intake-1-0 at 709db6908cd8edb9cce349569e7ce699c65b3569, stacked on #36. This correction is prepared locally on that branch. No remote update or deployment has been performed. Publishing the branch can trigger Pages; this packet is prepared for review first. Existing portability local commit 83787ae was reported in another workspace but is not present in this clone; it has not been overwritten or recreated.
 
@@ -13,11 +13,17 @@ Lead key: lead-ops/lead/4055026c0c367c4c9626950fff2292af27228a484a90548d398f08bb
 Opportunity: opp_src_ae960d98c5e3f0b296d2edbedd9dd91e
 TEST DB: coveragefit-distribution-test / f5ac694d-1028-4a30-9fbd-c264b2e5995e
 
-The code deterministically derives the displayed opportunity ID from SHA-256(workspace + '|lead|' + requestId), first 32 hex characters, prefixed opp_src_. This matches exactly. It is independent of name/contact/timestamp, but a derivation is not a fresh database relationship query. The preceding Feature Integrity & Portability report records one exact source link and this opportunity, plus portability_alpha first touch and portability_beta subsequent touch. That is historical hosted evidence, not newly executed SQL.
+Fresh hosted SELECTs executed through Cloudflare D1 Console after the session lock was cleared. Database marker returned f5ac694d-1028-4a30-9fbd-c264b2e5995e / TEST. Counts: journey=1, checkpoint=1, lead source=1, linked opportunity=1. The exact source_id and checkpointId equal the requested ID, and the joined journey derives that ID. The opportunity is opp_src_ae960d98c5e3f0b296d2edbedd9dd91e, status open. This proves the visible Synthetic Portability Alpha relationship by identifiers, not name/contact/time.
 
-Current Solo Desk visibly loads the opportunity as open with restaurant source, /restaurant/ route, business product and requested-call context. The source search implementation does not search source_id or journeyId; its no-match result does not show a missing record.
+Consent: granted=1; version distribution-contact-v1; captured 2026-10-30T01:43:54.995Z; scope requested_review_call; source basis explicit_agency_contact_consent; call permitted=1; personal text permitted=0; contact requested=1. TEST traffic, web_408_restaurant, /restaurant/ requested-call context, alcohol below_33, INITIAL_SCREEN_ONLY, detailed-underwriting gate=1. This is an initial screen, not carrier acceptance.
 
-Fresh D1 queries were blocked: the existing Cloudflare tab is claimed by another browser session. No alternate session was used to bypass that ownership. verify-test-identity.sql is prepared, NOT EXECUTED against hosted D1. No fresh hosted row counts are claimed.
+Restaurant objects match between journey and lead. The complete distribution object matches between lead and source. First touch matches the journey and retains portability_alpha. The original subsequent touch portability_beta / subsequent_touch at 2026-10-30T01:43:15.784Z is present in both.
+
+A material divergence remains: journey additionalTouches count=2, lead/source additionalTouches count=1. The extra journey touch is an untagged /restaurant/ visit at 2026-10-30T01:47:39.708Z, after consent/submission. This confirms the previously documented limitation: post-completion touches are saved to the journey but not automatically projected into the lead/source. No repair, source sync or backfill was attempted. Export must reconcile the authoritative journey or disclose this incompleteness.
+
+The first multiline detail query failed because the console removed newline separators; the equivalent single-line SELECT succeeded. No write SQL was used. The earlier no-match Work search is explained by its implementation: it does not search source_id or journeyId.
+
+The authenticated Solo Desk was visible in the preceding run, but no fa3adc1d tab remains open after the browser recovery. Current authenticated API payload comparison could not resume without reopening the producer workspace and restoring its private connection if required. No credential was extracted or exposed.
 
 ## Full record failure
 
@@ -49,7 +55,7 @@ Coverage: exact journey/checkpoint/source/opportunity chain; repeated reads pres
 
 ## Remaining closure and Data Portability handoff
 
-1. Release the Cloudflare tab from the other browser session, then execute only the prepared SELECTs in the verified TEST database. Require exactly one journey, checkpoint, source and linked opportunity.
-2. Compare authenticated producer-detail source_id and stored source facts against those query results through an available authorized response-inspection surface. Never copy a producer key into reports or URLs.
+1. COMPLETE: Cloudflare access restored; exact TEST identity and one-to-one row linkage freshly verified.
+2. Reopen the fa3adc1d producer workspace and restore the private connection if required. Compare authenticated producer-detail source_id and stored source facts against the fresh D1 results. Never copy a producer key into reports or URLs.
 3. Review/apply this local correction in the existing #37 stack and perform bounded Preview UI acceptance after an authorized changed-code deployment. Do not redeploy unchanged code or broaden the allowlist.
-4. Preserve the open opportunity. Use the above relationship as a candidate export-integrity fixture; promote it to VERIFIED only after fresh hosted comparison. Export must retain source/lead/opportunity identities, consent scope, restaurant facts, first/additional touches and current action context. No exporter activation or production approval follows from local test success.
+4. Preserve the open opportunity. Use the above relationship as a VERIFIED identity fixture, with producer payload/UI acceptance still PARTIAL and post-completion touch coverage explicitly INCOMPLETE. Export must retain source/lead/opportunity identities, consent scope, restaurant facts, first/additional touches and current action context. No exporter activation or production approval follows from local test success.
