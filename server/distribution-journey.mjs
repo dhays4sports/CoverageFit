@@ -1,3 +1,4 @@
+import {projectDistributionTouches} from './distribution-touch-projection.mjs';
 import {scopedRequest,scopedResponse} from './distribution-sessions.mjs';
 import {CONDO_QUESTIONS,condoDecision,condoFacts,condoSummary,condoQualified} from './condo-journey.mjs';
 import {distributionOrigin} from './distribution-preview.mjs';
@@ -21,13 +22,16 @@ const origins=new Set(['https://408farmers.com','https://www.408farmers.com','ht
 const date=options=>new Date(options.now||Date.now());
 const problem=(status)=>{const e=new Error('Review unavailable');e.status=status;throw e;};
 const strict=(value,keys)=>{if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).some(k=>!keys.includes(k)))problem(422);};
-function decide(record,now){if(record.condoFlowVersion===1)return condoDecision(record,now);if(record.buyerFlowVersion===1)return buyerDecision(record,now);return deriveSignalDecision({signalSessionId:record.journeyId,flowId:'distribution_'+record.distribution.entry,
+function decide(record,now){if(record.distribution.entry==='restaurant')return restaurantDecision(record);if(record.condoFlowVersion===1)return condoDecision(record,now);if(record.buyerFlowVersion===1)return buyerDecision(record,now);return deriveSignalDecision({signalSessionId:record.journeyId,flowId:'distribution_'+record.distribution.entry,
   canonicalSignals:record.signals,attribution:record.distribution.attribution,
   presentationContext:record.distribution.audience==='homebuyer'?'homebuyer':record.distribution.audience==='condo'?'condo':''},now).public;}
+const restaurantOptions=[['renewal','My insurance is renewing'],['opening','I am opening a restaurant'],['changes','My operations have changed'],['review','I want a coverage review']].map(([code,label])=>({code,label,signals:{product:'business',reviewReason:'coverage_review'}}));
+const restaurantQuestion={id:'restaurant_reason',prompt:'What brings you here?',options:restaurantOptions};
+function restaurantDecision(r){return {nextQuestionId:r.answers.length?null:'restaurant_reason',nextQuestion:r.answers.length?null:restaurantQuestion,publicExperience:{headline:'Tell Dylan about your restaurant',body:'Start with a short inquiry. Detailed underwriting comes later, after eligibility review.'}};}
 function publicState(record,now){
   if(record.contact) return {ok:true,revision:record.revision,complete:true,contactSubmitted:true,requestId:'408d_'+record.journeyId,message:record.contact.delivered?'Thanks — your request reached Dylan’s workspace. He can pick up from what you shared.':'Your request is saved. Please retry delivery or contact Dylan directly.',deliveryPending:!record.contact.delivered};
   const d=decide(record,now);
-  return {ok:true,revision:record.revision,canBack:record.answers.length>0,contactChoice:record.distribution.contactChoice,
+  return {ok:true,revision:record.revision,canBack:record.answers.length>0,contactChoice:record.distribution.contactChoice,restaurant:record.distribution.entry==='restaurant',
     ...(record.buyerFlowVersion===1?{buyer:true,urgent:buyerFacts(record,now).urgency==='urgent'}:{}),
     ...(record.condoFlowVersion===1?{condo:true,urgent:condoFacts(record,now).urgency==='urgent'}:{}),
     question:d.nextQuestion?{id:d.nextQuestion.id,prompt:d.nextQuestion.prompt,...(d.nextQuestion.input?{input:d.nextQuestion.input,hint:d.nextQuestion.hint,value:(record.condoFlowVersion===1?record.condo?.propertyZip:record.buyer?.propertyZip)||''}:{}),options:d.nextQuestion.options.map(o=>({code:o.code,label:o.label}))}:null,
@@ -39,7 +43,7 @@ async function load(request,options){
   const key=await pvxWebJourneyKey(token),record=await options.store.get(key);
   return record?.seed?.journey?.experience==='canonical_signal' && Date.parse(record.expiresAt)>date(options).getTime()?{key,record,token,reviewVersion:await sha256Hex('distribution-review-version|'+token)}:null;
 }
-function stateFor(loaded,now){return {...publicState(loaded.record,now),reviewVersion:loaded.reviewVersion,reviewAudience:loaded.record.distribution.entry};}
+function stateFor(loaded,now){return {...publicState(loaded.record,now),reviewVersion:loaded.reviewVersion,...(['restaurant','business'].includes(loaded.record.distribution.entry)?{attribution:loaded.record.firstTouch}:{}),reviewAudience:loaded.record.distribution.entry};}
 async function save(loaded,next,options){
   // Compare the exact previous JSON, not a browser-supplied identity or cohort.
   const result=await options.db.prepare('UPDATE pvx_records SET data_json=?,updated_at=?,expires_at=COALESCE(?,expires_at) WHERE record_key=? AND data_json=?')
@@ -109,6 +113,9 @@ async function deliver(loaded,options){
   v.context.housing=r.distribution.knownContext.housing||'';
   v.context.distribution.knownContext=r.distribution.knownContext;
   v.context.distribution.phase='producer_handoff';
+  if(r.restaurant)v.context.distribution.restaurant=r.restaurant;
+  v.context.distribution.trafficClass=options.env?.BUYER_STAGING_ISOLATED==='1'?'TEST':'PRODUCTION';
+  v.context.distribution.additionalTouches=r.additionalTouches||[];
   if(r.buyerFlowVersion===1){v.context.distribution.buyer=buyerFacts(r,date(options));v.context.buyerUrgency=v.context.distribution.buyer.urgency;v.context.buyerSummary=buyerSummary(r,date(options));}
   if(r.condoFlowVersion===1){v.context.distribution.condo=condoFacts(r,date(options));v.context.condoSummary=condoSummary(r,date(options));}
   // Exact relationship capability derived server-side, not an inbound field.
@@ -144,7 +151,7 @@ export async function distributionJourney(request,options={}){
   if(request.headers.get('origin')!==new URL(request.url).origin)return json({ok:false},403);
   try{
     const raw=await request.text();if(raw.length>4096)problem(413);
-    const body=JSON.parse(raw);strict(body,['action','revision','questionId','code','name','phone','mode','permission','value','contactTime','reviewVersion']);
+    const body=JSON.parse(raw);strict(body,['action','revision','questionId','code','name','phone','mode','permission','value','contactTime','reviewVersion','restaurantName','restaurantCity','alcoholShare']);
     const loaded=await load(request,options);if(!loaded)problem(404);
     const r=loaded.record,now=date(options);
     if(body.action==='load')return json(stateFor(loaded,now));
@@ -154,7 +161,7 @@ export async function distributionJourney(request,options={}){
     if(body.revision!==r.revision)problem(409);
     let next={...r,revision:r.revision+1,updatedAt:now.toISOString()};
     if(body.action==='answer'){
-      const d=decide(r,now),q=(r.condoFlowVersion===1?CONDO_QUESTIONS:r.buyerFlowVersion===1?BUYER_QUESTIONS:SIGNAL_QUESTION_LIBRARY)[d.nextQuestionId];
+      const d=decide(r,now),q=r.distribution.entry==='restaurant'?restaurantQuestion:(r.condoFlowVersion===1?CONDO_QUESTIONS:r.buyerFlowVersion===1?BUYER_QUESTIONS:SIGNAL_QUESTION_LIBRARY)[d.nextQuestionId];
       if(!q||q.id!==body.questionId||r.answers.length>=7)problem(422);
       let option=q.options.find(o=>o.code===body.code);
       if(q.input==='zip'&&body.code==='zip'){const zip=String(body.value||'').trim();if(!/^9\d{4}$/.test(zip)||Number(zip)<90001||Number(zip)>96162)problem(422);option={code:'zip',signals:{},[r.condoFlowVersion===1?'condo':'buyer']:{propertyZip:zip}};}
@@ -172,6 +179,11 @@ export async function distributionJourney(request,options={}){
       const phone=String(body.phone||'').replace(/\D/g,'').replace(/^1(?=\d{10}$)/,''),name=String(body.name||'').trim();
       if(body.permission!==true||!['call','text'].includes(body.mode)||!/^\d{10}$/.test(phone)||!name||name.length>80||/[<>\x00-\x1f]/.test(name))problem(422);
       if(body.contactTime&&!['morning','afternoon','evening','anytime'].includes(body.contactTime))problem(422);
+      if(r.distribution.entry==='restaurant'){
+        const restaurantName=String(body.restaurantName||'').trim(),city=String(body.restaurantCity||'').trim();
+        if(!restaurantName||restaurantName.length>120||!city||city.length>80||/[<>\x00-\x1f]/.test(restaurantName+city)||!['below_33','at_least_33','unknown'].includes(body.alcoholShare))problem(422);
+        next.restaurant={name:restaurantName,city,state:'CA',reason:r.answers[0]?.optionCode,alcoholShare:body.alcoholShare,eligibility:body.alcoholShare==='below_33'?'INITIAL_SCREEN_ONLY':body.alcoholShare==='at_least_33'?'INELIGIBLE_PROGRAM':'NEEDS_SCREEN',detailedUnderwritingAllowed:body.alcoholShare==='below_33'};
+      }
       next.contact={name,phone,mode:body.mode,...(body.contactTime?{contactTime:body.contactTime}:{}),at:now.toISOString(),retainedUntil:retentionExpiresAt(now,options.env),delivered:false};
     }else problem(422);
     await save(loaded,next,options);
@@ -181,7 +193,8 @@ export async function distributionJourney(request,options={}){
       if(!decide(next,now).nextQuestion)await event(next.distribution,'signal_session_completed',options).catch(()=>{});
     }
     if(next.contact)await event(next.distribution,'contact_requested',options).catch(()=>{});
-    return next.contact?await deliver({...loaded,record:next},options):json(stateFor({...loaded,record:next},now));
+    if(next.contact){try{return await deliver({...loaded,record:next},options);}catch{return json({...stateFor({...loaded,record:next},now),ok:false},503);}}
+    return json(stateFor({...loaded,record:next},now));
   }catch(e){return json({ok:false,message:e.status===409?'Your review changed. Reload to continue with the saved answers.':'This review is unavailable. Please retry or contact Dylan directly.'},e.status||503);}
 }
 
@@ -254,6 +267,16 @@ export async function distributionEvent(request,options={}){
     const existing=await load(request,options);
     const distribution=existing?.record.distribution.entry===body.handoff.entry?existing.record.distribution:normalizeDistribution(body.handoff,date(options));
     if(body.type==='abandon'&&(!existing?.record.answers.length||existing.record.contact||!decide(existing.record,date(options)).nextQuestion))problem(422);
+    if(existing&&body.type==='landing_view'&&existing.record.distribution.entry===body.handoff.entry){
+      const incoming=normalizeDistribution(body.handoff,date(options));
+      const touch={...incoming.attribution,occurredAt:incoming.occurredAt};
+      const prior=[existing.record.firstTouch,...(existing.record.additionalTouches||[])];
+      if(!prior.some(t=>t.partnerId===touch.partnerId&&t.placementId===touch.placementId&&t.utmCampaign===touch.utmCampaign)){
+        await save(existing,{...existing.record,additionalTouches:[...(existing.record.additionalTouches||[]),touch].slice(-20),updatedAt:date(options).toISOString()},options);
+      }
+      // Also reconcile an already-recorded touch after a previous projection failure.
+      await projectDistributionTouches(existing,options);
+    }
     await event(distribution,body.type,options);
     return json({ok:true});
   }catch(e){return json({ok:false},e.status||422);}

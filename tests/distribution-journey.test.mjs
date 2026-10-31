@@ -6,6 +6,7 @@ import {deriveSignalDecision} from '../server/signal-decision-core.mjs';
 import {entryInput,renderEntry} from '../server/entry-presentation.mjs';
 import {normalizeDistribution} from '../server/distribution-contract.mjs';
 import {distributionEntry,distributionJourney,distributionInteract,distributionEvent,distributionPresentation} from '../server/distribution-journey.mjs';
+import {onRequest as distributionEventsRoute} from '../functions/api/distribution/events.js';
 import {createPVXRecordStore} from '../server/d1-json-store.mjs';
 const now='2026-09-26T16:00:00.000Z';
 const input=()=>({version:'coveragefit-distribution-v1',entry:'buyer',bootstrapId:'pvxb_abcdefghijklmnopqrstuvwx',occurredAt:now,attribution:{campaignId:'buyer_fall',campaignVariant:'a',partnerId:'partner_alpha'},evidence:{product:'home',reviewReason:'buying_home'},knownContext:{housing:'buyer',bundleInterest:'yes'},contactChoice:'text'});
@@ -253,4 +254,24 @@ test('QR first answer persists original campaign and market through producer rec
   assert.equal(f.sql.prepare('SELECT count(*) n FROM cf_solo_opportunities').get().n,1);
   const normalized=normalizeDistribution(handoff,new Date(now));assert.equal(normalized.marketContext,'95118');assert.deepEqual(normalized.evidence,{product:'home'});
  }finally{f.sql.close();}
+});
+
+// Exercise the Pages wrapper: the helper alone cannot detect a missing D1 binding.
+test('hosted events route persists a later placement once without replacing first touch',async()=>{
+  const f=fixture();try{
+    f.now=new Date().toISOString();
+    const initial={...input(),occurredAt:f.now};
+    const s=await start(f,initial);
+    const handoff={...initial,attribution:{partnerId:'partner_beta',placementId:'placement_beta',utmCampaign:'later_campaign'}};
+    for(let i=0;i<2;i++){
+      const response=await distributionEventsRoute({request:req('events',{type:'landing_view',handoff},s.cookie),env:{COVERAGEFIT_DB:f.db}});
+      assert.equal(response.status,200,await response.clone().text());
+    }
+    const record=JSON.parse(f.sql.prepare("SELECT data_json FROM pvx_records WHERE record_key LIKE 'pvx/web-journey/%'").get().data_json);
+    assert.equal(record.firstTouch.partnerId,'partner_alpha');
+    assert.equal(record.additionalTouches.length,1);
+    assert.equal(record.additionalTouches[0].partnerId,'partner_beta');
+    assert.equal(record.additionalTouches[0].placementId,'placement_beta');
+    assert.equal(f.sql.prepare('SELECT count(*) n FROM cf_solo_opportunities').get().n,0);
+  }finally{f.sql.close();}
 });

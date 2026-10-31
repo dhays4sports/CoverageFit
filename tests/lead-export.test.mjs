@@ -1,0 +1,129 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {DatabaseSync} from 'node:sqlite';import {readFileSync,readdirSync} from 'node:fs';
+import {buildExport,handleLeadExport,csvCell,SCHEMA} from '../server/lead-export.mjs';
+const at='2026-10-01T00:00:00Z';
+function fixture(){const sql=new DatabaseSync(':memory:');for(const f of readdirSync(new URL('../migrations/',import.meta.url)).filter(f=>f.endsWith('.sql')).sort())sql.exec(readFileSync(new URL('../migrations/'+f,import.meta.url),'utf8'));
+ const db={prepare(q){assert.match(q,/^WITH /);let args=[];return {bind(...v){args=v;return this;},async first(){return sql.prepare(q).get(...args);}}}};
+ const policy={version:SCHEMA,workspace:'qa',owner:'qa',legacyWorkspace:'qa',ownerWorkspace:'qa',inventoryReviewed:true,sourceDecisions:{lead:'allow',opportunity:'allow',consultation:'allow',recommendation:'allow',district_pilot_v1:'allow'},sourceKeyDecisions:{web:'allow',lead:'allow',consultation:'allow',recommendation:'allow'}};
+ const op=(id,workspace='qa',status='open')=>sql.prepare('INSERT INTO cf_solo_opportunities(id,workspace_id,owner_id,contact_json,source,status,last_mutation_id,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?)').run(id,workspace,'qa',JSON.stringify({name:'Synthetic '+id}),'web',status,'fixture',at,at);
+ const lead=(key,changes={})=>sql.prepare('INSERT INTO pvx_records(record_key,data_json,metadata_json,created_at,updated_at,expires_at) VALUES(?,?,?,?,?,?)').run('lead-ops/lead/'+key,JSON.stringify({checkpointId:key,identity:{name:'Synthetic',email:'fixture@example.invalid'},attribution:{sourceKey:'web'},...changes}),'{}',at,at,null);
+ const link=(kind,key,op,summary={})=>sql.prepare('INSERT INTO cf_solo_sources(workspace_id,kind,source_id,opportunity_id,summary_json,updated_at) VALUES(?,?,?,?,?,?)').run('qa',kind,key,op,JSON.stringify(summary),at);
+ return {sql,db,policy,op,lead,link};}
+function readCsv(text){const rows=[];let row=[],cell='',quoted=false;for(let i=1;i<text.length;i++){const c=text[i];if(c==='"'){if(quoted&&text[i+1]==='"'){cell+='"';i++;}else quoted=!quoted;}else if(c===','&&!quoted){row.push(cell);cell='';}else if(c==='\r'&&!quoted&&text[i+1]==='\n'){row.push(cell);rows.push(row);row=[];cell='';i++;}else cell+=c;}return rows;}
+test('complete snapshot exceeds worklist limits; deterministic CSV, all statuses and read-only DB',async()=>{const f=fixture();for(let i=0;i<1201;i++)f.op('op'+i,'qa',['open','closed','deferred'][i%3]);f.op('private','other');const before=f.sql.prepare('SELECT total_changes() n').get().n;const r=await buildExport(f.db,f.policy);assert.equal(r.manifest.exported,1201);assert.equal(r.manifest.counts.opportunities,1201);assert.equal(readCsv(r.csv).length,1202);assert.equal(r.csv.includes('private'),false);assert.equal(f.sql.prepare('SELECT total_changes() n').get().n,before);assert.equal((await buildExport(f.db,f.policy)).csv,r.csv);});
+test('retained unprojected, incomplete contact, rejected projection and anonymous remain distinct',async()=>{const f=fixture();f.lead('unprojected',{consent:{agencyContact:{granted:false}},crm:{state:'failed'}});f.lead('partial',{identity:{email:'only@example.invalid'}});f.lead('anonymous',{identity:{}});const r=await buildExport(f.db,f.policy);assert.equal(r.rows.length,2);assert.equal(r.manifest.excluded.anonymous,1);assert.equal(r.rows.find(r=>r.canonical_lead_id==='lead:unprojected').handoff_state,'failed');});
+test('exact source links deduplicate projections; identifiers stable after projection',async()=>{const f=fixture();f.lead('stable');const before=await buildExport(f.db,f.policy);f.op('o');f.link('lead','stable','o');const after=await buildExport(f.db,f.policy);assert.equal(after.rows.length,1);assert.equal(after.rows[0].canonical_lead_id,before.rows[0].canonical_lead_id);assert.deepEqual(after.rows[0].opportunity_ids,['o']);});
+test('Unicode multiline long fields and spreadsheet formulas round trip safely',async()=>{const f=fixture();const n='\t =HYPERLINK("bad")\n東京 🏠'+ 'x'.repeat(50000);f.lead('unicode',{identity:{name:n,email:'é@example.invalid',phone:'+15555550123'}});const r=await buildExport(f.db,f.policy);const parsed=readCsv(r.csv);assert.equal(parsed[1][4],"'"+n);assert.equal(parsed[1][5],'é@example.invalid');assert.equal(parsed[1][6],"'+15555550123");for(const v of ['=1','+cmd','-2','@SUM(1)','\r\n=1','\ufeff@bad'])assert.ok(csvCell(v).startsWith('"\''));});
+test('source restriction, CONTROL and expired records accounted without data leakage',async()=>{const f=fixture();f.op('control');f.link('district_pilot_v1','c','control',{cohort:'CONTROL'});f.lead('expired');f.sql.exec("UPDATE pvx_records SET expires_at='2020-01-01T00:00:00Z'");f.op('deny');f.policy.sourceKeyDecisions.web='deny';const r=await buildExport(f.db,f.policy);assert.equal(r.rows.length,0);assert.equal(r.manifest.excluded.expired,1);assert.equal(r.manifest.excluded.restricted,2);});
+test('unknown source rights, missing legacy ownership, malformed records fail closed',async()=>{const f=fixture();f.op('o');await assert.rejects(buildExport(f.db,{...f.policy,legacyWorkspace:'other'}),/scope_review_required/);await assert.rejects(buildExport(f.db,{...f.policy,sourceKeyDecisions:{}}),/source_rights_review_required/);f.sql.exec("UPDATE cf_solo_opportunities SET contact_json='bad'");await assert.rejects(buildExport(f.db,f.policy),/malformed_record/);});
+test('truncated or missing database results never return partial CSV',async()=>{const f=fixture();f.op('o');const bad={prepare(q){return {bind(...v){return {async first(){const r=await f.db.prepare(q).bind(...v).first();const p=JSON.parse(r.opportunities);p.rows=[];r.opportunities=JSON.stringify(p);return r;}}}}}};await assert.rejects(buildExport(bad,f.policy),/incomplete_snapshot/);await assert.rejects(buildExport({prepare(){throw Error('database unavailable');}},f.policy),/database unavailable/);});
+test('legacy consultation and pending distribution contact are included without creating opportunities',async()=>{const f=fixture();for(const [table,key,value] of [['consultation_records','records/legacy',{id:'legacy',customer:{name:'Legacy Synthetic'},disposition:{stage:'closed'}}],['pvx_records','pvx/web-journey/pending',{journeyId:'pending',contact:{name:'Pending Synthetic',phone:'5555550123',at,mode:'call',delivered:false}}]])f.sql.prepare(`INSERT INTO ${table}(record_key,data_json,created_at,updated_at) VALUES(?,?,?,?)`).run(key,JSON.stringify(value),at,at);const r=await buildExport(f.db,f.policy);assert.equal(r.rows.length,2);assert.equal(r.rows.find(r=>r.canonical_lead_id==='lead:408d_pending').handoff_state,'failed_handoff');assert.equal(f.sql.prepare('SELECT count(*) n FROM cf_solo_opportunities').get().n,0);});
+test('latest permission changes are preserved, not inferred from identity',async()=>{const f=fixture();f.lead('optout',{consent:{agencyContact:{granted:false},optedOut:true}});const r=await buildExport(f.db,f.policy);assert.equal(r.rows[0].permission_evidence.optedOut,true);assert.equal(r.rows[0].permission_evidence.agencyContact.granted,false);assert.match(r.rows[0].suppression_state,/unknown/);});
+test('handler rejects unauthorized access, client scope, non-test activation and incomplete coverage with private responses',async()=>{const f=fixture();f.op('o');const token='synthetic-only-key-abcdefghijklmnopqrstuvwxyz';const env={COVERAGEFIT_DB:f.db,COVERAGEFIT_PRODUCER_ACCESS_TOKEN:token,COVERAGEFIT_SOLO_WORKSPACE_ID:'qa',COVERAGEFIT_DISTRIBUTION_TEST_ISOLATED:'1',COVERAGEFIT_LEAD_EXPORT_POLICY:JSON.stringify(f.policy)};
+ const call=(suffix='',credential=token,e=env)=>handleLeadExport({request:new Request('https://test.invalid/api/solo-desk/export-leads.csv'+suffix,{headers:{Authorization:'Bearer '+credential}}),env:e});assert.equal((await call('','wrong')).status,401);assert.equal((await call('?workspace=other')).status,400);assert.equal((await call('',token,{...env,COVERAGEFIT_DISTRIBUTION_TEST_ISOLATED:'0'})).status,503);const r=await call();assert.equal(r.status,503);assert.match(r.headers.get('cache-control'),/private, no-store/);assert.equal((await r.json()).error.code,'export_coverage_incomplete');});
+test('linked opt-out is exported without reading transcripts or clearing suppression',async()=>{const f=fixture();f.op('o');f.link('district_pilot_v1','p','o',{cohort:'SIGNAL',conversation_id:'synthetic-thread'});f.sql.prepare('INSERT INTO sms_conversations(record_key,data_json,created_at,updated_at) VALUES(?,?,?,?)').run('sms-live-conversations/synthetic-thread',JSON.stringify({id:'synthetic-thread',smsConsent:{status:'opted_out'},signal:{decision_2:'STOP',contact_suppressed:true},transcript:[{body:'must-not-export'}]}),at,at);const r=await buildExport(f.db,f.policy);assert.equal(r.rows[0].suppression_state[0].consent_status,'opted_out');assert.equal(r.csv.includes('must-not-export'),false);});
+test('mixed source agreements cannot be laundered through an allowed lead source',async()=>{const f=fixture();f.op('o');f.link('lead','external','o',{attribution:{sourceKey:'restricted_vendor'}});f.policy.sourceKeyDecisions.restricted_vendor='deny';const r=await buildExport(f.db,f.policy);assert.equal(r.rows.length,0);assert.equal(r.manifest.excluded.restricted,1);});
+test('missing schema is a hard failure rather than empty export',async()=>{const f=fixture();f.sql.exec('DROP TABLE cf_acq_opportunity_measurements');await assert.rejects(buildExport(f.db,f.policy),/no such table/);});
+test('imported source IDs persist and duplicate source events do not add rows',async()=>{const f=fixture();f.op('import');f.link('lead','agencyzoom_raw:synthetic','import',{consent:{granted:false}});assert.throws(()=>f.link('lead','agencyzoom_raw:synthetic','import'),/UNIQUE/);const r=await buildExport(f.db,f.policy);assert.equal(r.rows.length,1);assert.equal(r.rows[0].canonical_lead_id,'lead:agencyzoom_raw%3Asynthetic');});
+test('CSV export performs no outbound network operations',async()=>{const f=fixture();f.lead('network');const original=globalThis.fetch;globalThis.fetch=()=>{throw Error('forbidden external call');};try{assert.equal((await buildExport(f.db,f.policy)).rows.length,1);}finally{globalThis.fetch=original;}});
+test('distribution attribution and request context persist through projection and repeated export',async()=>{
+ const f=fixture(),checkpoint='408d_pvxj_fixture';
+ const firstTouch={sourceKey:'web',utmCampaign:'alpha',placementId:'first',occurredAt:at};
+ const additionalTouches=[{...firstTouch,utmCampaign:'beta'},{...firstTouch,utmCampaign:'gamma'}];
+ const context={reviewTrack:'restaurant',reviewContext:'requested call',distribution:{journeyId:'pvxj_fixture',firstTouch,additionalTouches,conversation_id:'private-capability'}};
+ f.lead(checkpoint,{context});
+ const before=await buildExport(f.db,f.policy);
+ f.op('exact');f.link('lead',checkpoint,'exact',{context});
+ const after=await buildExport(f.db,f.policy);
+ assert.equal(after.rows.length,1);assert.equal(after.rows[0].canonical_lead_id,before.rows[0].canonical_lead_id);
+ assert.deepEqual(after.rows[0].attribution_evidence,before.rows[0].attribution_evidence);
+ assert.equal(after.rows[0].campaign,'alpha');assert.equal(after.rows[0].placement,'first');
+ assert.deepEqual(after.rows[0].attribution_evidence.subsequent_touches,additionalTouches);
+ assert.equal(after.rows[0].request_context.reviewContext,'requested call');
+ assert.equal(after.csv.includes('private-capability'),false);
+ assert.equal(after.csv,(await buildExport(f.db,f.policy)).csv);
+});
+test('nested web source suppression uses exact scoped conversation links',async()=>{
+ const f=fixture();f.op('o');f.link('lead','web-source','o',{context:{distribution:{conversation_id:'web-thread'}}});
+ for(const key of ['web-thread','other-thread'])f.sql.prepare('INSERT INTO sms_conversations(record_key,data_json,created_at,updated_at) VALUES(?,?,?,?)').run('sms-live-conversations/'+key,JSON.stringify({id:key,smsConsent:{status:'opted_out'},signal:{contact_suppressed:true},transcript:[{body:'excluded-transcript'}]}),at,at);
+ const r=await buildExport(f.db,f.policy);
+ assert.equal(r.manifest.counts.suppression,1);assert.equal(r.rows[0].suppression_state[0].consent_status,'opted_out');
+ assert.equal(r.csv.includes('other-thread'),false);assert.equal(r.csv.includes('excluded-transcript'),false);
+});
+test('retained source keeps lead identity without checkpoint and does not duplicate an imported checkpoint',async()=>{
+ const f=fixture();f.op('o');f.link('lead','retained-web','o');f.op('raw');f.link('lead','agencyzoom_raw:one','raw');f.lead('agencyzoom_raw:one');
+ const r=await buildExport(f.db,f.policy);
+ assert.deepEqual(r.rows.map(r=>r.canonical_lead_id),['lead:agencyzoom_raw%3Aone','lead:retained-web']);
+});
+test('expired checkpoint cannot reappear through a retained journey or source projection',async()=>{
+ const f=fixture(),key='408d_expired';f.op('o');f.link('lead',key,'o');f.lead(key);
+ f.sql.exec("UPDATE pvx_records SET expires_at='2020-01-01T00:00:00Z'");
+ f.sql.prepare('INSERT INTO pvx_records(record_key,data_json,created_at,updated_at) VALUES(?,?,?,?)').run('pvx/web-journey/expired',JSON.stringify({journeyId:'expired',contact:{name:'Synthetic',delivered:true}}),at,at);
+ const r=await buildExport(f.db,f.policy);assert.equal(r.rows.length,0);assert.equal(r.manifest.excluded.expired,1);
+});
+
+test('acquisition source override requires its own source-rights decision',async()=>{
+ const f=fixture();f.op('o');
+ f.sql.prepare('INSERT INTO cf_acq_opportunity_attribution(workspace_id,opportunity_id,source_key,source_family,updated_at) VALUES(?,?,?,?,?)').run('qa','o','restricted_acquisition','organic_web',at);
+ await assert.rejects(buildExport(f.db,f.policy),/source_rights_review_required/);
+ f.policy.sourceKeyDecisions.restricted_acquisition='deny';
+ const denied=await buildExport(f.db,f.policy);assert.equal(denied.rows.length,0);assert.equal(denied.manifest.excluded.restricted,1);
+ f.policy.sourceKeyDecisions.restricted_acquisition='allow';
+ assert.equal((await buildExport(f.db,f.policy)).rows[0].source,'restricted_acquisition');
+});
+test('historical web journey is not silently classified as anonymous',async()=>{
+ const f=fixture();
+ f.sql.prepare('INSERT INTO pvx_records(record_key,data_json,created_at,updated_at) VALUES(?,?,?,?)').run('pvx/web-journey/historical',JSON.stringify({recordType:'pvx_web_journey',journeyId:'historical',seed:{contact:{leadCheckpointId:'older-lead'}}}),at,at);
+ await assert.rejects(buildExport(f.db,f.policy),/legacy_journey_adapter_required/);
+});
+
+test('owner-scoped recommendation revisions and closing events retain chronology without capabilities or bind inference',async()=>{
+ const f=fixture();
+ for(const [key,owner] of [['mine','qa'],['foreign','other']]){
+  f.sql.prepare('INSERT INTO cf_recommendations(id,owner_id,draft_json,outcome_json,created_at,updated_at) VALUES(?,?,?,?,?,?)').run(key,owner,JSON.stringify({contact:{name:'Synthetic '+key},options:[{id:'draft-option'}]}),'{}',at,at);
+  for(const revision of [2,1])f.sql.prepare('INSERT INTO cf_recommendation_revisions(recommendation_id,revision,token_hash,payload_json,expires_at,created_at) VALUES(?,?,?,?,?,?)').run(key,revision,key+'-secret-'+revision,JSON.stringify({options:[{id:'option-'+revision,policies:[{id:'p',premium:123,carrier:'Synthetic Carrier',product:'home'}]}],token:'must-not-export'}),'2027-01-01',at);
+  f.sql.prepare('INSERT INTO cf_close_events(id,recommendation_id,kind,request_id,actor_id,payload_json,created_at) VALUES(?,?,?,?,?,?,?)').run(key+'-event',key,'customer_decision',key+'-request',owner,JSON.stringify({decision:'proceed',optionId:'option-2',secret:'must-not-export'}),at);
+ }
+ const before=f.sql.prepare('SELECT total_changes() n').get().n,r=await buildExport(f.db,f.policy);
+ assert.equal(r.rows.length,1);const history=r.rows[0].recommendation_history;
+ assert.deepEqual(history.revisions.map(r=>r.revision),[1,2]);assert.equal(history.revisions[1].options[0].policies[0].premium,123);
+ assert.equal(history.closing_events[0].evidence.decision,'proceed');assert.match(history.closing_events[0].basis,/not carrier bind confirmation/);
+ for(const text of ['foreign','must-not-export','mine-secret'])assert.equal(r.csv.includes(text),false);
+ assert.equal(r.manifest.counts.revisions,2);assert.equal(r.manifest.counts.closing,1);
+ assert.equal(f.sql.prepare('SELECT total_changes() n').get().n,before);
+});
+test('a projected recommendation owned elsewhere cannot disappear behind a scoped source link',async()=>{
+ const f=fixture();f.op('o');f.link('recommendation','not-owned','o');
+ await assert.rejects(buildExport(f.db,f.policy),/recommendation_owner_mismatch/);
+});
+test('retained projection exports permission and timestamp evidence when checkpoint is absent',async()=>{
+ const f=fixture();f.op('o');f.link('lead','retained','o',{permission:{callPermitted:true,personalTextPermitted:false,basis:'explicit_agency_contact_consent'}});
+ f.sql.exec("UPDATE cf_solo_sources SET updated_at='2026-10-02T00:00:00Z'");
+ const r=(await buildExport(f.db,f.policy)).rows[0];assert.equal(r.permission_evidence.personalTextPermitted,false);assert.equal(r.updated_at,'2026-10-02T00:00:00Z');
+});
+test('exact UCP relationship identifiers are exported without inferring a merge',async()=>{
+ const f=fixture();f.op('o');
+ f.sql.prepare('INSERT INTO cf_ucp_customers(id,workspace_id,display_name,created_at,updated_at) VALUES(?,?,?,?,?)').run('cust-exact','qa','Synthetic',at,at);
+ f.sql.prepare('INSERT INTO cf_ucp_households(id,workspace_id,label,created_at,updated_at) VALUES(?,?,?,?,?)').run('house-exact','qa','Synthetic',at,at);
+ f.sql.prepare('INSERT INTO cf_ucp_opportunity_links(workspace_id,opportunity_id,customer_id,household_id,link_basis,linked_by,request_id,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?)').run('qa','o','cust-exact','house-exact','explicit_profile_link','qa','req',at,at);
+ const r=(await buildExport(f.db,f.policy)).rows[0];assert.equal(r.customer_relationship[0].customer_id,'cust-exact');assert.equal(r.customer_relationship[0].link_basis,'explicit_profile_link');
+});
+
+test('import evidence and acquisition touches export curated fields without secrets or arbitrary payloads',async()=>{
+ const f=fixture();f.op('o');f.link('lead','raw','o',{context:{evidenceOrigin:'agencyzoom_raw'},rawFacts:{current_carrier:'Synthetic',renewal_date:'2027-01-01',token:'do-not-export',credit:'do-not-export',vehicles:[{vehicle:'Synthetic car',vin:'do-not-export'}]},provenance:{secret:'do-not-export'}});
+ f.sql.prepare('INSERT INTO cf_acq_opportunity_attribution(workspace_id,opportunity_id,source_key,source_family,first_touch_json,latest_touch_json,updated_at) VALUES(?,?,?,?,?,?,?)').run('qa','o','web','organic_web',JSON.stringify({sourceKey:'web',occurredAt:at,token:'do-not-export'}),'{}',at);
+ const r=await buildExport(f.db,f.policy);
+ assert.equal(r.rows[0].source_evidence[0].facts.renewal_date,'2027-01-01');
+ assert.deepEqual(r.rows[0].source_evidence[0].facts.vehicles,[{vehicle:'Synthetic car'}]);
+ assert.equal(r.rows[0].attribution_evidence.acquisition.first_touch.occurredAt,at);
+ assert.equal(r.csv.includes('do-not-export'),false);
+});
+test('export authentication and disabled release gates reject before any database access',async()=>{
+ let reads=0;const db={prepare(){reads++;throw Error('must not read');}},token='synthetic-only-export-auth-key';
+ const env={COVERAGEFIT_DB:db,COVERAGEFIT_PRODUCER_ACCESS_TOKEN:token};
+ for(const credential of ['', 'wrong'])for(const method of ['GET','POST','DELETE']){
+  const r=await handleLeadExport({env,request:new Request('https://test.invalid/api/solo-desk/export-leads.csv',{method,headers:credential?{Authorization:'Bearer '+credential}:{}})});
+  assert.equal(r.status,401);assert.match(r.headers.get('cache-control'),/no-store/);
+ }
+ const r=await handleLeadExport({env,request:new Request('https://test.invalid/api/solo-desk/export-leads.csv',{method:'POST',headers:{Authorization:'Bearer '+token}})});
+ assert.equal(r.status,405);assert.equal(reads,0);
+});

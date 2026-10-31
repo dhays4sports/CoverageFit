@@ -10,7 +10,7 @@ test('RAW allowlist keeps insurance evidence, excludes sensitive values and infe
 test('RAW parser accepts BOM and exact observed header defect; rejects malformed, oversized and empty headers',()=>{const f=file();assert.equal(parseRaw({...f,text:'\uFEFF'+f.text}).line,'AUTO');const observed={name:'AWL-test.csv',text:'_csv_"Lead ID","Date","Lead Type","State","Credit Rating",","Currently Insurance", ,\n"abc","'+new Date(Date.now()-60000).toISOString()+'","Auto","CA","discard","Yes", ,'};assert.equal(parseRaw(observed).facts.currently_insured,true);assert.throws(()=>parseRaw({...f,text:'"a,b\nx,y'}));assert.throws(()=>parseRaw({...f,text:'x'.repeat(65537)}),/OVERSIZED/);assert.throws(()=>parseRaw({...f,text:',,\n1,2,3'}),/INVALID RAW FILE/);});
 test('RAW batch creates one durable enrollment per stable key, retries dedupe, and only SIGNAL gets priority',async()=>{const f=setup();try{const files=Array.from({length:10},(_,i)=>file(String(1000+i),'20255501'+String(i+10)));const p=await f.importer.preview({files});assert.equal(p.rows.filter(r=>r.status==='READY').length,10);const v={files,fingerprint:p.fingerprint,confirmed:true,eligible:true};const result=await f.importer.commit(v);assert.equal(result.imported,10,JSON.stringify(result));assert.equal(f.refreshed.length,result.results.filter(r=>r.cohort==='SIGNAL').length);assert.equal((await f.importer.commit(v)).duplicates,10);assert.equal(f.sql.prepare('SELECT COUNT(*) n FROM cf_solo_sources WHERE kind=?').get('district_pilot_v1').n,10);const sources=f.sql.prepare('SELECT summary_json FROM cf_solo_sources').all();assert.ok(!JSON.stringify(sources).includes('EXCLUDED_'));assert.equal((await f.pilot.report()).records.length,10);}finally{f.sql.close()}});
 test('RAW one bad file does not drop good files; phone collision blocks both; TEST excluded from report',async()=>{const f=setup();try{let files=[file('valid'),{name:'bad.csv',text:'broken'}],p=await f.importer.preview({files,synthetic:true});assert.equal(p.rows[0].status,'READY');const r=await f.importer.commit({files,synthetic:true,fingerprint:p.fingerprint,eligible:true,confirmed:true});assert.equal(r.imported,1);assert.equal((await f.pilot.report()).records.length,0);files=[file('phone1','2025550188'),file('phone2','2025550188')];p=await f.importer.preview({files});assert.ok(p.rows.every(r=>r.status.startsWith('PHONE CONFLICT')));}finally{f.sql.close()}});
-test('RAW fingerprint prevents changed confirmation; old leads cannot be silently enrolled',async()=>{const f=setup();try{const files=[file()],p=await f.importer.preview({files});await assert.rejects(f.importer.commit({files,fingerprint:'changed',eligible:true,confirmed:true}),/Preview/);const old=file();old.text=old.text.replace(/20\d\d-\d\d-\d\dT[^,]+/,'2020-01-01T00:00:00Z');assert.match((await f.importer.preview({files:[old]})).rows[0].status,/48 hours/);assert.equal(f.sql.prepare('SELECT COUNT(*) n FROM cf_solo_sources').get().n,0);}finally{f.sql.close()}});
+test('RAW fingerprint prevents changed confirmation; old leads cannot be silently enrolled',async()=>{const f=setup();try{const files=[file()],p=await f.importer.preview({files});await assert.rejects(f.importer.commit({files,fingerprint:'changed',eligible:true,confirmed:true}),/Preview/);const old=file();old.text=old.text.replace(/20\d\d-\d\d-\d\dT[^,]+/,'2020-01-01T00:00:00Z');assert.match((await f.importer.preview({files:[old]})).rows[0].status,/outside 7 days/);assert.equal(f.sql.prepare('SELECT COUNT(*) n FROM cf_solo_sources').get().n,0);}finally{f.sql.close()}});
 import {soloRepository} from '../server/solo-desk-repository.mjs';
 import {signalInbound,signalOutbound} from '../server/sms-signal-service.mjs';
 test('real priority projection remains incomplete after RAW; CONTROL has no projection or priority queue',async()=>{const f=fixture();try{const repo=soloRepository(f.repo.db,f.repo.scope),imp=rawImporter(repo,env),files=Array.from({length:6},(_,i)=>file(String(2000+i),'20255502'+String(i+10))),p=await imp.preview({files});const r=await imp.commit({files,fingerprint:p.fingerprint,eligible:true,confirmed:true});assert.equal(r.imported,6);assert.ok(r.results.every(x=>!x.warning),JSON.stringify(r));for(const row of r.results){const detail=await repo.detail(row.opportunity_id);if(row.cohort==='CONTROL'){assert.equal(detail.opportunityPriority,null);assert.equal(detail.possessionQuality,null);assert.equal(detail.nextBestAction,null);}else{assert.ok(detail.opportunityPriority);assert.notEqual(detail.opportunityPriority.score,100);}}}finally{f.sql.close()}});
@@ -118,4 +118,35 @@ test('six-day district leads remain eligible for NEW_LEAD while eight-day leads 
   assert.equal(p.rows[1].cohort,null);
   assert.match(p.rows[1].status,/outside 7 days/i);
  }finally{f.sql.close()}
+});
+
+import {buildExport,SCHEMA as EXPORT_SCHEMA} from '../server/lead-export.mjs';
+test('single and bulk RAW imports preserve canonical export identities, source timestamps and evidence without sends',async()=>{
+ const f=setup(),originalFetch=globalThis.fetch;globalThis.fetch=()=>{throw Error('external network prohibited');};
+ try{
+  // Local fixtures only: use the existing importer, including its TEST enrollment semantics.
+  f.sql.exec('DELETE FROM cf_solo_opportunities');
+  const files=[file('export-single','2025550141'),file('export-bulk-a','2025550142'),file('export-bulk-b','2025550143')];
+  for(const batch of [[files[0]],[batchFile(files.slice(1))]]){
+   const preview=await f.importer.preview({files:batch,synthetic:true});
+   const input={files:batch,synthetic:true,confirmed:true,eligible:true,fingerprint:preview.fingerprint};
+   const committed=await f.importer.commit(input);assert.equal(committed.needs_review,0);assert.equal(committed.sms_sent,0);
+   assert.equal((await f.importer.commit(input)).duplicates,committed.imported);
+  }
+  const policy={version:EXPORT_SCHEMA,workspace:'qa',owner:'qa',legacyWorkspace:'qa',ownerWorkspace:'qa',inventoryReviewed:true,allowControl:true,sourceDecisions:{lead:'allow',district_pilot_v1:'allow'},sourceKeyDecisions:{district:'allow',awl:'allow'}};
+  const before=f.sql.prepare('SELECT total_changes() n').get().n;
+  const result=await buildExport(f.repo.db,policy);
+  assert.equal(result.rows.length,3);assert.equal(result.manifest.counts.opportunities,3);assert.equal(result.manifest.counts.sources,6);
+  for(const row of result.rows){
+   assert.match(row.canonical_lead_id,/^lead:agencyzoom_raw%3A/);assert.equal(row.source,'awl');assert.equal(row.source_ids.length,2);
+   const source=JSON.parse(f.sql.prepare("SELECT summary_json FROM cf_solo_sources WHERE opportunity_id=? AND kind='district_pilot_v1'").get(row.opportunity_ids[0]).summary_json);
+   assert.equal(row.created_at,source.received_at);assert.equal(row.attribution_evidence.acquisition.first_touch.occurredAt,source.received_at);
+   assert.equal(row.source_evidence[0].facts.current_carrier,'Mercury');assert.equal(row.source_evidence[0].facts.renewal_date,'2026-12-31');
+   assert.deepEqual(row.permission_evidence,{});assert.match(row.suppression_state,/unknown/);
+  }
+  assert.equal(result.csv.includes('EXCLUDED_'),false);
+  assert.equal((await buildExport(f.repo.db,policy)).csv,result.csv);
+  assert.equal(f.sql.prepare('SELECT total_changes() n').get().n,before);
+  assert.equal((await buildExport(f.repo.db,{...policy,sourceKeyDecisions:{district:'allow',awl:'deny'}})).rows.length,0);
+ }finally{globalThis.fetch=originalFetch;f.sql.close();}
 });
