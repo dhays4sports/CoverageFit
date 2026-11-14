@@ -1,0 +1,39 @@
+# Direct Contact Flow 1.0
+
+Mandate: 408FARMERS-DIRECT-CONTACT-FLOW-1.0. Candidate only; no merge, production release, provider configuration, customer data or external messages.
+
+## Behavior and contract
+
+The canonical 408-contextual tech, healthcare, engineers, teachers, home, buyer and condo entries (including their existing QR attribution) advertise `directContact:true`. Professional Home + auto retains its existing version and six-question maximum. No question sequences or scoring rules change. Paid-agency, legacy appointment and other journeys retain their prior presentation.
+
+One secondary action, “Prefer to talk? Have Dylan contact me.”, opens the shared form before answers or during the questionnaire. A server-confirmed final save, and a completed unsubmitted resume, render that form directly. Failed/uncertain saves retain the question with explicit saved-state recovery. The old completed-review introduction and extra form-opening action disappear only in this scope. The exact heading is “How would you like me to reach you?” and the requested supporting copy is used.
+
+`open_contact` with a normalized canonical handoff uses the existing bootstrap alias, cookie and journey store. Repeated/concurrent openings reuse the journey. It records zero answers, no permission and no opportunity. With an active journey it validates revision and review-version fences and returns confirmed state without mutation. Page/campaign context never substitutes for explicit professional product selection. Zero-answer projection labels its source `entry_context`; home/condo route seeds remain route evidence, not invented policy details. No migration, new product enum or parallel intake engine is introduced.
+
+Submission uses existing explicit channel-specific permission, durable contact state, retention, deterministic lead identity, producer projection, retry and reconciliation. Opening/completion are not delivery. Pending delivery continues to show retry, and cannot start another review. Combined home/auto evidence is untouched; one opportunity contains both interests, distinct reasons and timing, property context and original attribution. Unknown answers stay unknown. Contact entry is additive metadata, not a qualification signal.
+
+The shared form keeps name, phone, call/text choice and buyer/condo time preference. Permission stays beside Send my request and is never prechecked. Back from automatic capture performs canonical Back to restore an editable final question. Back from early capture returns to the current question or opening. Draft and permission exist only in page memory, survive editing in that visit, and clear on durable submitted state or new review. Refresh discards contact draft while resuming saved questionnaire answers. Intentional transitions focus the heading; initial resume does not open the keyboard or repeatedly focus.
+
+## Producer evidence and measurement
+
+`context.distribution.contactEntry = {version:1, stage, questionnaireComplete, answeredCount}` is computed from server state at contact submission. Stage is `opening`, `during_questionnaire`, or `after_questionnaire`. Producer known-evidence rows explicitly identify early contact and incomplete questionnaire. Existing source detail preserves the structured metadata; the combined review JSON export includes it. Existing general export functionality is unchanged.
+
+First-party deduplicated events distinguish `contact_form_opened_<stage>`, `contact_requested_<stage>`, and `producer_handoff_<stage>`. Existing completion and aggregate contact/handoff events remain. Form-open events require matching current revision; stale events are rejected. Submission stage is the saved state at submission, not the first-ever form opening. No contact details enter events, no third-party tracking is added. Existing analytics dashboards do not yet break down these new event names; storage can distinguish them, but unique event deduplication means repeat openings at the same stage are not counted separately. No conversion improvement is claimed.
+
+## Verification
+
+- `node --test tests/*.test.mjs`: 438 tests, 437 passing, one inherited failure in agencyzoom-raw.test.mjs: expected /48 hours/, existing output “READY — outside 7 days; import outside NEW_LEAD pilot”. Reproduced on unchanged baseline. No unrelated business-rule correction included.
+- 38 new focused tests pass: 27 real-handler/SQLite path × stage cases, concurrency/bootstrap reuse, strict validation/stale events, pending-delivery recovery, plus eight actual-client DOM/VM lifecycle regressions.
+- Real-handler cases cover zero/partial/complete contact, missing permission/invalid phone, concurrent duplicate submissions, one accepted producer opportunity, original and QR attribution, no inferred professional product/occupation, no SMS conversation, event payload privacy, producer rows and combined export.
+- Existing distribution, combined review, buyer/condo, restart, retention, duplicate/reconciliation and adjacent-path suites run in the full suite. No synthetic requests sent to production.
+- Browser: all nine route variants at 375, 390, 430 and 1280px, both opening and contact capture: 72 layout observations, no horizontal overflow, buttons >=44px. Heading focus confirmed in all intentional form transitions. Mobile keyboard not opened by heading focus. Desktop browser with width-constrained frames is representative layout verification, not a physical-device test.
+- Browser verified zero-answer opening, same-visit draft retention, partial combined capture, six-answer automatic capture, genuine Back/edit, completed refresh/resume with empty draft, required permission, combined personal-text submission, QR zero-answer personal-call submission with afternoon preference, and restart clearing permission/draft.
+- Isolated SQLite producer acceptance: two separately initiated synthetic reviews produced exactly two opportunities, one per review. Producer UI and downloaded combined export were inspected. No provider fetch/configuration or external communications. Synthetic screenshots, receipts, export and viewport measurements are in the coordinated frontend PR under docs/direct-contact/.
+
+## Deployment and rollback
+
+Base: CoverageFit main 29b5839ab23eabfd663975d0fa1014655b5ef88c; frontend main 569d3209d0ab05852332654a30b4a08bd8687ad9. Unpublished audience-cookie and restaurant work remains separate. Deploy the frontend's compatible CSS/cache-version change first, then this backend's handler, capability flag, rendering and cache-busted shared client together. No environment/provider changes or migrations required. Normal fresh-page capability negotiation keeps an old backend on its old interaction path.
+
+Rollback should retain the additive open_contact handler while draining cached new clients, or force a full page reload against the rolled-back renderer/assets. A cached new client calling an old backend may receive a recoverable unavailable/422 response; do not reinterpret that as delivery or create a replacement review. Stored zero-answer journeys remain valid canonical records, and older readers ignore additive metadata. Submitted/pending records retain their existing deterministic handoff and reconciliation. Do not delete them or reverse completed delivery. Frontend styling can roll back independently. Shared cross-audience cookie behavior is inherited, not solved by this mandate; the existing saved-review notice is also shown inside contact capture.
+
+The local managed consumer/producer preview executes actual handlers on synthetic in-memory SQLite and cannot send provider traffic. Hosted Cloudflare build status is separate from hosted runtime acceptance. No authenticated hosted acceptance or production contact test is claimed. Consumer and producer previews must be coordinated to the same backend commit before a future release.

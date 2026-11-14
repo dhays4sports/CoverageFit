@@ -3,7 +3,7 @@ export function combinedReviewExport(detail){
  const source=(detail.sources||[]).find(s=>s.kind==='lead'&&s.summary?.context?.distribution?.professionalCombined?.version===1);
  if(!source)return null;
  const d=source.summary.context.distribution,c=d.professionalCombined;
- return {schemaVersion:'home-auto-review-1.0',opportunityId:detail.opportunity.id,sourceId:source.source_id,requestedProducts:[...c.requestedProducts],selectionSource:c.selectionSource,productEvidence:structuredClone(c.productEvidence),earliestReportedTiming:c.earliestReportedTiming,contact:structuredClone(detail.opportunity.contact),permission:structuredClone(source.summary.permission),attribution:structuredClone(source.summary.attribution),firstTouch:structuredClone(d.firstTouch),answers:structuredClone(d.answers),nextAction:c.nextAction};
+ return {schemaVersion:'home-auto-review-1.0',opportunityId:detail.opportunity.id,sourceId:source.source_id,contactEntry:d.contactEntry||null,requestedProducts:[...c.requestedProducts],selectionSource:c.selectionSource,productEvidence:structuredClone(c.productEvidence),earliestReportedTiming:c.earliestReportedTiming,contact:structuredClone(detail.opportunity.contact),permission:structuredClone(source.summary.permission),attribution:structuredClone(source.summary.attribution),firstTouch:structuredClone(d.firstTouch),answers:structuredClone(d.answers),nextAction:c.nextAction};
 }
 export function combinedReviewRows(detail){
  const review=combinedReviewExport(detail);if(!review)return [];

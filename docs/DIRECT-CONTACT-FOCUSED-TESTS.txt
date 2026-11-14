@@ -1,0 +1,46 @@
+✔ opening exposes one early contact action and does not create a session before it is requested (10.652248ms)
+✔ the last saved answer opens contact immediately and focuses the heading (2.722963ms)
+✔ final save failure or lost response retains the question until an explicit saved-state reload (5.493114ms)
+✔ completed resume opens contact without stealing focus; submitted and pending states stay distinct (4.413478ms)
+✔ Back opens a real question; returning after edits preserves the in-memory draft (6.084847ms)
+✔ early Back with no answers returns to the opening without inventing an answer (2.52846ms)
+✔ accepted submission and new review clear the previous draft and permission (2.94606ms)
+✔ Home + auto and buyer/condo optional time preferences remain in the shared form (4.58997ms)
+✔ tech: opening preserves one canonical review and one accepted producer request (59.344857ms)
+✔ tech: during_questionnaire preserves one canonical review and one accepted producer request (24.765791ms)
+✔ tech: after_questionnaire preserves one canonical review and one accepted producer request (29.137033ms)
+✔ healthcare: opening preserves one canonical review and one accepted producer request (18.681309ms)
+✔ healthcare: during_questionnaire preserves one canonical review and one accepted producer request (19.383977ms)
+✔ healthcare: after_questionnaire preserves one canonical review and one accepted producer request (27.796945ms)
+✔ engineers: opening preserves one canonical review and one accepted producer request (16.752365ms)
+✔ engineers: during_questionnaire preserves one canonical review and one accepted producer request (19.475464ms)
+✔ engineers: after_questionnaire preserves one canonical review and one accepted producer request (25.253315ms)
+✔ teachers: opening preserves one canonical review and one accepted producer request (21.930791ms)
+✔ teachers: during_questionnaire preserves one canonical review and one accepted producer request (18.215394ms)
+✔ teachers: after_questionnaire preserves one canonical review and one accepted producer request (29.19207ms)
+✔ home: opening preserves one canonical review and one accepted producer request (16.313951ms)
+✔ home: during_questionnaire preserves one canonical review and one accepted producer request (20.124183ms)
+✔ home: after_questionnaire preserves one canonical review and one accepted producer request (22.457274ms)
+✔ buyer: opening preserves one canonical review and one accepted producer request (24.503801ms)
+✔ buyer: during_questionnaire preserves one canonical review and one accepted producer request (17.420439ms)
+✔ buyer: after_questionnaire preserves one canonical review and one accepted producer request (19.449646ms)
+✔ condo: opening preserves one canonical review and one accepted producer request (25.495658ms)
+✔ condo: during_questionnaire preserves one canonical review and one accepted producer request (26.377513ms)
+✔ condo: after_questionnaire preserves one canonical review and one accepted producer request (26.132398ms)
+✔ home_qr: opening preserves one canonical review and one accepted producer request (13.733815ms)
+✔ home_qr: during_questionnaire preserves one canonical review and one accepted producer request (20.018422ms)
+✔ home_qr: after_questionnaire preserves one canonical review and one accepted producer request (19.912947ms)
+✔ condo_qr: opening preserves one canonical review and one accepted producer request (18.58218ms)
+✔ condo_qr: during_questionnaire preserves one canonical review and one accepted producer request (15.234477ms)
+✔ condo_qr: after_questionnaire preserves one canonical review and one accepted producer request (20.114361ms)
+✔ opening repeatedly and concurrently reuses the bootstrap without invented answers or permission (9.141908ms)
+✔ opening and contact-first start preserve stale-tab fences and bounded request validation (10.456701ms)
+✔ pending early delivery remains pending, recovers once and does not expose a blank form (21.231437ms)
+ℹ tests 38
+ℹ suites 0
+ℹ pass 38
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 882.355486
