@@ -33,7 +33,7 @@ jobs:
           node-version: '24'
       - run: npm ci
         working-directory: apps/prospect-desk
-      - run: node --test tests/shared-prospect-profile.test.mjs tests/shared-workspace.test.mjs tests/shared-workspace-dom.test.mjs tests/producer-workspace.test.mjs
+      - run: node --test tests/shared-prospect-profile.test.mjs tests/shared-workspace.test.mjs tests/shared-workspace-dom.test.mjs tests/shared-workspace-access.test.mjs tests/producer-workspace.test.mjs
       - run: npm test
         working-directory: apps/prospect-desk
   windows-package:

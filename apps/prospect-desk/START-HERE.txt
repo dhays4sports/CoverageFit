@@ -136,7 +136,11 @@ hosted consistency and owner-private rollout are NOT performed by the Windows
 app. See the repository's shared-profile integration review before activation.
 
 SHARED WORKSPACE 0.3.0
-Connect the isolated preview server using your private desktop credential.
+Enter the isolated preview origin in Settings and choose Sign in to protected
+preview. Use your owner email and code in that sign-in window. The app
+retrieves the scoped connection only after signature-verified owner sign-in
+and encrypts it in the main process. No credential is displayed or exported.
+You may still use a separately provided desktop token with other backends.
 Choose an existing shared customer and explicitly select a linked opportunity.
 Each thread keeps its own policy selection. Refresh loads the shared story,
 readiness gaps and evidence status. Local conversations stay on this laptop.

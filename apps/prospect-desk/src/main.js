@@ -1,4 +1,4 @@
-const {app,BrowserWindow,ipcMain,globalShortcut,desktopCapturer,screen,clipboard,dialog,safeStorage,Tray,Menu,nativeImage}=require('electron');
+const {app,BrowserWindow,ipcMain,globalShortcut,desktopCapturer,screen,clipboard,dialog,safeStorage,Tray,Menu,nativeImage,net}=require('electron');
 const fs=require('node:fs'),path=require('node:path');
 const {Store,buildRequest,responseText}=require('./core');
 const {SharedProfiles,origin:profileOrigin}=require('./shared-profile');
@@ -6,6 +6,19 @@ let win,tray,store,shared,quitting=false,capturing=false,captureSession=null,bus
 const appDir=()=>app.getPath('userData');
 function key(){const file=path.join(appDir(),'credential.bin');if(!fs.existsSync(file))return process.env.OPENAI_API_KEY||'';if(!safeStorage.isEncryptionAvailable())throw Error('Windows credential encryption is unavailable.');return safeStorage.decryptString(fs.readFileSync(file));}
 function sharedConfig(){const origin=store.data.settings.profileOrigin||'';const file=path.join(appDir(),'profile-credential.bin');if(!origin||!fs.existsSync(file))return {origin,token:''};if(!safeStorage.isEncryptionAvailable())throw Error('Secure credential storage is unavailable.');const c=JSON.parse(safeStorage.decryptString(fs.readFileSync(file)));return {origin,token:c.origin===origin?c.token:''};}
+async function previewSignIn(value){
+ const backend=profileOrigin(value);if(!new URL(backend).hostname.endsWith('.coveragefit.pages.dev'))throw Error('Preview sign-in requires your isolated CoverageFit Pages preview origin.');
+ const signIn=new BrowserWindow({width:760,height:850,parent:win,webPreferences:{contextIsolation:true,nodeIntegration:false,sandbox:true}});signIn.setMenu(null);signIn.webContents.setWindowOpenHandler(()=>({action:'deny'}));
+ let checking=false,done=false;
+ signIn.webContents.on('will-navigate',(event,url)=>{try{const u=new URL(url);if(u.origin!==backend&&u.origin!=='https://coveragefit-pages.cloudflareaccess.com')event.preventDefault();}catch{event.preventDefault();}});
+ return new Promise((resolve,reject)=>{signIn.on('closed',()=>{if(!done)reject(Error('Preview sign-in closed without a confirmed connection. Existing drafts and credentials are preserved.'));});
+ signIn.webContents.on('did-finish-load',async()=>{if(checking||done)return;let u;try{u=new URL(signIn.webContents.getURL());}catch{return;}if(u.origin!==backend)return;checking=true;try{
+ const response=await net.fetch(backend+'/api/shared-workspace-connect',{credentials:'include',redirect:'error',signal:AbortSignal.timeout(15000)});if(!response.ok)return;const data=await response.json();if(data.ok!==true||data.origin!==backend||!data.workspace?.startsWith('preview:shared-workspace:')||typeof data.desktopToken!=='string'||data.desktopToken.length<32)return;
+ if(!safeStorage.isEncryptionAvailable())throw Error('Secure Windows credential storage is unavailable.');fs.writeFileSync(path.join(appDir(),'profile-credential.bin'),safeStorage.encryptString(JSON.stringify({origin:backend,token:data.desktopToken})),{mode:0o600});store.data.settings.profileOrigin=backend;store.save();done=true;signIn.close();resolve(status());
+ }catch{if(!signIn.isDestroyed())signIn.setTitle('Preview connection unavailable — close and retry');}finally{checking=false;}});
+ signIn.loadURL(backend+'/agent/workspace/?example=1').catch(()=>{if(!done){done=true;signIn.close();reject(Error('Preview sign-in could not load. Existing drafts are preserved.'));}});
+ });
+}
 function show(){win.show();win.focus();}
 function ready(){if(!win.isDestroyed())win.webContents.send('command','refresh');}
 function status(){return {configured:!!(process.env.OPENAI_API_KEY||fs.existsSync(path.join(appDir(),'credential.bin'))),model:store.data.settings.model,dataPath:appDir(),profileOrigin:store.data.settings.profileOrigin||'',profileConfigured:!!sharedConfig().token,shortcut:globalShortcut.isRegistered('CommandOrControl+Shift+Space')};}
@@ -66,6 +79,7 @@ ipcMain.handle('desk',async(event,action,a={})=>{
  case 'profileOpportunity':{if(busy.has(a.tid))throw Error('Wait for this thread to finish.');const t=store.thread(a.tid),p=store.prospect(t.prospectId);if(!p.shared||!p.sharedContext.links.some(l=>l.opportunityId===a.opportunityId))throw Error('Choose a valid linked opportunity.');await shared.refresh(store,p,a.opportunityId);store.invalidateReview(t);t.sharedOpportunityId=a.opportunityId;store.save();return store.snapshot();}
  case 'profileRefresh':{await shared.refresh(store,store.prospect(a.pid),a.opportunityId||null);return store.snapshot();}
  case 'profileEvidence':return shared.evidence(store.prospect(a.pid),a.requestId);
+ case 'profileSignIn':return previewSignIn(a.origin);
  case 'profileSettings':{const origin=profileOrigin(a.origin);if(a.token){if(typeof a.token!=='string'||a.token.length<32||a.token.length>1000)throw Error('Enter the dedicated desktop-profile access token, not your producer or OpenAI key.');if(a.token.startsWith('sk-'))throw Error('Use the desktop-profile token, not an OpenAI key.');if(!safeStorage.isEncryptionAvailable())throw Error('Secure credential storage is unavailable.');fs.writeFileSync(path.join(appDir(),'profile-credential.bin'),safeStorage.encryptString(JSON.stringify({origin,token:a.token})),{mode:0o600});}store.data.settings.profileOrigin=origin;store.save();return status();}
  case 'settings':{if(typeof a.model!=='string'||!/^[a-zA-Z0-9._:-]{1,100}$/.test(a.model))throw Error('Enter a valid model ID.');if(a.key){if(typeof a.key!=='string'||!a.key.startsWith('sk-')||a.key.length>1000)throw Error('Enter your existing OpenAI API key.');if(!safeStorage.isEncryptionAvailable())throw Error('Secure credential storage is unavailable. Key was not saved.');fs.writeFileSync(path.join(appDir(),'credential.bin'),safeStorage.encryptString(a.key),{mode:0o600});}store.data.settings.model=a.model;store.save();return status();}
  case 'export':{const out=await dialog.showSaveDialog(win,{defaultPath:'Prospect-Desk-backup.json',filters:[{name:'Workspace backup',extensions:['json']}]});if(out.canceled)return false;fs.writeFileSync(out.filePath,JSON.stringify(store.snapshot(),null,2));return true;}
@@ -75,7 +89,7 @@ ipcMain.handle('desk',async(event,action,a={})=>{
 if(!app.requestSingleInstanceLock())app.quit();else{
  app.on('second-instance',()=>{if(win)show();});
  app.whenReady().then(()=>{
-  try{store=new Store(appDir());shared=new SharedProfiles(sharedConfig);}catch(e){dialog.showErrorBox('Workspace needs attention',e.message);app.quit();return;}
+  try{store=new Store(appDir());shared=new SharedProfiles(sharedConfig,(url,options)=>net.fetch(url,{...options,credentials:'include'}));}catch(e){dialog.showErrorBox('Workspace needs attention',e.message);app.quit();return;}
   win=new BrowserWindow({width:1360,height:900,minWidth:980,minHeight:650,title:'Prospect Desk',backgroundColor:'#f5f4f0',webPreferences:{preload:path.join(__dirname,'preload.js'),contextIsolation:true,nodeIntegration:false,sandbox:true}});win.setMenu(null);
   win.webContents.setWindowOpenHandler(()=>({action:'deny'}));win.webContents.on('will-navigate',e=>e.preventDefault());win.webContents.session.setPermissionRequestHandler((wc,permission,cb)=>cb(false));
   win.loadFile(path.join(__dirname,'index.html'));
