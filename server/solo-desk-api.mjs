@@ -31,7 +31,11 @@ async function body(request){
 }
 export async function handleSoloDesk(context){
   try{
-    const request=context.request,env=sharedWorkspaceEnvironment(await resolveProducerEnvironment(context.env||{})),auth=authorizeProducer(request,env);
+    const request=context.request,env=sharedWorkspaceEnvironment(await resolveProducerEnvironment(context.env||{}));
+    const isolatedPreview=env.BUYER_STAGING_ISOLATED==='1'&&env.CF_SHARED_WORKSPACE_PREVIEW==='1'&&env.CF_SHARED_WORKSPACE_PREVIEW_ID?.startsWith('preview:shared-workspace:');
+    const cookie=isolatedPreview?request.headers.get('cookie')?.split(';').map(s=>s.trim()).find(s=>s.startsWith('__Host-cf-shared-preview='))?.slice('__Host-cf-shared-preview='.length):null;
+    const headers=new Headers(request.headers);if(cookie&&!headers.get('authorization'))headers.set('authorization','Bearer '+cookie);
+    const auth=authorizeProducer(new Request(request.url,{headers}),env);
     if(!auth.ok)return auth.response;
     if(!env.COVERAGEFIT_DB)fail(503,'storage_unavailable','The shared desk is unavailable. The existing inbox is still available.');
     const repo=soloRepository(env.COVERAGEFIT_DB,identity(env));
@@ -69,6 +73,7 @@ export async function handleSoloDesk(context){
     if(request.headers.get('origin')!==url.origin)fail(403,'origin','Use the CoverageFit workspace to save this update.');
     const value=await body(request);
     if(route==='shared-approve'){if(env.CF_SHARED_PROFILE_ENABLED!=='1')fail(503,'shared_profile_disabled','Shared profiles are not active.');return json({ok:true,...await sharedProfileService(repo).commit(value)});}
+    if(isolatedPreview&&['sync','raw-preview','raw-import','raw-promote'].includes(route))fail(403,'synthetic_only','External source importing is unavailable in this dedicated synthetic preview.');
     if(route==='raw-preview')return json({ok:true,...await rawImporter(repo,env).preview(value)});
     if(route==='raw-import')return json({ok:true,...await rawImporter(repo,env).commit(value)});
     if(route==='raw-promote')return json({ok:true,...await rawImporter(repo,env).promote(value)});
