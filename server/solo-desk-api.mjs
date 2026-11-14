@@ -1,3 +1,4 @@
+import {sharedWorkspaceEnvironment} from './shared-workspace-config.mjs';
 import {sharedEvidenceForOpportunity,sharedProfileService} from './shared-prospect-profile.mjs';
 import {combinedReviewExport} from '../assets/js/combined-review-export.mjs';
 import {continueAnalytics} from './signal-continue-analytics.mjs';
@@ -20,7 +21,7 @@ import {economicsService} from './economics-core.mjs';
 const json=(body,status=200)=>Response.json(body,{status,headers:{'Cache-Control':'private, no-store','Referrer-Policy':'no-referrer','X-Content-Type-Options':'nosniff','Content-Security-Policy':"default-src 'none'; frame-ancestors 'none'"}});
 async function body(request){
   const pathname=new URL(request.url).pathname;
-  const limit=/\/raw-(preview|import)\/?$/.test(pathname)?2300000:/\/pilot-reconcile-(preview|apply)\/?$/.test(pathname)?320000:16000;
+  const limit=/\/shared-approve\/?$/.test(pathname)?100000:/\/raw-(preview|import)\/?$/.test(pathname)?2300000:/\/pilot-reconcile-(preview|apply)\/?$/.test(pathname)?320000:16000;
   if(!request.headers.get('content-type')?.includes('application/json'))fail(415,'content_type','A JSON request is required.');
   if(Number(request.headers.get('content-length')||0)>limit)fail(413,'size','Request exceeds the endpoint size limit.');
   const reader=request.body?.getReader();let text='',size=0;const decoder=new TextDecoder();
@@ -30,7 +31,7 @@ async function body(request){
 }
 export async function handleSoloDesk(context){
   try{
-    const request=context.request,env=await resolveProducerEnvironment(context.env||{}),auth=authorizeProducer(request,env);
+    const request=context.request,env=sharedWorkspaceEnvironment(await resolveProducerEnvironment(context.env||{})),auth=authorizeProducer(request,env);
     if(!auth.ok)return auth.response;
     if(!env.COVERAGEFIT_DB)fail(503,'storage_unavailable','The shared desk is unavailable. The existing inbox is still available.');
     const repo=soloRepository(env.COVERAGEFIT_DB,identity(env));
@@ -44,6 +45,7 @@ export async function handleSoloDesk(context){
       if(route==='review-export'){const data=combinedReviewExport(await repo.detail(url.searchParams.get('id')));if(!data)fail(422,'review_export','This record has no combined review.');return json({ok:true,review:data});}
       if(route==='record'){const id=url.searchParams.get('id');return json({ok:true,...await repo.detail(id),policybox:await policybox.view(id),...(env.CF_SHARED_PROFILE_ENABLED==='1'?{sharedProfile:await sharedEvidenceForOpportunity(repo,id)}:{})});}
       if(route==='policybox-document'){const result=await policybox.document(url.searchParams.get('id'),url.searchParams.get('ref'));const name=String(result.doc.name||'policy-document').replace(/[^A-Za-z0-9._ -]/g,'_').slice(0,120);return new Response(result.object.body||await result.object.arrayBuffer(),{status:200,headers:{'Content-Type':result.doc.type||'application/octet-stream','Content-Disposition':`inline; filename="${name}"`,'Cache-Control':'private, no-store, max-age=0','X-Content-Type-Options':'nosniff','Content-Security-Policy':"default-src 'none'; frame-ancestors 'none'",'Referrer-Policy':'no-referrer'}});}
+      if(route==='shared-workspace'){if(env.CF_SHARED_PROFILE_ENABLED!=='1')fail(503,'shared_profile_disabled','Shared workspace is not active.');return json({ok:true,...await sharedProfileService(repo).queues(url.searchParams)});}
       if(route==='shared-evidence'){if(env.CF_SHARED_PROFILE_ENABLED!=='1')fail(503,'shared_profile_disabled','Shared profile evidence is not active.');return json({ok:true,record:await sharedProfileService(repo).evidence(url.searchParams.get('customerId'),url.searchParams.get('requestId'))});}
       if(route==='profile')return json({ok:true,customerProfile:await repo.profile(url.searchParams.get('id'))});
       if(route==='next-best-action'){const record=await repo.detail(url.searchParams.get('id'));return json({ok:true,nextBestAction:record.nextBestAction});}
@@ -66,6 +68,7 @@ export async function handleSoloDesk(context){
     if(request.method!=='POST')fail(405,'method','Use GET or POST for this desk.');
     if(request.headers.get('origin')!==url.origin)fail(403,'origin','Use the CoverageFit workspace to save this update.');
     const value=await body(request);
+    if(route==='shared-approve'){if(env.CF_SHARED_PROFILE_ENABLED!=='1')fail(503,'shared_profile_disabled','Shared profiles are not active.');return json({ok:true,...await sharedProfileService(repo).commit(value)});}
     if(route==='raw-preview')return json({ok:true,...await rawImporter(repo,env).preview(value)});
     if(route==='raw-import')return json({ok:true,...await rawImporter(repo,env).commit(value)});
     if(route==='raw-promote')return json({ok:true,...await rawImporter(repo,env).promote(value)});

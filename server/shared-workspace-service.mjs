@@ -1,0 +1,16 @@
+import {digest} from './solo-desk-repository.mjs';
+import {materialEvidence,projectWorkspace} from '../shared/prospect-workspace.mjs';
+export async function workspaceView(profile,opportunityId,options={}){const revision=await digest(JSON.stringify(materialEvidence(profile,opportunityId)));return projectWorkspace(profile,opportunityId,{...options,evidenceRevision:revision});}
+export async function workspaceQueues(repo,service,params,{exampleOnly=false}={}){
+ const after=String(params.get('after')||'').slice(0,180),view=params.get('view')||'today';
+ const links=await repo.rows(`SELECT l.customer_id,l.opportunity_id FROM cf_ucp_opportunity_links l JOIN cf_solo_opportunities o ON o.id=l.opportunity_id AND o.workspace_id=l.workspace_id WHERE ${exampleOnly?"substr(l.opportunity_id,1,10)='cfsw_demo_' AND substr(l.customer_id,1,15)='cust_cfsw_demo_' AND":''} l.workspace_id=? AND l.opportunity_id>? AND o.status<>'closed' ORDER BY l.opportunity_id LIMIT 26`,repo.scope.workspace,after);
+ const records=[],failures=[];let partial=false;
+ for(const l of links.slice(0,25)){try{const p=await service.read(l.customer_id,{opportunityId:l.opportunity_id}),w=p.view;partial ||= !w.coverage.complete;
+ const open=w.commitments.filter(i=>!['completed','cancelled'].includes(i.dimensions.taskState));const confirmed=open.map(i=>i.task?.due||'').filter(Boolean).sort()[0]||null;
+ const matches={today:open.some(i=>i.task?.due&&Date.parse(i.task.due)<=Date.now()),commitments:open.length>0,information:w.readiness.state!=='ready_for_producer_review',transcripts:(!!w.transcript.latest&&w.transcript.state!=='complete')||w.handoffs.length>0,review:w.counts.draftsNeedingReview>0||w.summary?.summaryState==='needs_review'||w.facts.uncertain.some(i=>i.dimensions.freshness==='conflicted'),changes:w.history.some(i=>!['note','summary','draft'].includes(i.kind))};
+ records.push({customerId:p.customerId,opportunityId:l.opportunity_id,name:p.name,productLine:w.productLine,matches,due:confirmed,counts:w.counts,readiness:w.readiness.state,summary:w.summary?.value||null,summaryState:w.summary?.summaryState||'missing',nextAction:w.nextAction,latestChange:w.history.at(-1)?.approvedAt||null});
+ }catch{failures.push(l.opportunity_id);}}
+ const counts=Object.fromEntries(['today','commitments','information','transcripts','review','changes'].map(k=>[k,failures.length?null:records.filter(r=>r.matches[k]).length]));
+ const selected=records.filter(r=>r.matches[view]).sort((a,b)=>(Date.parse(a.due)||Infinity)-(Date.parse(b.due)||Infinity)||String(b.latestChange||'').localeCompare(String(a.latestChange||''))||a.opportunityId.localeCompare(b.opportunityId));
+ return {records:selected,counts,scope:'inspected_opportunity_page',asOf:new Date().toISOString(),coverage:{complete:links.length<=25&&!partial&&!failures.length,inspected:records.length,failed:failures.length},nextCursor:links.length>25?links[24].opportunity_id:null};
+}

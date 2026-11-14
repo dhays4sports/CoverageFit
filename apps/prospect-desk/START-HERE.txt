@@ -1,4 +1,4 @@
-PROSPECT DESK — Windows private pilot 0.2.0
+PROSPECT DESK — Windows private pilot 0.3.0
 
 START
 1. Download the Windows ZIP on your Windows laptop.
@@ -41,7 +41,9 @@ Profile entries link to the originating messages and screenshots. The app
 retains the full thread, not just a generated summary.
 
 TASKS
-Tasks & callbacks is a local checklist. Tasks can be added directly or selected
+Independent-thread Tasks & callbacks is a local checklist. Approved shared tasks
+appear in the CoverageFit Work queue under the selected policy/opportunity.
+A due time does not imply the prospect agreed to an appointment. Tasks can be added directly or selected
 in a profile review. Due dates do not trigger notifications or calendar events.
 The app does not send messages, place calls, bind coverage, or update your
 sending or calendar software. Shared-profile synchronization requires the 0.2 server activation described below.
@@ -132,3 +134,16 @@ linked in CoverageFit. The desktop becomes a client of that customer identity.
 Backend setup, migration, scoped token provisioning, retention/erasure review,
 hosted consistency and owner-private rollout are NOT performed by the Windows
 app. See the repository's shared-profile integration review before activation.
+
+SHARED WORKSPACE 0.3.0
+Connect the isolated preview server using your private desktop credential.
+Choose an existing shared customer and explicitly select a linked opportunity.
+Each thread keeps its own policy selection. Refresh loads the shared story,
+readiness gaps and evidence status. Local conversations stay on this laptop.
+Review selected additions before approval. A confirmed server receipt is required.
+After an uncertain response, retry the unchanged approval before editing it.
+Open the same opportunity in CoverageFit Work to see its approved evidence
+and canonical tasks. Record approval does not verify a fact or send a message.
+
+Read-only web examples use synthetic records. Live OpenAI processing and
+interactive Windows capture / mixed-DPI acceptance require your laptop.

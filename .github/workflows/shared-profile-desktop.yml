@@ -3,7 +3,14 @@ on:
   pull_request:
     paths:
       - 'apps/prospect-desk/**'
-      - 'server/shared-prospect-profile.mjs'
+      - 'server/shared*.mjs'
+      - 'shared/prospect-workspace.mjs'
+      - 'assets/js/shared-workspace-panel.mjs'
+      - 'assets/js/producer-workspace.mjs'
+      - 'assets/css/shared-workspace.css'
+      - 'functions/api/shared-workspace-preview.js'
+      - 'tests/shared-workspace*.mjs'
+      - 'tests/helpers/shared-workspace-fixture.mjs'
       - 'server/solo-desk-api.mjs'
       - 'server/producer-workspace.mjs'
       - 'migrations/0020_cf_shared_profile.sql'
@@ -21,9 +28,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - run: node --test tests/shared-prospect-profile.test.mjs tests/producer-workspace.test.mjs
       - run: npm ci
         working-directory: apps/prospect-desk
+      - run: node --test tests/shared-prospect-profile.test.mjs tests/shared-workspace.test.mjs tests/shared-workspace-dom.test.mjs tests/producer-workspace.test.mjs
       - run: npm test
         working-directory: apps/prospect-desk
   windows-package:
