@@ -19,8 +19,9 @@
     }finally{busy=false;root.setAttribute('aria-busy','false');root.querySelectorAll('button').forEach(b=>b.disabled=false);}
   }
   function answer(code,value){send(started?{action:'answer',revision:state.revision,questionId:state.question.id,code,...(value!==undefined?{value}:{})}:{action:'start',handoff:boot.handoff,questionId:state.question.id,code});}
+  function reviewLabel(){if(state.combined)root.append(el('p','Reviewing: Home + auto',{class:'entry-reviewing'}));}
   function contact(){
-    root.replaceChildren(el('h2','Ask Dylan to follow up',{tabindex:'-1'}));const form=el('form');
+    root.replaceChildren();reviewLabel();root.append(el('h2','Ask Dylan to follow up',{tabindex:'-1'}));const form=el('form');
     for(const [name,label,type]of [['name','Your name','text'],['phone','Phone number','tel']]){const l=el('label',label),i=el('input','',{name,type,required:'',autocomplete:name==='name'?'given-name':'tel',maxlength:name==='name'?'80':'24'});l.append(i);form.append(l);}
     const l=el('label','How would you like Dylan to respond?'),select=el('select','',{name:'mode'});select.append(el('option','Personal call',{value:'call'}),el('option','Personal text',{value:'text'}));if(['call','text'].includes(state.contactChoice))select.value=state.contactChoice;l.append(select);form.append(l);
     const permission=el('label'),check=el('input','',{type:'checkbox',name:'permission',required:''});permission.append(check,document.createTextNode(' I ask Dylan at Virginia Tam Insurance Agency, Inc. to contact me about this review using my chosen channel. This does not authorize automated marketing texts. Consent is not a condition of purchase.'));form.append(permission,el('button','Send my request',{type:'submit',class:'primary'}));
@@ -30,8 +31,8 @@
     form.onsubmit=e=>{e.preventDefault();const d=new FormData(form);send({action:'contact',revision:state.revision,name:d.get('name'),phone:d.get('phone'),mode:d.get('mode'),permission:d.has('permission'),...((state.buyer||state.condo)?{contactTime:d.get('contactTime')||''}:{})});};root.append(form,button('Back to my review',render));focus();
   }
   function render(){
-    root.replaceChildren();if(state.reviewAudience&&state.reviewAudience!==boot.handoff.entry){root.append(el('p','This browser has a saved '+state.reviewAudience+' review. Your answers remain with that review. '+(state.contactSubmitted?'After delivery, Start a New Review begins the '+boot.handoff.entry+' questions.':'Continue the saved review or request help below. A new '+boot.handoff.entry+' review is available after that request is delivered.'),{role:'status'}));}if(state.question){const field=el('fieldset');field.append(el('legend',state.question.prompt,{tabindex:'-1'}));if(state.question.input==='zip'){const f=el('form'),l=el('label','California ZIP code'),i=el('input','',{name:'zip',inputmode:'numeric',autocomplete:'postal-code',pattern:'9[0-9]{4}',maxlength:'5',required:''});i.value=state.question.value||'';l.append(i);f.append(l,el('p',state.question.hint),el('button','Continue',{type:'submit',class:'primary'}));i.oninput=()=>i.setCustomValidity('');f.onsubmit=e=>{e.preventDefault();if(Number(i.value)<90001||Number(i.value)>96162){i.setCustomValidity('Enter a California ZIP code, or choose I don’t know yet.');i.reportValidity();return;}answer('zip',i.value);};field.append(f);}
-    for(const o of state.question.options)field.append(button(o.label,()=>answer(o.code)));root.append(field);}
+    root.replaceChildren();reviewLabel();if(state.reviewAudience&&state.reviewAudience!==boot.handoff.entry){root.append(el('p','This browser has a saved '+state.reviewAudience+' review. Your answers remain with that review. '+(state.contactSubmitted?'After delivery, Start a New Review begins the '+boot.handoff.entry+' questions.':'Continue the saved review or request help below. A new '+boot.handoff.entry+' review is available after that request is delivered.'),{role:'status'}));}if(state.question){const field=el('fieldset');field.append(el('legend',state.question.prompt,{tabindex:'-1'}));if(state.question.input==='zip'){const f=el('form'),l=el('label','California ZIP code'),i=el('input','',{name:'zip',inputmode:'numeric',autocomplete:'postal-code',pattern:'9[0-9]{4}',maxlength:'5',required:''});i.value=state.question.value||'';l.append(i);f.append(l,el('p',state.question.hint),el('button','Continue',{type:'submit',class:'primary'}));i.oninput=()=>i.setCustomValidity('');f.onsubmit=e=>{e.preventDefault();if(Number(i.value)<90001||Number(i.value)>96162){i.setCustomValidity('Enter a California ZIP code, or choose I don’t know yet.');i.reportValidity();return;}answer('zip',i.value);};field.append(f);}
+    for(const o of state.question.options){const b=button(o.label,()=>answer(o.code));if(state.question.id==='signal_product'&&o.code==='home_auto')b.dataset.productCombined='true';field.append(b);}root.append(field);}
     else{root.append(el('h2',state.message||'Your answers are saved',{tabindex:'-1'}));if(state.description)root.append(el('p',state.description));}
     if(state.urgent){root.append(el('p',state.condo?'An approaching closing or coverage end date? Call Dylan to discuss available options. Coverage is subject to review.':'Closing within 7 days? You can call Dylan directly while your request is reviewed.'),el('a','Call (408) 327-6377',{href:'tel:+14083276377'}));}
     if(state.deliveryPending){root.append(button('Retry delivery',()=>send({action:'retry_delivery'})),el('p','Start a New Review is available after this saved request reaches Dylan’s workspace.'));}
@@ -40,6 +41,7 @@
   }
   root.querySelectorAll('[data-answer]').forEach(b=>b.onclick=()=>answer(b.dataset.answer));
   if(started)render();
+  root.setAttribute('data-entry-ready','true');
   metric('landing_view');if(!started&&state.question)metric('first_question_view');
   window.addEventListener('pagehide',()=>{if(answered&&!finished&&!state.complete)metric('abandon');});
 })();

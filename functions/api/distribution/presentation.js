@@ -7,7 +7,7 @@ export async function onRequest(context){
   let assetOrigin;
   try{assetOrigin=contextualAssetOrigin(context.request,context.env);}catch{return new Response('Isolated preview is not configured.',{status:503,headers:{'Cache-Control':'no-store','X-Robots-Tag':'noindex, nofollow'}});}
   try{
-    const url=new URL(context.request.url),handoff=entryInput(url);let state=distributionPresentation(handoff);
+    const url=new URL(context.request.url),handoff=entryInput(url);let state=distributionPresentation(handoff,new Date(),{env:context.env});
     if(context.request.headers.get('cookie')&&context.env?.COVERAGEFIT_DB){
       const response=await distributionJourney(new Request(url,{method:'POST',headers:{Origin:url.origin,Cookie:context.request.headers.get('cookie'),'Content-Type':'application/json'},body:'{"action":"load"}'}),{env:context.env,db:context.env.COVERAGEFIT_DB,store:createPVXRecordStore(context.env.COVERAGEFIT_DB)});
       if(response.ok)state={...await response.json(),resumed:true};

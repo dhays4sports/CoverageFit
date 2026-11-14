@@ -1,3 +1,4 @@
+import {combinedReviewExport} from '../assets/js/combined-review-export.mjs';
 import {continueAnalytics} from './signal-continue-analytics.mjs';
 import {signalContinue} from './signal-continue-service.mjs';
 import {pilotReconciliation} from './pilot-reconciliation.mjs';
@@ -39,6 +40,7 @@ export async function handleSoloDesk(context){
       if(route==='continue-analytics')return json({ok:true,...await continueAnalytics(repo,env)});
       if(route==='continue-preview'){if(env.SIGNAL_CONTINUE_ENABLED!=='1')fail(503,'continue_disabled','Signal Continue is not activated.');const svc=signalContinue(repo,env);return json({ok:true,...await svc.preview(url.searchParams.get('id')),draft:await svc.draft(url.searchParams.get('id'))});}
       if(!route)return json({ok:true,build:BUILD,operator:repo.scope.name,mode:'solo',...await repo.list(url.searchParams,context.now||new Date())});
+      if(route==='review-export'){const data=combinedReviewExport(await repo.detail(url.searchParams.get('id')));if(!data)fail(422,'review_export','This record has no combined review.');return json({ok:true,review:data});}
       if(route==='record'){const id=url.searchParams.get('id');return json({ok:true,...await repo.detail(id),policybox:await policybox.view(id)});}
       if(route==='policybox-document'){const result=await policybox.document(url.searchParams.get('id'),url.searchParams.get('ref'));const name=String(result.doc.name||'policy-document').replace(/[^A-Za-z0-9._ -]/g,'_').slice(0,120);return new Response(result.object.body||await result.object.arrayBuffer(),{status:200,headers:{'Content-Type':result.doc.type||'application/octet-stream','Content-Disposition':`inline; filename="${name}"`,'Cache-Control':'private, no-store, max-age=0','X-Content-Type-Options':'nosniff','Content-Security-Policy':"default-src 'none'; frame-ancestors 'none'",'Referrer-Policy':'no-referrer'}});}
       if(route==='profile')return json({ok:true,customerProfile:await repo.profile(url.searchParams.get('id'))});

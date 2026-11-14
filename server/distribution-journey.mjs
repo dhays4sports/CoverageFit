@@ -1,3 +1,4 @@
+import {PROFESSIONAL_ENTRIES,PROFESSIONAL_FLOW_VERSION,PROFESSIONAL_QUESTIONS,professionalDecision,professionalFacts,combinedSummary} from './professional-combined-journey.mjs';
 import {CONDO_QUESTIONS,condoDecision,condoFacts,condoSummary,condoQualified} from './condo-journey.mjs';
 import {distributionOrigin} from './distribution-preview.mjs';
 import {BUYER_QUESTIONS,buyerDecision,buyerFacts,buyerSummary} from './buyer-journey.mjs';
@@ -20,13 +21,15 @@ const origins=new Set(['https://408farmers.com','https://www.408farmers.com','ht
 const date=options=>new Date(options.now||Date.now());
 const problem=(status)=>{const e=new Error('Review unavailable');e.status=status;throw e;};
 const strict=(value,keys)=>{if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).some(k=>!keys.includes(k)))problem(422);};
-function decide(record,now){if(record.condoFlowVersion===1)return condoDecision(record,now);if(record.buyerFlowVersion===1)return buyerDecision(record,now);return deriveSignalDecision({signalSessionId:record.journeyId,flowId:'distribution_'+record.distribution.entry,
+function decide(record,now){if(record.professionalFlowVersion===1)return professionalDecision(record,now);if(record.condoFlowVersion===1)return condoDecision(record,now);if(record.buyerFlowVersion===1)return buyerDecision(record,now);return deriveSignalDecision({signalSessionId:record.journeyId,flowId:'distribution_'+record.distribution.entry,
   canonicalSignals:record.signals,attribution:record.distribution.attribution,
   presentationContext:record.distribution.audience==='homebuyer'?'homebuyer':record.distribution.audience==='condo'?'condo':''},now).public;}
 function publicState(record,now){
-  if(record.contact) return {ok:true,revision:record.revision,complete:true,contactSubmitted:true,message:record.contact.delivered?'Thanks — your request reached Dylan’s workspace. He can pick up from what you shared.':'Your request is saved. Please retry delivery or contact Dylan directly.',deliveryPending:!record.contact.delivered};
+  const professional=record.professionalFlowVersion===1?professionalFacts(record):null;
+  const extra=professional?{requestedProducts:professional.requestedProducts,combined:professional.requestedProducts.length===2}:{};
+  if(record.contact) return {...extra,ok:true,revision:record.revision,complete:true,contactSubmitted:true,message:record.contact.delivered?'Thanks — your request reached Dylan’s workspace. He can pick up from what you shared.':'Your request is saved. Please retry delivery or contact Dylan directly.',deliveryPending:!record.contact.delivered};
   const d=decide(record,now);
-  return {ok:true,revision:record.revision,canBack:record.answers.length>0,contactChoice:record.distribution.contactChoice,
+  return {...extra,ok:true,revision:record.revision,canBack:record.answers.length>0,contactChoice:record.distribution.contactChoice,
     ...(record.buyerFlowVersion===1?{buyer:true,urgent:buyerFacts(record,now).urgency==='urgent'}:{}),
     ...(record.condoFlowVersion===1?{condo:true,urgent:condoFacts(record,now).urgency==='urgent'}:{}),
     question:d.nextQuestion?{id:d.nextQuestion.id,prompt:d.nextQuestion.prompt,...(d.nextQuestion.input?{input:d.nextQuestion.input,hint:d.nextQuestion.hint,value:(record.condoFlowVersion===1?record.condo?.propertyZip:record.buyer?.propertyZip)||''}:{}),options:d.nextQuestion.options.map(o=>({code:o.code,label:o.label}))}:null,
@@ -45,9 +48,10 @@ async function save(loaded,next,options){
     .bind(JSON.stringify(next),next.updatedAt,next.contact?.retainedUntil||null,loaded.key,JSON.stringify(loaded.record)).run();
   if(Number(result.meta?.changes)!==1)problem(409);
 }
-function createJourney(distribution,now,immediate){
+function createJourney(distribution,now,immediate,options={}){
   const at=now.toISOString();
   return {recordType:'pvx_web_journey',schemaVersion:'1.0',journeyId:'pvxj_'+crypto.randomUUID().replaceAll('-',''),
+      ...(immediate&&options.env?.PROFESSIONAL_COMBINED_NEW_REVIEWS!=='0'&&PROFESSIONAL_ENTRIES.has(distribution.entry)?{professionalFlowVersion:PROFESSIONAL_FLOW_VERSION}:{}),
       ...(immediate&&distribution.entry==='buyer'?{buyerFlowVersion:1,buyer:{}}:{}),
       ...(immediate&&distribution.entry==='condo'?{condoFlowVersion:1,condo:{}}:{}),
       seed:{journey:{experience:'canonical_signal'}},distribution,signals:distribution.evidence,answers:[],revision:0,
@@ -74,7 +78,7 @@ export async function distributionEntry(request,options={}){
         'Set-Cookie':`${DISTRIBUTION_COOKIE}=${alias.token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${Math.floor((Date.parse(alias.expiresAt)-now)/1000)}`}});
     }
     const token=createPvxWebResumeToken(),key=await pvxWebJourneyKey(token),at=now.toISOString();
-    const record=createJourney(distribution,now,options.immediate);
+    const record=createJourney(distribution,now,options.immediate,options);
     await options.store.setJSON(key,record,{onlyIfNew:true,metadata:{recordType:record.recordType,createdAt:at,expiresAt:record.expiresAt}});
     try{await options.store.setJSON(aliasKey,{token,fingerprint,expiresAt:record.expiresAt},{onlyIfNew:true,metadata:{expiresAt:record.expiresAt}});}
     catch(e){
@@ -95,6 +99,8 @@ export async function distributionEntry(request,options={}){
 }
 async function deliver(loaded,options){
   const r=loaded.record,c=r.contact,at=c.at,s=r.signals,a=r.distribution.attribution;
+  const professional=r.professionalFlowVersion===1?professionalFacts(r):null;
+  const combined=professional?.requestedProducts.length===2?professional:null;
   const normalized=normalizeLeadPayload({lead_checkpoint_id:'408d_'+r.journeyId,lead_stage:'contact_requested',first_name:c.name,phone:c.phone,
     contact_consent:true,consent_version:'distribution-contact-v1',consent_at:at,automated_marketing_sms_consent:false,
     source_key:r.distribution.operationalSourceKey||a.sourceKey,route_path:a.landingPage,campaign_id:a.campaignId,campaign_variant:a.campaignVariant,
@@ -105,6 +111,7 @@ async function deliver(loaded,options){
   const v=normalized.value;
   v.attribution={...v.attribution,sourceKey:a.sourceKey,sourceFamily:a.sourceFamily,audience:r.distribution.audience,marketContext:r.distribution.marketContext,occurredAt:r.distribution.occurredAt,referralContext:r.distribution.referralContext};
   v.context.distribution={version:r.distribution.version,journeyId:r.journeyId,evidenceSource:'consumer_answer',answers:r.answers,initialEvidence:r.distribution.evidence};
+  if(combined){v.context.distribution.professionalCombined=combined;v.context.requestedProducts=combined.requestedProducts;v.context.productEvidence=combined.productEvidence;v.context.reviewContext=combinedSummary(combined);}
   v.context.housing=r.distribution.knownContext.housing||'';
   v.context.distribution.knownContext=r.distribution.knownContext;
   v.context.distribution.phase='producer_handoff';
@@ -114,7 +121,7 @@ async function deliver(loaded,options){
   // Missing provider configuration leaves continuation unavailable. No SMS is sent.
   try{v.context.distribution.conversation_id=await smsLiveConversationId(c.phone,options.env?.RINGCENTRAL_FROM_NUMBER,options.env?.RINGCENTRAL_CONVERSATION_HASH_SECRET);}catch{}
   v.context.distribution.firstTouch=r.firstTouch;v.context.distribution.currentChannel=r.currentChannel;v.context.distribution.lastTouchChannel=r.lastTouchChannel;
-  v.context.reviewContext=(r.distribution.presentation==='paid_agency'?'CoverageFit ':'408FARMERS ')+a.landingPage+' — requested '+c.mode+(r.buyerFlowVersion===1?' — '+buyerSummary(r,date(options)):r.condoFlowVersion===1?' — '+condoSummary(r,date(options)):'');
+  if(!combined)v.context.reviewContext=(r.distribution.presentation==='paid_agency'?'CoverageFit ':'408FARMERS ')+a.landingPage+' — requested '+c.mode+(r.buyerFlowVersion===1?' — '+buyerSummary(r,date(options)):r.condoFlowVersion===1?' — '+condoSummary(r,date(options)):'');
   v.consent.agencyContact.callPermitted=c.mode==='call';v.consent.agencyContact.personalTextPermitted=c.mode==='text';
   v.consent.agencyContact.scope='requested_review_'+c.mode;
   // Explicit first-party provenance is recorded; this does not create an SMS
@@ -153,7 +160,7 @@ export async function distributionJourney(request,options={}){
     if(body.revision!==r.revision)problem(409);
     let next={...r,revision:r.revision+1,updatedAt:now.toISOString()};
     if(body.action==='answer'){
-      const d=decide(r,now),q=(r.condoFlowVersion===1?CONDO_QUESTIONS:r.buyerFlowVersion===1?BUYER_QUESTIONS:SIGNAL_QUESTION_LIBRARY)[d.nextQuestionId];
+      const d=decide(r,now),q=(r.professionalFlowVersion===1?{...SIGNAL_QUESTION_LIBRARY,...PROFESSIONAL_QUESTIONS}:r.condoFlowVersion===1?CONDO_QUESTIONS:r.buyerFlowVersion===1?BUYER_QUESTIONS:SIGNAL_QUESTION_LIBRARY)[d.nextQuestionId];
       if(!q||q.id!==body.questionId||r.answers.length>=7)problem(422);
       let option=q.options.find(o=>o.code===body.code);
       if(q.input==='zip'&&body.code==='zip'){const zip=String(body.value||'').trim();if(!/^9\d{4}$/.test(zip)||Number(zip)<90001||Number(zip)>96162)problem(422);option={code:'zip',signals:{},[r.condoFlowVersion===1?'condo':'buyer']:{propertyZip:zip}};}
@@ -161,9 +168,10 @@ export async function distributionJourney(request,options={}){
       if(r.buyerFlowVersion===1)next.buyer={...r.buyer,...option.buyer};
       if(r.condoFlowVersion===1)next.condo={...r.condo,...option.condo};
       next.signals={...r.signals,...option.signals};
-      next.answers=[...r.answers,{questionId:q.id,optionCode:option.code,signals:option.signals,...(option.buyer?{buyer:option.buyer}:{}),...(option.condo?{condo:option.condo}:{}),source:'coveragefit_signal',occurredAt:now.toISOString()}];
+      next.answers=[...r.answers,{questionId:q.id,optionCode:option.code,signals:option.signals,...(option.buyer?{buyer:option.buyer}:{}),...(option.condo?{condo:option.condo}:{}),...(option.professional?{professional:option.professional}:{}),source:'coveragefit_signal',occurredAt:now.toISOString()}];
     }else if(body.action==='back'){
       if(!r.answers.length)problem(422);
+      if(r.professionalFlowVersion===1)next.professionalAnswerHistory=[...(r.professionalAnswerHistory||[]),{...r.answers.at(-1),removedAt:now.toISOString(),removedAtRevision:next.revision}].slice(-24);
       next.answers=r.answers.slice(0,-1);next.signals=Object.assign({},r.distribution.evidence,...next.answers.map(a=>a.signals));
       if(r.buyerFlowVersion===1)next.buyer=Object.assign({},...next.answers.map(a=>a.buyer||{}));
       if(r.condoFlowVersion===1)next.condo=Object.assign({},...next.answers.map(a=>a.condo||{}));
@@ -191,9 +199,9 @@ async function event(distribution,type,options){
     presentation:distribution.presentation,marketContext:distribution.marketContext,visit:await sha256Hex(distribution.bootstrapId)};
   try{await options.store.setJSON(key,value,{onlyIfNew:true,metadata:{recordType:value.recordType,createdAt:at,expiresAt:new Date(date(options).getTime()+90*86400000).toISOString()}});}catch(e){if(!await options.store.get(key))throw e;}
 }
-export function distributionPresentation(input,now=new Date()){
+export function distributionPresentation(input,now=new Date(),options={}){
   const distribution=normalizeDistribution(input,now);
-  return publicState({journeyId:'entry_presentation',...(distribution.entry==='buyer'?{buyerFlowVersion:1,buyer:{}}:{}),...(distribution.entry==='condo'?{condoFlowVersion:1,condo:{}}:{}),distribution,signals:distribution.evidence,answers:[],revision:0},now);
+  return publicState({journeyId:'entry_presentation',...(options.env?.PROFESSIONAL_COMBINED_NEW_REVIEWS!=='0'&&PROFESSIONAL_ENTRIES.has(distribution.entry)?{professionalFlowVersion:PROFESSIONAL_FLOW_VERSION}:{}),...(distribution.entry==='buyer'?{buyerFlowVersion:1,buyer:{}}:{}),...(distribution.entry==='condo'?{condoFlowVersion:1,condo:{}}:{}),distribution,signals:distribution.evidence,answers:[],revision:0},now);
 }
 export async function distributionInteract(request,options={}){
   try{distributionOrigin(request,options.env);}catch{return json({ok:false},503);}
@@ -205,7 +213,7 @@ export async function distributionInteract(request,options={}){
     if(body.action!=='start')return distributionJourney(new Request(request.url,{method:'POST',headers:request.headers,body:raw}),options);
     strict(body,['action','handoff','questionId','code']);
     if((await load(request,options))?.record.requiresReviewVersion)return json({ok:false,reviewChanged:true,message:'A different review is active in this browser. Reload to continue.'},409);
-    const distribution=normalizeDistribution(body.handoff,date(options)),state=distributionPresentation(body.handoff,date(options));
+    const distribution=normalizeDistribution(body.handoff,date(options)),state=distributionPresentation(body.handoff,date(options),options);
     if(state.question?.id!==body.questionId||!state.question.options.some(o=>o.code===body.code))problem(422);
     const start=await distributionEntry(new Request(request.url,{method:'POST',headers:{Origin:new URL(request.url).origin,'Content-Type':'application/json'},body:JSON.stringify(body.handoff)}),{...options,immediate:true});
     if(start.status!==303)return start;
@@ -278,7 +286,7 @@ async function startNewReview(request,body,options){
   const fingerprint=await sha256Hex(JSON.stringify({...distribution,bootstrapId:undefined,receivedAt:undefined,occurredAt:undefined}));
   const aliasKey='pvx/web-bootstrap/new-review/'+await sha256Hex(previous.token);
   const token=createPvxWebResumeToken(),key=await pvxWebJourneyKey(token),at=now.toISOString();
-  const record={...createJourney(distribution,now,true),requiresReviewVersion:true};
+  const record={...createJourney(distribution,now,true,options),requiresReviewVersion:true};
   const alias={token,fingerprint,expiresAt:record.expiresAt};
   // D1 batch is atomic. One rotation per predecessor capability, even when
   // separate tabs submit concurrently. Neither statement changes the old row.
