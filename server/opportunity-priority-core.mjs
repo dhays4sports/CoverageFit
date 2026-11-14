@@ -305,7 +305,17 @@ function handoff({track,dimensions,score,scoreMin,scoreMax,queue,routeOverride:o
 
 export function deriveOpportunityPriority({opportunity=null,tasks=[],sources=[],customerProfile=null,possessionQuality=null,evidenceMode='opportunity'}={},now=new Date()){
   if(!opportunity)return Object.freeze({schemaVersion:'1.0',engine:PRIORITY_BUILD,status:'unclassified',score:null,scoreMin:0,scoreMax:100,evidenceCompleteness:0,queue:'unclassified',queueLabel:QUEUE_LABELS.unclassified});
-  const {lead,context,attribution,consent}=contextFromSources(sources),track=productTrack(opportunity,context),override=routeOverride(opportunity,tasks,sources);
+  const {lead,context:originalContext,attribution,consent}=contextFromSources(sources);
+  const combined=originalContext.distribution?.professionalCombined;
+  // Score one line's explicit evidence, never sum products or mix their answers.
+  // Earliest reported timing determines the line; missing timing stays unknown.
+  let context=originalContext;
+  if(combined?.version===1&&['home','auto'].includes(combined.priorityProduct)){
+    const line=combined.priorityProduct,e=combined.productEvidence?.[line]||{};
+    context={reviewTrack:line,reviewReason:e.reviewReason||'',autoNeed:e.autoNeed||'',statedTrigger:e.statedTrigger||'',propertyType:e.propertyType||'',decisionTiming:e.decisionTiming==='unknown'?'':e.decisionTiming||''};
+    opportunity={...opportunity,products:line,reason:[e.reviewReason,e.autoNeed,e.statedTrigger].filter(Boolean).join(' '),deadline:''};
+  }
+  const track=productTrack(opportunity,context),override=routeOverride(opportunity,tasks,sources);
   const dimensions=Object.freeze({
     need:dimension('need',needCandidates(track,opportunity,context,lead)),
     intent:dimension('intent',intentCandidates(opportunity,tasks,sources,context,lead,now,{allowStructuredEngagement:evidenceMode!=='signal'&&context.evidenceOrigin!=='agencyzoom_raw'})),
