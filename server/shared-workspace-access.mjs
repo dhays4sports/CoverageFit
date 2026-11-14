@@ -11,5 +11,5 @@ export async function previewOwner(request,env,fetcher=(...args)=>fetch(...args)
  stage='keys_fetch';const r=await fetcher(issuer+'/cdn-cgi/access/certs',{redirect:'error',signal:AbortSignal.timeout(10000)});if(!r.ok)return deny('keys_unavailable');stage='keys_parse';const keys=await r.json(),jwk=keys.keys?.find(k=>k.kid===head.kid&&k.kty==='RSA');if(!jwk)return deny('signing_key_unavailable');
  stage='key_import';const key=await crypto.subtle.importKey('jwk',jwk,{name:'RSASSA-PKCS1-v1_5',hash:'SHA-256'},false,['verify']);
  stage='signature_verify';const valid=await crypto.subtle.verify('RSASSA-PKCS1-v1_5',key,bytes(parts[2]),new TextEncoder().encode(parts[0]+'.'+parts[1]));return valid||deny('signature');
- }catch(e){return deny(stage+(/illegal invocation/i.test(e.message||'')?'_binding_error':'_unavailable'));}
+ }catch(e){return deny(stage+(/illegal invocation/i.test(e.message||'')?'_binding_error':stage==='keys_fetch'?'_unavailable: '+String(e.message||e.name).slice(0,200):'_unavailable'));}
 }
