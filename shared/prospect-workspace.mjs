@@ -26,7 +26,7 @@ export function projectWorkspace(profile,opportunityId,{evidenceRevision=null,as
  const history=profile.items.filter(i=>i.opportunityId===opportunityId).slice().sort(byTime);
  const records=history.filter(i=>i.kind!=='review').map(i=>({...i,dimensions:dimensions(i)}));const map=new Map(records.map(i=>[i.id,i]));
  for(const event of history.filter(i=>i.kind==='review')){const target=map.get(event.target);if(!target)continue;
-  const field={verification:'verification',freshness:'freshness',draft_review:'draftReview',handoff:'handoffState'}[event.dimension];if(field){target.dimensions[field]=event.resolution;target.lastReviewId=event.id;}}
+  const field={verification:'verification',freshness:'freshness',draft_review:'draftReview',handoff:'handoffState'}[event.dimension];if(field){target.dimensions[field]=event.resolution;target.lastReviewId=event.id;if(event.dimension==='draft_review'&&event.resolution==='approved')target.dimensions.draftReview=event.coveredEvidenceRevision===evidenceRevision?'approved':'needs_review';}}
  for(const item of records){if(item.supersedes&&map.has(item.supersedes)){map.get(item.supersedes).dimensions.freshness='superseded';map.get(item.supersedes).supersededBy=item.id;}if(['task','callback','commitment'].includes(item.kind)){
  const task=(profile.tasks||[]).find(t=>t.sourceKey===`desktop:${item.requestId}:${item.id.slice(item.requestId.length+1)}`||t.id.endsWith('_'+item.requestId+'_'+item.id.slice(item.requestId.length+1)));
  if(task){item.task=task;item.dimensions.taskState=task.state;}}
@@ -50,5 +50,5 @@ export function projectWorkspace(profile,opportunityId,{evidenceRevision=null,as
   summary,nextAction,readiness:{state:readinessState,evidence:readiness,gaps,nextQuestion:gaps[0]?.value||null,eligibilityAssessed:false},
   facts:{current: facts.filter(i=>i.factKey&&i.dimensions.verification==='verified'&&i.dimensions.freshness==='current'),uncertain:facts.filter(i=>!i.factKey||i.dimensions.verification!=='verified'||i.dimensions.freshness!=='current'),reconciledBy:'explicit_fact_key_and_supersession_only'},
   commitments,transcript:{state:transcript?.transcriptState|| (transcript?'unverified':'missing'),latest:transcript},handoffs,drafts,records,history,
-  counts:{openCommitments:commitments.filter(i=>!['completed','cancelled'].includes(i.dimensions.taskState)).length,readinessGaps:gaps.length,draftsNeedingReview:drafts.filter(i=>i.dimensions.draftReview==='awaiting_review').length,unresolvedHandoffs:handoffs.length}};
+  counts:{openCommitments:commitments.filter(i=>!['completed','cancelled'].includes(i.dimensions.taskState)).length,readinessGaps:gaps.length,draftsNeedingReview:drafts.filter(i=>['awaiting_review','needs_review'].includes(i.dimensions.draftReview)).length,unresolvedHandoffs:handoffs.length}};
 }
