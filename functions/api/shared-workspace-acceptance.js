@@ -11,7 +11,7 @@ export async function onRequest(context){
  const env=sharedWorkspaceEnvironment(context.env||{}),request=context.request,url=new URL(request.url);
  const reply=(v,status=200)=>Response.json(v,{status,headers:{'Cache-Control':'no-store'}});
  if(env.BUYER_STAGING_ISOLATED!=='1'||env.CF_SHARED_WORKSPACE_PREVIEW!=='1'||env.CF_SHARED_WORKSPACE_ACCEPTANCE!=='1'||env.CF_SHARED_WORKSPACE_PREVIEW_ID!=='preview:shared-workspace:20261114'||!env.COVERAGEFIT_DB)return reply({ok:false},404);
- if(request.method!=='POST'||request.headers.get('origin')!==url.origin||!await previewOwner(request,env))return reply({ok:false,error:'Authenticated same-origin preview acceptance only.'},403);
+ let accessReason='not_checked';if(request.method!=='POST'||request.headers.get('origin')!==url.origin||!await previewOwner(request,env,fetch,reason=>{accessReason=reason;}))return reply({ok:false,error:'Authenticated same-origin preview acceptance only.',accessReason},403);
  const cid='cust_cfsw_acceptance_one',home='cfsw_acceptance_home',auto='cfsw_acceptance_auto',run=crypto.randomUUID(),checks=[];
  const check=(condition,name)=>{if(!condition)throw Error(name);checks.push(name);};
  async function call(desktop,route,body){const path='/api/'+(desktop?'shared-profile/':'solo-desk/')+route;const req=new Request(url.origin+path,{method:body?'POST':'GET',headers:{Authorization:'Bearer '+(desktop?env.CF_SHARED_PROFILE_DESKTOP_TOKEN:env.COVERAGEFIT_PRODUCER_ACCESS_TOKEN),...(!desktop?{Origin:url.origin}:{}),...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{})});const response=await(desktop?handleSharedProfile:handleSoloDesk)({...context,env,request:req});return {status:response.status,...await response.json()};}
