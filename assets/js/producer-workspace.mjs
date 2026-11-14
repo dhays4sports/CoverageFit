@@ -1,7 +1,7 @@
 let previewSession=false;
 const ownerPreviewRequested=new URL(location.href).searchParams.get('owner_preview')==='1';
 const exampleMode=new URL(location.href).searchParams.get('example')==='1';
-import {mountSharedWorkspace} from './shared-workspace-panel.mjs?v=SHARED-WORKSPACE-1';
+import {mountSharedWorkspace} from './shared-workspace-panel.mjs?v=SHARED-WORKSPACE-1.0.1';
 import {combinedReviewRows} from './combined-review-export.mjs?v=HOME-AUTO-1.0';
 import {webEvidence} from './work-web-evidence.mjs?v=HOME-AUTO-1.0';
 import {workReceivedTime} from './work-received-time.mjs?v=1';
