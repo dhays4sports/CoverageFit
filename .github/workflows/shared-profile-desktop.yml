@@ -1,0 +1,55 @@
+name: Shared profile and desktop pilot
+on:
+  pull_request:
+    paths:
+      - 'apps/prospect-desk/**'
+      - 'server/shared-prospect-profile.mjs'
+      - 'server/solo-desk-api.mjs'
+      - 'server/producer-workspace.mjs'
+      - 'migrations/0020_cf_shared_profile.sql'
+      - 'assets/js/shared-profile-panel.mjs'
+      - 'tests/shared-prospect-profile.test.mjs'
+      - '.github/workflows/shared-profile-desktop.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --test tests/shared-prospect-profile.test.mjs tests/producer-workspace.test.mjs
+      - run: npm ci
+        working-directory: apps/prospect-desk
+      - run: npm test
+        working-directory: apps/prospect-desk
+  windows-package:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm ci
+        working-directory: apps/prospect-desk
+      - run: npm test
+        working-directory: apps/prospect-desk
+      - run: npm run dist:zip
+        working-directory: apps/prospect-desk
+      - name: Packaged application startup smoke
+        shell: pwsh
+        run: |
+          $exe = Join-Path $env:GITHUB_WORKSPACE 'apps/prospect-desk/release/win-unpacked/Prospect Desk.exe'
+          $process = Start-Process -FilePath $exe -PassThru
+          Start-Sleep -Seconds 6
+          $process.Refresh()
+          if ($process.HasExited) { throw 'Packaged desktop exited during startup.' }
+          taskkill /PID $process.Id /T /F
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Prospect-Desk-Windows-pilot
+          path: apps/prospect-desk/release/*.zip
+          retention-days: 14

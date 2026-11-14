@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'"><title>Prospect Desk</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<aside class="sidebar">
+ <div class="brand"><span class="brand-icon">p<span>·</span></span><div>Prospect Desk<small>DYLAN’S WORKSPACE</small></div></div>
+ <button id="capture" class="capture-button"><span>⌗</span> Capture anything <kbd>Ctrl ⇧ Space</kbd></button>
+ <nav><button class="nav active" id="threadsNav">▤ <span>Work threads</span><b id="threadCount">0</b></button><button class="nav" id="prospectsNav">◎ <span>Prospect 360</span><b id="prospectCount">0</b></button><button class="nav" id="tasksNav">☑ <span>Tasks & callbacks</span><b id="taskCount">0</b></button></nav>
+ <div class="list-label"><span id="listLabel">YOUR THREADS</span><button id="newThread" class="icon-button" title="New work thread">+</button></div>
+ <input id="search" class="search" placeholder="Search threads or prospects…" aria-label="Search workspace">
+ <div id="threadList" class="thread-list"></div>
+ <div class="sidebar-bottom"><div class="local"><span></span> Private desktop workspace</div><button id="settings" class="settings-button">⚙ Connection & settings</button></div>
+</aside>
+<main>
+ <header><div><div class="eyebrow" id="eyebrow">CAPTURE → THINK → REVIEW</div><h1 id="pageTitle">A place for the next step.</h1></div><div class="header-actions"><span id="connection" class="badge">API not connected</span><button id="quickTask" class="secondary">+ Quick task</button></div></header>
+ <div id="threadLayout" class="thread-layout">
+  <section class="conversation">
+   <div class="thread-toolbar"><div class="context-label">CONTEXT <select id="prospectSelect" aria-label="Prospect context"><option value="">Independent work thread</option></select><button id="findShared" class="text-button">Find shared prospect</button><button id="addProspect" class="text-button">+ New prospect</button></div><span class="muted tiny">Profile changes require your review</span></div>
+   <div id="messages" class="messages"></div>
+   <div id="composeArea" class="compose-area">
+    <div id="attachments" class="attachments"></div>
+    <div id="workflowBar" class="workflow-bar"></div>
+    <div class="composer"><textarea id="instruction" rows="3" placeholder="Add context or tell me what to do with the screenshot…" aria-label="Instruction"></textarea><div class="composer-bottom"><div><button id="paste" class="text-button">▣ Paste image</button><button id="upload" class="text-button">↥ Attach</button></div><button id="send" class="primary">Process screenshot <span>↗</span></button></div></div>
+    <div class="compose-note">Saved on this laptop · Sends thread context to OpenAI only when you process or request a review</div>
+   </div>
+  </section>
+  <aside id="profilePanel" class="profile-panel"></aside>
+ </div>
+ <section id="directory" class="directory" hidden></section>
+ <section id="taskPage" class="directory" hidden></section>
+</main>
+<dialog id="modal"><div id="modalBody"></div></dialog><div id="toast" role="status" hidden></div>
+<script src="renderer.js"></script></body></html>
