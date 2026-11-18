@@ -1,0 +1,56 @@
+{
+  "mandate": "CF-AGENCYZOOM-SMS-EVIDENCE-0.3",
+  "status": "PASS_OFFLINE_SYNTHETIC",
+  "initial": {
+    "status": "complete",
+    "processed": 4,
+    "changed": 4,
+    "checkpoint": "2026-11-18T11:00:00.000Z",
+    "outboundCommunications": 0
+  },
+  "update": {
+    "status": "complete",
+    "processed": 1,
+    "changed": 1,
+    "checkpoint": "2026-11-18T12:00:00.000Z",
+    "outboundCommunications": 0
+  },
+  "deletion": {
+    "status": "complete",
+    "processed": 1,
+    "changed": 1,
+    "checkpoint": "2026-11-18T13:00:00.000Z",
+    "outboundCommunications": 0
+  },
+  "replay": {
+    "status": "complete",
+    "processed": 1,
+    "changed": 0,
+    "checkpoint": "2026-11-18T13:00:00.000Z",
+    "outboundCommunications": 0
+  },
+  "canonicalCustomer": "az_customer_072dee82fd5930bf3d50cd1b2f1e30da1d6837ac",
+  "opportunities": 2,
+  "threadCount": 3,
+  "counts": {
+    "az_sms_heads": 34,
+    "az_sms_messages": 36,
+    "cf_solo_tasks": 0,
+    "sms_conversations": 0,
+    "cf_recommendation_outbox": 0
+  },
+  "producerReviewRecords": 2,
+  "currentVerifiedSmsFacts": 0,
+  "importedHistoricalOptOut": true,
+  "contactReviewHold": true,
+  "historyVerified": false,
+  "largestSourceSummaryBytes": 910,
+  "longThread": {
+    "total": 30,
+    "secondWindow": 10,
+    "allOriginalsRetained": true
+  },
+  "outboundCommunications": 0,
+  "liveAuthentication": false,
+  "productionActivation": false
+}

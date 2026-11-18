@@ -7,7 +7,7 @@ on:
       - 'server/producer-workspace.mjs'
       - 'shared/agencyzoom-*.mjs'
       - 'shared/prospect-workspace.mjs'
-      - 'scripts/lib/agencyzoom-offline-store.mjs'
+      - 'scripts/lib/agencyzoom-*.mjs'
       - 'scripts/agencyzoom-*.mjs'
       - 'assets/js/agencyzoom-*.mjs'
       - 'assets/js/shared-workspace-panel.mjs'
@@ -34,6 +34,7 @@ jobs:
         working-directory: apps/prospect-desk
       - run: node scripts/agencyzoom-synthetic-demo.mjs
       - run: node scripts/agencyzoom-task-renewal-demo.mjs
+      - run: node scripts/agencyzoom-sms-demo.mjs
       - uses: actions/upload-artifact@v4
         with:
           name: AgencyZoom-synthetic-acceptance
