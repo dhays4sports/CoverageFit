@@ -1,5 +1,5 @@
 import {AZ_RESOURCE_SOURCE,renewalFactKey} from '../shared/agencyzoom-resource-evidence.mjs';
-import {dateValue,dateOnly} from './agencyzoom-resource-contract.mjs';
+import {dateValue,dateOnly,resourceEvidenceIntegrity} from './agencyzoom-resource-contract.mjs';
 import { ownerWorkspaceActivation } from './shared-profile-owner-release.mjs';
 import {sharedWorkspaceEnvironment} from './shared-workspace-config.mjs';
 import {workspaceView,workspaceQueues} from './shared-workspace-service.mjs';
@@ -34,8 +34,8 @@ function publicProfile(snapshot,workspace){
 }
 export function sharedProfileService(repo){
  const {sql,rows,db,scope}=repo,workspace=scope.workspace;
- const externalIntegrity=async v=>!!v?.resource&&await digest(JSON.stringify(v.resource))===v.digest&&await digest(JSON.stringify(v.observations||[]))===v.observationsDigest&&await digest(JSON.stringify(v.termObservations||[]))===v.termsDigest;
- const read=async(cid,{opportunityId=null}={})=>{const raw=await rawProfile(repo,cid),p={...publicProfile(raw,workspace),version:await digest(raw)},sources=[];for(const s of p.context.sources){if(s.kind===AZ_RESOURCE_SOURCE&&!await externalIntegrity(s.summary)){p.context.externalIntegrityHold=true;continue;}sources.push(s);}p.context.sources=sources;if(opportunityId)p.view=await workspaceView(p,opportunityId);return p;};
+
+ const read=async(cid,{opportunityId=null}={})=>{const raw=await rawProfile(repo,cid),p={...publicProfile(raw,workspace),version:await digest(raw)},sources=[];for(const s of p.context.sources){if(s.kind===AZ_RESOURCE_SOURCE&&!await resourceEvidenceIntegrity(s.summary)){p.context.externalIntegrityHold=true;continue;}sources.push(s);}p.context.sources=sources;if(opportunityId)p.view=await workspaceView(p,opportunityId);return p;};
  async function list(query='',after=''){
   query=clean(query,150,'search');after=clean(after,180,'cursor');
   const result=await rows(`SELECT c.id AS customerId,c.display_name AS name,MIN(l.opportunity_id) AS opportunityId FROM cf_ucp_customers c JOIN cf_ucp_opportunity_links l ON l.customer_id=c.id AND l.workspace_id=c.workspace_id JOIN cf_solo_opportunities o ON o.id=l.opportunity_id AND o.workspace_id=l.workspace_id WHERE c.workspace_id=? AND c.status='active' AND c.id>? AND (?='' OR instr(lower(c.display_name),lower(?))>0) GROUP BY c.id,c.display_name ORDER BY c.id LIMIT 26`,workspace,after,query,query);
@@ -75,7 +75,7 @@ export function sharedProfileService(repo){
   for(const item of b.record.items){
    if(item.externalEvidence){const x=item.externalEvidence,source=profile.context.sources.find(s=>s.kind===AZ_RESOURCE_SOURCE&&s.sourceId===x.sourceId),v=source?.summary,r=v?.resource;
     if(!r||r.kind!=='policy'||v.canonicalCustomerId!==b.customerId||v.scope!=='opportunity'||v.canonicalOpportunityId!==b.opportunityId||v.revision!==x.revision||v.digest!==x.digest||r.availability!=='present')fail(409,'external_source_changed','The policy source or its identity changed. Refresh before reviewing it.');
-    if(!await externalIntegrity(v))fail(409,'external_source_integrity','External source integrity could not be verified. Reconcile the source before reviewing it.');
+    if(!await resourceEvidenceIntegrity(v))fail(409,'external_source_integrity','External source integrity could not be verified. Reconcile the source before reviewing it.');
     const observed=(v.observations||[]).find(o=>o.field===x.field&&item.factKey===renewalFactKey(r.id,o.termId,o.field));
     if(item.kind!=='fact'||!observed)fail(422,'external_source','Choose an exact policy, term and date kind.');
     try{if(x.field==='prospect_callback')dateValue(item.value);else dateOnly(item.value);}catch{fail(422,'external_source','Use the exact date precision shown by the source.');}

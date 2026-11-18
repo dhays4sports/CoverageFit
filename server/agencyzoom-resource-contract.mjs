@@ -31,3 +31,9 @@ export function normalizeAgencyZoomResource(v,agency){
  }
  if(new TextEncoder().encode(JSON.stringify(out)).length>5000)reject('record_bound');return out;
 }
+
+export async function resourceEvidenceIntegrity(value){
+ if(!value?.resource)return false;
+ const digest=async v=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(v)))),b=>b.toString(16).padStart(2,'0')).join('');
+ return await digest(value.resource)===value.digest&&await digest(value.observations||[])===value.observationsDigest&&await digest(value.termObservations||[])===value.termsDigest;
+}

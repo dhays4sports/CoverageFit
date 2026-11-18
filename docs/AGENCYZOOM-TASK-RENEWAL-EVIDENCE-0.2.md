@@ -48,7 +48,7 @@ Legacy lead snapshots retain original task evidence. Once a separately identifie
 
 ## Evidence, conflicts and review
 
-Each accepted resource revision commits atomically with external mapping, source snapshot, immutable original, head, edit-version update and audit. SHA-256 checks protect original resource records, retained date observations and retained term ranges against detected corruption. Shared-profile reads also verify these digests, hold corrupt external evidence and reject attempts to approve it. Creation timestamps are immutable. Changed content under an existing revision, unseen stale revisions or identity changes fail closed; old known replay never regresses the current head.
+Each accepted resource revision commits atomically with external mapping, source snapshot, immutable original, head, edit-version update and audit. SHA-256 checks protect original resource records, retained date observations and retained term ranges against detected corruption. Work and shared-profile reads also verify these digests, hold corrupt external evidence and reject attempts to approve it. Creation timestamps are immutable. Changed content under an existing revision, unseen stale revisions or identity changes fail closed; old known replay never regresses the current head.
 
 Policy source snapshots retain earlier date observations and term ranges. Conflict grouping uses exact **policy + term + date kind**; different policies/terms or expiration and renewal-effective dates do not collide. A later timestamp never resolves a conflict. Observations remain unverified with unknown freshness; source observations over 30 days old and prior terms are labeled stale. Lifecycle uncertainty and partial history remain explicit.
 
