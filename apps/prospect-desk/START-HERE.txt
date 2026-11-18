@@ -151,3 +151,13 @@ and canonical tasks. Record approval does not verify a fact or send a message.
 
 Read-only web examples use synthetic records. Live OpenAI processing and
 interactive Windows capture / mixed-DPI acceptance require your laptop.
+
+PRODUCTION OWNER PILOT 0.4.0
+In Settings, choose Copy production setup fingerprint. Give the release
+operator the fingerprint shown on your clipboard. The app generates the
+credential on this laptop and stores it under Windows account protection.
+After the operator registers and activates this laptop, choose Connect to
+production after activation. The app checks the expected CoverageFit workspace
+before switching. Your preview and production credentials are stored separately.
+Use Find shared prospect with the existing prospect and opportunity you selected.
+Production analysis uses GPT-4.1 mini under the $5 local pilot usage budget.

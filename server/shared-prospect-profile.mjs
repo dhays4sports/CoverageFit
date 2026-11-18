@@ -1,3 +1,4 @@
+import { ownerWorkspaceActivation } from './shared-profile-owner-release.mjs';
 import {sharedWorkspaceEnvironment} from './shared-workspace-config.mjs';
 import {workspaceView,workspaceQueues} from './shared-workspace-service.mjs';
 import {materialEvidence} from '../shared/prospect-workspace.mjs';
@@ -59,7 +60,7 @@ export function sharedProfileService(repo){
   if(new TextEncoder().encode(JSON.stringify(items)).length>20000)fail(413,'items_size','Select fewer or shorter profile additions for one approval.');
   b.record={threadId:b.threadId,threadTitle:b.threadTitle,items,evidence:{messages,captures:captures.map(({base64,...c})=>c)},rights:{purpose:'producer_reviewed_insurance_work',transferable:false,contactAuthorityGranted:false}};if(new TextEncoder().encode(JSON.stringify(b.record)).length>900000)fail(413,'evidence_size','Selected source messages are too large for one shared update. Choose a smaller review.');return {b,captures};
  }
- async function commit(body){
+ async function commit(body,{ownerDigest}={}){
   const {b,captures}=await validate(body),fingerprint=await digest(JSON.stringify({...b,captures:captures.map(c=>c.sha256)}));
   const prior=await sql('SELECT fingerprint FROM cf_shared_profile_updates WHERE workspace_id=? AND request_id=?',workspace,b.requestId).first();
   if(prior){if(prior.fingerprint!==fingerprint)fail(409,'request_reused','This approval ID was already used for different content.');return {replayed:true,requestId:b.requestId,profile:await read(b.customerId,{opportunityId:b.opportunityId})};}
@@ -76,7 +77,9 @@ export function sharedProfileService(repo){
   const after={...profile,items:[...profile.items,...b.record.items.map(i=>({...i,id:`${b.requestId}:${i.id}`,requestId:b.requestId,opportunityId:b.opportunityId,approvedAt:at}))],tasks:[...profile.tasks,...taskRows]};
   const coveredRevision=await digest(JSON.stringify(materialEvidence(after,b.opportunityId)));for(const item of b.record.items)if(item.kind==='summary'||item.kind==='review'&&item.dimension==='draft_review')item.coveredEvidenceRevision=coveredRevision;
   const gate='EXISTS(SELECT 1 FROM cf_shared_profile_updates WHERE workspace_id=? AND request_id=? AND fingerprint=?)',g=[workspace,b.requestId,fingerprint];
-  const stmts=[sql(`INSERT OR IGNORE INTO cf_shared_profile_updates(workspace_id,request_id,customer_id,opportunity_id,fingerprint,record_json,created_at,actor_id) SELECT ?,?,?,?,?,?,?,? WHERE (${SNAPSHOT})=?`,workspace,b.requestId,b.customerId,b.opportunityId,fingerprint,JSON.stringify(b.record),at,scope.actor,workspace,b.customerId,raw)];
+  const activation=ownerDigest?' AND EXISTS (SELECT 1 FROM cf_prospect_desk_owner_access WHERE workspace_id=? AND enabled=1 AND desktop_sha256=?)':'';
+  const activationArgs=ownerDigest?[workspace,ownerDigest]:[];
+  const stmts=[sql(`INSERT OR IGNORE INTO cf_shared_profile_updates(workspace_id,request_id,customer_id,opportunity_id,fingerprint,record_json,created_at,actor_id) SELECT ?,?,?,?,?,?,?,? WHERE (${SNAPSHOT})=?${activation}`,workspace,b.requestId,b.customerId,b.opportunityId,fingerprint,JSON.stringify(b.record),at,scope.actor,workspace,b.customerId,raw,...activationArgs)];
   for(const c of captures)for(let offset=0,index=0;offset<c.base64.length;offset+=CHUNK,index++)stmts.push(sql(`INSERT OR IGNORE INTO cf_shared_profile_capture_chunks(workspace_id,request_id,capture_id,chunk_index,chunk_base64) SELECT ?,?,?,?,? WHERE ${gate}`,workspace,b.requestId,c.id,index,c.base64.slice(offset,offset+CHUNK),...g));
   const summary={threadId:b.threadId,threadTitle:b.threadTitle,requestId:b.requestId,itemCount:b.record.items.length,items:b.record.items,reviewedAt:at,contactAuthorityGranted:false};
   stmts.push(sql(`INSERT OR IGNORE INTO cf_solo_sources(workspace_id,kind,source_id,opportunity_id,summary_json,updated_at) SELECT ?,'desktop_review_v1',?,?,?,? WHERE ${gate}`,workspace,b.requestId,b.opportunityId,JSON.stringify(summary),at,...g));
@@ -95,15 +98,15 @@ export async function sharedEvidenceForOpportunity(repo,opportunityId){
 }
 async function boundedBody(request){const reader=request.body?.getReader();let size=0,text='';const decoder=new TextDecoder();if(!reader)fail(400,'json','An approved update is required.');while(true){const {value,done}=await reader.read();if(done)break;size+=value.byteLength;if(size>MAX_BODY){await reader.cancel();fail(413,'request_size','Selected evidence exceeds the shared update limit.');}text+=decoder.decode(value,{stream:true});}const body=safeParse(text+decoder.decode());if(!body)fail(400,'json','The update could not be read.');return body;}
 export async function handleSharedProfile(context){
- try{const env=sharedWorkspaceEnvironment(context.env||{});if(env.CF_SHARED_PROFILE_ENABLED!=='1')return response({ok:false,error:{code:'shared_profile_disabled',message:'Shared profiles are not activated on this server.'}},503);
+ try{const env=await ownerWorkspaceActivation(context.request,sharedWorkspaceEnvironment(context.env||{}));if(env.CF_SHARED_PROFILE_ENABLED!=='1')return response({ok:false,error:{code:'shared_profile_disabled',message:'Shared profiles are not activated on this server.'}},503);
  const expected=env.CF_SHARED_PROFILE_DESKTOP_TOKEN;const supplied=context.request.headers.get('authorization')?.replace(/^Bearer /,'')||'';
- if(typeof expected!=='string'||expected.length<32)fail(503,'auth_setup','Desktop profile access is not configured.');
- const a=await digest(expected),b=await digest(supplied);if(!(typeof crypto.subtle.timingSafeEqual==='function'?crypto.subtle.timingSafeEqual(new TextEncoder().encode(a),new TextEncoder().encode(b)):timingSafeTextEqual(a,b)))fail(401,'unauthorized','Desktop profile access was not accepted.');
+ if(!env.desktopDigest&&(typeof expected!=='string'||expected.length<32))fail(503,'auth_setup','Desktop profile access is not configured.');
+ const a=env.desktopDigest||await digest(expected),b=await digest(supplied);if(!(typeof crypto.subtle.timingSafeEqual==='function'?crypto.subtle.timingSafeEqual(new TextEncoder().encode(a),new TextEncoder().encode(b)):timingSafeTextEqual(a,b)))fail(401,'unauthorized','Desktop profile access was not accepted.');
  if(!env.COVERAGEFIT_DB)fail(503,'storage_unavailable','Shared profile storage is unavailable.');
  const repo=soloRepository(env.COVERAGEFIT_DB,identity(env)),service=sharedProfileService(repo),url=new URL(context.request.url),route=url.pathname.replace(/^\/api\/shared-profile\/?/,'').replace(/\/$/,'');
  if(context.request.headers.has('origin'))fail(403,'desktop_only','Use the desktop connector for this endpoint.');
  if(context.request.method==='GET'){if(!route)return response({ok:true,version:SHARED_PROFILE_VERSION,...await service.list(url.searchParams.get('q')||'',url.searchParams.get('after')||'')});if(route==='record')return response({ok:true,profile:await service.read(validId(url.searchParams.get('customerId'),'customer ID'),{opportunityId:url.searchParams.get('opportunityId')||null})});if(route==='queues')return response({ok:true,...await service.queues(url.searchParams)});if(route==='evidence')return response({ok:true,record:await service.evidence(validId(url.searchParams.get('customerId'),'customer ID'),validId(url.searchParams.get('requestId'),'request ID'))});}
- if(context.request.method==='POST'&&route==='approve'){if(!context.request.headers.get('content-type')?.includes('application/json'))fail(415,'content_type','A JSON update is required.');return response({ok:true,...await service.commit(await boundedBody(context.request))});}
+ if(context.request.method==='POST'&&route==='approve'){if(!context.request.headers.get('content-type')?.includes('application/json'))fail(415,'content_type','A JSON update is required.');return response({ok:true,...await service.commit(await boundedBody(context.request),{ownerDigest:env.desktopDigest})});}
  fail(404,'route','This shared-profile operation is unavailable.');
  }catch(e){if(/no such table/.test(e.message))return response({ok:false,error:{code:'setup_required',message:'The shared-profile migration has not been applied.'}},503);return response({ok:false,error:{code:e.code||'shared_profile_failed',message:e.status?e.message:'The shared profile operation failed. Your local draft is preserved.'}},e.status||500);}
 }

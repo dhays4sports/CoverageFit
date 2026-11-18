@@ -11,6 +11,18 @@ class Store {
   else this.data={version:1,prospects:[],threads:[],tasks:[],settings:{model:'gpt-4.1-mini'}};
   if(this.data.version!==1 || !['prospects','threads','tasks'].every(k=>Array.isArray(this.data[k]))) throw Error('Unsupported workspace.');
   for(const t of this.data.threads)for(const c of t.captures){if(!c.dataUrl&&c.imageFile){if(!/^[a-f0-9-]{36}\.image$/.test(c.imageFile))throw Error('Invalid evidence reference.');try{c.dataUrl=fs.readFileSync(path.join(this.imageDir,c.imageFile),'utf8');}catch{throw Error('An evidence file is missing. Restore your exported backup; the workspace was preserved.');}}}
+  // Saved approval envelopes refer to the same local immutable capture bytes.
+  // Rebuild omitted image values before checking the persisted payload hash.
+  for (const thread of this.data.threads) {
+   for (const review of thread.reviews) {
+    for (const pending of review.sharedAttempt?.payload?.evidence?.captures || []) {
+     if (!pending.dataUrl) {
+      const capture = thread.captures.find(item => item.id === pending.id);
+      if (capture?.dataUrl) pending.dataUrl = capture.dataUrl;
+     }
+    }
+   }
+  }
  }
  save() {for(const t of this.data.threads)for(const c of t.captures){if(c.dataUrl){c.imageFile=c.id+'.image';if(!/^[a-f0-9-]{36}\.image$/.test(c.imageFile))throw Error('Invalid evidence reference.');if(!fs.existsSync(path.join(this.imageDir,c.imageFile)))fs.writeFileSync(path.join(this.imageDir,c.imageFile),c.dataUrl,{mode:0o600});}}const tmp=this.file+'.tmp'; fs.writeFileSync(tmp,JSON.stringify(this.data,(key,value)=>key==='dataUrl'?undefined:value),{mode:0o600}); const fd=fs.openSync(tmp,'r+'); try{fs.fsyncSync(fd);}finally{fs.closeSync(fd);} if(fs.existsSync(this.file))fs.copyFileSync(this.file,this.file+'.bak'); fs.renameSync(tmp,this.file);}
  prospect(pid) {const p=this.data.prospects.find(p=>p.id===pid); if(!p) throw Error('Prospect not found.'); return p;}

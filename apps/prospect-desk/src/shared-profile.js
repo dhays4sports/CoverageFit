@@ -21,9 +21,9 @@ class SharedProfiles {
  return {payload,fingerprint};
  }
  async approve(store,tid,rid,edits){const t=store.thread(tid),p=store.prospect(t.prospectId),r=t.reviews.find(r=>r.id===rid);const attempt=this.prepare(store,tid,rid,edits);r.sharedAttempt=attempt;store.save();let result;
- try{result=await this.request('approve',attempt.payload);}catch(e){if(e.status>=400&&e.status<500&&e.status!==408&&e.code!=='request_reused'){delete r.sharedAttempt;store.save();}throw e;}
+ try{result=await this.request('approve',attempt.payload);}catch(e){if(['profile_changed','identity_changed','control_hold','evidence_target','example_readonly'].includes(e.code)){delete r.sharedAttempt;store.save();}throw e;}
  if(result.requestId!==rid||result.profile.customerId!==p.shared.customerId||result.profile.workspace!==p.shared.workspace)throw Error('The shared server returned a mismatched receipt. Keep this review and check the original connection.');
- r.status='approved';r.approvedAt=new Date().toISOString();r.approvedIds=edits.map(x=>x.id);r.sharedReceipt=result.requestId;store.save();this.apply(store,result.profile,p.shared.opportunityId);return store.snapshot();
+ r.status='approved';r.approvedAt=new Date().toISOString();r.approvedIds=edits.map(x=>x.id);r.sharedReceipt=result.requestId;store.save();this.apply(store,result.profile,attempt.payload.opportunityId);return store.snapshot();
  }
  async evidence(p,requestId){this.assertBound(p);const record=(await this.request('evidence?customerId='+encodeURIComponent(p.shared.customerId)+'&requestId='+encodeURIComponent(requestId))).record;if(!record?.evidence?.captures?.every(c=>/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(c.dataUrl)))throw Error('The shared server returned invalid source images.');return record;}
 }

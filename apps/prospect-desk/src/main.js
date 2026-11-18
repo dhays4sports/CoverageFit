@@ -1,11 +1,33 @@
 const {app,BrowserWindow,ipcMain,globalShortcut,desktopCapturer,screen,clipboard,dialog,safeStorage,Tray,Menu,nativeImage,net}=require('electron');
 const fs=require('node:fs'),path=require('node:path');
+const crypto = require('node:crypto');
+const { model: pilotModel, reservePilotRequest } = require('./pilot-budget');
+const ownerOrigin = 'https://coveragefit.com';
+const ownerWorkspace = 'virginia-tam:dylan-haysbert';
 const {Store,buildRequest,responseText}=require('./core');
 const {SharedProfiles,origin:profileOrigin}=require('./shared-profile');
 let win,tray,store,shared,quitting=false,capturing=false,captureSession=null,busy=new Set();
 const appDir=()=>app.getPath('userData');
 function key(){const file=path.join(appDir(),'credential.bin');if(!fs.existsSync(file))return process.env.OPENAI_API_KEY||'';if(!safeStorage.isEncryptionAvailable())throw Error('Windows credential encryption is unavailable.');return safeStorage.decryptString(fs.readFileSync(file));}
-function sharedConfig(){const origin=store.data.settings.profileOrigin||'';const file=path.join(appDir(),'profile-credential.bin');if(!origin||!fs.existsSync(file))return {origin,token:''};if(!safeStorage.isEncryptionAvailable())throw Error('Secure credential storage is unavailable.');const c=JSON.parse(safeStorage.decryptString(fs.readFileSync(file)));return {origin,token:c.origin===origin?c.token:''};}
+function sharedConfig(){const origin=store.data.settings.profileOrigin||'';const file=path.join(appDir(),origin===ownerOrigin?'owner-profile-credential.bin':'profile-credential.bin');if(!origin||!fs.existsSync(file))return {origin,token:''};if(!safeStorage.isEncryptionAvailable())throw Error('Secure credential storage is unavailable.');const c=JSON.parse(safeStorage.decryptString(fs.readFileSync(file)));return {origin,token:c.origin===origin?c.token:''};}
+function ownerCredential() {
+ const file = path.join(appDir(), 'owner-profile-credential.bin');
+ if (!safeStorage.isEncryptionAvailable()) throw Error('Secure Windows credential storage is unavailable.');
+ if (fs.existsSync(file)) return JSON.parse(safeStorage.decryptString(fs.readFileSync(file)));
+ const value = { origin: ownerOrigin, token: crypto.randomBytes(32).toString('hex') };
+ fs.writeFileSync(file, safeStorage.encryptString(JSON.stringify(value)), { mode: 0o600, flag: 'wx' });
+ return value;
+}
+
+async function connectOwnerWorkspace() {
+ const credential = ownerCredential();
+ const client = new SharedProfiles(() => credential, (...args) => net.fetch(...args));
+ const result = await client.search();
+ if (result.workspace !== ownerWorkspace) throw Error('CoverageFit returned an unexpected workspace.');
+ store.data.settings.profileOrigin = ownerOrigin;
+ store.save();
+ return status();
+}
 async function previewSignIn(value){
  const backend=profileOrigin(value);if(!new URL(backend).hostname.endsWith('.coveragefit.pages.dev'))throw Error('Preview sign-in requires your isolated CoverageFit Pages preview origin.');
  const signIn=new BrowserWindow({width:760,height:850,parent:win,webPreferences:{contextIsolation:true,nodeIntegration:false,sandbox:true}});signIn.setMenu(null);signIn.webContents.setWindowOpenHandler(()=>({action:'deny'}));
@@ -47,9 +69,14 @@ ipcMain.handle('capture-result',(event,rect)=>{
 async function analyze(tid,review){
  if(busy.has(tid))throw Error('This thread is already processing.');const apiKey=key();if(!apiKey)throw Error('Open Settings to connect your existing OpenAI key.');
  busy.add(tid);try{const t=store.thread(tid);if(t.reviews.some(r=>r.status==='pending'&&r.sharedAttempt))throw Error('Resolve the pending shared-profile approval before continuing this thread.');if(review&&!t.prospectId)throw Error('Choose a prospect before reviewing profile updates.');if(t.prospectId&&store.prospect(t.prospectId).shared)await shared.refresh(store,store.prospect(t.prospectId),t.sharedOpportunityId||null);if(review&&t.prospectId&&store.prospect(t.prospectId).shared&&!t.sharedOpportunityId)throw Error('Select the policy or opportunity this update belongs to in the shared profile panel.');if(t.sharedOpportunityId&&!store.prospect(t.prospectId).sharedContext.links.some(l=>l.opportunityId===t.sharedOpportunityId))throw Error('This thread’s opportunity link changed. Select the correct opportunity before continuing.');const payload=buildRequest(store,tid,review);
+ let settlePilotUsage;
+ if (sharedConfig().origin === ownerOrigin) {
+  payload.model = pilotModel;
+  settlePilotUsage = reservePilotRequest(appDir(), payload);
+ }
  const res=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{Authorization:`Bearer ${apiKey}`,'Content-Type':'application/json'},body:JSON.stringify(payload),signal:AbortSignal.timeout(120000),redirect:'error'});
  if(!res.ok){const messages={401:'Your OpenAI key was not accepted. Check Settings.',403:'Your OpenAI project does not have access.',429:'OpenAI usage or rate limit reached. Check your API billing or retry later.'};throw Error(messages[res.status]||`OpenAI request failed (${res.status}). Your inputs are saved. Check the model name and try again.`);}
- const body=await res.json(),answer=responseText(body);if(review){let parsed;try{parsed=JSON.parse(answer);}catch{throw Error('Could not read the proposed updates. Please retry.');}const reviewRecord=store.makeReview(tid,parsed.items);if(t.prospectId&&store.prospect(t.prospectId).shared){reviewRecord.sharedVersion=store.prospect(t.prospectId).shared.version;reviewRecord.sharedOpportunityId=t.sharedOpportunityId;store.save();}}else store.addMessage(tid,'assistant',answer);
+ const body=await res.json();settlePilotUsage?.(body.usage);const answer=responseText(body);if(review){let parsed;try{parsed=JSON.parse(answer);}catch{throw Error('Could not read the proposed updates. Please retry.');}const reviewRecord=store.makeReview(tid,parsed.items);if(t.prospectId&&store.prospect(t.prospectId).shared){reviewRecord.sharedVersion=store.prospect(t.prospectId).shared.version;reviewRecord.sharedOpportunityId=t.sharedOpportunityId;store.save();}}else store.addMessage(tid,'assistant',answer);
  return store.snapshot();
  }catch(e){if(e.name==='TimeoutError'||e.name==='AbortError')throw Error('Request timed out. Your screenshot and instruction are saved. Retry when ready.');throw e;}finally{busy.delete(tid);}
 }
@@ -79,8 +106,14 @@ ipcMain.handle('desk',async(event,action,a={})=>{
  case 'profileOpportunity':{if(busy.has(a.tid))throw Error('Wait for this thread to finish.');const t=store.thread(a.tid),p=store.prospect(t.prospectId);if(!p.shared||!p.sharedContext.links.some(l=>l.opportunityId===a.opportunityId))throw Error('Choose a valid linked opportunity.');await shared.refresh(store,p,a.opportunityId);store.invalidateReview(t);t.sharedOpportunityId=a.opportunityId;store.save();return store.snapshot();}
  case 'profileRefresh':{await shared.refresh(store,store.prospect(a.pid),a.opportunityId||null);return store.snapshot();}
  case 'profileEvidence':return shared.evidence(store.prospect(a.pid),a.requestId);
+ case 'copyOwnerFingerprint': {
+  const { token } = ownerCredential();
+  clipboard.writeText(crypto.createHash('sha256').update(token).digest('hex'));
+  return true;
+ }
+ case 'connectOwnerWorkspace': return connectOwnerWorkspace();
  case 'profileSignIn':return previewSignIn(a.origin);
- case 'profileSettings':{const origin=profileOrigin(a.origin);if(a.token){if(typeof a.token!=='string'||a.token.length<32||a.token.length>1000)throw Error('Enter the dedicated desktop-profile access token, not your producer or OpenAI key.');if(a.token.startsWith('sk-'))throw Error('Use the desktop-profile token, not an OpenAI key.');if(!safeStorage.isEncryptionAvailable())throw Error('Secure credential storage is unavailable.');fs.writeFileSync(path.join(appDir(),'profile-credential.bin'),safeStorage.encryptString(JSON.stringify({origin,token:a.token})),{mode:0o600});}store.data.settings.profileOrigin=origin;store.save();return status();}
+ case 'profileSettings':{const origin=profileOrigin(a.origin);if(origin===ownerOrigin)return connectOwnerWorkspace();if(a.token){if(typeof a.token!=='string'||a.token.length<32||a.token.length>1000)throw Error('Enter the dedicated desktop-profile access token, not your producer or OpenAI key.');if(a.token.startsWith('sk-'))throw Error('Use the desktop-profile token, not an OpenAI key.');if(!safeStorage.isEncryptionAvailable())throw Error('Secure credential storage is unavailable.');fs.writeFileSync(path.join(appDir(),'profile-credential.bin'),safeStorage.encryptString(JSON.stringify({origin,token:a.token})),{mode:0o600});}store.data.settings.profileOrigin=origin;store.save();return status();}
  case 'settings':{if(typeof a.model!=='string'||!/^[a-zA-Z0-9._:-]{1,100}$/.test(a.model))throw Error('Enter a valid model ID.');if(a.key){if(typeof a.key!=='string'||!a.key.startsWith('sk-')||a.key.length>1000)throw Error('Enter your existing OpenAI API key.');if(!safeStorage.isEncryptionAvailable())throw Error('Secure credential storage is unavailable. Key was not saved.');fs.writeFileSync(path.join(appDir(),'credential.bin'),safeStorage.encryptString(a.key),{mode:0o600});}store.data.settings.model=a.model;store.save();return status();}
  case 'export':{const out=await dialog.showSaveDialog(win,{defaultPath:'Prospect-Desk-backup.json',filters:[{name:'Workspace backup',extensions:['json']}]});if(out.canceled)return false;fs.writeFileSync(out.filePath,JSON.stringify(store.snapshot(),null,2));return true;}
  default:throw Error('Unknown action.');

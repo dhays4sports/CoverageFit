@@ -17,6 +17,7 @@ on:
       - 'server/solo-desk-api.mjs'
       - 'server/producer-workspace.mjs'
       - 'migrations/0020_cf_shared_profile.sql'
+      - 'migrations/0021_cf_prospect_desk_owner.sql'
       - 'assets/js/shared-profile-panel.mjs'
       - 'tests/shared-prospect-profile.test.mjs'
       - '.github/workflows/shared-profile-desktop.yml'
@@ -33,7 +34,7 @@ jobs:
           node-version: '24'
       - run: npm ci
         working-directory: apps/prospect-desk
-      - run: node --test tests/shared-prospect-profile.test.mjs tests/shared-workspace.test.mjs tests/shared-workspace-dom.test.mjs tests/shared-workspace-access.test.mjs tests/producer-workspace.test.mjs
+      - run: node --test tests/shared-prospect-profile.test.mjs tests/shared-workspace.test.mjs tests/shared-workspace-dom.test.mjs tests/shared-workspace-access.test.mjs tests/shared-workspace-owner-release.test.mjs tests/producer-workspace.test.mjs
       - run: npm test
         working-directory: apps/prospect-desk
   windows-package:
