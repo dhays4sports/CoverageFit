@@ -1,3 +1,4 @@
+import {evidenceReviewConfiguration} from './evidence-review-service.mjs';
 import {agencyZoomSmsEvidence} from './agencyzoom-sms-evidence.mjs';
 import {resourceEvidenceIntegrity} from './agencyzoom-resource-contract.mjs';
 import {projectAgencyZoomEvidence} from '../shared/agencyzoom-resource-evidence.mjs';
@@ -78,7 +79,7 @@ export function producerWorkspace(repo,env){
    const verifiedSources=[];let integrityHolds=0;for(const source of ss){if(source.kind==='agencyzoom_resource_v2'&&!await resourceEvidenceIntegrity(source.summary)){integrityHolds++;continue;}verifiedSources.push(source);}
    const agencyZoomEvidence={...projectAgencyZoomEvidence(verifiedSources,{customerId:data.customerProfile?.customer?.id,opportunityId:id,tasks:externalTasks}),integrityHolds};
    const importedSms=await agencyZoomSmsEvidence(repo,{customerId:data.customerProfile?.customer?.id,opportunityId:id,sources:ss});contactSafety.importedSmsHold=importedSms.held;contactSafety.importedHistoricalOptOut=importedSms.suppressionObserved;contactSafety.suppressed ||= importedSms.held;if(importedSms.held)data.nextBestAction=null;
-   return {...data,agencyZoomEvidence,importedSms,...(env.CF_SHARED_PROFILE_ENABLED==='1'?{sharedProfile:await sharedEvidenceForOpportunity(repo,id)}:{}),contactSafety,continuation:await continuation(id,ss,pop.population),population:pop,pilot:['DISTRICT_SIGNAL','DISTRICT_CONTROL'].includes(pop.population)?pilot:null,sms:state,sms_enabled:enabled(env)&&!importedSms.held};
+   return {...data,agencyZoomEvidence,importedSms,...(env.CF_SHARED_PROFILE_ENABLED==='1'?{sharedProfile:await sharedEvidenceForOpportunity(repo,id,{evidenceReview:evidenceReviewConfiguration(env)})}:{}),contactSafety,continuation:await continuation(id,ss,pop.population),population:pop,pilot:['DISTRICT_SIGNAL','DISTRICT_CONTROL'].includes(pop.population)?pilot:null,sms:state,sms_enabled:enabled(env)&&!importedSms.held};
   },
   async list(params){
    const selected=params.get('population')||'DISTRICT_SIGNAL';if(![...POPULATIONS,'ALL'].includes(selected))fail(422,'population','Select a work population.');

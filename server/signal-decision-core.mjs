@@ -9,6 +9,7 @@ const SIGNAL_FIELDS=new Set([
   'closingDate','propertyType','autoNeed','businessNeed','businessType','professionalProgram',
   'lifeCoverageStatus','lifeProtectionTrigger','lifeGoal'
 ]);
+export const SIGNAL_CANONICAL_FIELDS=Object.freeze([...SIGNAL_FIELDS]);
 const ATTRIBUTION_FIELDS=new Set([
   'source','sourceFamily','sourceKey','campaignId','campaignVariant','creative','partnerId','batchId',
   'utmSource','utmMedium','utmCampaign','utmContent','utmTerm','landingPage'

@@ -1,0 +1,591 @@
+{
+  "mandate": "CF-EVIDENCE-RECONCILIATION-SIGNAL-SHADOW-0.4",
+  "expectationsVersion": "CF-EVIDENCE-EVALUATION-0.4",
+  "evaluationClock": "2026-11-18T18:00:00.000Z",
+  "status": "PASS",
+  "caseCount": 24,
+  "passed": 24,
+  "totals": {
+    "duplicateItems": 0,
+    "missedIssues": 0,
+    "unnecessaryItems": 0,
+    "incorrectlyResolved": 0,
+    "staleConclusionsCurrent": 0,
+    "suppressionOrAuthorityViolations": 0,
+    "staleShadow": 0,
+    "unnecessaryItemsOnCleanRecords": 0
+  },
+  "networkAttempts": 0,
+  "outboundCommunications": 0,
+  "meaning": "Engineering scenario results only. No producer-time, conversion, sales-lift or production-readiness claim.",
+  "outcomes": [
+    {
+      "scenario": "clean_lead",
+      "expectedOpen": [],
+      "actualOpen": [],
+      "expectedProducerJudgments": 0,
+      "producerJudgments": 0,
+      "issueIds": [],
+      "states": [],
+      "shadowStatus": "COMPATIBLE",
+      "duplicateItems": 0,
+      "missedIssues": 0,
+      "unnecessaryItems": 0,
+      "incorrectlyResolved": 0,
+      "staleConclusionsCurrent": 0,
+      "suppressionOrAuthorityViolations": 0,
+      "staleShadow": 0,
+      "pass": true
+    },
+    {
+      "scenario": "clean_policy",
+      "expectedOpen": [],
+      "actualOpen": [],
+      "expectedProducerJudgments": 0,
+      "producerJudgments": 0,
+      "issueIds": [],
+      "states": [],
+      "shadowStatus": "COMPATIBLE",
+      "duplicateItems": 0,
+      "missedIssues": 0,
+      "unnecessaryItems": 0,
+      "incorrectlyResolved": 0,
+      "staleConclusionsCurrent": 0,
+      "suppressionOrAuthorityViolations": 0,
+      "staleShadow": 0,
+      "pass": true
+    },
+    {
+      "scenario": "clean_sms",
+      "expectedOpen": [],
+      "actualOpen": [],
+      "expectedProducerJudgments": 0,
+      "producerJudgments": 0,
+      "issueIds": [],
+      "states": [],
+      "shadowStatus": "COMPATIBLE",
+      "duplicateItems": 0,
+      "missedIssues": 0,
+      "unnecessaryItems": 0,
+      "incorrectlyResolved": 0,
+      "staleConclusionsCurrent": 0,
+      "suppressionOrAuthorityViolations": 0,
+      "staleShadow": 0,
+      "pass": true
+    },
+    {
+      "scenario": "settled_stop",
+      "expectedOpen": [],
+      "actualOpen": [],
+      "expectedProducerJudgments": 0,
+      "producerJudgments": 0,
+      "issueIds": [],
+      "states": [],
+      "shadowStatus": "HELD",
+      "duplicateItems": 0,
+      "missedIssues": 0,
+      "unnecessaryItems": 0,
+      "incorrectlyResolved": 0,
+      "staleConclusionsCurrent": 0,
+      "suppressionOrAuthorityViolations": 0,
+      "staleShadow": 0,
+      "pass": true
+    },
+    {
+      "scenario": "policy_conflict",
+      "expectedOpen": [
+        "policy_date"
+      ],
+      "actualOpen": [
+        "policy_date"
+      ],
+      "expectedProducerJudgments": 1,
+      "producerJudgments": 1,
+      "issueIds": [
+        "review_c6277169a795ae16046833cb01b1dc6467f7ca8f"
+      ],
+      "states": [
+        "open"
+      ],
+      "shadowStatus": "HELD",
+      "duplicateItems": 0,
+      "missedIssues": 0,
+      "unnecessaryItems": 0,
+      "incorrectlyResolved": 0,
+      "staleConclusionsCurrent": 0,
+      "suppressionOrAuthorityViolations": 0,
+      "staleShadow": 0,
+      "pass": true
+    },
+    {
+      "scenario": "policy_resolved",
+      "expectedOpen": [],
+      "actualOpen": [],
+      "expectedProducerJudgments": 0,
+      "producerJudgments": 0,
+      "issueIds": [
+        "review_c6277169a795ae16046833cb01b1dc6467f7ca8f"
+      ],
+      "states": [
+        "resolved"
+      ],
+      "shadowStatus": "COMPATIBLE",
+      "duplicateItems": 0,
+      "missedIssues": 0,
+      "unnecessaryItems": 0,
+      "incorrectlyResolved": 0,
+      "staleConclusionsCurrent": 0,
+      "suppressionOrAuthorityViolations": 0,
+      "staleShadow": 0,
+      "pass": true
+    },
+    {
+      "scenario": "policy_reopened",
+      "expectedOpen": [
+        "policy_date"
+      ],
+      "actualOpen": [
+        "policy_date"
+      ],
+      "expectedProducerJudgments": 1,
+      "producerJudgments": 1,
+      "issueIds": [
+        "review_c6277169a795ae16046833cb01b1dc6467f7ca8f"
+      ],
+      "states": [
+        "reopened"
+      ],
+      "shadowStatus": "HELD",
+      "duplicateItems": 0,
+      "missedIssues": 0,
+      "unnecessaryItems": 0,
+      "incorrectlyResolved": 0,
+      "staleConclusionsCurrent": 0,
+      "suppressionOrAuthorityViolations": 0,
+      "staleShadow": 0,
+      "pass": true
+    },
+    {
+      "scenario": "policy_term",
+      "expectedOpen": [
+        "policy_term"
+      ],
+      "actualOpen": [
+        "policy_term"
+      ],
+      "expectedProducerJudgments": 1,
+      "producerJudgments": 1,
+      "issueIds": [
+        "review_20994cf628aa18602a82d3072f444dbbf9130269"
+      ],
+      "states": [
+        "open"
+      ],
+      "shadowStatus": "HELD",
+      "duplicateItems": 0,
+      "missedIssues": 0,
+      "unnecessaryItems": 0,
+      "incorrectlyResolved": 0,
+      "staleConclusionsCurrent": 0,
+      "suppressionOrAuthorityViolations": 0,
+      "staleShadow": 0,
+      "pass": true
+    },
+    {
+      "scenario": "policy_integrity",
+      "expectedOpen": [
+        "source_integrity"
+      ],
+      "actualOpen": [
+        "source_integrity"
+      ],
+      "expectedProducerJudgments": 0,
+      "producerJudgments": 0,
+      "issueIds": [
+        "review_3722dc6e0d73133eb92eb1ac1a89e7b5fc52464b"
+      ],
+      "states": [
+        "open"
+      ],
+      "shadowStatus": "HELD",
+      "duplicateItems": 0,
+      "missedIssues": 0,
+      "unnecessaryItems": 0,
+      "incorrectlyResolved": 0,
+      "staleConclusionsCurrent": 0,
+      "suppressionOrAuthorityViolations": 0,
+      "staleShadow": 0,
+      "pass": true
+    },
+    {
+      "scenario": "sms_stale",
+      "expectedOpen": [
+        "stale_fact"
+      ],
+      "actualOpen": [
+        "stale_fact"
+      ],
+      "expectedProducerJudgments": 1,
+      "producerJudgments": 1,
+      "issueIds": [
+        "review_a359911643a022f619ccc5d25b696d9bf6388a85"
+      ],
+      "states": [
+        "reopened"
+      ],
+      "shadowStatus": "HELD",
+      "duplicateItems": 0,
+      "missedIssues": 0,
+      "unnecessaryItems": 0,
+      "incorrectlyResolved": 0,
+      "staleConclusionsCurrent": 0,
+      "suppressionOrAuthorityViolations": 0,
+      "staleShadow": 0,
+      "pass": true
+    },
+    {
+      "scenario": "sms_ownership",
+      "expectedOpen": [
+        "sms_ownership"
+      ],
+      "actualOpen": [
+        "sms_ownership"
+      ],
+      "expectedProducerJudgments": 0,
+      "producerJudgments": 0,
+      "issueIds": [
+        "review_09241f4a9f99e34776df90b0a48c0f8f3c78fb9c"
+      ],
+      "states": [
+        "open"
+      ],
+      "shadowStatus": "HELD",
+      "duplicateItems": 0,
+      "missedIssues": 0,
+      "unnecessaryItems": 0,
+      "incorrectlyResolved": 0,
+      "staleConclusionsCurrent": 0,
+      "suppressionOrAuthorityViolations": 0,
+      "staleShadow": 0,
+      "pass": true
+    },
+    {
+      "scenario": "sms_integrity",
+      "expectedOpen": [
+        "source_integrity"
+      ],
+      "actualOpen": [
+        "source_integrity"
+      ],
+      "expectedProducerJudgments": 0,
+      "producerJudgments": 0,
+      "issueIds": [
+        "review_6d9391c6f0eb640aa9339753519da4772133a5ad"
+      ],
+      "states": [
+        "open"
+      ],
+      "shadowStatus": "HELD",
+      "duplicateItems": 0,
+      "missedIssues": 0,
+      "unnecessaryItems": 0,
+      "incorrectlyResolved": 0,
+      "staleConclusionsCurrent": 0,
+      "suppressionOrAuthorityViolations": 0,
+      "staleShadow": 0,
+      "pass": true
+    },
+    {
+      "scenario": "sms_partial",
+      "expectedOpen": [
+        "sms_history"
+      ],
+      "actualOpen": [
+        "sms_history"
+      ],
+      "expectedProducerJudgments": 0,
+      "producerJudgments": 0,
+      "issueIds": [
+        "review_0c492d4a300e85e55fa228c4994af30ad36fe525"
+      ],
+      "states": [
+        "open"
+      ],
+      "shadowStatus": "HELD",
+      "duplicateItems": 0,
+      "missedIssues": 0,
+      "unnecessaryItems": 0,
+      "incorrectlyResolved": 0,
+      "staleConclusionsCurrent": 0,
+      "suppressionOrAuthorityViolations": 0,
+      "staleShadow": 0,
+      "pass": true
+    },
+    {
+      "scenario": "sms_missing_page",
+      "expectedOpen": [
+        "sms_history"
+      ],
+      "actualOpen": [
+        "sms_history"
+      ],
+      "expectedProducerJudgments": 0,
+      "producerJudgments": 0,
+      "issueIds": [
+        "review_0c492d4a300e85e55fa228c4994af30ad36fe525"
+      ],
+      "states": [
+        "open"
+      ],
+      "shadowStatus": "HELD",
+      "duplicateItems": 0,
+      "missedIssues": 0,
+      "unnecessaryItems": 0,
+      "incorrectlyResolved": 0,
+      "staleConclusionsCurrent": 0,
+      "suppressionOrAuthorityViolations": 0,
+      "staleShadow": 0,
+      "pass": true
+    },
+    {
+      "scenario": "sms_recovered",
+      "expectedOpen": [],
+      "actualOpen": [],
+      "expectedProducerJudgments": 0,
+      "producerJudgments": 0,
+      "issueIds": [
+        "review_0c492d4a300e85e55fa228c4994af30ad36fe525"
+      ],
+      "states": [
+        "resolved"
+      ],
+      "shadowStatus": "COMPATIBLE",
+      "duplicateItems": 0,
+      "missedIssues": 0,
+      "unnecessaryItems": 0,
+      "incorrectlyResolved": 0,
+      "staleConclusionsCurrent": 0,
+      "suppressionOrAuthorityViolations": 0,
+      "staleShadow": 0,
+      "pass": true
+    },
+    {
+      "scenario": "external_task_only",
+      "expectedOpen": [],
+      "actualOpen": [],
+      "expectedProducerJudgments": 0,
+      "producerJudgments": 0,
+      "issueIds": [],
+      "states": [],
+      "shadowStatus": "COMPATIBLE",
+      "duplicateItems": 0,
+      "missedIssues": 0,
+      "unnecessaryItems": 0,
+      "incorrectlyResolved": 0,
+      "staleConclusionsCurrent": 0,
+      "suppressionOrAuthorityViolations": 0,
+      "staleShadow": 0,
+      "pass": true
+    },
+    {
+      "scenario": "task_unlinked",
+      "expectedOpen": [
+        "task_relationship"
+      ],
+      "actualOpen": [
+        "task_relationship"
+      ],
+      "expectedProducerJudgments": 1,
+      "producerJudgments": 1,
+      "issueIds": [
+        "review_2c36f7c78f9a6c8c11ff407ebfb53f0b09ccf33e"
+      ],
+      "states": [
+        "open"
+      ],
+      "shadowStatus": "HELD",
+      "duplicateItems": 0,
+      "missedIssues": 0,
+      "unnecessaryItems": 0,
+      "incorrectlyResolved": 0,
+      "staleConclusionsCurrent": 0,
+      "suppressionOrAuthorityViolations": 0,
+      "staleShadow": 0,
+      "pass": true
+    },
+    {
+      "scenario": "task_linked",
+      "expectedOpen": [],
+      "actualOpen": [],
+      "expectedProducerJudgments": 0,
+      "producerJudgments": 0,
+      "issueIds": [
+        "review_2c36f7c78f9a6c8c11ff407ebfb53f0b09ccf33e"
+      ],
+      "states": [
+        "resolved"
+      ],
+      "shadowStatus": "COMPATIBLE",
+      "duplicateItems": 0,
+      "missedIssues": 0,
+      "unnecessaryItems": 0,
+      "incorrectlyResolved": 0,
+      "staleConclusionsCurrent": 0,
+      "suppressionOrAuthorityViolations": 0,
+      "staleShadow": 0,
+      "pass": true
+    },
+    {
+      "scenario": "task_state_conflict",
+      "expectedOpen": [
+        "task_state"
+      ],
+      "actualOpen": [
+        "task_state"
+      ],
+      "expectedProducerJudgments": 1,
+      "producerJudgments": 1,
+      "issueIds": [
+        "review_c5ee1c8034fbf3bde97681d6f261c9cdd88fd5c6"
+      ],
+      "states": [
+        "open"
+      ],
+      "shadowStatus": "HELD",
+      "duplicateItems": 0,
+      "missedIssues": 0,
+      "unnecessaryItems": 0,
+      "incorrectlyResolved": 0,
+      "staleConclusionsCurrent": 0,
+      "suppressionOrAuthorityViolations": 0,
+      "staleShadow": 0,
+      "pass": true
+    },
+    {
+      "scenario": "task_state_acknowledged",
+      "expectedOpen": [],
+      "actualOpen": [],
+      "expectedProducerJudgments": 0,
+      "producerJudgments": 0,
+      "issueIds": [
+        "review_c5ee1c8034fbf3bde97681d6f261c9cdd88fd5c6"
+      ],
+      "states": [
+        "resolved"
+      ],
+      "shadowStatus": "COMPATIBLE",
+      "duplicateItems": 0,
+      "missedIssues": 0,
+      "unnecessaryItems": 0,
+      "incorrectlyResolved": 0,
+      "staleConclusionsCurrent": 0,
+      "suppressionOrAuthorityViolations": 0,
+      "staleShadow": 0,
+      "pass": true
+    },
+    {
+      "scenario": "task_state_reopened",
+      "expectedOpen": [
+        "task_state"
+      ],
+      "actualOpen": [
+        "task_state"
+      ],
+      "expectedProducerJudgments": 1,
+      "producerJudgments": 1,
+      "issueIds": [
+        "review_c5ee1c8034fbf3bde97681d6f261c9cdd88fd5c6"
+      ],
+      "states": [
+        "reopened"
+      ],
+      "shadowStatus": "HELD",
+      "duplicateItems": 0,
+      "missedIssues": 0,
+      "unnecessaryItems": 0,
+      "incorrectlyResolved": 0,
+      "staleConclusionsCurrent": 0,
+      "suppressionOrAuthorityViolations": 0,
+      "staleShadow": 0,
+      "pass": true
+    },
+    {
+      "scenario": "capacity_near",
+      "expectedOpen": [
+        "archive_capacity"
+      ],
+      "actualOpen": [
+        "archive_capacity"
+      ],
+      "expectedProducerJudgments": 1,
+      "producerJudgments": 1,
+      "issueIds": [
+        "review_5decf2a844624edc561db9acf2e27d174cd84f5e"
+      ],
+      "states": [
+        "open"
+      ],
+      "shadowStatus": "COMPATIBLE",
+      "duplicateItems": 0,
+      "missedIssues": 0,
+      "unnecessaryItems": 0,
+      "incorrectlyResolved": 0,
+      "staleConclusionsCurrent": 0,
+      "suppressionOrAuthorityViolations": 0,
+      "staleShadow": 0,
+      "pass": true
+    },
+    {
+      "scenario": "capacity_limit",
+      "expectedOpen": [
+        "archive_capacity"
+      ],
+      "actualOpen": [
+        "archive_capacity"
+      ],
+      "expectedProducerJudgments": 1,
+      "producerJudgments": 1,
+      "issueIds": [
+        "review_5decf2a844624edc561db9acf2e27d174cd84f5e"
+      ],
+      "states": [
+        "open"
+      ],
+      "shadowStatus": "HELD",
+      "duplicateItems": 0,
+      "missedIssues": 0,
+      "unnecessaryItems": 0,
+      "incorrectlyResolved": 0,
+      "staleConclusionsCurrent": 0,
+      "suppressionOrAuthorityViolations": 0,
+      "staleShadow": 0,
+      "pass": true
+    },
+    {
+      "scenario": "sms_identity",
+      "expectedOpen": [
+        "source_identity"
+      ],
+      "actualOpen": [
+        "source_identity"
+      ],
+      "expectedProducerJudgments": 0,
+      "producerJudgments": 0,
+      "issueIds": [
+        "review_80a79d5f59ad474a96ce743d7050b9e7abfd4d1e"
+      ],
+      "states": [
+        "open"
+      ],
+      "shadowStatus": "HELD",
+      "duplicateItems": 0,
+      "missedIssues": 0,
+      "unnecessaryItems": 0,
+      "incorrectlyResolved": 0,
+      "staleConclusionsCurrent": 0,
+      "suppressionOrAuthorityViolations": 0,
+      "staleShadow": 0,
+      "pass": true
+    }
+  ]
+}

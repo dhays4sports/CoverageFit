@@ -1,3 +1,4 @@
+import {reviewLedger,REVIEW_SCHEMA} from './evidence-review-ledger.mjs';
 import {smsOfflineStore,SMS_ARCHIVE_SCHEMA} from './agencyzoom-sms-store.mjs';
 // Node-only isolated synthetic repository. Never imported by a route or Worker.
 import {DatabaseSync} from 'node:sqlite';
@@ -22,6 +23,7 @@ export function openAgencyZoomSyntheticStore(path, config, {create=false}={}) {
       CREATE TABLE az_read_heads (lead_id TEXT PRIMARY KEY, revision TEXT NOT NULL, updated_at TEXT NOT NULL, digest TEXT NOT NULL);
       CREATE TABLE az_read_audit (sequence INTEGER PRIMARY KEY, code TEXT NOT NULL, occurred_at TEXT NOT NULL);`);
     db.exec(SMS_ARCHIVE_SCHEMA);
+    db.exec(REVIEW_SCHEMA);
     run('INSERT INTO az_synthetic_scope VALUES(1,?,?,?)',config.workspace,config.agencyId,config.databaseId);
   }
   const scope = Object.freeze({...config});
@@ -89,7 +91,7 @@ export function openAgencyZoomSyntheticStore(path, config, {create=false}={}) {
   }); }
   function complete(expected,value,stream=AZ_KIND) { verify(scope); transaction(()=> {
     if (checkpoint(stream)!==expected) reject('checkpoint_conflict');
-    run("INSERT INTO cf_solo_sync VALUES(?,?,?) ON CONFLICT(workspace_id,stream) DO UPDATE SET cursor_json=excluded.cursor_json",w,stream,JSON.stringify(value)); audit('scan_complete');
+    run("INSERT INTO cf_solo_sync VALUES(?,?,?) ON CONFLICT(workspace_id,stream) DO UPDATE SET cursor_json=excluded.cursor_json",w,stream,JSON.stringify(value)); audit('scan_complete');ledger.recordScan(stream);
   }); }
   function resourceKey(r){return JSON.stringify(['resource-v2',r.kind,r.id]);}
   function resourceIdentity(r){
@@ -141,6 +143,7 @@ export function openAgencyZoomSyntheticStore(path, config, {create=false}={}) {
   });}
   // Compatibility wrapper for existing CoverageFit Work/UCP/Prospect 360 reads.
   const repositoryDb={prepare(q){let values=[]; return {bind(...v){values=v;return this;},async first(){return get(q,...values)||null;},async all(){return {results:db.prepare(q).all(...values)};},async run(){return {meta:run(q,...values)};}};},async batch(statements){db.exec('BEGIN');try{const results=[];for(const statement of statements)results.push(await statement.run());db.exec('COMMIT');return results;}catch(e){db.exec('ROLLBACK');throw e;}}};
+  const ledger=reviewLedger({get,run,verify,scope,mapped,hash,now});
   const sms=smsOfflineStore({get,run,all:(q,...v)=>db.prepare(q).all(...v),transaction,verify,scope,resourceIdentity,register,id,hash,audit,now});
-  return {...sms,verify,checkpoint,accept,acceptResource,reconcile,reconcileExternalTask,complete,audit,repositoryDb,close:()=>db.close()};
+  return {...sms,recordSyncFailure:ledger.recordSyncFailure,verify,checkpoint,accept,acceptResource,reconcile,reconcileExternalTask,complete,audit,repositoryDb,close:()=>db.close()};
 }
