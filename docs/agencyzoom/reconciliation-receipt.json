@@ -11,8 +11,8 @@
   "remainingOpenIssues": 0,
   "resolvedIssues": 2,
   "decisionRequestIds": [
-    "81eedac3-ce53-4bdf-b438-9d1f51a76cfd",
-    "8be35735-aa0d-4675-a119-f7484f493945"
+    "ad5a1db0-d448-480f-9276-93fe26d2638e",
+    "398c0799-c833-48a1-98b8-da43878cc904"
   ],
   "decisionReplay": true,
   "decisionRecords": 2,
@@ -24,7 +24,7 @@
     "engine": "CF-SIGNAL-DECISION-1.0",
     "decisionCode": "ASK_ONE_SIGNAL",
     "missingDimension": "product",
-    "evidenceRevision": "959d9fa7f71d6741da18d32fcdaa894aebb31853f4a0418e322309e68076f3d7",
+    "evidenceRevision": "e991ca723b0144943ffa2ae4b57bcc622291bcbcad63e273fcd6b47d4b1421b5",
     "executionAllowed": false,
     "contactAuthorityGranted": false,
     "activeRecommendationReplaced": false

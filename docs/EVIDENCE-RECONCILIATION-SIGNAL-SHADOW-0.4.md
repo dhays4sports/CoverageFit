@@ -45,7 +45,7 @@ The existing future-agency workspace, scoped authorization, synthetic agency/dat
 
 Existing originals and page/revision records remain in the connector's isolated evidence archive, not an operational messaging database. Capacity reports include message heads, retained revisions, original bytes and page records; warn at 80%, identify the exact thread at a hard limit and retain failed-ingestion receipts without message bodies or secrets. Resource summaries retain their 7,800-byte budget. Existing per-thread bounds remain 200 message identities, 400 revisions, 1 MiB originals and 64 page records. Inspection is bounded to nine thread records, 100 failure records and 100 local-task candidates, with visible incomplete coverage; unassigned failures show 25 plus overflow counts.
 
-The demonstrated supported recovery is replaying an interrupted/missing requested page with exact original identity/revision, then completing a verified scan. This resolves the history issue without discarding originals. Reaching archive capacity stops safely; this phase does not pretend that retrying can manufacture space. No deletion, compaction, removal of referenced originals or automatic bound increase exists. Larger archives need a separately tested storage/migration plan, integrity-checked export/import and reference-preservation criteria. Source-reported completeness, ingested range and actual historical coverage remain distinct. Unavailable/integrity-failed originals cannot support current reviewed conclusions.
+The demonstrated supported recovery is replaying an interrupted/missing requested page with exact original identity/revision, then completing a verified scan of the exact failed thread revision. A later unrelated successful scan cannot certify recovery. This resolves the history issue without discarding originals. Reaching archive capacity stops safely; this phase does not pretend that retrying can manufacture space. No deletion, compaction, removal of referenced originals or automatic bound increase exists. Larger archives need a separately tested storage/migration plan, integrity-checked export/import and reference-preservation criteria. Source-reported completeness, ingested range and actual historical coverage remain distinct. Unavailable/integrity-failed originals cannot support current reviewed conclusions.
 
 ## SIGNAL compatibility boundary
 
@@ -58,8 +58,8 @@ The observation exposes the existing decision code, missing dimension, accepted/
 | Verification | Result |
 |---|---|
 | Fresh prerequisite local baseline | 551/551 root; 24/24 desktop |
-| Final implementation local regression | 595/595 root; 24/24 desktop |
-| New reconciliation coverage | 44 tests including 24 declared scenarios |
+| Final implementation local regression | 596/596 root; 24/24 desktop |
+| New reconciliation coverage | 45 tests including 24 declared scenarios |
 | Fixed synthetic evaluation | 24/24 PASS |
 | Duplicate/unnecessary/missed issues | 0 / 0 / 0 |
 | Incorrect resolutions / stale-current conclusions | 0 / 0 |
