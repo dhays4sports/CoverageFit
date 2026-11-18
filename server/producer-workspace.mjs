@@ -1,3 +1,5 @@
+import {resourceEvidenceIntegrity} from './agencyzoom-resource-contract.mjs';
+import {projectAgencyZoomEvidence} from '../shared/agencyzoom-resource-evidence.mjs';
 import {sharedEvidenceForOpportunity} from './shared-prospect-profile.mjs';
 import {resolveSmsOwnership,ownershipLabel} from './sms-ownership.mjs';
 import {templatesFor} from './sms-template-registry.mjs';
@@ -71,7 +73,10 @@ export function producerWorkspace(repo,env){
    if(['DISTRICT_CONTROL','OTHER'].includes(pop.population)){data.opportunityPriority=null;data.possessionQuality=null;data.nextBestAction=null;}
    const webCid=pop.population==='WEB_DIRECT'?ss.find(s=>s.kind==='lead'&&s.summary?.context?.distribution?.phase==='producer_handoff')?.summary.context.distribution.conversation_id:null;
    const linkedCid=pilot?.conversation_id||webCid;const linked=linkedCid?await store.get('sms-live-conversations/'+linkedCid):null;const contactSafety={suppressed:!!(linked?.smsConsent?.status==='opted_out'||linked?.signal?.contact_suppressed||linked?.signal?.decision_2==='STOP')};
-   return {...data,...(env.CF_SHARED_PROFILE_ENABLED==='1'?{sharedProfile:await sharedEvidenceForOpportunity(repo,id)}:{}),contactSafety,continuation:await continuation(id,ss,pop.population),population:pop,pilot:['DISTRICT_SIGNAL','DISTRICT_CONTROL'].includes(pop.population)?pilot:null,sms:state,sms_enabled:enabled(env)};
+   const externalTasks=ss.some(s=>s.kind==='agencyzoom_resource_v2')?await repo.rows('SELECT * FROM cf_solo_tasks WHERE workspace_id=? AND opportunity_id=?',w,id):[];
+   const verifiedSources=[];let integrityHolds=0;for(const source of ss){if(source.kind==='agencyzoom_resource_v2'&&!await resourceEvidenceIntegrity(source.summary)){integrityHolds++;continue;}verifiedSources.push(source);}
+   const agencyZoomEvidence={...projectAgencyZoomEvidence(verifiedSources,{customerId:data.customerProfile?.customer?.id,opportunityId:id,tasks:externalTasks}),integrityHolds};
+   return {...data,agencyZoomEvidence,...(env.CF_SHARED_PROFILE_ENABLED==='1'?{sharedProfile:await sharedEvidenceForOpportunity(repo,id)}:{}),contactSafety,continuation:await continuation(id,ss,pop.population),population:pop,pilot:['DISTRICT_SIGNAL','DISTRICT_CONTROL'].includes(pop.population)?pilot:null,sms:state,sms_enabled:enabled(env)};
   },
   async list(params){
    const selected=params.get('population')||'DISTRICT_SIGNAL';if(![...POPULATIONS,'ALL'].includes(selected))fail(422,'population','Select a work population.');

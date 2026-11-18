@@ -2,13 +2,18 @@ name: AgencyZoom offline synthetic foundation
 on:
   pull_request:
     paths:
-      - 'server/agencyzoom-connector.mjs'
+      - 'server/agencyzoom-*.mjs'
+      - 'server/shared-prospect-profile.mjs'
+      - 'server/producer-workspace.mjs'
+      - 'shared/agencyzoom-*.mjs'
+      - 'shared/prospect-workspace.mjs'
       - 'scripts/lib/agencyzoom-offline-store.mjs'
-      - 'scripts/agencyzoom-synthetic-demo.mjs'
-      - 'assets/js/agencyzoom-evidence.mjs'
+      - 'scripts/agencyzoom-*.mjs'
+      - 'assets/js/agencyzoom-*.mjs'
       - 'assets/js/shared-workspace-panel.mjs'
       - 'assets/js/producer-workspace.mjs'
-      - 'tests/agencyzoom-connector.test.mjs'
+      - 'tests/agencyzoom-*.test.mjs'
+      - 'tests/helpers/agencyzoom-fixture.mjs'
       - 'tests/fixtures/agencyzoom/**'
       - '.github/workflows/agencyzoom-offline.yml'
   workflow_dispatch:
@@ -22,8 +27,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - run: node --test tests/agencyzoom-connector.test.mjs tests/shared-prospect-profile.test.mjs tests/shared-workspace.test.mjs tests/producer-workspace.test.mjs
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+        working-directory: apps/prospect-desk
+      - run: node --test tests/*.test.mjs
+      - run: npm test
+        working-directory: apps/prospect-desk
       - run: node scripts/agencyzoom-synthetic-demo.mjs
+      - run: node scripts/agencyzoom-task-renewal-demo.mjs
       - uses: actions/upload-artifact@v4
         with:
           name: AgencyZoom-synthetic-acceptance

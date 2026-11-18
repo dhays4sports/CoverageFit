@@ -1,0 +1,49 @@
+{
+  "agencyId": "synthetic-dylan",
+  "synthetic": true,
+  "revision": "r1",
+  "customerId": "customer-1",
+  "leadId": "lead-1",
+  "anchorOpportunityId": "op-home",
+  "opportunityId": "op-home",
+  "createdAt": "2026-11-18T10:00:00.000Z",
+  "updatedAt": "2026-11-18T10:00:00.000Z",
+  "availability": "present",
+  "historyComplete": true,
+  "kind": "policy",
+  "id": "policy-home",
+  "carrier": "Fictional Mutual",
+  "product": "Home",
+  "status": "active",
+  "termId": "term-2026",
+  "effectiveDate": "2026-03-01",
+  "expirationDate": "2027-03-01",
+  "renewalEffectiveDate": "2027-03-01",
+  "replacesPolicyId": null,
+  "dates": [
+    {
+      "id": "renewal-letter",
+      "field": "expiration",
+      "value": "2027-04-01",
+      "sourceId": "document-1",
+      "sourceRevision": "doc-r1",
+      "observedAt": "2026-11-18T10:00:00.000Z"
+    },
+    {
+      "id": "review-date",
+      "field": "producer_review",
+      "value": "2027-02-01",
+      "sourceId": "producer-note",
+      "sourceRevision": "note-r1",
+      "observedAt": "2026-11-18T10:00:00.000Z"
+    },
+    {
+      "id": "callback",
+      "field": "prospect_callback",
+      "value": "2026-11-19T17:00:00.000-08:00",
+      "sourceId": "callback-note",
+      "sourceRevision": "callback-r1",
+      "observedAt": "2026-11-18T10:00:00.000Z"
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+import {projectAgencyZoomEvidence} from './agencyzoom-resource-evidence.mjs';
 // Read-only UI projection of the existing shared profile. No scheduler, CRM or
 // recommendation engine lives here. Unknown state stays unknown.
 export const WORKSPACE_BUILD='CF-SHARED-PROSPECT-WORKSPACE-1';
@@ -46,9 +47,10 @@ export function projectWorkspace(profile,opportunityId,{evidenceRevision=null,as
  if(governed?.status==='CURRENT'&&governed.action?.label)nextAction={...nextAction,status:'current',label:governed.action.label,reason:governed.why_now?.text||'',code:governed.action.code};
  if(safety.suppressed||safety.control)nextAction={...nextAction,status:'held',label:safety.suppressed?'Contact suppressed — review only':'CONTROL — follow existing agency workflow',reason:'Profile evidence does not remove this hold.'};
  return {build:WORKSPACE_BUILD,status:'ready',customerId:profile.customerId,opportunityId,householdId:linked.householdId,productLine:linked.products||'Not recorded',asOf,evidenceRevision,profileVersion:profile.version,
-  coverage:{complete:!profile.historyLimited&&!profile.context?.sourceDetailsTruncated,historyLimited:!!profile.historyLimited,sourceDetailsTruncated:!!profile.context?.sourceDetailsTruncated},
+  coverage:{complete:!profile.historyLimited&&!profile.context?.sourceDetailsTruncated&&!profile.context?.externalRelationshipHold&&!profile.context?.externalIntegrityHold&&!(profile.context?.sources||[]).some(s=>s.kind==='agencyzoom_resource_v2'&&s.summary?.inventoryComplete!==true),historyLimited:!!profile.historyLimited,sourceDetailsTruncated:!!profile.context?.sourceDetailsTruncated},
   summary,nextAction,readiness:{state:readinessState,evidence:readiness,gaps,nextQuestion:gaps[0]?.value||null,eligibilityAssessed:false},
   facts:{current: facts.filter(i=>i.factKey&&i.dimensions.verification==='verified'&&i.dimensions.freshness==='current'),uncertain:facts.filter(i=>!i.factKey||i.dimensions.verification!=='verified'||i.dimensions.freshness!=='current'),reconciledBy:'explicit_fact_key_and_supersession_only'},
   commitments,transcript:{state:transcript?.transcriptState|| (transcript?'unverified':'missing'),latest:transcript},handoffs,drafts,records,history,
+  agencyZoom:projectAgencyZoomEvidence(profile.context?.sources,{customerId:profile.customerId,opportunityId,tasks:profile.tasks,records,asOf}),
   counts:{openCommitments:commitments.filter(i=>!['completed','cancelled'].includes(i.dimensions.taskState)).length,readinessGaps:gaps.length,draftsNeedingReview:drafts.filter(i=>['awaiting_review','needs_review'].includes(i.dimensions.draftReview)).length,unresolvedHandoffs:handoffs.length}};
 }
