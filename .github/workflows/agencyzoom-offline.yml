@@ -4,15 +4,24 @@ on:
     paths:
       - 'server/agencyzoom-*.mjs'
       - 'server/shared-prospect-profile.mjs'
+      - 'server/evidence-review-service.mjs'
+      - 'server/shared-workspace-service.mjs'
+      - 'server/signal-decision-core.mjs'
+      - 'server/solo-desk-api.mjs'
       - 'server/producer-workspace.mjs'
       - 'shared/agencyzoom-*.mjs'
       - 'shared/prospect-workspace.mjs'
       - 'scripts/lib/agencyzoom-*.mjs'
+      - 'scripts/lib/evidence-review-ledger.mjs'
+      - 'scripts/evidence-review-demo.mjs'
       - 'scripts/agencyzoom-*.mjs'
       - 'assets/js/agencyzoom-*.mjs'
       - 'assets/js/shared-workspace-panel.mjs'
+      - 'assets/js/evidence-review-panel.mjs'
       - 'assets/js/producer-workspace.mjs'
       - 'tests/agencyzoom-*.test.mjs'
+      - 'tests/evidence-reconciliation.test.mjs'
+      - 'tests/helpers/evidence-review-fixture.mjs'
       - 'tests/helpers/agencyzoom-fixture.mjs'
       - 'tests/fixtures/agencyzoom/**'
       - '.github/workflows/agencyzoom-offline.yml'
@@ -35,6 +44,7 @@ jobs:
       - run: node scripts/agencyzoom-synthetic-demo.mjs
       - run: node scripts/agencyzoom-task-renewal-demo.mjs
       - run: node scripts/agencyzoom-sms-demo.mjs
+      - run: node scripts/evidence-review-demo.mjs
       - uses: actions/upload-artifact@v4
         with:
           name: AgencyZoom-synthetic-acceptance

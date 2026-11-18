@@ -58,6 +58,6 @@ export function smsOfflineStore({get,run,all,transaction,verify,scope,resourceId
   run('INSERT INTO cf_solo_sources(workspace_id,kind,source_id,opportunity_id,summary_json,updated_at) VALUES(?,?,?,?,?,?) ON CONFLICT(workspace_id,kind,source_id) DO UPDATE SET summary_json=excluded.summary_json,updated_at=excluded.updated_at',w,AZ_SMS_KIND,sourceId,oid,JSON.stringify(summary),summary.synchronizedAt);
   run('UPDATE cf_solo_opportunities SET edit_version=edit_version+1,updated_at=? WHERE workspace_id=? AND id=?',now(),w,oid);audit('sms_page_accepted');return 1;
  });}
- function verifySmsPages(touched){verify(scope);archiveAvailable();for(const [thread,revision] of touched){const pages=all('SELECT page_index,page_count FROM az_sms_pages WHERE thread_id=? AND revision=? ORDER BY page_index',thread,revision);if(!pages.length||pages.length!==pages[0].page_count||pages.some((p,i)=>p.page_index!==i))reject('incomplete_history');}}
+ function verifySmsPages(touched){verify(scope);archiveAvailable();for(const [thread,revision] of touched){const pages=all('SELECT page_index,page_count FROM az_sms_pages WHERE thread_id=? AND revision=? ORDER BY page_index',thread,revision);if(!pages.length||pages.length!==pages[0].page_count||pages.some((p,i)=>p.page_index!==i)){try{reject('incomplete_history');}catch(e){throw Object.assign(e,{entityId:thread,sourceRevision:revision});}}}}
  return {acceptSmsPage,verifySmsPages};
 }

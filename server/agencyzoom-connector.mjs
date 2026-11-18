@@ -51,13 +51,13 @@ async function synchronize({config = {}, principal, store, transport, sleep = ms
   if (!Number.isInteger(pageLimit) || pageLimit < 1 || pageLimit > 10) reject('page_bound');
   store.verify(config); // actual database marker must match all configured identities
   const stream=type==='sms'?AZ_SMS_KIND:type==='resource'?AZ_RESOURCE_KIND:AZ_KIND;
-  const touched=[];
+  const touched=[];let currentRecord=null;
   const checkpoint = store.checkpoint(stream);
   const run = {page:0,since:checkpoint ? new Date(Date.parse(checkpoint)-300000).toISOString() : null};
   let watermark = checkpoint, processed = 0, changed = 0;
   try {
     for (; run.page < pageLimit; run.page++) {
-      let page;
+      let page;currentRecord=null;
       for (let attempt=0; ; attempt++) {
         try { page = await transport[type==='sms'?'readSms':type==='resource'?'readResources':'readLeads']({agencyId:config.agencyId,...run,pageSize:100}); break; }
         catch (e) {
@@ -70,13 +70,13 @@ async function synchronize({config = {}, principal, store, transport, sleep = ms
       if (page.agencyId !== config.agencyId || typeof page.hasMore !== 'boolean' || !Array.isArray(page.records) || page.records.length > 100) reject('malformed_page');
       // Validate the entire page before accepting its first record.
       const records = page.records.map(v=>(type==='sms'?normalizeAgencyZoomSms:type==='resource'?normalizeAgencyZoomResource:normalizeLead)(v, config.agencyId));
-      for (const lead of records) { changed += type==='sms'?store.acceptSmsPage(lead):type==='resource'?store.acceptResource(lead):store.accept(lead);if(type==='sms')touched.push([lead.id,lead.revision]); processed++; if (!watermark || Date.parse(lead.updatedAt) > Date.parse(watermark)) watermark=new Date(lead.updatedAt).toISOString(); }
+      for (const lead of records) { currentRecord=lead;changed += type==='sms'?store.acceptSmsPage(lead):type==='resource'?store.acceptResource(lead):store.accept(lead);if(type==='sms')touched.push([lead.id,lead.revision]); processed++; if (!watermark || Date.parse(lead.updatedAt) > Date.parse(watermark)) watermark=new Date(lead.updatedAt).toISOString(); }
       if (!page.hasMore) { if(type==='sms')store.verifySmsPages(touched);store.complete(checkpoint,watermark,stream); return {status:'complete',processed,changed,checkpoint:watermark,outboundCommunications:0}; }
     }
     // Never advance on truncation. Restart from page zero with overlap and durable dedupe.
     reject('page_bound');
   } catch (e) {
     const allowed = new Set(['authentication_failed','rate_limited','transport_failed','malformed_page','unsupported_fields','agency_scope','malformed_field','malformed_id','malformed_timestamp','record_bound','ambiguous_identity','malformed_task','missing_opportunity','identity_conflict','reconciliation_required','revision_conflict','stale_revision','checkpoint_conflict','evidence_integrity','malformed_date','unsupported_resource','incomplete_resource','malformed_policy','invalid_term','malformed_date_kind','malformed_sms','sensitive_message','sms_setup_required','unmarked_edit','archive_bound','incomplete_history','page_bound']);
-    const code = allowed.has(e.code) ? e.code : 'sync_failed'; store.audit(code); reject(code);
+    const code = allowed.has(e.code) ? e.code : 'sync_failed'; store.audit(code);store.recordSyncFailure?.({stream,record:currentRecord,error:e,code}); reject(code);
   }
 }

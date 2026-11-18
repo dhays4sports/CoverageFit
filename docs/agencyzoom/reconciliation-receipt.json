@@ -1,0 +1,37 @@
+{
+  "mandate": "CF-EVIDENCE-RECONCILIATION-SIGNAL-SHADOW-0.4",
+  "status": "PASS_OFFLINE_SYNTHETIC",
+  "canonicalCustomer": "az_customer_072dee82fd5930bf3d50cd1b2f1e30da1d6837ac",
+  "opportunity": "az_opportunity_16c9b01f10fdd9aac62d675a916aea2e4c6f5680",
+  "initialIssueIds": [
+    "review_c6277169a795ae16046833cb01b1dc6467f7ca8f",
+    "review_2c36f7c78f9a6c8c11ff407ebfb53f0b09ccf33e"
+  ],
+  "initialProducerJudgments": 2,
+  "remainingOpenIssues": 0,
+  "resolvedIssues": 2,
+  "decisionRequestIds": [
+    "ad5a1db0-d448-480f-9276-93fe26d2638e",
+    "398c0799-c833-48a1-98b8-da43878cc904"
+  ],
+  "decisionReplay": true,
+  "decisionRecords": 2,
+  "localTaskCount": 1,
+  "localTaskState": "open",
+  "shadow": {
+    "mode": "SHADOW",
+    "status": "COMPATIBLE",
+    "engine": "CF-SIGNAL-DECISION-1.0",
+    "decisionCode": "ASK_ONE_SIGNAL",
+    "missingDimension": "product",
+    "evidenceRevision": "e991ca723b0144943ffa2ae4b57bcc622291bcbcad63e273fcd6b47d4b1421b5",
+    "executionAllowed": false,
+    "contactAuthorityGranted": false,
+    "activeRecommendationReplaced": false
+  },
+  "evaluatedScenarios": 24,
+  "networkAttempts": 0,
+  "outboundCommunications": 0,
+  "automaticDeletion": false,
+  "productionActivation": false
+}
