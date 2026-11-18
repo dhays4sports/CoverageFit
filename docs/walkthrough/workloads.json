@@ -1,0 +1,135 @@
+{
+  "version": "CF-ARCHIVE-WORKLOADS-0.6",
+  "limits": {
+    "wallSecondsPerWorkload": 45,
+    "heapMiB": 384,
+    "threads": 9,
+    "customers": 12,
+    "reviews": 51,
+    "threadMessages": 200,
+    "threadVersions": 400,
+    "threadPages": 64,
+    "repetitions": 1
+  },
+  "measurement": "Local Node/SQLite single-run engineering measurements. No hosted performance or human time claim.",
+  "workloads": [
+    {
+      "id": "conversation_20",
+      "customers": 1,
+      "threads": 1,
+      "messages": 20,
+      "expected": "complete"
+    },
+    {
+      "id": "conversation_160",
+      "customers": 1,
+      "threads": 1,
+      "messages": 160,
+      "expected": "capacity_warning"
+    },
+    {
+      "id": "conversation_200",
+      "customers": 1,
+      "threads": 1,
+      "messages": 200,
+      "attemptExtra": true,
+      "expected": "archive_bound"
+    },
+    {
+      "id": "edits_deletions",
+      "customers": 1,
+      "threads": 1,
+      "messages": 2,
+      "editScans": 12,
+      "deleteLast": true,
+      "expected": "complete"
+    },
+    {
+      "id": "page_receipts",
+      "customers": 1,
+      "threads": 1,
+      "messages": 2,
+      "editScans": 65,
+      "expected": "archive_bound"
+    },
+    {
+      "id": "revision_versions",
+      "customers": 1,
+      "threads": 1,
+      "messages": 25,
+      "editScans": 17,
+      "editAll": true,
+      "expected": "archive_bound"
+    },
+    {
+      "id": "original_bytes",
+      "customers": 1,
+      "threads": 1,
+      "messages": 25,
+      "editScans": 15,
+      "editAll": true,
+      "bodyBytes": 4000,
+      "expected": "archive_bound"
+    },
+    {
+      "id": "threads_8",
+      "customers": 1,
+      "threads": 8,
+      "messages": 20,
+      "expected": "complete"
+    },
+    {
+      "id": "threads_9",
+      "customers": 1,
+      "threads": 9,
+      "messages": 20,
+      "expected": "package_bound"
+    },
+    {
+      "id": "customers_12",
+      "customers": 12,
+      "threads": 0,
+      "messages": 0,
+      "policiesPerCustomer": 1,
+      "expected": "complete"
+    },
+    {
+      "id": "policy_revisions",
+      "customers": 1,
+      "threads": 0,
+      "messages": 0,
+      "policyScans": 30,
+      "expected": "record_bound"
+    },
+    {
+      "id": "reviews_50",
+      "customers": 1,
+      "threads": 1,
+      "messages": 2,
+      "reviews": 50,
+      "expected": "complete"
+    },
+    {
+      "id": "reviews_51",
+      "customers": 1,
+      "threads": 1,
+      "messages": 2,
+      "reviews": 51,
+      "expected": "package_bound"
+    },
+    {
+      "id": "partial_restart",
+      "customers": 1,
+      "threads": 1,
+      "messages": 2,
+      "interruptPages": true,
+      "expected": "recovered"
+    },
+    {
+      "id": "oversized_untrusted_package",
+      "syntheticRejectionOnly": true,
+      "bytes": 16777217,
+      "expected": "package_bound"
+    }
+  ]
+}

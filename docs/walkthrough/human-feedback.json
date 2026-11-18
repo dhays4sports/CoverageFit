@@ -1,0 +1,9 @@
+{
+ "mandate":"CF-PRODUCER-WALKTHROUGH-ARCHIVE-SCALE-0.6",
+ "status":"PENDING_OWNER_WALKTHROUGH",
+ "participant":null,
+ "observations":[],
+ "acceptance":null,
+ "basis":"No owner walkthrough or human usability session has occurred. Automated HTTP, DOM and workload results are reported separately.",
+ "instructions":"Use the interactive local session, submit optional notes and download them before stopping. Review actual submitted observations explicitly before updating this acceptance record. Do not copy automated feedback-transport test data into human observations."
+}

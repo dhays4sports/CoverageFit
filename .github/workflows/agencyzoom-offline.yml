@@ -15,6 +15,11 @@ on:
       - 'scripts/lib/evidence-review-ledger.mjs'
       - 'scripts/evidence-review-demo.mjs'
       - 'scripts/evidence-lifecycle-demo.mjs'
+      - 'scripts/producer-walkthrough.mjs'
+      - 'scripts/archive-scale.mjs'
+      - 'scripts/lib/archive-scale-worker.mjs'
+      - 'scripts/lib/walkthrough-fixtures.mjs'
+      - 'docs/walkthrough/**'
       - 'scripts/evidence-package.mjs'
       - 'scripts/lib/evidence-package.mjs'
       - 'scripts/agencyzoom-*.mjs'
@@ -25,6 +30,7 @@ on:
       - 'tests/agencyzoom-*.test.mjs'
       - 'tests/evidence-reconciliation.test.mjs'
       - 'tests/evidence-lifecycle.test.mjs'
+      - 'tests/producer-walkthrough.test.mjs'
       - 'tests/helpers/evidence-lifecycle-*.mjs'
       - 'tests/helpers/evidence-review-fixture.mjs'
       - 'tests/helpers/agencyzoom-fixture.mjs'
@@ -51,8 +57,13 @@ jobs:
       - run: node scripts/agencyzoom-sms-demo.mjs
       - run: node scripts/evidence-review-demo.mjs
       - run: node scripts/evidence-lifecycle-demo.mjs
+      - run: node scripts/archive-scale.mjs
       - uses: actions/upload-artifact@v4
         with:
           name: AgencyZoom-synthetic-acceptance
-          path: docs/agencyzoom/
+          path: |
+            docs/agencyzoom/
+            docs/walkthrough/
+            docs/ARCHIVE-SCALE-DESIGN-0.6.md
+            docs/PRODUCER-WALKTHROUGH-ARCHIVE-SCALE-0.6.md
           retention-days: 14
