@@ -1,0 +1,50 @@
+{
+  "agencyId": "synthetic-dylan",
+  "synthetic": true,
+  "id": "lead-1",
+  "customerId": "customer-1",
+  "revision": "r1",
+  "createdAt": "2026-11-18T10:00:00.000Z",
+  "updatedAt": "2026-11-18T10:00:00.000Z",
+  "name": "Synthetic Casey Example",
+  "source": {
+    "id": "vendor-1",
+    "label": "Synthetic vendor"
+  },
+  "pipeline": "personal",
+  "stage": "new",
+  "producerId": "producer-1",
+  "opportunities": [
+    {
+      "id": "op-home",
+      "product": "Home",
+      "createdAt": "2026-11-18T10:00:00.000Z",
+      "updatedAt": "2026-11-18T10:00:00.000Z"
+    },
+    {
+      "id": "op-auto",
+      "product": "Auto",
+      "createdAt": "2026-11-18T10:00:00.000Z",
+      "updatedAt": "2026-11-18T10:00:00.000Z"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "task-1",
+      "title": "Review synthetic coverage request",
+      "state": "open",
+      "dueAt": "2026-11-19T18:00:00.000Z",
+      "updatedAt": "2026-11-18T10:00:00.000Z",
+      "createdAt": "2026-11-18T10:00:00.000Z"
+    }
+  ],
+  "notes": [
+    {
+      "id": "note-1",
+      "body": "Fictional lead for offline review only.",
+      "authorId": "producer-1",
+      "updatedAt": "2026-11-18T10:00:00.000Z",
+      "createdAt": "2026-11-18T10:00:00.000Z"
+    }
+  ]
+}
