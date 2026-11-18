@@ -1,0 +1,6 @@
+// Explicit local operator commands. Config contains synthetic identities, never credentials.
+import {readFileSync} from 'node:fs';
+import {pathToFileURL} from 'node:url';
+import {exportEvidencePackage,restoreEvidencePackage,inspectEvidenceArchive,readEvidencePackage,writeEvidencePackage} from './lib/evidence-package.mjs';
+export function main(args){const [action,configPath,databasePath,packagePath,requestId,expectedState,...extra]=args;if(extra.length||!['inspect','export','restore'].includes(action)||!configPath||!databasePath)throw Object.assign(Error('usage'),{code:'usage'});const {config,principal}=JSON.parse(readFileSync(configPath,'utf8'));if(action==='inspect')return inspectEvidenceArchive(databasePath,config,principal);if(!packagePath)throw Object.assign(Error('usage'),{code:'usage'});if(action==='export')return writeEvidencePackage(packagePath,exportEvidencePackage(databasePath,config,principal));return restoreEvidencePackage(databasePath,readEvidencePackage(packagePath),config,principal,{requestId,expectedState});}
+if(import.meta.url===pathToFileURL(process.argv[1]||'').href){try{console.log(JSON.stringify(main(process.argv.slice(2))));}catch(e){console.error(JSON.stringify({ok:false,code:e.code?.startsWith('package_')?e.code:'offline_package_failed'}));process.exitCode=1;}}

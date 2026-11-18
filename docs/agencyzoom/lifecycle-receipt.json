@@ -1,0 +1,33 @@
+{
+  "mandate": "CF-EVIDENCE-LIFECYCLE-PRODUCER-ACCEPTANCE-0.5",
+  "status": "PASS_OFFLINE_SYNTHETIC",
+  "packageId": "8054f74fe957f75e158ea723878d2f08137ec48995dba192c3548721f1ad0cd8",
+  "bytes": 31113,
+  "canonicalCustomer": "az_customer_072dee82fd5930bf3d50cd1b2f1e30da1d6837ac",
+  "opportunity": "az_opportunity_16c9b01f10fdd9aac62d675a916aea2e4c6f5680",
+  "originalReferencesRetained": 2,
+  "previousDecisionsRetained": 1,
+  "restoreReceipt": "synthetic-demo-restore",
+  "restoreReplay": true,
+  "remainingReviewIssues": 0,
+  "producerDecisions": 2,
+  "navigationClicks": {
+    "policyDecision": 5,
+    "taskDecision": 5
+  },
+  "localTaskState": "open",
+  "shadow": {
+    "status": "COMPATIBLE",
+    "decisionCode": "ASK_ONE_SIGNAL",
+    "missingDimension": "product",
+    "executionAllowed": false
+  },
+  "semanticContinuity": true,
+  "projectionHashesMayDiffer": "Canonical timestamps, local review versions or receipt metadata may differ; compare semantic inputs and outcomes.",
+  "humanUsability": "UNVERIFIED",
+  "networkAttempts": 0,
+  "communications": 0,
+  "capacityFreed": false,
+  "automaticDeletion": false,
+  "productionActivation": false
+}

@@ -14,6 +14,9 @@ on:
       - 'scripts/lib/agencyzoom-*.mjs'
       - 'scripts/lib/evidence-review-ledger.mjs'
       - 'scripts/evidence-review-demo.mjs'
+      - 'scripts/evidence-lifecycle-demo.mjs'
+      - 'scripts/evidence-package.mjs'
+      - 'scripts/lib/evidence-package.mjs'
       - 'scripts/agencyzoom-*.mjs'
       - 'assets/js/agencyzoom-*.mjs'
       - 'assets/js/shared-workspace-panel.mjs'
@@ -21,6 +24,8 @@ on:
       - 'assets/js/producer-workspace.mjs'
       - 'tests/agencyzoom-*.test.mjs'
       - 'tests/evidence-reconciliation.test.mjs'
+      - 'tests/evidence-lifecycle.test.mjs'
+      - 'tests/helpers/evidence-lifecycle-*.mjs'
       - 'tests/helpers/evidence-review-fixture.mjs'
       - 'tests/helpers/agencyzoom-fixture.mjs'
       - 'tests/fixtures/agencyzoom/**'
@@ -45,6 +50,7 @@ jobs:
       - run: node scripts/agencyzoom-task-renewal-demo.mjs
       - run: node scripts/agencyzoom-sms-demo.mjs
       - run: node scripts/evidence-review-demo.mjs
+      - run: node scripts/evidence-lifecycle-demo.mjs
       - uses: actions/upload-artifact@v4
         with:
           name: AgencyZoom-synthetic-acceptance

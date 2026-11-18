@@ -1,0 +1,19 @@
+{
+  "version":"CF-EVIDENCE-LIFECYCLE-EVALUATION-0.5",
+  "measurement":"Automated engineering scenarios; human usability unverified",
+  "cases":[
+    {"id":"clean_lead","open":[],"decisions":0},
+    {"id":"clean_policy","open":[],"decisions":0},
+    {"id":"policy_conflict","open":["policy_date"],"decisions":1},
+    {"id":"policy_resolved","open":[],"decisions":0},
+    {"id":"sms_stale","open":["stale_fact"],"decisions":1,"held":true},
+    {"id":"task_unlinked","open":["task_relationship"],"decisions":1},
+    {"id":"task_linked","open":[],"decisions":0},
+    {"id":"sms_ownership","open":["sms_ownership"],"decisions":0,"held":true},
+    {"id":"settled_stop","open":[],"decisions":0,"held":true},
+    {"id":"sms_partial","open":["sms_history"],"decisions":0,"held":true},
+    {"id":"capacity_near","open":["archive_capacity"],"decisions":1},
+    {"id":"capacity_limit","open":["archive_capacity"],"decisions":1,"held":true}
+  ],
+  "additionalAssertions":["other_opportunity_does_not_receive_fact","missing_original_rejects_restore","stop_survives_factual_resolution","exact_receipt_replay","no_network_or_operational_mutations"]
+}

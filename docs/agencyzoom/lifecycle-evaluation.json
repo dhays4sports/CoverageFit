@@ -1,0 +1,313 @@
+{
+  "mandate": "CF-EVIDENCE-LIFECYCLE-PRODUCER-ACCEPTANCE-0.5",
+  "expectationsVersion": "CF-EVIDENCE-LIFECYCLE-EVALUATION-0.5",
+  "status": "PASS_OFFLINE_SYNTHETIC",
+  "scenarioCount": 12,
+  "passed": 12,
+  "totals": {
+    "duplicateReviewItems": 0,
+    "unnecessaryReviewItems": 0,
+    "genuineIssuesMissed": 0,
+    "incorrectResolutions": 0,
+    "staleConclusionsCurrent": 0,
+    "suppressionOrAuthorityViolations": 0,
+    "evidenceReferencesLost": 0
+  },
+  "networkAttempts": 0,
+  "measurement": "Automated engineering and DOM scenarios only. Navigation starts in an open Prospect 360; reading, typing, elapsed time and human usability are not measured.",
+  "humanUsability": "UNVERIFIED — no human session occurred",
+  "outcomes": [
+    {
+      "scenario": "clean_lead",
+      "pass": true,
+      "expectedOpen": [],
+      "actualOpen": [],
+      "producerDecisionsRemaining": 0,
+      "navigationStepsToInspectFirstIssue": 1,
+      "allIssuesExplainProblemEffectNextStep": true,
+      "supportedActions": 0,
+      "shadow": "COMPATIBLE",
+      "packageBytes": 9891,
+      "restoredOriginals": 0,
+      "metrics": {
+        "duplicateReviewItems": 0,
+        "unnecessaryReviewItems": 0,
+        "genuineIssuesMissed": 0,
+        "incorrectResolutions": 0,
+        "staleConclusionsCurrent": 0,
+        "suppressionOrAuthorityViolations": 0,
+        "evidenceReferencesLost": 0
+      }
+    },
+    {
+      "scenario": "clean_policy",
+      "pass": true,
+      "expectedOpen": [],
+      "actualOpen": [],
+      "producerDecisionsRemaining": 0,
+      "navigationStepsToInspectFirstIssue": 1,
+      "allIssuesExplainProblemEffectNextStep": true,
+      "supportedActions": 0,
+      "shadow": "COMPATIBLE",
+      "packageBytes": 14182,
+      "restoredOriginals": 0,
+      "metrics": {
+        "duplicateReviewItems": 0,
+        "unnecessaryReviewItems": 0,
+        "genuineIssuesMissed": 0,
+        "incorrectResolutions": 0,
+        "staleConclusionsCurrent": 0,
+        "suppressionOrAuthorityViolations": 0,
+        "evidenceReferencesLost": 0
+      }
+    },
+    {
+      "scenario": "policy_conflict",
+      "pass": true,
+      "expectedOpen": [
+        "policy_date"
+      ],
+      "actualOpen": [
+        "policy_date"
+      ],
+      "producerDecisionsRemaining": 1,
+      "navigationStepsToInspectFirstIssue": 2,
+      "allIssuesExplainProblemEffectNextStep": true,
+      "supportedActions": 1,
+      "shadow": "HELD",
+      "packageBytes": 16499,
+      "restoredOriginals": 0,
+      "metrics": {
+        "duplicateReviewItems": 0,
+        "unnecessaryReviewItems": 0,
+        "genuineIssuesMissed": 0,
+        "incorrectResolutions": 0,
+        "staleConclusionsCurrent": 0,
+        "suppressionOrAuthorityViolations": 0,
+        "evidenceReferencesLost": 0
+      }
+    },
+    {
+      "scenario": "policy_resolved",
+      "pass": true,
+      "expectedOpen": [],
+      "actualOpen": [],
+      "producerDecisionsRemaining": 0,
+      "navigationStepsToInspectFirstIssue": 1,
+      "allIssuesExplainProblemEffectNextStep": true,
+      "supportedActions": 0,
+      "shadow": "COMPATIBLE",
+      "packageBytes": 22149,
+      "restoredOriginals": 0,
+      "metrics": {
+        "duplicateReviewItems": 0,
+        "unnecessaryReviewItems": 0,
+        "genuineIssuesMissed": 0,
+        "incorrectResolutions": 0,
+        "staleConclusionsCurrent": 0,
+        "suppressionOrAuthorityViolations": 0,
+        "evidenceReferencesLost": 0
+      }
+    },
+    {
+      "scenario": "sms_stale",
+      "pass": true,
+      "expectedOpen": [
+        "stale_fact"
+      ],
+      "actualOpen": [
+        "stale_fact"
+      ],
+      "producerDecisionsRemaining": 1,
+      "navigationStepsToInspectFirstIssue": 2,
+      "allIssuesExplainProblemEffectNextStep": true,
+      "supportedActions": 1,
+      "shadow": "HELD",
+      "packageBytes": 23196,
+      "restoredOriginals": 3,
+      "metrics": {
+        "duplicateReviewItems": 0,
+        "unnecessaryReviewItems": 0,
+        "genuineIssuesMissed": 0,
+        "incorrectResolutions": 0,
+        "staleConclusionsCurrent": 0,
+        "suppressionOrAuthorityViolations": 0,
+        "evidenceReferencesLost": 0
+      }
+    },
+    {
+      "scenario": "task_unlinked",
+      "pass": true,
+      "expectedOpen": [
+        "task_relationship"
+      ],
+      "actualOpen": [
+        "task_relationship"
+      ],
+      "producerDecisionsRemaining": 1,
+      "navigationStepsToInspectFirstIssue": 2,
+      "allIssuesExplainProblemEffectNextStep": true,
+      "supportedActions": 1,
+      "shadow": "HELD",
+      "packageBytes": 13079,
+      "restoredOriginals": 0,
+      "metrics": {
+        "duplicateReviewItems": 0,
+        "unnecessaryReviewItems": 0,
+        "genuineIssuesMissed": 0,
+        "incorrectResolutions": 0,
+        "staleConclusionsCurrent": 0,
+        "suppressionOrAuthorityViolations": 0,
+        "evidenceReferencesLost": 0
+      }
+    },
+    {
+      "scenario": "task_linked",
+      "pass": true,
+      "expectedOpen": [],
+      "actualOpen": [],
+      "producerDecisionsRemaining": 0,
+      "navigationStepsToInspectFirstIssue": 1,
+      "allIssuesExplainProblemEffectNextStep": true,
+      "supportedActions": 0,
+      "shadow": "COMPATIBLE",
+      "packageBytes": 20222,
+      "restoredOriginals": 0,
+      "metrics": {
+        "duplicateReviewItems": 0,
+        "unnecessaryReviewItems": 0,
+        "genuineIssuesMissed": 0,
+        "incorrectResolutions": 0,
+        "staleConclusionsCurrent": 0,
+        "suppressionOrAuthorityViolations": 0,
+        "evidenceReferencesLost": 0
+      }
+    },
+    {
+      "scenario": "sms_ownership",
+      "pass": true,
+      "expectedOpen": [
+        "sms_ownership"
+      ],
+      "actualOpen": [
+        "sms_ownership"
+      ],
+      "producerDecisionsRemaining": 0,
+      "navigationStepsToInspectFirstIssue": 2,
+      "allIssuesExplainProblemEffectNextStep": true,
+      "supportedActions": 0,
+      "shadow": "HELD",
+      "packageBytes": 15292,
+      "restoredOriginals": 2,
+      "metrics": {
+        "duplicateReviewItems": 0,
+        "unnecessaryReviewItems": 0,
+        "genuineIssuesMissed": 0,
+        "incorrectResolutions": 0,
+        "staleConclusionsCurrent": 0,
+        "suppressionOrAuthorityViolations": 0,
+        "evidenceReferencesLost": 0
+      }
+    },
+    {
+      "scenario": "settled_stop",
+      "pass": true,
+      "expectedOpen": [],
+      "actualOpen": [],
+      "producerDecisionsRemaining": 0,
+      "navigationStepsToInspectFirstIssue": 1,
+      "allIssuesExplainProblemEffectNextStep": true,
+      "supportedActions": 0,
+      "shadow": "HELD",
+      "packageBytes": 15245,
+      "restoredOriginals": 2,
+      "metrics": {
+        "duplicateReviewItems": 0,
+        "unnecessaryReviewItems": 0,
+        "genuineIssuesMissed": 0,
+        "incorrectResolutions": 0,
+        "staleConclusionsCurrent": 0,
+        "suppressionOrAuthorityViolations": 0,
+        "evidenceReferencesLost": 0
+      }
+    },
+    {
+      "scenario": "sms_partial",
+      "pass": true,
+      "expectedOpen": [
+        "sms_history"
+      ],
+      "actualOpen": [
+        "sms_history"
+      ],
+      "producerDecisionsRemaining": 0,
+      "navigationStepsToInspectFirstIssue": 2,
+      "allIssuesExplainProblemEffectNextStep": true,
+      "supportedActions": 0,
+      "shadow": "HELD",
+      "packageBytes": 15117,
+      "restoredOriginals": 2,
+      "metrics": {
+        "duplicateReviewItems": 0,
+        "unnecessaryReviewItems": 0,
+        "genuineIssuesMissed": 0,
+        "incorrectResolutions": 0,
+        "staleConclusionsCurrent": 0,
+        "suppressionOrAuthorityViolations": 0,
+        "evidenceReferencesLost": 0
+      }
+    },
+    {
+      "scenario": "capacity_near",
+      "pass": true,
+      "expectedOpen": [
+        "archive_capacity"
+      ],
+      "actualOpen": [
+        "archive_capacity"
+      ],
+      "producerDecisionsRemaining": 1,
+      "navigationStepsToInspectFirstIssue": 2,
+      "allIssuesExplainProblemEffectNextStep": true,
+      "supportedActions": 0,
+      "shadow": "COMPATIBLE",
+      "packageBytes": 172960,
+      "restoredOriginals": 160,
+      "metrics": {
+        "duplicateReviewItems": 0,
+        "unnecessaryReviewItems": 0,
+        "genuineIssuesMissed": 0,
+        "incorrectResolutions": 0,
+        "staleConclusionsCurrent": 0,
+        "suppressionOrAuthorityViolations": 0,
+        "evidenceReferencesLost": 0
+      }
+    },
+    {
+      "scenario": "capacity_limit",
+      "pass": true,
+      "expectedOpen": [
+        "archive_capacity"
+      ],
+      "actualOpen": [
+        "archive_capacity"
+      ],
+      "producerDecisionsRemaining": 1,
+      "navigationStepsToInspectFirstIssue": 2,
+      "allIssuesExplainProblemEffectNextStep": true,
+      "supportedActions": 0,
+      "shadow": "HELD",
+      "packageBytes": 212177,
+      "restoredOriginals": 200,
+      "metrics": {
+        "duplicateReviewItems": 0,
+        "unnecessaryReviewItems": 0,
+        "genuineIssuesMissed": 0,
+        "incorrectResolutions": 0,
+        "staleConclusionsCurrent": 0,
+        "suppressionOrAuthorityViolations": 0,
+        "evidenceReferencesLost": 0
+      }
+    }
+  ]
+}

@@ -2,7 +2,8 @@ export const REVIEW_SCHEMA=`
  CREATE TABLE az_evidence_review_meta(singleton INTEGER PRIMARY KEY CHECK(singleton=1),schema_version TEXT NOT NULL);
  INSERT INTO az_evidence_review_meta VALUES(1,'v4');
  CREATE TABLE az_connector_failures(id TEXT PRIMARY KEY,workspace_id TEXT NOT NULL,stream TEXT NOT NULL,entity_id TEXT NOT NULL,source_revision TEXT NOT NULL,customer_id TEXT,anchor_id TEXT,code TEXT NOT NULL,source_updated_at TEXT NOT NULL,audit_sequence INTEGER NOT NULL,created_at TEXT NOT NULL);
- CREATE TABLE az_connector_scans(stream TEXT PRIMARY KEY,success_sequence INTEGER NOT NULL,completed_at TEXT NOT NULL);`;
+ CREATE TABLE az_connector_scans(stream TEXT PRIMARY KEY,success_sequence INTEGER NOT NULL,completed_at TEXT NOT NULL);
+ CREATE TABLE az_evidence_packages(request_id TEXT PRIMARY KEY,package_id TEXT NOT NULL,expected_state TEXT NOT NULL,actor TEXT NOT NULL,recorded_at TEXT NOT NULL,receipt_json TEXT NOT NULL);`;
 export function reviewLedger({get,run,verify,scope,mapped,hash,now}){
  const present=()=>!!get("SELECT name FROM sqlite_master WHERE type='table' AND name='az_connector_failures'");
  function recordSyncFailure({stream,record,error,code}){
