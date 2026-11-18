@@ -1,0 +1,56 @@
+{
+  "mandate": "CF-AGENCYZOOM-TASK-RENEWAL-EVIDENCE-0.2",
+  "status": "PASS_OFFLINE_SYNTHETIC",
+  "initial": {
+    "status": "complete",
+    "processed": 4,
+    "changed": 4,
+    "checkpoint": "2026-11-18T10:00:00.000Z",
+    "outboundCommunications": 0
+  },
+  "update": {
+    "status": "complete",
+    "processed": 2,
+    "changed": 2,
+    "checkpoint": "2026-11-18T11:00:00.000Z",
+    "outboundCommunications": 0
+  },
+  "replay": {
+    "status": "complete",
+    "processed": 2,
+    "changed": 0,
+    "checkpoint": "2026-11-18T11:00:00.000Z",
+    "outboundCommunications": 0
+  },
+  "canonicalCustomer": "az_customer_072dee82fd5930bf3d50cd1b2f1e30da1d6837ac",
+  "opportunities": [
+    {
+      "id": "az_opportunity_16c9b01f10fdd9aac62d675a916aea2e4c6f5680",
+      "product": "Home",
+      "source": "AgencyZoom",
+      "population": "OTHER"
+    },
+    {
+      "id": "az_opportunity_88b3b7c6856da26f6673972404cc81963449f03d",
+      "product": "Auto",
+      "source": "AgencyZoom",
+      "population": "OTHER"
+    }
+  ],
+  "policySourceRecords": 3,
+  "reviewRecords": 2,
+  "originalExpirationValues": [
+    "2027-03-01",
+    "2027-04-01",
+    "2027-05-01"
+  ],
+  "renewalResolution": "review_stale_or_unresolved",
+  "externalTaskState": "completed",
+  "localTaskState": "open",
+  "localTaskCount": 1,
+  "localTaskOrigin": "explicit_producer_work",
+  "inventoryComplete": false,
+  "outboundCommunications": 0,
+  "liveAuthentication": false,
+  "productionActivation": false
+}

@@ -1,3 +1,5 @@
+import {AZ_RESOURCE_SOURCE,renewalFactKey} from '../shared/agencyzoom-resource-evidence.mjs';
+import {dateValue,dateOnly} from './agencyzoom-resource-contract.mjs';
 import { ownerWorkspaceActivation } from './shared-profile-owner-release.mjs';
 import {sharedWorkspaceEnvironment} from './shared-workspace-config.mjs';
 import {workspaceView,workspaceQueues} from './shared-workspace-service.mjs';
@@ -28,11 +30,12 @@ function publicProfile(snapshot,workspace){
  const updates=raw.updates.slice(0,50);const items=updates.flatMap(u=>u.record.items.map((i,index)=>({...i,sequence:u.sequence,itemOrder:index,id:`${u.requestId}:${i.id}`,requestId:u.requestId,threadId:u.record.threadId,threadTitle:u.record.threadTitle,opportunityId:u.opportunityId,approvedAt:u.createdAt,approvedBy:u.actor,shared:true})));
  const suppressed=raw.sms.some(s=>s.data?.smsConsent?.status==='opted_out'||s.data?.signal?.contact_suppressed||s.data?.signal?.decision_2==='STOP');
  const control=raw.sources.some(s=>s.kind==='district_raw_v2'||(s.kind==='district_pilot_v1'&&s.summary?.cohort==='CONTROL'));
- return {customerId:raw.customer.id,name:raw.customer.name,workspace,customerVersion:raw.customer.editVersion,links:raw.links.slice(0,100),items,tasks:raw.tasks.slice(0,100),context:{sources:raw.sources.slice(0,80),sourceDetailsTruncated:raw.sources.some(s=>s.summary?.truncated===1),sms:raw.sms.slice(0,80),contactSafety:{suppressed,control,outreachAuthorized:false,identityAutoMerged:false},truncated},historyLimited:truncated};
+ return {customerId:raw.customer.id,name:raw.customer.name,workspace,customerVersion:raw.customer.editVersion,links:raw.links.slice(0,100),items,tasks:raw.tasks.slice(0,100),context:{sources:raw.sources.slice(0,80).filter(s=>s.kind!==AZ_RESOURCE_SOURCE||s.summary?.canonicalCustomerId===raw.customer.id),externalRelationshipHold:raw.sources.some(s=>s.kind===AZ_RESOURCE_SOURCE&&s.summary?.canonicalCustomerId!==raw.customer.id),sourceDetailsTruncated:raw.sources.some(s=>s.summary?.truncated===1),sms:raw.sms.slice(0,80),contactSafety:{suppressed,control,outreachAuthorized:false,identityAutoMerged:false},truncated},historyLimited:truncated};
 }
 export function sharedProfileService(repo){
  const {sql,rows,db,scope}=repo,workspace=scope.workspace;
- const read=async(cid,{opportunityId=null}={})=>{const raw=await rawProfile(repo,cid),p={...publicProfile(raw,workspace),version:await digest(raw)};if(opportunityId)p.view=await workspaceView(p,opportunityId);return p;};
+ const externalIntegrity=async v=>!!v?.resource&&await digest(JSON.stringify(v.resource))===v.digest&&await digest(JSON.stringify(v.observations||[]))===v.observationsDigest&&await digest(JSON.stringify(v.termObservations||[]))===v.termsDigest;
+ const read=async(cid,{opportunityId=null}={})=>{const raw=await rawProfile(repo,cid),p={...publicProfile(raw,workspace),version:await digest(raw)},sources=[];for(const s of p.context.sources){if(s.kind===AZ_RESOURCE_SOURCE&&!await externalIntegrity(s.summary)){p.context.externalIntegrityHold=true;continue;}sources.push(s);}p.context.sources=sources;if(opportunityId)p.view=await workspaceView(p,opportunityId);return p;};
  async function list(query='',after=''){
   query=clean(query,150,'search');after=clean(after,180,'cursor');
   const result=await rows(`SELECT c.id AS customerId,c.display_name AS name,MIN(l.opportunity_id) AS opportunityId FROM cf_ucp_customers c JOIN cf_ucp_opportunity_links l ON l.customer_id=c.id AND l.workspace_id=c.workspace_id JOIN cf_solo_opportunities o ON o.id=l.opportunity_id AND o.workspace_id=l.workspace_id WHERE c.workspace_id=? AND c.status='active' AND c.id>? AND (?='' OR instr(lower(c.display_name),lower(?))>0) GROUP BY c.id,c.display_name ORDER BY c.id LIMIT 26`,workspace,after,query,query);
@@ -56,6 +59,7 @@ export function sharedProfileService(repo){
   for(const field of ['factKey','supersedes','target'])if(i[field])item[field]=clean(i[field],380,field);
   for(const field of ['observedAt','effectiveAt'])if(i[field]){item[field]=clean(i[field],60,field);if(!Number.isFinite(Date.parse(item[field])))fail(422,'source_time','Source timestamps must be valid, explicit dates.');}
   for(const [field,allowed] of Object.entries({verification:['verified','tentative','unverified','unknown'],freshness:['current','stale','unknown'],actorRole:['producer','prospect','unknown'],timingConfirmation:['unconfirmed','producer_scheduled','prospect_agreed'],readiness:['not_assessed','missing_information','ready_for_producer_review'],transcriptState:['complete','partial','missing','unverified'],dimension:['verification','freshness','draft_review','handoff']}))if(i[field]){if(!allowed.includes(i[field]))fail(422,'metadata','Invalid '+field+'.');item[field]=i[field];}
+  if(i.externalEvidence){const x=i.externalEvidence;if(!x||Object.getPrototypeOf(x)!==Object.prototype||Object.keys(x).some(k=>!['sourceId','revision','digest','field'].includes(k)))fail(422,'external_source','Unsupported external source reference.');item.externalEvidence={sourceId:validId(x.sourceId,'source ID'),revision:validId(x.revision,'source revision'),digest:clean(x.digest,64,'source digest'),field:clean(x.field,30,'date kind')};if(!/^[a-f0-9]{64}$/.test(x.digest))fail(422,'external_source','Invalid source digest.');}
   if(i.resolution)item.resolution=clean(i.resolution,40,'review outcome');return item;});
   if(new TextEncoder().encode(JSON.stringify(items)).length>20000)fail(413,'items_size','Select fewer or shorter profile additions for one approval.');
   b.record={threadId:b.threadId,threadTitle:b.threadTitle,items,evidence:{messages,captures:captures.map(({base64,...c})=>c)},rights:{purpose:'producer_reviewed_insurance_work',transferable:false,contactAuthorityGranted:false}};if(new TextEncoder().encode(JSON.stringify(b.record)).length>900000)fail(413,'evidence_size','Selected source messages are too large for one shared update. Choose a smaller review.');return {b,captures};
@@ -69,6 +73,13 @@ export function sharedProfileService(repo){
   if(profile.context.sources.some(s=>s.kind==='workspace_example_readonly'))fail(403,'example_readonly','Illustrative preview records are read-only. Use a separate synthetic test record for acceptance.');
   if(profile.context.contactSafety.control)fail(403,'control_hold','This profile is held as district CONTROL or raw import. Shared updates are unavailable.');
   for(const item of b.record.items){
+   if(item.externalEvidence){const x=item.externalEvidence,source=profile.context.sources.find(s=>s.kind===AZ_RESOURCE_SOURCE&&s.sourceId===x.sourceId),v=source?.summary,r=v?.resource;
+    if(!r||r.kind!=='policy'||v.canonicalCustomerId!==b.customerId||v.scope!=='opportunity'||v.canonicalOpportunityId!==b.opportunityId||v.revision!==x.revision||v.digest!==x.digest||r.availability!=='present')fail(409,'external_source_changed','The policy source or its identity changed. Refresh before reviewing it.');
+    if(!await externalIntegrity(v))fail(409,'external_source_integrity','External source integrity could not be verified. Reconcile the source before reviewing it.');
+    const observed=(v.observations||[]).find(o=>o.field===x.field&&item.factKey===renewalFactKey(r.id,o.termId,o.field));
+    if(item.kind!=='fact'||!observed)fail(422,'external_source','Choose an exact policy, term and date kind.');
+    try{if(x.field==='prospect_callback')dateValue(item.value);else dateOnly(item.value);}catch{fail(422,'external_source','Use the exact date precision shown by the source.');}
+   }
    if(item.supersedes||item.kind==='review'){const target=profile.items.find(x=>x.id===(item.supersedes||item.target));if(!target||target.opportunityId!==b.opportunityId)fail(409,'evidence_target','The correction/review target does not belong to this opportunity.');if(item.kind==='review'){const allowed={verification:['verified','tentative','unverified','unknown'],freshness:['current','stale','unknown'],draft_review:['approved','rejected'],handoff:['resolved','open']};if(!allowed[item.dimension]?.includes(item.resolution))fail(422,'review_dimension','Choose a specific review dimension and outcome.');if(item.dimension==='draft_review'&&target.kind!=='draft'||item.dimension==='handoff'&&!['handoff','gap'].includes(target.kind))fail(422,'review_target','This outcome is not valid for the target evidence type.');}}
    if(item.kind==='readiness'&&!item.readiness)fail(422,'readiness','Choose an explicit readiness state.');
   }

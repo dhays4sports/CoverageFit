@@ -3,6 +3,7 @@ import {DatabaseSync} from 'node:sqlite';
 import {createHash} from 'node:crypto';
 import {openSync,closeSync,readFileSync,readdirSync} from 'node:fs';
 import {AZ_KIND,reject,externalId} from '../../server/agencyzoom-connector.mjs';
+import {AZ_RESOURCE_KIND} from '../../server/agencyzoom-resource-contract.mjs';
 const hash = value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const now = ()=>new Date().toISOString();
 export function openAgencyZoomSyntheticStore(path, config, {create=false}={}) {
@@ -35,7 +36,7 @@ export function openAgencyZoomSyntheticStore(path, config, {create=false}={}) {
     if (previous && (previous.canonical_id!==canonical || previous.parent!==parent)) reject('identity_conflict');
     if (!previous) run('INSERT INTO az_external_ids VALUES(?,?,?,?)',entity,external,canonical,parent);
   }
-  function checkpoint() { return JSON.parse(get("SELECT cursor_json FROM cf_solo_sync WHERE workspace_id=? AND stream='agencyzoom_read_v1'",w)?.cursor_json||'null'); }
+  function checkpoint(stream=AZ_KIND) { return JSON.parse(get("SELECT cursor_json FROM cf_solo_sync WHERE workspace_id=? AND stream=?",w,stream)?.cursor_json||'null'); }
   function audit(code) { run('INSERT INTO az_read_audit(code,occurred_at) VALUES(?,?)',code,now()); }
   function accept(lead) { verify(scope); if(lead.agencyId!==scope.agencyId) reject('agency_scope'); return transaction(()=> {
     const digest=hash(lead), previous=get('SELECT * FROM az_read_heads WHERE lead_id=?',lead.id), replay=get('SELECT * FROM az_read_revisions WHERE lead_id=? AND revision=?',lead.id,lead.revision);
@@ -84,11 +85,59 @@ export function openAgencyZoomSyntheticStore(path, config, {create=false}={}) {
     const other=get("SELECT external_id FROM az_external_ids WHERE entity='opportunity' AND canonical_id=?",targetOpportunityId); if(other&&other.external_id!==opportunityId) reject('ambiguous_identity');
     register('customer',customerId,link.customer_id,link.household_id); register('opportunity',opportunityId,targetOpportunityId,JSON.stringify([leadId,customerId])); audit('explicit_identity_reconciliation');
   }); }
-  function complete(expected,value) { verify(scope); transaction(()=> {
-    if (checkpoint()!==expected) reject('checkpoint_conflict');
-    run("INSERT INTO cf_solo_sync VALUES(?,'agencyzoom_read_v1',?) ON CONFLICT(workspace_id,stream) DO UPDATE SET cursor_json=excluded.cursor_json",w,JSON.stringify(value)); audit('scan_complete');
+  function complete(expected,value,stream=AZ_KIND) { verify(scope); transaction(()=> {
+    if (checkpoint(stream)!==expected) reject('checkpoint_conflict');
+    run("INSERT INTO cf_solo_sync VALUES(?,?,?) ON CONFLICT(workspace_id,stream) DO UPDATE SET cursor_json=excluded.cursor_json",w,stream,JSON.stringify(value)); audit('scan_complete');
   }); }
+  function resourceKey(r){return JSON.stringify(['resource-v2',r.kind,r.id]);}
+  function resourceIdentity(r){
+    const c=mapped('customer',r.customerId),op=mapped('opportunity',r.anchorOpportunityId);
+    if(!c||!op||op.parent!==JSON.stringify([r.leadId,r.customerId]))reject('reconciliation_required');
+    const link=get("SELECT l.* FROM cf_ucp_opportunity_links l JOIN cf_ucp_customers c ON c.id=l.customer_id AND c.workspace_id=l.workspace_id JOIN cf_ucp_households h ON h.id=l.household_id AND h.workspace_id=l.workspace_id WHERE l.workspace_id=? AND l.opportunity_id=? AND c.status='active' AND h.status='active'",w,op.canonical_id);
+    if(!link||link.customer_id!==c.canonical_id||link.household_id!==c.parent)reject('reconciliation_required');
+    const m=mapped(r.kind,r.id),parent=JSON.stringify([r.leadId,r.customerId,r.anchorOpportunityId,r.opportunityId]);
+    if(m&&m.parent!==parent)reject('identity_conflict');
+    return {cid:c.canonical_id,oid:op.canonical_id,sourceId:id(r.kind,r.id),parent};
+  }
+  function acceptResource(r){verify(scope);if(r.agencyId!==scope.agencyId)reject('agency_scope');return transaction(()=>{
+    const {cid,oid,sourceId,parent}=resourceIdentity(r),key=resourceKey(r),digest=hash(r),previous=get('SELECT * FROM az_read_heads WHERE lead_id=?',key),replay=get('SELECT * FROM az_read_revisions WHERE lead_id=? AND revision=?',key,r.revision);
+    if(replay&&hash(JSON.parse(replay.evidence_json))!==replay.digest)reject('evidence_integrity');
+    if(replay&&replay.digest!==digest)reject('revision_conflict');
+    const local=mapped('task_local',r.id);
+    if(r.kind==='task'&&local&&!get('SELECT 1 FROM cf_solo_tasks WHERE workspace_id=? AND id=? AND opportunity_id=?',w,local.canonical_id,oid))reject('reconciliation_required');
+    const existingSource=get('SELECT summary_json FROM cf_solo_sources WHERE workspace_id=? AND kind=? AND source_id=?',w,AZ_RESOURCE_KIND,sourceId);
+    if(previous){const snapshot=existingSource?JSON.parse(existingSource.summary_json):null;if(!snapshot||hash(snapshot.resource)!==previous.digest||hash(snapshot.observations)!==snapshot.observationsDigest||hash(snapshot.termObservations||[])!==snapshot.termsDigest)reject('evidence_integrity');}
+    if(replay)return 0;
+    if(previous&&(Date.parse(r.updatedAt)<Date.parse(previous.updated_at)||(Date.parse(r.updatedAt)===Date.parse(previous.updated_at)&&digest!==previous.digest)))reject('stale_revision');
+    const oldSource=get('SELECT summary_json FROM cf_solo_sources WHERE workspace_id=? AND kind=? AND source_id=?',w,AZ_RESOURCE_KIND,sourceId);
+    let observations=oldSource?JSON.parse(oldSource.summary_json).observations||[]:[];
+    const termObservations=oldSource?JSON.parse(oldSource.summary_json).termObservations||[]:[];
+    if(r.availability==='missing'&&!previous)reject('reconciliation_required');
+    if(previous){const old=get('SELECT * FROM az_read_revisions WHERE lead_id=? AND revision=?',key,previous.revision);if(!old||hash(JSON.parse(old.evidence_json))!==previous.digest)reject('evidence_integrity');if(JSON.parse(old.evidence_json).createdAt!==r.createdAt)reject('revision_conflict');}
+    if(r.kind==='policy'){
+      termObservations.push({termId:r.termId,effectiveDate:r.effectiveDate,expirationDate:r.expirationDate,revision:r.revision,digest});
+      if(r.replacesPolicyId){const replacement=mapped('policy',r.replacesPolicyId);if(!replacement||replacement.parent===parent&&r.replacesPolicyId===r.id)reject('reconciliation_required');const other=get('SELECT summary_json FROM cf_solo_sources WHERE workspace_id=? AND kind=? AND source_id=?',w,AZ_RESOURCE_KIND,replacement.canonical_id);if(!other||JSON.parse(other.summary_json).canonicalCustomerId!==cid)reject('identity_conflict');}
+      const dates=[{id:'term-expiration',field:'expiration',value:r.expirationDate,sourceId:r.id,sourceRevision:r.revision,observedAt:r.updatedAt},...(r.renewalEffectiveDate?[{id:'term-renewal',field:'renewal_effective',value:r.renewalEffectiveDate,sourceId:r.id,sourceRevision:r.revision,observedAt:r.updatedAt}]:[]),...r.dates];
+      for(const d of dates){const observation={...d,termId:r.termId,resourceRevision:r.revision,resourceDigest:digest,verification:'unverified',freshness:'unknown'};const same=observations.find(x=>x.id===d.id&&x.sourceId===d.sourceId&&x.sourceRevision===d.sourceRevision&&x.termId===r.termId);if(same&&JSON.stringify({...same,resourceRevision:r.revision,resourceDigest:digest})!==JSON.stringify(observation))reject('revision_conflict');if(!same)observations.push(observation);}
+    }
+    const at=now(),summary={provider:'AgencyZoom',mode:'offline_synthetic',status:'synchronized',resource:r,revision:r.revision,digest,canonicalCustomerId:cid,canonicalOpportunityId:r.opportunityId?oid:null,storageAnchorOpportunityId:oid,scope:r.opportunityId?'opportunity':'customer',observations,observationsDigest:hash(observations),termObservations,termsDigest:hash(termObservations),synchronizedAt:at,linkedLocalTaskId:r.kind==='task'?local?.canonical_id||null:null,review:'unreviewed_external_evidence',contactAuthorityGranted:false,inventoryComplete:false};
+    if(new TextEncoder().encode(JSON.stringify(summary)).length>7800)reject('record_bound');
+    register(r.kind,r.id,sourceId,parent);
+    run('INSERT INTO cf_solo_sources(workspace_id,kind,source_id,opportunity_id,summary_json,updated_at) VALUES(?,?,?,?,?,?) ON CONFLICT(workspace_id,kind,source_id) DO UPDATE SET summary_json=excluded.summary_json,updated_at=excluded.updated_at',w,AZ_RESOURCE_KIND,sourceId,oid,JSON.stringify(summary),at);
+    run('INSERT INTO az_read_revisions VALUES(?,?,?,?,?)',key,r.revision,digest,r.updatedAt,JSON.stringify(r));
+    run('INSERT INTO az_read_heads VALUES(?,?,?,?) ON CONFLICT(lead_id) DO UPDATE SET revision=excluded.revision,updated_at=excluded.updated_at,digest=excluded.digest',key,r.revision,r.updatedAt,digest);
+    run('UPDATE cf_solo_opportunities SET edit_version=edit_version+1,updated_at=? WHERE workspace_id=? AND id=?',at,w,oid);audit('resource_accepted');return 1;
+  });}
+  function reconcileExternalTask({externalTaskId,localTaskId}){verify(scope);externalId(externalTaskId);externalId(localTaskId);return transaction(()=>{
+    const m=mapped('task',externalTaskId);if(!m)reject('reconciliation_required');
+    const source=get('SELECT * FROM cf_solo_sources WHERE workspace_id=? AND kind=? AND source_id=?',w,AZ_RESOURCE_KIND,m.canonical_id);if(!source)reject('reconciliation_required');
+    const value=JSON.parse(source.summary_json);resourceIdentity(value.resource);
+    if(!get('SELECT 1 FROM cf_solo_tasks WHERE workspace_id=? AND id=? AND opportunity_id=?',w,localTaskId,source.opportunity_id))reject('identity_conflict');
+    const other=get("SELECT external_id FROM az_external_ids WHERE entity='task_local' AND canonical_id=?",localTaskId);if(other&&other.external_id!==externalTaskId)reject('ambiguous_identity');
+    register('task_local',externalTaskId,localTaskId,source.opportunity_id);value.linkedLocalTaskId=localTaskId;
+    run('UPDATE cf_solo_sources SET summary_json=? WHERE workspace_id=? AND kind=? AND source_id=?',JSON.stringify(value),w,AZ_RESOURCE_KIND,m.canonical_id);audit('explicit_task_reconciliation');
+  });}
   // Compatibility wrapper for existing CoverageFit Work/UCP/Prospect 360 reads.
   const repositoryDb={prepare(q){let values=[]; return {bind(...v){values=v;return this;},async first(){return get(q,...values)||null;},async all(){return {results:db.prepare(q).all(...values)};},async run(){return {meta:run(q,...values)};}};},async batch(statements){db.exec('BEGIN');try{const results=[];for(const statement of statements)results.push(await statement.run());db.exec('COMMIT');return results;}catch(e){db.exec('ROLLBACK');throw e;}}};
-  return {verify,checkpoint,accept,reconcile,complete,audit,repositoryDb,close:()=>db.close()};
+  return {verify,checkpoint,accept,acceptResource,reconcile,reconcileExternalTask,complete,audit,repositoryDb,close:()=>db.close()};
 }
