@@ -17,5 +17,10 @@ export function webEvidence(distribution){
     for(const line of ['home','auto'])for(const [key,value] of Object.entries(combined.productEvidence?.[line]||{}))if(value&&key!=='reasonCode')facts.set(line+'_'+key,[line+' '+key,String(value).replaceAll('_',' '),'Submitted '+line+' answer']);
     if(combined.earliestReportedTiming)facts.set('earliestTiming',['Earliest reported timing',combined.earliestReportedTiming.product+': '+combined.earliestReportedTiming.window.replaceAll('_',' '),'Reported window; confirm exact date']);
   }
+  const contact=distribution.contactEntry;
+  if(contact?.version===1){
+    facts.set('contactEntry',['Contact requested',({opening:'From the opening',during_questionnaire:'During the questionnaire',after_questionnaire:'After the questionnaire'})[contact.stage]||'Stage unknown','Explicit contact request']);
+    facts.set('questionnaireComplete',['Questionnaire at contact request',contact.questionnaireComplete?'Completed':'Contact requested before questionnaire completion','Saved review state']);
+  }
   return [...facts.values()];
 }
