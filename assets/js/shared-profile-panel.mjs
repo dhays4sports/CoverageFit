@@ -1,0 +1,5 @@
+const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+export function sharedEvidencePanel(profile){
+ if(!profile||profile.status!=='ready')return '';
+ return `<section class="desk-profile" data-shared-profile="${esc(profile.customerId)}"><h3>Shared Prospect 360 evidence</h3><p>One customer ID: ${esc(profile.customerId)}. Additions approved from screenshot work are shared across related opportunities. Approval does not independently verify a fact or grant contact permission.</p>${profile.historyLimited?'<p>Showing a bounded recent evidence window. Older records remain stored.</p>':''}${profile.items.map(i=>`<article><strong>${esc(i.label)}</strong> · ${esc(i.confidence)} · ${esc(i.kind)}<p>${esc(i.value)}</p><small>${esc(i.threadTitle)} · ${esc(i.approvedAt)}</small><br><button type="button" class="button button--secondary" data-shared-evidence="${esc(i.requestId)}" data-customer="${esc(profile.customerId)}">View approved source evidence</button></article>`).join('')||'<p>No screenshot-thread additions have been approved yet.</p>'}</section>`;
+}

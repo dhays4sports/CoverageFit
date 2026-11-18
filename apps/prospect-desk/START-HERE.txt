@@ -1,0 +1,163 @@
+PROSPECT DESK — Windows private pilot 0.3.0
+
+START
+1. Download the Windows ZIP on your Windows laptop.
+2. Right-click the ZIP and choose Extract All. Keep all extracted files together.
+3. Open Prospect Desk.exe in the extracted folder. No Node or Python is needed.
+4. Open Connection & settings. Enter your existing OpenAI API key there.
+   Never paste your key into a conversation or a prospect profile.
+   The default model is gpt-4.1-mini. You can change it to an image-capable
+   Responses API model with Structured Outputs available to your project.
+
+FIRST WORKFLOW
+Use Find shared prospect after connecting the server, or start an independent work thread.
+Press Ctrl+Shift+Space and drag over an area of the display under your cursor.
+Choose the current thread, another thread, a prospect, or a new thread.
+Add your context or choose a workflow action. Click Process screenshot.
+Continue the conversation, add screenshots, and correct the analysis.
+Choose Review profile updates when the discussion is ready.
+Edit the wording and confidence levels, uncheck unwanted additions, then save.
+
+OTHER CAPTURE OPTIONS
+Use Win+Shift+S followed by Paste image inside the app. You can also paste an
+image with Ctrl+V or attach a saved PNG, JPEG or WebP file under 12 MB.
+Select another monitor by moving your cursor there before using the shortcut.
+Escape cancels a screenshot selection. Capture is limited to one monitor at a time.
+
+INSURANCE WORKFLOWS
+- Compare quoted premiums, term lengths, coverages and deductibles.
+- Discuss property finish, condition, foundation, pool, garage and patio details.
+  Visual estimates remain tentative; the app does not verify public records.
+- Draft a client email or text, refine it, and copy it to your sending tool.
+- Interpret renewal / nonrenewal evidence and prepare follow-up questions.
+- Turn call notes and transcripts into commitments, callbacks and readiness gaps.
+- Work on business insurance or multiple related policies in one thread.
+
+FACTS & APPROVALS
+Approval does not independently verify an AI suggestion. Only select Verified
+when you have checked it. Use Change status to mark older evidence stale or
+failed; its original wording, sources and status history remain available.
+Profile entries link to the originating messages and screenshots. The app
+retains the full thread, not just a generated summary.
+
+TASKS
+Independent-thread Tasks & callbacks is a local checklist. Approved shared tasks
+appear in the CoverageFit Work queue under the selected policy/opportunity.
+A due time does not imply the prospect agreed to an appointment. Tasks can be added directly or selected
+in a profile review. Due dates do not trigger notifications or calendar events.
+The app does not send messages, place calls, bind coverage, or update your
+sending or calendar software. Shared-profile synchronization requires the 0.2 server activation described below.
+
+PERSISTENCE & BACKUPS
+Work is saved under your Windows user's application data directory. Settings
+shows the exact folder. Screenshots are separate evidence files so typing a
+new instruction does not rewrite all screenshots. The workspace keeps a prior
+metadata backup (workspace.json.bak). Keep the whole evidence folder with it.
+Use Export workspace backup regularly for a self-contained JSON copy including
+images, threads, profiles and tasks. The API key is excluded. Keep backups private.
+To restore an exported backup: Quit the app from the tray, preserve a copy of the
+current data folder, then replace workspace.json with the exported JSON. Launch
+the app again. Embedded evidence from the backup loads locally; new saves use
+separate evidence files. Never overwrite your only backup.
+
+KEYS & PRIVACY
+Your saved key is encrypted using Windows account protection. It is never sent
+to the renderer or stored in an exported backup. An existing OPENAI_API_KEY
+environment variable can also supply a key; a key saved in Settings takes priority.
+Screenshot capture and file attachment do not call OpenAI. Process, Retry and
+Review send the active thread's messages/images and linked prospect context to
+the official OpenAI Responses API. Requests set store:false; this does not mean
+zero provider retention. API usage is billed to your existing OpenAI project.
+No spending ceiling is enforced by this app. No analytics are included.
+Client records and screenshots are local files without app-level encryption.
+
+WINDOW BEHAVIOR
+Closing the window keeps the app running in the system tray. Double-click its
+tray icon to reopen. Use the tray's Quit command to exit completely. The app
+does not automatically start with Windows. If the shortcut is in use by another
+app, use the Capture button or Win+Shift+S and Paste image instead.
+
+BUILD STATUS
+This is an unsigned x64 Windows pilot, packaged with its desktop runtime.
+Windows may show an unknown-publisher warning. Check the included build
+checksum before choosing to run the package. There is no ARM64-specific build.
+21 automated core and DOM interaction checks passed. They cover persistence,
+evidence provenance, corrected instructions, selected approval, duplicate approval,
+tasks, incomplete responses, and failed-request recovery using simulated responses.
+Live OpenAI requests were NOT tested: your existing key is not present in this
+build environment. Native Windows capture, mixed-DPI monitors, tray behavior,
+and first launch require testing on your laptop. No live prospects are preloaded.
+
+This pilot has no browser research, automatic reminders, system audio capture,
+CRM connection, or message sending. It is a local capture-and-work assistant.
+
+SHARED PROFILE CONNECTOR — 0.2.0
+The 0.2 connector is implemented but the hosted backend must be deployed and
+activated before your laptop can use shared profiles. Installing this build
+alone does not activate server storage, migrate records, or connect production.
+
+Once the reviewed backend is activated:
+- In Settings, configure its HTTPS origin and dedicated desktop-profile token.
+  This is a separate credential from both your OpenAI key and producer token.
+- Use Find shared prospect. Choose an existing CoverageFit customer ID.
+- In the profile panel, explicitly choose which linked policy / opportunity this
+  thread's approved additions belong to. Each thread keeps its own selection.
+- Discuss and correct screenshots. Generate a review against current shared data.
+- Approve selected additions. Success requires a confirmed server receipt.
+  Those additions, screenshots, selected source messages and selected tasks are
+  then stored under the existing CoverageFit customer and opportunity IDs.
+- CoverageFit Producer Workspace and Signal producer detail read that same record.
+  Complete shared tasks in CoverageFit, then Refresh shared record in the app.
+- Your full working conversation remains local. Only evidence supporting selected
+  approved additions is uploaded to the shared record. There is no background
+  screenshot upload and no automatic import of old local prospect profiles.
+
+Offline or conflict: preserve the draft; do not fall back to a separate master
+profile. Refresh and regenerate a review after a confirmed version conflict.
+If an approval's result is uncertain, retry the unchanged selection to retrieve
+its original receipt. The app blocks editing/dismissing that pending approval
+until resolved, preventing accidental double-save after a network interruption.
+
+Screenshots selected for one shared update: up to 6 MB binary total. Up to 20
+profile items and 20 KB combined item JSON per approval. Select smaller reviews
+if limits are exceeded; originals remain in your local thread. Shared display
+windows are bounded and report truncation; this is an owner pilot, not an
+accepted high-volume production service or the full SIGNAL evidence flywheel.
+
+Legacy 0.1 local records remain local drafts. To use an old local discussion with
+an existing shared customer: select the shared profile first to cache it, then
+open the old thread, choose that shared profile in its Context selector, select
+the correct linked opportunity, and generate a new review. No name-based merge.
+Once a shared origin is configured, new customer profiles must be created or
+linked in CoverageFit. The desktop becomes a client of that customer identity.
+
+Backend setup, migration, scoped token provisioning, retention/erasure review,
+hosted consistency and owner-private rollout are NOT performed by the Windows
+app. See the repository's shared-profile integration review before activation.
+
+SHARED WORKSPACE 0.3.0
+Enter the isolated preview origin in Settings and choose Sign in to protected
+preview. Use your owner email and code in that sign-in window. The app
+retrieves the scoped connection only after signature-verified owner sign-in
+and encrypts it in the main process. No credential is displayed or exported.
+You may still use a separately provided desktop token with other backends.
+Choose an existing shared customer and explicitly select a linked opportunity.
+Each thread keeps its own policy selection. Refresh loads the shared story,
+readiness gaps and evidence status. Local conversations stay on this laptop.
+Review selected additions before approval. A confirmed server receipt is required.
+After an uncertain response, retry the unchanged approval before editing it.
+Open the same opportunity in CoverageFit Work to see its approved evidence
+and canonical tasks. Record approval does not verify a fact or send a message.
+
+Read-only web examples use synthetic records. Live OpenAI processing and
+interactive Windows capture / mixed-DPI acceptance require your laptop.
+
+PRODUCTION OWNER PILOT 0.4.0
+In Settings, choose Copy production setup fingerprint. Give the release
+operator the fingerprint shown on your clipboard. The app generates the
+credential on this laptop and stores it under Windows account protection.
+After the operator registers and activates this laptop, choose Connect to
+production after activation. The app checks the expected CoverageFit workspace
+before switching. Your preview and production credentials are stored separately.
+Use Find shared prospect with the existing prospect and opportunity you selected.
+Production analysis uses GPT-4.1 mini under the $5 local pilot usage budget.

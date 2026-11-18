@@ -1,0 +1,53 @@
+{
+  "name": "prospect-desk",
+  "version": "0.4.0",
+  "description": "Private screenshot-to-thread insurance workspace",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test test/*.test.js",
+    "test:ui": "node test/ui.cjs",
+    "dist:win": "electron-builder --win nsis --x64",
+    "dist:zip": "electron-builder --win zip --x64"
+  },
+  "keywords": [],
+  "author": "Dylan Haysbert",
+  "license": "UNLICENSED",
+  "type": "commonjs",
+  "devDependencies": {
+    "@playwright/test": "^1.65.1",
+    "electron": "^45.3.2",
+    "electron-builder": "^26.18.0",
+    "jsdom": "^31.0.1"
+  },
+  "private": true,
+  "build": {
+    "appId": "com.dylanhaysbert.prospectdesk",
+    "productName": "Prospect Desk",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "signAndEditExecutable": false,
+      "icon": "src/app.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "artifactName": "Prospect-Desk-Setup-${version}.${ext}"
+    },
+    "extraFiles": [
+      {
+        "from": "START-HERE.txt",
+        "to": "START-HERE.txt"
+      }
+    ]
+  }
+}

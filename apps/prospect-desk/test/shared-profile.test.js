@@ -1,0 +1,41 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path');const {Store}=require('../src/core'),{SharedProfiles,origin}=require('../src/shared-profile');
+const config={origin:'https://backend.example',token:'a'.repeat(40)};
+const profile=(version='v1')=>({customerId:'customer-one',name:'Example customer',workspace:'owner-workspace',version,links:[{opportunityId:'op-one',products:'Home',reason:'Review'}],items:[],tasks:[],context:{contactSafety:{outreachAuthorized:false}},historyLimited:false});
+function setup(t,fetcher){const dir=fs.mkdtempSync(path.join(os.tmpdir(),'desk-shared-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));const store=new Store(dir),client=new SharedProfiles(()=>config,fetcher);const p=client.apply(store,profile(),'op-one'),thread=store.newThread('Discussion',p.id),m=store.addMessage(thread.id,'user','This is forced-placed coverage.'),r=store.makeReview(thread.id,[{kind:'fact',label:'Coverage',value:m.body,confidence:'tentative',sources:[m.id],due:''}]);r.sharedVersion='v1';r.sharedOpportunityId='op-one';thread.sharedOpportunityId='op-one';store.save();return {store,client,p,thread,r,edits:[{id:r.items[0].id,value:r.items[0].value,confidence:'tentative',due:''}]};}
+test('shared origin allows HTTPS root only and binds records to their original backend',t=>{assert.equal(origin('https://example.test/'),'https://example.test');for(const url of ['http://example.test','https://a:b@example.test','https://example.test/path','https://example.test/#x'])assert.throws(()=>origin(url));const f=setup(t);const other=new SharedProfiles(()=>({origin:'https://other.example',token:'b'.repeat(40)}));assert.throws(()=>other.assertBound(f.p),/different shared backend/);});
+test('shared cache refresh replaces facts and tasks rather than duplicating profiles',t=>{const f=setup(t);const p=profile('v2');p.items=[{id:'server-item',value:'Reviewed fact'}];p.tasks=[{id:'server-task',value:'Call',state:'open'}];f.client.apply(f.store,p,'op-one');f.client.apply(f.store,p,'op-one');assert.equal(f.store.data.prospects.length,1);assert.equal(f.store.data.tasks.length,1);assert.equal(f.p.items[0].id,'server-item');assert.equal(f.p.shared.version,'v2');});
+test('uncertain approval preserves payload across restart and blocks changed selection',async t=>{const f=setup(t,async()=>{throw Error('Network interrupted')});await assert.rejects(f.client.approve(f.store,f.thread.id,f.r.id,f.edits),/did not confirm/);assert.equal(f.r.status,'pending');assert.ok(new Store(f.store.dir).thread(f.thread.id).reviews[0].sharedAttempt);assert.throws(()=>f.store.dismiss(f.thread.id,f.r.id),/Resolve/);assert.throws(()=>f.client.prepare(f.store,f.thread.id,f.r.id,[{...f.edits[0],value:'Changed'}]),/prior save/);assert.throws(()=>f.store.addMessage(f.thread.id,'user','Correction'),/Resolve/);});
+test('server receipt is required before shared profile approval succeeds',async t=>{const f=setup(t,async(url,options)=>{assert.equal(options.redirect,'error');assert.equal(options.headers.Authorization,'Bearer '+config.token);const payload=JSON.parse(options.body);return Response.json({ok:true,requestId:payload.requestId,profile:{...profile('v2'),items:[{...payload.items[0],id:'server-item',shared:true}]}});});await f.client.approve(f.store,f.thread.id,f.r.id,f.edits);assert.equal(f.r.status,'approved');assert.equal(f.r.sharedReceipt,f.r.id);assert.equal(f.p.shared.version,'v2');assert.equal(f.p.items.length,1);assert.equal(f.store.data.tasks.length,0);});
+test('definitive conflict keeps review editable while unknown server errors stay locked',async t=>{const f=setup(t,async()=>Response.json({ok:false,error:{code:'profile_changed',message:'Refresh the profile.'}},{status:409}));await assert.rejects(f.client.approve(f.store,f.thread.id,f.r.id,f.edits),/Refresh/);assert.equal(f.r.sharedAttempt,undefined);f.store.dismiss(f.thread.id,f.r.id);assert.equal(f.r.status,'dismissed');});
+test('later corrections invalidate old reviews; unread drafts cannot be approved',t=>{const f=setup(t);f.store.addMessage(f.thread.id,'user','Correction: price is $1900');assert.equal(f.r.status,'superseded');const r=f.store.makeReview(f.thread.id,[{...f.r.items[0]}]);r.sharedVersion='v1';r.sharedOpportunityId='op-one';f.thread.draft='Do not save yet';assert.throws(()=>f.client.prepare(f.store,f.thread.id,r.id,[{...f.edits[0],id:r.items[0].id}]),/latest instruction/);});
+test('new captures invalidate old proposed additions',t=>{const f=setup(t);f.store.addCapture(f.thread.id,'data:image/png;base64,aGVsbG8=');assert.equal(f.r.status,'superseded');});
+test('each thread pins its target policy independently of the shared cache',t=>{const f=setup(t);const p=profile('v1');p.links.push({opportunityId:'op-two',products:'Auto'});f.client.apply(f.store,p,'op-two');assert.equal(f.p.shared.opportunityId,'op-two');assert.equal(f.client.prepare(f.store,f.thread.id,f.r.id,f.edits).payload.opportunityId,'op-one');f.thread.sharedOpportunityId='op-two';assert.throws(()=>f.client.prepare(f.store,f.thread.id,f.r.id,f.edits),/new review/);});
+
+test('upgrading preserves an older pending payload without adding new metadata on retry',async t=>{let expected;const f=setup(t,async(url,options)=>{assert.deepEqual(JSON.parse(options.body),expected);return Response.json({ok:true,requestId:expected.requestId,profile:profile('v2')});});const old=f.client.prepare(f.store,f.thread.id,f.r.id,f.edits).payload;for(const row of old.items)for(const field of ['verification','freshness','factKey'])delete row[field];expected=structuredClone(old);f.r.sharedAttempt={payload:old,fingerprint:require('node:crypto').createHash('sha256').update(JSON.stringify(old)).digest('hex')};f.store.save();const restarted=new Store(f.store.dir);await f.client.approve(restarted,f.thread.id,f.r.id,f.edits.map(e=>({...e,freshness:'unknown',factKey:''})));assert.equal(restarted.thread(f.thread.id).reviews[0].status,'approved');});
+
+test('a lost screenshot approval response retains exact image bytes after restart and expired access', async t => {
+ const f = setup(t, async () => { throw Error('Response lost'); });
+ const capture = f.store.addCapture(f.thread.id, 'data:image/png;base64,aGVsbG8=');
+ const review = f.store.makeReview(f.thread.id, [{
+  kind: 'fact', label: 'Evidence', value: 'From screenshot', confidence: 'tentative', sources: [capture.id],
+ }]);
+ review.sharedVersion = 'v1';
+ review.sharedOpportunityId = 'op-one';
+ const edits = [{ id: review.items[0].id, value: review.items[0].value, confidence: 'tentative' }];
+ const expected = JSON.stringify(f.client.prepare(f.store, f.thread.id, review.id, edits).payload);
+ await assert.rejects(f.client.approve(f.store, f.thread.id, review.id, edits), /did not confirm/);
+ const restarted = new Store(f.store.dir);
+ const restored = restarted.thread(f.thread.id).reviews.find(item => item.id === review.id);
+ const rejected = new SharedProfiles(() => config, async (url, options) => {
+  assert.equal(options.body, expected);
+  return Response.json({ ok: false, error: { code: 'unauthorized', message: 'Access expired' } }, { status: 401 });
+ });
+ await assert.rejects(rejected.approve(restarted, f.thread.id, review.id, edits), /Access expired/);
+ assert.ok(restored.sharedAttempt);
+ const recovered = new SharedProfiles(() => config, async (url, options) => {
+  assert.equal(options.body, expected);
+  return Response.json({ ok: true, requestId: review.id, profile: profile('v2') });
+ });
+ await recovered.approve(restarted, f.thread.id, review.id, edits);
+ assert.equal(restored.status, 'approved');
+});

@@ -7,7 +7,7 @@ import {captureFivCalibrationBaseline,opportunityEffortSummary} from './fiv-cali
 import {deriveOpportunityPriority,PRIORITY_QUEUES,PRIORITY_BUILD} from './opportunity-priority-core.mjs';
 import {capturePriorityBaseline} from './opportunity-priority-calibration.mjs';
 export const parse=value=>{try{return JSON.parse(value||'{}')}catch{return {}}};
-export const identity=env=>({workspace:String(env.COVERAGEFIT_SOLO_WORKSPACE_ID||'virginia-tam:dylan-haysbert'),actor:producer.id,name:producer.name||'Dylan Haysbert'});
+export const identity=env=>({workspace:String(env.BUYER_STAGING_ISOLATED==='1'&&env.CF_SHARED_WORKSPACE_PREVIEW==='1'?env.CF_SHARED_WORKSPACE_PREVIEW_ID||'preview:shared-workspace:unconfigured':env.COVERAGEFIT_SOLO_WORKSPACE_ID||'virginia-tam:dylan-haysbert'),actor:producer.id,name:producer.name||'Dylan Haysbert'});
 export async function digest(value){return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value))),b=>b.toString(16).padStart(2,'0')).join('');}
 export const stamp=()=>new Date().toISOString();
 const decodeCursor=value=>{if(!value)return null;try{const c=JSON.parse(atob(value));if(Array.isArray(c)&&c.length<=5&&c.every(x=>typeof x==='string'||typeof x==='number'))return c;}catch{}fail(422,'cursor','Refresh the list to continue.');};
