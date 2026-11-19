@@ -1,0 +1,17 @@
+{
+ "version":"CF-PRODUCER-WALKTHROUGH-0.6",
+ "scenarios":[
+  {"id":"s01","title":"Start of day","goal":"Inspect this customer and decide whether any evidence needs your attention.","fixture":"clean","expected":{"open":[],"decisions":0}},
+  {"id":"s02","title":"One household, two reviews","goal":"Review the home opportunity, then inspect the auto opportunity. Decide which facts apply to each.","fixture":"multi","expected":{"home":["policy_date"],"auto":[],"scope":"home_only"}},
+  {"id":"s03","title":"Policy timing","goal":"Determine which policy expiration date you can support from the retained source, and record your decision or explain what is missing.","fixture":"policy","expected":{"open":["policy_date"],"supported":"policy_fact","retainsConflictingOriginals":true}},
+  {"id":"s04","title":"Changed conversation","goal":"Check the previous reviewed date against the message history and decide whether a new review is warranted.","fixture":"edit","expected":{"open":["stale_fact"],"supported":"stale_fact","priorFactStale":true}},
+  {"id":"s05","title":"Two task records","goal":"Inspect the external obligation and local Work. Record an exact relationship only if the evidence supports it.","fixture":"task","expected":{"open":["task_relationship"],"localTaskUnchanged":true}},
+  {"id":"s06","title":"Conversation context","goal":"Assess whether the conversation can safely support a reviewed opportunity fact and explain your next step.","fixture":"ownership","expected":{"open":["sms_ownership"],"contactHeld":true,"unsupportedResolution":true}},
+  {"id":"s07","title":"Policy timing and contact","goal":"Resolve the factual issue if possible, then assess what that decision means for contacting this customer.","fixture":"stop","expected":{"open":["policy_date"],"contactHeldAfterReview":true}},
+  {"id":"s08","title":"History coverage","goal":"Inspect the retained conversation and describe what you can and cannot conclude about its history.","fixture":"partial","expected":{"open":["sms_history"],"historyVerified":false}},
+  {"id":"s09","title":"Unavailable source","goal":"Inspect the reviewed fact and determine whether its original source is still adequate support.","fixture":"missing","expected":{"integrityHold":true,"currentFacts":0}},
+  {"id":"s10","title":"Growing archive","goal":"Inspect capacity and determine whether further ingestion needs planning.","fixture":"near","expected":{"open":["archive_capacity"],"state":"approaching"}},
+  {"id":"s11","title":"Ingestion stopped","goal":"Identify why ingestion stopped, which thread is affected, and a preservation-safe next step.","fixture":"full","expected":{"open":["archive_capacity"],"state":"at_limit","exportFreesCapacity":false}},
+  {"id":"s12","title":"Restored review","goal":"Inspect the restored customer, original evidence and previous producer decisions. Determine what still needs attention.","fixture":"restored","expected":{"retainedReceipts":true,"localTaskUnchanged":true,"currentSourceAvailable":true}}
+ ]
+}

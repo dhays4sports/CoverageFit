@@ -1,0 +1,1407 @@
+{
+  "mandate": "CF-PRODUCER-WALKTHROUGH-ARCHIVE-SCALE-0.6",
+  "status": "PASS_LOCAL_ENGINEERING",
+  "planVersion": "CF-ARCHIVE-WORKLOADS-0.6",
+  "limits": {
+    "wallSecondsPerWorkload": 45,
+    "heapMiB": 384,
+    "threads": 9,
+    "customers": 12,
+    "reviews": 51,
+    "threadMessages": 200,
+    "threadVersions": 400,
+    "threadPages": 64,
+    "repetitions": 1
+  },
+  "measurement": "Local Node/SQLite single-run engineering measurements. No hosted performance or human time claim.",
+  "node": "v24.22.1",
+  "platform": "linux",
+  "architecture": "x64",
+  "results": [
+    {
+      "id": "conversation_20",
+      "status": "PASS",
+      "kind": "supported_ingestion",
+      "outcome": "complete",
+      "ingestionStop": null,
+      "packageStop": null,
+      "attempts": 0,
+      "acceptedScans": 0,
+      "failedMutationPreserved": null,
+      "recovered": false,
+      "checkpointBeforeRecovery": null,
+      "counts": {
+        "cf_ucp_customers": 1,
+        "cf_solo_opportunities": 2,
+        "cf_solo_tasks": 0,
+        "az_sms_threads": 1,
+        "az_sms_heads": 20,
+        "az_sms_messages": 20,
+        "az_sms_pages": 1,
+        "az_read_revisions": 1,
+        "cf_shared_profile_updates": 0
+      },
+      "originalPayloadBytes": 5980,
+      "manifestPayloadBytes": 2311,
+      "headPayloadBytes": 3731,
+      "indexPhysicalBytes": null,
+      "databaseFileBytes": 901120,
+      "packageBytes": 32538,
+      "projection": {
+        "open": [],
+        "coverageComplete": false,
+        "historyLimited": false,
+        "shadow": "COMPATIBLE",
+        "currentSourceFacts": 0
+      },
+      "threads": [
+        {
+          "threadId": "thread-1",
+          "messageIdentities": 20,
+          "messageLimit": 200,
+          "originalRevisions": 20,
+          "revisionLimit": 400,
+          "originalBytes": 5980,
+          "byteLimit": 1048576,
+          "pageReceipts": 1,
+          "pageLimit": 64,
+          "requestedRangeComplete": true,
+          "sourceReportedComplete": true,
+          "actualHistoryVerified": false
+        }
+      ],
+      "phases": {
+        "ingestion": {
+          "milliseconds": 5.113502999999994,
+          "repositoryQueries": null
+        },
+        "projection": {
+          "milliseconds": 13.939357000000001,
+          "repositoryQueries": 55
+        },
+        "inspection": {
+          "milliseconds": 6.082330999999982,
+          "repositoryQueries": null
+        },
+        "export": {
+          "milliseconds": 12.964039000000014,
+          "repositoryQueries": null
+        },
+        "restore": {
+          "milliseconds": 12.737492000000003,
+          "repositoryQueries": null
+        }
+      },
+      "peakRSSMiB": 54.3125,
+      "externalNetworkAttempts": 0,
+      "communications": 0,
+      "localTasksCreated": 0,
+      "queryCountScope": "repository adapter during projection only; raw connector/export/restore SQLite queries are not counted",
+      "physicalIndexSize": "unmeasured; head and manifest payload sizes are not SQLite physical index size"
+    },
+    {
+      "id": "conversation_160",
+      "status": "PASS",
+      "kind": "supported_ingestion",
+      "outcome": "capacity_warning",
+      "ingestionStop": null,
+      "packageStop": null,
+      "attempts": 0,
+      "acceptedScans": 0,
+      "failedMutationPreserved": null,
+      "recovered": false,
+      "checkpointBeforeRecovery": null,
+      "counts": {
+        "cf_ucp_customers": 1,
+        "cf_solo_opportunities": 2,
+        "cf_solo_tasks": 0,
+        "az_sms_threads": 1,
+        "az_sms_heads": 160,
+        "az_sms_messages": 160,
+        "az_sms_pages": 7,
+        "az_read_revisions": 1,
+        "cf_shared_profile_updates": 0
+      },
+      "originalPayloadBytes": 48100,
+      "manifestPayloadBytes": 18617,
+      "headPayloadBytes": 29971,
+      "indexPhysicalBytes": null,
+      "databaseFileBytes": 1040384,
+      "packageBytes": 173177,
+      "projection": {
+        "open": [
+          "archive_capacity"
+        ],
+        "coverageComplete": false,
+        "historyLimited": false,
+        "shadow": "COMPATIBLE",
+        "currentSourceFacts": 0
+      },
+      "threads": [
+        {
+          "threadId": "thread-1",
+          "messageIdentities": 160,
+          "messageLimit": 200,
+          "originalRevisions": 160,
+          "revisionLimit": 400,
+          "originalBytes": 48100,
+          "byteLimit": 1048576,
+          "pageReceipts": 7,
+          "pageLimit": 64,
+          "requestedRangeComplete": true,
+          "sourceReportedComplete": true,
+          "actualHistoryVerified": false
+        }
+      ],
+      "phases": {
+        "ingestion": {
+          "milliseconds": 53.87044999999998,
+          "repositoryQueries": null
+        },
+        "projection": {
+          "milliseconds": 28.68805499999999,
+          "repositoryQueries": 195
+        },
+        "inspection": {
+          "milliseconds": 6.517586999999992,
+          "repositoryQueries": null
+        },
+        "export": {
+          "milliseconds": 17.970781999999986,
+          "repositoryQueries": null
+        },
+        "restore": {
+          "milliseconds": 16.338227999999987,
+          "repositoryQueries": null
+        }
+      },
+      "peakRSSMiB": 61.9140625,
+      "externalNetworkAttempts": 0,
+      "communications": 0,
+      "localTasksCreated": 0,
+      "queryCountScope": "repository adapter during projection only; raw connector/export/restore SQLite queries are not counted",
+      "physicalIndexSize": "unmeasured; head and manifest payload sizes are not SQLite physical index size"
+    },
+    {
+      "id": "conversation_200",
+      "status": "PASS",
+      "kind": "supported_ingestion",
+      "outcome": "archive_bound",
+      "ingestionStop": "archive_bound",
+      "packageStop": null,
+      "attempts": 0,
+      "acceptedScans": 0,
+      "failedMutationPreserved": true,
+      "recovered": false,
+      "checkpointBeforeRecovery": null,
+      "counts": {
+        "cf_ucp_customers": 1,
+        "cf_solo_opportunities": 2,
+        "cf_solo_tasks": 0,
+        "az_sms_threads": 1,
+        "az_sms_heads": 200,
+        "az_sms_messages": 200,
+        "az_sms_pages": 8,
+        "az_read_revisions": 1,
+        "cf_shared_profile_updates": 0
+      },
+      "originalPayloadBytes": 60180,
+      "manifestPayloadBytes": 23298,
+      "headPayloadBytes": 37491,
+      "indexPhysicalBytes": null,
+      "databaseFileBytes": 1081344,
+      "packageBytes": 213514,
+      "projection": {
+        "open": [
+          "archive_capacity"
+        ],
+        "coverageComplete": false,
+        "historyLimited": false,
+        "shadow": "HELD",
+        "currentSourceFacts": 0
+      },
+      "threads": [
+        {
+          "threadId": "thread-1",
+          "messageIdentities": 200,
+          "messageLimit": 200,
+          "originalRevisions": 200,
+          "revisionLimit": 400,
+          "originalBytes": 60180,
+          "byteLimit": 1048576,
+          "pageReceipts": 8,
+          "pageLimit": 64,
+          "requestedRangeComplete": true,
+          "sourceReportedComplete": true,
+          "actualHistoryVerified": false
+        }
+      ],
+      "phases": {
+        "ingestion": {
+          "milliseconds": 63.63084100000002,
+          "repositoryQueries": null
+        },
+        "projection": {
+          "milliseconds": 24.222955000000013,
+          "repositoryQueries": 235
+        },
+        "inspection": {
+          "milliseconds": 8.908557000000002,
+          "repositoryQueries": null
+        },
+        "export": {
+          "milliseconds": 26.65226099999998,
+          "repositoryQueries": null
+        },
+        "restore": {
+          "milliseconds": 23.941888000000006,
+          "repositoryQueries": null
+        }
+      },
+      "peakRSSMiB": 62.6796875,
+      "externalNetworkAttempts": 0,
+      "communications": 0,
+      "localTasksCreated": 0,
+      "queryCountScope": "repository adapter during projection only; raw connector/export/restore SQLite queries are not counted",
+      "physicalIndexSize": "unmeasured; head and manifest payload sizes are not SQLite physical index size"
+    },
+    {
+      "id": "edits_deletions",
+      "status": "PASS",
+      "kind": "supported_ingestion",
+      "outcome": "complete",
+      "ingestionStop": null,
+      "packageStop": null,
+      "attempts": 12,
+      "acceptedScans": 12,
+      "failedMutationPreserved": null,
+      "recovered": false,
+      "checkpointBeforeRecovery": null,
+      "counts": {
+        "cf_ucp_customers": 1,
+        "cf_solo_opportunities": 2,
+        "cf_solo_tasks": 0,
+        "az_sms_threads": 1,
+        "az_sms_heads": 2,
+        "az_sms_messages": 15,
+        "az_sms_pages": 14,
+        "az_read_revisions": 1,
+        "cf_shared_profile_updates": 1
+      },
+      "originalPayloadBytes": 4468,
+      "manifestPayloadBytes": 3293,
+      "headPayloadBytes": 381,
+      "indexPhysicalBytes": null,
+      "databaseFileBytes": 921600,
+      "packageBytes": 41998,
+      "projection": {
+        "open": [
+          "stale_fact"
+        ],
+        "coverageComplete": false,
+        "historyLimited": false,
+        "shadow": "HELD",
+        "currentSourceFacts": 0
+      },
+      "threads": [
+        {
+          "threadId": "thread-1",
+          "messageIdentities": 2,
+          "messageLimit": 200,
+          "originalRevisions": 15,
+          "revisionLimit": 400,
+          "originalBytes": 4468,
+          "byteLimit": 1048576,
+          "pageReceipts": 14,
+          "pageLimit": 64,
+          "requestedRangeComplete": true,
+          "sourceReportedComplete": true,
+          "actualHistoryVerified": false
+        }
+      ],
+      "phases": {
+        "ingestion": {
+          "milliseconds": 50.506258999999986,
+          "repositoryQueries": null
+        },
+        "projection": {
+          "milliseconds": 8.340113000000002,
+          "repositoryQueries": 39
+        },
+        "inspection": {
+          "milliseconds": 4.0209700000000055,
+          "repositoryQueries": null
+        },
+        "export": {
+          "milliseconds": 6.481794000000008,
+          "repositoryQueries": null
+        },
+        "restore": {
+          "milliseconds": 10.490234999999984,
+          "repositoryQueries": null
+        }
+      },
+      "peakRSSMiB": 58.46484375,
+      "externalNetworkAttempts": 0,
+      "communications": 0,
+      "localTasksCreated": 0,
+      "queryCountScope": "repository adapter during projection only; raw connector/export/restore SQLite queries are not counted",
+      "physicalIndexSize": "unmeasured; head and manifest payload sizes are not SQLite physical index size"
+    },
+    {
+      "id": "page_receipts",
+      "status": "PASS",
+      "kind": "supported_ingestion",
+      "outcome": "archive_bound",
+      "ingestionStop": "archive_bound",
+      "packageStop": null,
+      "attempts": 64,
+      "acceptedScans": 63,
+      "failedMutationPreserved": true,
+      "recovered": false,
+      "checkpointBeforeRecovery": null,
+      "counts": {
+        "cf_ucp_customers": 1,
+        "cf_solo_opportunities": 2,
+        "cf_solo_tasks": 0,
+        "az_sms_threads": 1,
+        "az_sms_heads": 2,
+        "az_sms_messages": 65,
+        "az_sms_pages": 64,
+        "az_read_revisions": 1,
+        "cf_shared_profile_updates": 1
+      },
+      "originalPayloadBytes": 19541,
+      "manifestPayloadBytes": 15090,
+      "headPayloadBytes": 378,
+      "indexPhysicalBytes": null,
+      "databaseFileBytes": 991232,
+      "packageBytes": 121889,
+      "projection": {
+        "open": [
+          "archive_capacity",
+          "stale_fact"
+        ],
+        "coverageComplete": false,
+        "historyLimited": false,
+        "shadow": "HELD",
+        "currentSourceFacts": 0
+      },
+      "threads": [
+        {
+          "threadId": "thread-1",
+          "messageIdentities": 2,
+          "messageLimit": 200,
+          "originalRevisions": 65,
+          "revisionLimit": 400,
+          "originalBytes": 19541,
+          "byteLimit": 1048576,
+          "pageReceipts": 64,
+          "pageLimit": 64,
+          "requestedRangeComplete": true,
+          "sourceReportedComplete": true,
+          "actualHistoryVerified": false
+        }
+      ],
+      "phases": {
+        "ingestion": {
+          "milliseconds": 100.01920799999999,
+          "repositoryQueries": null
+        },
+        "projection": {
+          "milliseconds": 3.163727000000023,
+          "repositoryQueries": 38
+        },
+        "inspection": {
+          "milliseconds": 4.749031000000002,
+          "repositoryQueries": null
+        },
+        "export": {
+          "milliseconds": 13.426064999999994,
+          "repositoryQueries": null
+        },
+        "restore": {
+          "milliseconds": 12.138663000000008,
+          "repositoryQueries": null
+        }
+      },
+      "peakRSSMiB": 59.75,
+      "externalNetworkAttempts": 0,
+      "communications": 0,
+      "localTasksCreated": 0,
+      "queryCountScope": "repository adapter during projection only; raw connector/export/restore SQLite queries are not counted",
+      "physicalIndexSize": "unmeasured; head and manifest payload sizes are not SQLite physical index size"
+    },
+    {
+      "id": "revision_versions",
+      "status": "PASS",
+      "kind": "supported_ingestion",
+      "outcome": "archive_bound",
+      "ingestionStop": "archive_bound",
+      "packageStop": null,
+      "attempts": 16,
+      "acceptedScans": 15,
+      "failedMutationPreserved": true,
+      "recovered": false,
+      "checkpointBeforeRecovery": null,
+      "counts": {
+        "cf_ucp_customers": 1,
+        "cf_solo_opportunities": 2,
+        "cf_solo_tasks": 0,
+        "az_sms_threads": 1,
+        "az_sms_heads": 25,
+        "az_sms_messages": 400,
+        "az_sms_pages": 16,
+        "az_read_revisions": 1,
+        "cf_shared_profile_updates": 1
+      },
+      "originalPayloadBytes": 120130,
+      "manifestPayloadBytes": 47906,
+      "headPayloadBytes": 4791,
+      "indexPhysicalBytes": null,
+      "databaseFileBytes": 1146880,
+      "packageBytes": 298601,
+      "projection": {
+        "open": [
+          "archive_capacity",
+          "stale_fact"
+        ],
+        "coverageComplete": false,
+        "historyLimited": false,
+        "shadow": "HELD",
+        "currentSourceFacts": 0
+      },
+      "threads": [
+        {
+          "threadId": "thread-1",
+          "messageIdentities": 25,
+          "messageLimit": 200,
+          "originalRevisions": 400,
+          "revisionLimit": 400,
+          "originalBytes": 120130,
+          "byteLimit": 1048576,
+          "pageReceipts": 16,
+          "pageLimit": 64,
+          "requestedRangeComplete": true,
+          "sourceReportedComplete": true,
+          "actualHistoryVerified": false
+        }
+      ],
+      "phases": {
+        "ingestion": {
+          "milliseconds": 130.103732,
+          "repositoryQueries": null
+        },
+        "projection": {
+          "milliseconds": 4.0969519999999875,
+          "repositoryQueries": 61
+        },
+        "inspection": {
+          "milliseconds": 9.692380999999983,
+          "repositoryQueries": null
+        },
+        "export": {
+          "milliseconds": 28.267560999999972,
+          "repositoryQueries": null
+        },
+        "restore": {
+          "milliseconds": 40.86452400000002,
+          "repositoryQueries": null
+        }
+      },
+      "peakRSSMiB": 70.296875,
+      "externalNetworkAttempts": 0,
+      "communications": 0,
+      "localTasksCreated": 0,
+      "queryCountScope": "repository adapter during projection only; raw connector/export/restore SQLite queries are not counted",
+      "physicalIndexSize": "unmeasured; head and manifest payload sizes are not SQLite physical index size"
+    },
+    {
+      "id": "original_bytes",
+      "status": "PASS",
+      "kind": "supported_ingestion",
+      "outcome": "archive_bound",
+      "ingestionStop": "archive_bound",
+      "packageStop": null,
+      "attempts": 9,
+      "acceptedScans": 8,
+      "failedMutationPreserved": true,
+      "recovered": false,
+      "checkpointBeforeRecovery": null,
+      "counts": {
+        "cf_ucp_customers": 1,
+        "cf_solo_opportunities": 2,
+        "cf_solo_tasks": 0,
+        "az_sms_threads": 1,
+        "az_sms_heads": 25,
+        "az_sms_messages": 225,
+        "az_sms_pages": 9,
+        "az_read_revisions": 1,
+        "cf_shared_profile_updates": 1
+      },
+      "originalPayloadBytes": 961060,
+      "manifestPayloadBytes": 26819,
+      "headPayloadBytes": 4766,
+      "indexPhysicalBytes": null,
+      "databaseFileBytes": 1990656,
+      "packageBytes": 1077248,
+      "projection": {
+        "open": [
+          "archive_capacity",
+          "stale_fact"
+        ],
+        "coverageComplete": false,
+        "historyLimited": false,
+        "shadow": "HELD",
+        "currentSourceFacts": 0
+      },
+      "threads": [
+        {
+          "threadId": "thread-1",
+          "messageIdentities": 25,
+          "messageLimit": 200,
+          "originalRevisions": 225,
+          "revisionLimit": 400,
+          "originalBytes": 961060,
+          "byteLimit": 1048576,
+          "pageReceipts": 9,
+          "pageLimit": 64,
+          "requestedRangeComplete": true,
+          "sourceReportedComplete": true,
+          "actualHistoryVerified": false
+        }
+      ],
+      "phases": {
+        "ingestion": {
+          "milliseconds": 123.035851,
+          "repositoryQueries": null
+        },
+        "projection": {
+          "milliseconds": 10.273343000000011,
+          "repositoryQueries": 61
+        },
+        "inspection": {
+          "milliseconds": 23.88735700000001,
+          "repositoryQueries": null
+        },
+        "export": {
+          "milliseconds": 45.216665000000035,
+          "repositoryQueries": null
+        },
+        "restore": {
+          "milliseconds": 36.06798100000003,
+          "repositoryQueries": null
+        }
+      },
+      "peakRSSMiB": 87.921875,
+      "externalNetworkAttempts": 0,
+      "communications": 0,
+      "localTasksCreated": 0,
+      "queryCountScope": "repository adapter during projection only; raw connector/export/restore SQLite queries are not counted",
+      "physicalIndexSize": "unmeasured; head and manifest payload sizes are not SQLite physical index size"
+    },
+    {
+      "id": "threads_8",
+      "status": "PASS",
+      "kind": "supported_ingestion",
+      "outcome": "complete",
+      "ingestionStop": null,
+      "packageStop": null,
+      "attempts": 0,
+      "acceptedScans": 0,
+      "failedMutationPreserved": null,
+      "recovered": false,
+      "checkpointBeforeRecovery": null,
+      "counts": {
+        "cf_ucp_customers": 1,
+        "cf_solo_opportunities": 2,
+        "cf_solo_tasks": 0,
+        "az_sms_threads": 8,
+        "az_sms_heads": 160,
+        "az_sms_messages": 160,
+        "az_sms_pages": 8,
+        "az_read_revisions": 1,
+        "cf_shared_profile_updates": 0
+      },
+      "originalPayloadBytes": 47840,
+      "manifestPayloadBytes": 18488,
+      "headPayloadBytes": 29841,
+      "indexPhysicalBytes": null,
+      "databaseFileBytes": 1073152,
+      "packageBytes": 189570,
+      "projection": {
+        "open": [],
+        "coverageComplete": false,
+        "historyLimited": false,
+        "shadow": "COMPATIBLE",
+        "currentSourceFacts": 0
+      },
+      "threads": [
+        {
+          "threadId": "thread-1",
+          "messageIdentities": 20,
+          "messageLimit": 200,
+          "originalRevisions": 20,
+          "revisionLimit": 400,
+          "originalBytes": 5980,
+          "byteLimit": 1048576,
+          "pageReceipts": 1,
+          "pageLimit": 64,
+          "requestedRangeComplete": true,
+          "sourceReportedComplete": true,
+          "actualHistoryVerified": false
+        },
+        {
+          "threadId": "thread-2",
+          "messageIdentities": 20,
+          "messageLimit": 200,
+          "originalRevisions": 20,
+          "revisionLimit": 400,
+          "originalBytes": 5980,
+          "byteLimit": 1048576,
+          "pageReceipts": 1,
+          "pageLimit": 64,
+          "requestedRangeComplete": true,
+          "sourceReportedComplete": true,
+          "actualHistoryVerified": false
+        },
+        {
+          "threadId": "thread-3",
+          "messageIdentities": 20,
+          "messageLimit": 200,
+          "originalRevisions": 20,
+          "revisionLimit": 400,
+          "originalBytes": 5980,
+          "byteLimit": 1048576,
+          "pageReceipts": 1,
+          "pageLimit": 64,
+          "requestedRangeComplete": true,
+          "sourceReportedComplete": true,
+          "actualHistoryVerified": false
+        },
+        {
+          "threadId": "thread-4",
+          "messageIdentities": 20,
+          "messageLimit": 200,
+          "originalRevisions": 20,
+          "revisionLimit": 400,
+          "originalBytes": 5980,
+          "byteLimit": 1048576,
+          "pageReceipts": 1,
+          "pageLimit": 64,
+          "requestedRangeComplete": true,
+          "sourceReportedComplete": true,
+          "actualHistoryVerified": false
+        },
+        {
+          "threadId": "thread-5",
+          "messageIdentities": 20,
+          "messageLimit": 200,
+          "originalRevisions": 20,
+          "revisionLimit": 400,
+          "originalBytes": 5980,
+          "byteLimit": 1048576,
+          "pageReceipts": 1,
+          "pageLimit": 64,
+          "requestedRangeComplete": true,
+          "sourceReportedComplete": true,
+          "actualHistoryVerified": false
+        },
+        {
+          "threadId": "thread-6",
+          "messageIdentities": 20,
+          "messageLimit": 200,
+          "originalRevisions": 20,
+          "revisionLimit": 400,
+          "originalBytes": 5980,
+          "byteLimit": 1048576,
+          "pageReceipts": 1,
+          "pageLimit": 64,
+          "requestedRangeComplete": true,
+          "sourceReportedComplete": true,
+          "actualHistoryVerified": false
+        },
+        {
+          "threadId": "thread-7",
+          "messageIdentities": 20,
+          "messageLimit": 200,
+          "originalRevisions": 20,
+          "revisionLimit": 400,
+          "originalBytes": 5980,
+          "byteLimit": 1048576,
+          "pageReceipts": 1,
+          "pageLimit": 64,
+          "requestedRangeComplete": true,
+          "sourceReportedComplete": true,
+          "actualHistoryVerified": false
+        },
+        {
+          "threadId": "thread-8",
+          "messageIdentities": 20,
+          "messageLimit": 200,
+          "originalRevisions": 20,
+          "revisionLimit": 400,
+          "originalBytes": 5980,
+          "byteLimit": 1048576,
+          "pageReceipts": 1,
+          "pageLimit": 64,
+          "requestedRangeComplete": true,
+          "sourceReportedComplete": true,
+          "actualHistoryVerified": false
+        }
+      ],
+      "phases": {
+        "ingestion": {
+          "milliseconds": 19.083605000000006,
+          "repositoryQueries": null
+        },
+        "projection": {
+          "milliseconds": 27.744614000000013,
+          "repositoryQueries": 258
+        },
+        "inspection": {
+          "milliseconds": 10.169007999999991,
+          "repositoryQueries": null
+        },
+        "export": {
+          "milliseconds": 23.166166000000004,
+          "repositoryQueries": null
+        },
+        "restore": {
+          "milliseconds": 22.438916000000006,
+          "repositoryQueries": null
+        }
+      },
+      "peakRSSMiB": 61.1171875,
+      "externalNetworkAttempts": 0,
+      "communications": 0,
+      "localTasksCreated": 0,
+      "queryCountScope": "repository adapter during projection only; raw connector/export/restore SQLite queries are not counted",
+      "physicalIndexSize": "unmeasured; head and manifest payload sizes are not SQLite physical index size"
+    },
+    {
+      "id": "threads_9",
+      "status": "PASS",
+      "kind": "supported_ingestion",
+      "outcome": "package_bound",
+      "ingestionStop": null,
+      "packageStop": "package_bound",
+      "attempts": 0,
+      "acceptedScans": 0,
+      "failedMutationPreserved": null,
+      "recovered": false,
+      "checkpointBeforeRecovery": null,
+      "counts": {
+        "cf_ucp_customers": 1,
+        "cf_solo_opportunities": 2,
+        "cf_solo_tasks": 0,
+        "az_sms_threads": 9,
+        "az_sms_heads": 180,
+        "az_sms_messages": 180,
+        "az_sms_pages": 9,
+        "az_read_revisions": 1,
+        "cf_shared_profile_updates": 0
+      },
+      "originalPayloadBytes": 53820,
+      "manifestPayloadBytes": 20799,
+      "headPayloadBytes": 33571,
+      "indexPhysicalBytes": null,
+      "databaseFileBytes": 1097728,
+      "packageBytes": null,
+      "projection": {
+        "open": [
+          "inspection_coverage"
+        ],
+        "coverageComplete": false,
+        "historyLimited": false,
+        "shadow": "HELD",
+        "currentSourceFacts": 0
+      },
+      "threads": [
+        {
+          "threadId": "thread-1",
+          "messageIdentities": 20,
+          "messageLimit": 200,
+          "originalRevisions": 20,
+          "revisionLimit": 400,
+          "originalBytes": 5980,
+          "byteLimit": 1048576,
+          "pageReceipts": 1,
+          "pageLimit": 64,
+          "requestedRangeComplete": true,
+          "sourceReportedComplete": true,
+          "actualHistoryVerified": false
+        },
+        {
+          "threadId": "thread-2",
+          "messageIdentities": 20,
+          "messageLimit": 200,
+          "originalRevisions": 20,
+          "revisionLimit": 400,
+          "originalBytes": 5980,
+          "byteLimit": 1048576,
+          "pageReceipts": 1,
+          "pageLimit": 64,
+          "requestedRangeComplete": true,
+          "sourceReportedComplete": true,
+          "actualHistoryVerified": false
+        },
+        {
+          "threadId": "thread-3",
+          "messageIdentities": 20,
+          "messageLimit": 200,
+          "originalRevisions": 20,
+          "revisionLimit": 400,
+          "originalBytes": 5980,
+          "byteLimit": 1048576,
+          "pageReceipts": 1,
+          "pageLimit": 64,
+          "requestedRangeComplete": true,
+          "sourceReportedComplete": true,
+          "actualHistoryVerified": false
+        },
+        {
+          "threadId": "thread-4",
+          "messageIdentities": 20,
+          "messageLimit": 200,
+          "originalRevisions": 20,
+          "revisionLimit": 400,
+          "originalBytes": 5980,
+          "byteLimit": 1048576,
+          "pageReceipts": 1,
+          "pageLimit": 64,
+          "requestedRangeComplete": true,
+          "sourceReportedComplete": true,
+          "actualHistoryVerified": false
+        },
+        {
+          "threadId": "thread-5",
+          "messageIdentities": 20,
+          "messageLimit": 200,
+          "originalRevisions": 20,
+          "revisionLimit": 400,
+          "originalBytes": 5980,
+          "byteLimit": 1048576,
+          "pageReceipts": 1,
+          "pageLimit": 64,
+          "requestedRangeComplete": true,
+          "sourceReportedComplete": true,
+          "actualHistoryVerified": false
+        },
+        {
+          "threadId": "thread-6",
+          "messageIdentities": 20,
+          "messageLimit": 200,
+          "originalRevisions": 20,
+          "revisionLimit": 400,
+          "originalBytes": 5980,
+          "byteLimit": 1048576,
+          "pageReceipts": 1,
+          "pageLimit": 64,
+          "requestedRangeComplete": true,
+          "sourceReportedComplete": true,
+          "actualHistoryVerified": false
+        },
+        {
+          "threadId": "thread-7",
+          "messageIdentities": 20,
+          "messageLimit": 200,
+          "originalRevisions": 20,
+          "revisionLimit": 400,
+          "originalBytes": 5980,
+          "byteLimit": 1048576,
+          "pageReceipts": 1,
+          "pageLimit": 64,
+          "requestedRangeComplete": true,
+          "sourceReportedComplete": true,
+          "actualHistoryVerified": false
+        },
+        {
+          "threadId": "thread-8",
+          "messageIdentities": 20,
+          "messageLimit": 200,
+          "originalRevisions": 20,
+          "revisionLimit": 400,
+          "originalBytes": 5980,
+          "byteLimit": 1048576,
+          "pageReceipts": 1,
+          "pageLimit": 64,
+          "requestedRangeComplete": true,
+          "sourceReportedComplete": true,
+          "actualHistoryVerified": false
+        },
+        {
+          "threadId": "thread-9",
+          "messageIdentities": 20,
+          "messageLimit": 200,
+          "originalRevisions": 20,
+          "revisionLimit": 400,
+          "originalBytes": 5980,
+          "byteLimit": 1048576,
+          "pageReceipts": 1,
+          "pageLimit": 64,
+          "requestedRangeComplete": true,
+          "sourceReportedComplete": true,
+          "actualHistoryVerified": false
+        }
+      ],
+      "phases": {
+        "ingestion": {
+          "milliseconds": 19.41058000000001,
+          "repositoryQueries": null
+        },
+        "projection": {
+          "milliseconds": 9.883384000000007,
+          "repositoryQueries": 53
+        },
+        "inspection": {
+          "milliseconds": 7.298085999999998,
+          "repositoryQueries": null
+        },
+        "export": {
+          "milliseconds": 19.860528000000016,
+          "repositoryQueries": null
+        }
+      },
+      "peakRSSMiB": 60.734375,
+      "externalNetworkAttempts": 0,
+      "communications": 0,
+      "localTasksCreated": 0,
+      "queryCountScope": "repository adapter during projection only; raw connector/export/restore SQLite queries are not counted",
+      "physicalIndexSize": "unmeasured; head and manifest payload sizes are not SQLite physical index size"
+    },
+    {
+      "id": "customers_12",
+      "status": "PASS",
+      "kind": "supported_ingestion",
+      "outcome": "complete",
+      "ingestionStop": null,
+      "packageStop": null,
+      "attempts": 0,
+      "acceptedScans": 0,
+      "failedMutationPreserved": null,
+      "recovered": false,
+      "checkpointBeforeRecovery": null,
+      "counts": {
+        "cf_ucp_customers": 12,
+        "cf_solo_opportunities": 24,
+        "cf_solo_tasks": 0,
+        "az_sms_threads": 0,
+        "az_sms_heads": 0,
+        "az_sms_messages": 0,
+        "az_sms_pages": 0,
+        "az_read_revisions": 24,
+        "cf_shared_profile_updates": 0
+      },
+      "originalPayloadBytes": 0,
+      "manifestPayloadBytes": 0,
+      "headPayloadBytes": 2,
+      "indexPhysicalBytes": null,
+      "databaseFileBytes": 1036288,
+      "packageBytes": 119977,
+      "projection": {
+        "open": [],
+        "coverageComplete": false,
+        "historyLimited": false,
+        "shadow": "COMPATIBLE",
+        "currentSourceFacts": 0
+      },
+      "threads": [],
+      "phases": {
+        "ingestion": {
+          "milliseconds": 20.159687000000005,
+          "repositoryQueries": null
+        },
+        "projection": {
+          "milliseconds": 8.925031000000004,
+          "repositoryQueries": 26
+        },
+        "inspection": {
+          "milliseconds": 8.392386000000002,
+          "repositoryQueries": null
+        },
+        "export": {
+          "milliseconds": 12.342906,
+          "repositoryQueries": null
+        },
+        "restore": {
+          "milliseconds": 14.443634000000003,
+          "repositoryQueries": null
+        }
+      },
+      "peakRSSMiB": 58.41796875,
+      "externalNetworkAttempts": 0,
+      "communications": 0,
+      "localTasksCreated": 0,
+      "queryCountScope": "repository adapter during projection only; raw connector/export/restore SQLite queries are not counted",
+      "physicalIndexSize": "unmeasured; head and manifest payload sizes are not SQLite physical index size"
+    },
+    {
+      "id": "policy_revisions",
+      "status": "PASS",
+      "kind": "supported_ingestion",
+      "outcome": "record_bound",
+      "ingestionStop": "record_bound",
+      "packageStop": null,
+      "attempts": 8,
+      "acceptedScans": 7,
+      "failedMutationPreserved": true,
+      "recovered": false,
+      "checkpointBeforeRecovery": null,
+      "counts": {
+        "cf_ucp_customers": 1,
+        "cf_solo_opportunities": 2,
+        "cf_solo_tasks": 0,
+        "az_sms_threads": 0,
+        "az_sms_heads": 0,
+        "az_sms_messages": 0,
+        "az_sms_pages": 0,
+        "az_read_revisions": 8,
+        "cf_shared_profile_updates": 0
+      },
+      "originalPayloadBytes": 0,
+      "manifestPayloadBytes": 0,
+      "headPayloadBytes": 2,
+      "indexPhysicalBytes": null,
+      "databaseFileBytes": 917504,
+      "packageBytes": 26599,
+      "projection": {
+        "open": [
+          "source_capacity"
+        ],
+        "coverageComplete": false,
+        "historyLimited": false,
+        "shadow": "COMPATIBLE",
+        "currentSourceFacts": 0
+      },
+      "threads": [],
+      "phases": {
+        "ingestion": {
+          "milliseconds": 8.847825999999998,
+          "repositoryQueries": null
+        },
+        "projection": {
+          "milliseconds": 7.529970999999989,
+          "repositoryQueries": 26
+        },
+        "inspection": {
+          "milliseconds": 2.45129,
+          "repositoryQueries": null
+        },
+        "export": {
+          "milliseconds": 4.118884999999992,
+          "repositoryQueries": null
+        },
+        "restore": {
+          "milliseconds": 6.698155000000014,
+          "repositoryQueries": null
+        }
+      },
+      "peakRSSMiB": 54.29296875,
+      "externalNetworkAttempts": 0,
+      "communications": 0,
+      "localTasksCreated": 0,
+      "queryCountScope": "repository adapter during projection only; raw connector/export/restore SQLite queries are not counted",
+      "physicalIndexSize": "unmeasured; head and manifest payload sizes are not SQLite physical index size"
+    },
+    {
+      "id": "reviews_50",
+      "status": "PASS",
+      "kind": "supported_ingestion",
+      "outcome": "complete",
+      "ingestionStop": null,
+      "packageStop": null,
+      "attempts": 0,
+      "acceptedScans": 0,
+      "failedMutationPreserved": null,
+      "recovered": false,
+      "checkpointBeforeRecovery": null,
+      "counts": {
+        "cf_ucp_customers": 1,
+        "cf_solo_opportunities": 2,
+        "cf_solo_tasks": 0,
+        "az_sms_threads": 1,
+        "az_sms_heads": 2,
+        "az_sms_messages": 2,
+        "az_sms_pages": 1,
+        "az_read_revisions": 1,
+        "cf_shared_profile_updates": 50
+      },
+      "originalPayloadBytes": 596,
+      "manifestPayloadBytes": 231,
+      "headPayloadBytes": 373,
+      "indexPhysicalBytes": null,
+      "databaseFileBytes": 1269760,
+      "packageBytes": 331476,
+      "projection": {
+        "open": [],
+        "coverageComplete": false,
+        "historyLimited": false,
+        "shadow": "COMPATIBLE",
+        "currentSourceFacts": 50
+      },
+      "threads": [
+        {
+          "threadId": "thread-1",
+          "messageIdentities": 2,
+          "messageLimit": 200,
+          "originalRevisions": 2,
+          "revisionLimit": 400,
+          "originalBytes": 596,
+          "byteLimit": 1048576,
+          "pageReceipts": 1,
+          "pageLimit": 64,
+          "requestedRangeComplete": true,
+          "sourceReportedComplete": true,
+          "actualHistoryVerified": false
+        }
+      ],
+      "phases": {
+        "ingestion": {
+          "milliseconds": 627.743452,
+          "repositoryQueries": null
+        },
+        "projection": {
+          "milliseconds": 3.3738690000000133,
+          "repositoryQueries": 37
+        },
+        "inspection": {
+          "milliseconds": 9.33164499999998,
+          "repositoryQueries": null
+        },
+        "export": {
+          "milliseconds": 15.373025999999982,
+          "repositoryQueries": null
+        },
+        "restore": {
+          "milliseconds": 13.281640000000039,
+          "repositoryQueries": null
+        }
+      },
+      "peakRSSMiB": 76.8671875,
+      "externalNetworkAttempts": 0,
+      "communications": 0,
+      "localTasksCreated": 0,
+      "queryCountScope": "repository adapter during projection only; raw connector/export/restore SQLite queries are not counted",
+      "physicalIndexSize": "unmeasured; head and manifest payload sizes are not SQLite physical index size"
+    },
+    {
+      "id": "reviews_51",
+      "status": "PASS",
+      "kind": "supported_ingestion",
+      "outcome": "package_bound",
+      "ingestionStop": null,
+      "packageStop": "package_bound",
+      "attempts": 0,
+      "acceptedScans": 0,
+      "failedMutationPreserved": null,
+      "recovered": false,
+      "checkpointBeforeRecovery": null,
+      "counts": {
+        "cf_ucp_customers": 1,
+        "cf_solo_opportunities": 2,
+        "cf_solo_tasks": 0,
+        "az_sms_threads": 1,
+        "az_sms_heads": 2,
+        "az_sms_messages": 2,
+        "az_sms_pages": 1,
+        "az_read_revisions": 1,
+        "cf_shared_profile_updates": 51
+      },
+      "originalPayloadBytes": 596,
+      "manifestPayloadBytes": 231,
+      "headPayloadBytes": 373,
+      "indexPhysicalBytes": null,
+      "databaseFileBytes": 1286144,
+      "packageBytes": null,
+      "projection": {
+        "open": [
+          "inspection_coverage"
+        ],
+        "coverageComplete": false,
+        "historyLimited": true,
+        "shadow": "HELD",
+        "currentSourceFacts": 50
+      },
+      "threads": [
+        {
+          "threadId": "thread-1",
+          "messageIdentities": 2,
+          "messageLimit": 200,
+          "originalRevisions": 2,
+          "revisionLimit": 400,
+          "originalBytes": 596,
+          "byteLimit": 1048576,
+          "pageReceipts": 1,
+          "pageLimit": 64,
+          "requestedRangeComplete": true,
+          "sourceReportedComplete": true,
+          "actualHistoryVerified": false
+        }
+      ],
+      "phases": {
+        "ingestion": {
+          "milliseconds": 679.8250700000001,
+          "repositoryQueries": null
+        },
+        "projection": {
+          "milliseconds": 2.6339209999999866,
+          "repositoryQueries": 37
+        },
+        "inspection": {
+          "milliseconds": 8.08927099999994,
+          "repositoryQueries": null
+        },
+        "export": {
+          "milliseconds": 12.475172000000043,
+          "repositoryQueries": null
+        }
+      },
+      "peakRSSMiB": 73.8515625,
+      "externalNetworkAttempts": 0,
+      "communications": 0,
+      "localTasksCreated": 0,
+      "queryCountScope": "repository adapter during projection only; raw connector/export/restore SQLite queries are not counted",
+      "physicalIndexSize": "unmeasured; head and manifest payload sizes are not SQLite physical index size"
+    },
+    {
+      "id": "partial_restart",
+      "status": "PASS",
+      "kind": "supported_ingestion",
+      "outcome": "recovered",
+      "ingestionStop": null,
+      "packageStop": null,
+      "attempts": 0,
+      "acceptedScans": 0,
+      "failedMutationPreserved": null,
+      "recovered": true,
+      "checkpointBeforeRecovery": null,
+      "counts": {
+        "cf_ucp_customers": 1,
+        "cf_solo_opportunities": 2,
+        "cf_solo_tasks": 0,
+        "az_sms_threads": 1,
+        "az_sms_heads": 2,
+        "az_sms_messages": 2,
+        "az_sms_pages": 2,
+        "az_read_revisions": 1,
+        "cf_shared_profile_updates": 0
+      },
+      "originalPayloadBytes": 596,
+      "manifestPayloadBytes": 232,
+      "headPayloadBytes": 373,
+      "indexPhysicalBytes": null,
+      "databaseFileBytes": 892928,
+      "packageBytes": 16369,
+      "projection": {
+        "open": [],
+        "coverageComplete": false,
+        "historyLimited": false,
+        "shadow": "COMPATIBLE",
+        "currentSourceFacts": 0
+      },
+      "threads": [
+        {
+          "threadId": "thread-1",
+          "messageIdentities": 2,
+          "messageLimit": 200,
+          "originalRevisions": 2,
+          "revisionLimit": 400,
+          "originalBytes": 596,
+          "byteLimit": 1048576,
+          "pageReceipts": 2,
+          "pageLimit": 64,
+          "requestedRangeComplete": true,
+          "sourceReportedComplete": true,
+          "actualHistoryVerified": false
+        }
+      ],
+      "phases": {
+        "ingestion": {
+          "milliseconds": 10.401122999999998,
+          "repositoryQueries": null
+        },
+        "projection": {
+          "milliseconds": 4.223500000000001,
+          "repositoryQueries": 37
+        },
+        "inspection": {
+          "milliseconds": 2.729573000000002,
+          "repositoryQueries": null
+        },
+        "export": {
+          "milliseconds": 3.690640000000002,
+          "repositoryQueries": null
+        },
+        "restore": {
+          "milliseconds": 5.3080209999999965,
+          "repositoryQueries": null
+        }
+      },
+      "peakRSSMiB": 53.03515625,
+      "externalNetworkAttempts": 0,
+      "communications": 0,
+      "localTasksCreated": 0,
+      "queryCountScope": "repository adapter during projection only; raw connector/export/restore SQLite queries are not counted",
+      "physicalIndexSize": "unmeasured; head and manifest payload sizes are not SQLite physical index size"
+    },
+    {
+      "id": "oversized_untrusted_package",
+      "status": "PASS",
+      "kind": "oversized_rejection_only",
+      "outcome": "package_bound",
+      "ingestionStop": null,
+      "packageStop": "package_bound",
+      "attempts": 0,
+      "acceptedScans": 0,
+      "failedMutationPreserved": null,
+      "recovered": false,
+      "checkpointBeforeRecovery": null,
+      "counts": {
+        "cf_ucp_customers": 1,
+        "cf_solo_opportunities": 2,
+        "cf_solo_tasks": 0,
+        "az_sms_threads": 0,
+        "az_sms_heads": 0,
+        "az_sms_messages": 0,
+        "az_sms_pages": 0,
+        "az_read_revisions": 1,
+        "cf_shared_profile_updates": 0
+      },
+      "originalPayloadBytes": 0,
+      "manifestPayloadBytes": 0,
+      "headPayloadBytes": 2,
+      "indexPhysicalBytes": null,
+      "databaseFileBytes": 892928,
+      "packageBytes": null,
+      "projection": {
+        "open": [],
+        "coverageComplete": true,
+        "historyLimited": false,
+        "shadow": "COMPATIBLE",
+        "currentSourceFacts": 0
+      },
+      "threads": [],
+      "phases": {
+        "ingestion": {
+          "milliseconds": 25.67231600000001,
+          "repositoryQueries": null
+        },
+        "projection": {
+          "milliseconds": 10.118262000000001,
+          "repositoryQueries": 26
+        },
+        "inspection": {
+          "milliseconds": 2.428084999999996,
+          "repositoryQueries": null
+        }
+      },
+      "peakRSSMiB": 96,
+      "externalNetworkAttempts": 0,
+      "communications": 0,
+      "localTasksCreated": 0,
+      "queryCountScope": "repository adapter during projection only; raw connector/export/restore SQLite queries are not counted",
+      "physicalIndexSize": "unmeasured; head and manifest payload sizes are not SQLite physical index size"
+    }
+  ]
+}

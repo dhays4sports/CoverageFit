@@ -1,0 +1,10 @@
+{
+  "name": "coveragefit-synthetic-walkthrough-preview",
+  "private": true,
+  "scripts": {
+    "dev": "node ../../scripts/producer-walkthrough.mjs --managed-preview"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}
