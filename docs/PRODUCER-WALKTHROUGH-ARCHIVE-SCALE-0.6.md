@@ -2,7 +2,7 @@
 
 Mandate: `CF-PRODUCER-WALKTHROUGH-ARCHIVE-SCALE-0.6`
 Engineering disposition: **PASS — local synthetic acceptance**.
-Human usability: **PENDING OWNER WALKTHROUGH**. Authenticated browser walkthrough: **UNVERIFIED**.
+Human usability update (0.7): **FIRST ATTEMPT UNSUCCESSFUL; RETEST PENDING**. Authenticated browser walkthrough: **UNVERIFIED**. See [actual feedback](walkthrough/human-feedback.json) and [0.7 report](CLEAR-PRODUCER-DECISIONS-0.7.md); original engineering results below remain historical.
 
 ## Verified prerequisite
 
@@ -28,7 +28,7 @@ Twelve goals and expected outcomes were declared in `walkthrough/scenarios.json`
 
 Cases cover a clean record; home/auto scope; policy-date conflict; stale SMS review; external/local task relationship; unresolved ownership; factual review while historical and authoritative STOP remain active; partial history; unavailable originals; capacity warning/stop; and a restored profile with original approvals and task reconciliation receipts.
 
-`walkthrough/human-feedback.json` contains **zero observations** and no acceptance. No owner walkthrough occurred. Automated tests exercise feedback transport in disposable test sessions only; those submissions are not delivered human evidence. Actual owner observations must be reviewed separately before any usability acceptance or claimed time benefit.
+At original 0.6 delivery, human observations were pending. The subsequent first owner attempt was **unsuccessful**: Dylan reached “Inspect source originals” and reported confusion, including an unclear reason for review before inspection. `walkthrough/human-feedback.json` now records those actual observations; the second attempt is pending. Automated feedback transport tests are not human evidence or usability acceptance.
 
 Browser entry-page QA confirmed the local page renders. Authentication was not completed in the automated browser. HTTP and DOM-to-HTTP tests establish engineering interaction and persistence; they do not substitute for authenticated browser execution or human participation. The supported managed preview was used for entry-page QA and stopped after checks. The reproducible local command is the delivered interactive alternative; no hosted preview or account was provisioned.
 

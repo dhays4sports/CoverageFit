@@ -1,9 +1,19 @@
 {
- "mandate":"CF-PRODUCER-WALKTHROUGH-ARCHIVE-SCALE-0.6",
- "status":"PENDING_OWNER_WALKTHROUGH",
- "participant":null,
- "observations":[],
- "acceptance":null,
- "basis":"No owner walkthrough or human usability session has occurred. Automated HTTP, DOM and workload results are reported separately.",
- "instructions":"Use the interactive local session, submit optional notes and download them before stopping. Review actual submitted observations explicitly before updating this acceptance record. Do not copy automated feedback-transport test data into human observations."
+  "mandate":"CF-CLEAR-PRODUCER-DECISIONS-0.7",
+  "status":"FIRST_USABILITY_ATTEMPT_UNSUCCESSFUL_RETEST_PENDING",
+  "participant":"Dylan Haysbert",
+  "basis":"Owner statements in this conversation; separate from automated engineering results.",
+  "firstAttempt":{
+    "reference":"Draft PR #49, synthetic policy-date scenario",
+    "outcome":"unsuccessful",
+    "observations":[
+      {"type":"reported_progress","statement":"Dylan opened the local synthetic preview and reached Inspect source originals."},
+      {"type":"direct_quote","statement":"im in and i made it all the way to inspect source originals. honestly, maybe its just me, but i do not understand what is going on here. it is all very confusing."},
+      {"type":"direct_quote","statement":"that was unclear too","context":"Response to whether the reason for reviewing the record was clear before opening Inspect source originals."}
+    ],
+    "notEstablished":["Review of all scenarios","A completed or saved decision","A specific technical failure","Usability approval","Time savings"]
+  },
+  "secondAttempt":{"status":"pending","observations":[],"acceptance":null},
+  "acceptance":false,
+  "instructions":"Record actual second-walkthrough observations separately. A successful save, automated tests or a general positive reply alone does not establish usability acceptance."
 }

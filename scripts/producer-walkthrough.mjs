@@ -5,7 +5,7 @@ const fail=(status,code,message=code)=>{throw Object.assign(Error(message),{stat
 const same=(a,b)=>typeof a==='string'&&Buffer.byteLength(a)===Buffer.byteLength(b)&&timingSafeEqual(Buffer.from(a),Buffer.from(b));
 const files=new Map([
  ['/','../docs/walkthrough/index.html'],['/walkthrough.mjs','../docs/walkthrough/app.mjs'],['/walkthrough.css','../docs/walkthrough/style.css'],
- ...['shared-workspace-panel','evidence-review-panel','agencyzoom-evidence','agencyzoom-resource-evidence','agencyzoom-sms-evidence'].map(n=>['/assets/js/'+n+'.mjs','../assets/js/'+n+'.mjs']),
+ ...['policy-date-decision','shared-workspace-panel','evidence-review-panel','agencyzoom-evidence','agencyzoom-resource-evidence','agencyzoom-sms-evidence'].map(n=>['/assets/js/'+n+'.mjs','../assets/js/'+n+'.mjs']),
  ['/shared/agencyzoom-resource-evidence.mjs','../shared/agencyzoom-resource-evidence.mjs'],['/assets/css/shared-workspace.css','../assets/css/shared-workspace.css']
 ]);
 export async function startWalkthrough({port=0}={}){
