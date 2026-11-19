@@ -1,48 +1,75 @@
-# CoverageFit synthetic producer walkthrough
+# CoverageFit policy-date walkthrough
 
-This is a working local interaction with the existing Work projections, Prospect 360 component and shared-profile review services. Explicit supported decisions persist in disposable isolated SQLite fixtures. There is no live AgencyZoom access, sending, consent grant or active SIGNAL execution.
+This local walkthrough uses existing Work, Prospect 360 and shared-profile review services. It opens the focused synthetic policy-date case directly. It has no live AgencyZoom access, sending, consent grants or active SIGNAL execution. No dependency installation or administrator access is needed to run it.
 
-## Start
+## Update Dylan’s existing Windows checkout
 
-Use Node 24 from the repository checkout on this draft branch:
+**Before restarting:** download any submitted walkthrough notes you want to keep. Copy any unsaved notes you want to retain. Stopping the server deletes that disposable session’s synthetic records and saved decisions. Your first feedback from this conversation is already recorded in `human-feedback.json`.
+
+In the PowerShell window running the old preview, press **Ctrl+C**. Then paste this block. It preserves local changes by stopping if Git finds any; it never resets, cleans, stashes, merges or overwrites them. Do not continue past an error.
+
+```powershell
+& {
+    $walkthroughPath = 'C:\Projects\CoverageFit-Walkthrough'
+    $portableNode = "$env:USERPROFILE\Downloads\node-v24.22.3-win-x64\node-v24.22.3-win-x64\node.exe"
+    if (-not (Test-Path -LiteralPath $portableNode)) { throw 'Portable Node was not found at the previously working path.' }
+    if (-not (Test-Path -LiteralPath $walkthroughPath)) { throw 'The walkthrough checkout was not found.' }
+    $changes = @(git -C $walkthroughPath status --porcelain)
+    if ($LASTEXITCODE -ne 0) { throw 'Could not inspect the checkout. Stop here.' }
+    if ($changes.Count -gt 0) {
+        $changes | Out-Host
+        throw 'Local changes exist. Stop here and preserve them before updating.'
+    }
+    git -C $walkthroughPath fetch origin feature/clear-producer-decisions-0-7
+    if ($LASTEXITCODE -ne 0) { throw 'Fetch failed. Stop here.' }
+    git -C $walkthroughPath switch --detach origin/feature/clear-producer-decisions-0-7
+    if ($LASTEXITCODE -ne 0) { throw 'Could not select the new walkthrough. Stop here.' }
+    & $portableNode "$walkthroughPath\scripts\producer-walkthrough.mjs"
+    if ($LASTEXITCODE -ne 0) { throw 'The walkthrough stopped with an error.' }
+}
+```
+
+Open the **new `localURL`** printed by this command. Enter the temporary **`accessKey`** on that local page. Keep the key out of chat. The old server’s URL/key do not establish that you are running the update. The page title is “Review a policy date”; the policy question opens after sign-in.
+
+This changes only the separate walkthrough checkout. It does not update `C:\Projects\CoverageFit`, install Node or modify the system PATH. The detached checkout remains suitable for this disposable demonstration.
+
+## Second attempt
+
+**Task:** Review the synthetic home-policy record and decide whether its expiration date can be confirmed or should remain unresolved.
+
+Try it without opening the engineering report or expected outcomes first. Afterwards, describe in your own words what needed attention, what supported your decision, what saving would change, and what remained uncertain or on hold. You can report confusion without completing a save. No correct date is supplied as part of this task.
+
+Optional notes and other scenarios are under disclosures. Saving feedback does not mark usability accepted. Automated QA does not submit the owner feedback form. Do not enter real customer information.
+
+## Other machines
+
+From this branch, with Node 24 available:
 
 ```
 node scripts/producer-walkthrough.mjs
 ```
 
-Open the exact `localURL` printed by the command, then enter its temporary `accessKey` on the local entry page. The key is specific to this disposable server session; it is unrelated to provider credentials. The server binds only to `127.0.0.1`. No dependency installation is needed to run the walkthrough. Do not expose or forward it as an unauthenticated public service.
+Open its printed local URL and enter its temporary local session key. The server binds only to `127.0.0.1`; do not expose or forward it publicly. The key is unrelated to provider accounts. No provider credentials are provisioned.
 
-For a managed preview daemon, `docs/walkthrough/package.json` provides the local dev entry. No hosted Site or production resource is registered by these files. The application has a separate temporary key gate even when a preview relay exists.
+The managed local dev entry remains in `docs/walkthrough/package.json`; it registers no hosted Site or production resource.
 
-## Try it
+## Persistence, reset and recovery
 
-Choose a scenario. Its task describes the goal, not the expected answer. Open the Work record, then the existing Review tab. Inspect source originals before choosing a supported factual or task decision. Compare the home and auto opportunities where relevant.
+Each scenario/reset has independent synthetic workspace/database markers and canonical IDs. A browser reload in the same server process retains saved decisions. A lost save response retains the exact pending request in browser storage; use its retry control to confirm the receipt before preparing another decision. Never reset/restart while relying on an unresolved receipt.
 
-Source inspection is read-only. “Review proposed addition” and “Approve & save” are separate steps. Only source-bound fact review and exact external/local task reconciliation can save in this harness. Generic updates, task creation, callbacks, drafts, attachments, providers and sends are unavailable. Changing a date does not authorize contact.
+“I can’t confirm yet” leaves the issue unresolved. Its optional note is a browser draft, not a persisted deferral or local task. A different-date proposal requires a source reference and supporting excerpt; it is unconfirmed and leaves the review issue open. Both originals and earlier decisions remain in the existing evidence system during the session. Detailed engineering semantics are in the 0.7 report; they are not prerequisites to attempting the task.
 
-The expected outcomes are in `scenarios.json`; leave that file closed during your first attempt. Some cases intentionally require retaining a hold and explaining missing proof.
+Reset creates a new copy, retaining prior fixture files only until the server stops. Old drafts/requests cannot cross the new canonical identities. Restart removes the old disposable databases and local-key file. Browser drafts may remain but cannot authorize or target the new session. Download feedback first. No active archive is compacted or deleted by this work.
 
-After a scenario, optionally record what was clear or confusing in the walkthrough notes form. Those are self-reported observations, not an automatic usability pass. Download the feedback JSON before stopping the server. Do not enter real customer information.
+## Verification status
 
-## Session and reset behavior
+First human attempt: **unsuccessful**. Second attempt: **pending**. Exact observations are in `human-feedback.json`. Automated HTTP and DOM-to-HTTP results are engineering evidence; authenticated visual-browser QA and human usability are separate and are not claimed as passed.
 
-Each scenario and reset gets an independently marked synthetic workspace/database and distinct canonical IDs. Shared-profile drafts therefore cannot accidentally move between fixtures. Browser reload retains the current process's saved decisions; switch back to a scenario to inspect its current data.
-
-“Start a fresh synthetic copy” retains the prior fixture file until the server stops and opens a new copy. Earlier copies are not available through the new copy's API. Old drafts and pending request payloads cannot be applied to the new identifiers. Confirm pending decision receipts before resetting; reset is not a receipt-recovery feature.
-
-Stopping the command tears down this deliberately disposable session, including synthetic databases and the private local-key file. Browser draft storage may remain but cannot authorize a new server or apply to its new fixture IDs. Download feedback first. Reset does not delete archived evidence in an active fixture; it creates a separate test copy. The missing-original scenario deliberately damages only its own synthetic fixture as a fault injection, not a retention feature.
-
-## Status and verification
-
-Human acceptance is **pending** until Dylan actually participates and observations are reviewed. `human-feedback.json` is intentionally empty. Automated tests never submit notes to the delivered session.
-
-Automated HTTP and DOM tests exercise real persistence, replay, scope, reset and STOP preservation. The entry page was observed in the managed browser. Authenticated interactive browser QA remains unverified; it is not substituted with a claim that the owner participated.
-
-Run the tests with the existing Prospect Desk test dependencies installed:
+Run the focused checks with existing Prospect Desk test dependencies available:
 
 ```
-node --test tests/producer-walkthrough.test.mjs
-node scripts/archive-scale.mjs
+node --test tests/clear-producer-decisions.test.mjs
+node --test tests/*.test.mjs
 ```
 
-The scale runner uses separate short-lived Node processes, reads the declared workloads and ceilings in `workloads.json`, and writes `scale-results.json`. Measurements are local engineering evidence only. No bounds are raised, originals compacted or storage selector changed.
+Archive implementation and scale design remain unchanged in this phase.

@@ -6,6 +6,7 @@ on:
       - 'server/shared*.mjs'
       - 'shared/prospect-workspace.mjs'
       - 'assets/js/shared-workspace-panel.mjs'
+      - 'assets/js/policy-date-decision.mjs'
       - 'assets/js/producer-workspace.mjs'
       - 'assets/css/shared-workspace.css'
       - 'functions/api/shared-workspace*.js'

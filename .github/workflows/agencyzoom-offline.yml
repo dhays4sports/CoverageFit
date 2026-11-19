@@ -25,12 +25,14 @@ on:
       - 'scripts/agencyzoom-*.mjs'
       - 'assets/js/agencyzoom-*.mjs'
       - 'assets/js/shared-workspace-panel.mjs'
+      - 'assets/js/policy-date-decision.mjs'
       - 'assets/js/evidence-review-panel.mjs'
       - 'assets/js/producer-workspace.mjs'
       - 'tests/agencyzoom-*.test.mjs'
       - 'tests/evidence-reconciliation.test.mjs'
       - 'tests/evidence-lifecycle.test.mjs'
       - 'tests/producer-walkthrough.test.mjs'
+      - 'tests/clear-producer-decisions.test.mjs'
       - 'tests/helpers/evidence-lifecycle-*.mjs'
       - 'tests/helpers/evidence-review-fixture.mjs'
       - 'tests/helpers/agencyzoom-fixture.mjs'
@@ -64,6 +66,7 @@ jobs:
           path: |
             docs/agencyzoom/
             docs/walkthrough/
+            docs/CLEAR-PRODUCER-DECISIONS-0.7.md
             docs/ARCHIVE-SCALE-DESIGN-0.6.md
             docs/PRODUCER-WALKTHROUGH-ARCHIVE-SCALE-0.6.md
           retention-days: 14
